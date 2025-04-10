@@ -3,8 +3,6 @@
 <head>
   <title>The Oak Cafe - Premium AR Dining</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
@@ -203,6 +201,7 @@
       color: rgba(255,255,255,0.7);
     }
     
+    /* Login Modal */
     .modal {
       display: none;
       position: fixed;
@@ -255,6 +254,7 @@
       gap: 15px;
     }
     
+    /* Staff Dashboard */
     .staff-dashboard {
       display: none;
       padding: 30px;
@@ -334,6 +334,7 @@
       cursor: pointer;
     }
     
+    /* User Type Selection */
     .user-type {
       display: flex;
       justify-content: center;
@@ -356,6 +357,7 @@
       color: var(--dark-green);
     }
     
+    /* Cart System */
     .add-to-cart {
       background: linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%);
       color: white;
@@ -456,35 +458,11 @@
       border: none;
       cursor: pointer;
       transition: var(--transition);
-      position: relative;
     }
     
-    .checkout-btn:disabled {
-      opacity: 0.8;
-      cursor: not-allowed;
-    }
-    
-    .checkout-loading .checkout-text {
-      visibility: hidden;
-    }
-    
-    .checkout-loading::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 20px;
-      height: 20px;
-      margin: -10px 0 0 -10px;
-      border: 3px solid rgba(0,0,0,0.1);
-      border-top: 3px solid var(--dark-green);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .checkout-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
     }
     
     .cart-toggle {
@@ -525,6 +503,7 @@
       font-weight: bold;
     }
     
+    /* Order Status Notification */
     .order-status-notification {
       position: fixed;
       bottom: 20px;
@@ -577,6 +556,7 @@
       margin-left: 10px;
     }
 
+    /* Client Order Status */
     .client-orders {
       display: none;
       margin-top: 30px;
@@ -649,6 +629,7 @@
       color: var(--dark-green);
     }
 
+    /* Delete button for staff */
     .delete-order {
       background: var(--red) !important;
       color: white !important;
@@ -765,9 +746,7 @@
     </div>
     <div class="cart-items" id="cart-items"></div>
     <div class="cart-total" id="cart-total">Total: 0.00 JD</div>
-    <button class="checkout-btn" id="checkout-btn">
-      <span class="checkout-text">CONFIRM ORDER</span>
-    </button>
+    <button class="checkout-btn" id="checkout-btn">CONFIRM ORDER</button>
   </div>
 
   <!-- Cart Toggle Button -->
@@ -791,22 +770,7 @@
   </div>
 
   <script>
-    // ==================== FIREBASE CONFIG ====================
-    // REPLACE WITH YOUR FIREBASE CONFIG
-    const firebaseConfig = {
-      apiKey: "AIzaSyABC123...",
-      authDomain: "your-project.firebaseapp.com",
-      projectId: "your-project",
-      storageBucket: "your-project.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abc123def456"
-    };
-
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // ==================== APP DATA ====================
+    // Food model data
     const foods = [
       {
         title: "Margherita Pizza",
@@ -846,16 +810,8 @@
       }
     ];
 
-    // ==================== GLOBAL VARIABLES ====================
+    // Current model index
     let currentIndex = 0;
-    let cart = [];
-    let orders = [];
-    let isStaff = false;
-    let clientId = localStorage.getItem('clientId') || 
-                  'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    let firestoreListener = null;
-
-    // DOM Elements
     const modelViewer = document.getElementById("model-viewer");
     const foodTitle = document.getElementById("food-title");
     const foodDesc = document.getElementById("food-desc");
@@ -881,118 +837,67 @@
     const viewOrdersBtn = document.getElementById("view-orders-btn");
     const clientOrders = document.getElementById("client-orders");
     const clientOrdersList = document.getElementById("client-orders-list");
-    const checkoutText = document.querySelector('.checkout-text');
 
     // Password - CHANGE THIS TO YOUR SECURE PASSWORD
     const STAFF_PASSWORD = "OakCafe2025";
     const STAFF_TOKEN = "staff-auth-token";
+    const CLIENT_ORDERS_KEY = "client-orders";
 
-    // ==================== OPTIMIZED CHECKOUT FUNCTION ====================
-    async function checkout() {
-      if (cart.length === 0) return;
-      
-      // Set loading state
-      checkoutBtn.disabled = true;
-      checkoutBtn.classList.add('checkout-loading');
-      checkoutText.textContent = "PROCESSING...";
-      
-      // Create order object
-      const order = {
-        id: 'ORD-' + Date.now().toString().substr(-6),
-        items: [...cart],
-        total: cart.reduce((sum, item) => sum + item.price, 0),
-        status: 'pending',
-        clientId: clientId,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      };
+    // Orders data
+    let cart = [];
+    let orders = JSON.parse(localStorage.getItem('oakCafeOrders')) || [];
+    let clientOrdersData = JSON.parse(localStorage.getItem(CLIENT_ORDERS_KEY)) || [];
+    let isStaff = localStorage.getItem(STAFF_TOKEN) === 'true';
+    let refreshInterval;
 
-      try {
-        // Add timeout to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Order timeout')), 8000); // 8 second timeout
-        });
-        
-        // Try to add order with timeout protection
-        const orderPromise = db.collection("orders").add(order);
-        await Promise.race([orderPromise, timeoutPromise]);
-        
-        // Success - clear cart and update UI
-        cart = [];
-        updateCart();
-        cartPanel.classList.remove('active');
-        showOrderStatus(`Order #${order.id} confirmed!`, "ORDER CONFIRMED");
-        
-      } catch (error) {
-        console.error("Checkout error:", error);
-        showOrderStatus(
-          error.message === 'Order timeout' 
-            ? "Order taking longer than expected. Please check your connection." 
-            : "Failed to place order. Please try again.",
-          "ORDER ERROR"
-        );
-      } finally {
-        // Reset button state
-        checkoutBtn.disabled = false;
-        checkoutBtn.classList.remove('checkout-loading');
-        checkoutText.textContent = "CONFIRM ORDER";
-      }
-    }
+    // Initialize
+    updateModel();
+    checkAuthState();
+    startAutoRefresh();
+    renderClientOrders();
 
-    // ==================== FIREBASE FUNCTIONS ====================
-    function setupRealTimeListener() {
-      // Remove existing listener if any
-      if (firestoreListener) {
-        firestoreListener();
-      }
-      
-      firestoreListener = db.collection("orders")
-        .orderBy("timestamp", "desc")
-        .onSnapshot(
-          (snapshot) => {
-            const updatedOrders = [];
-            snapshot.forEach((doc) => {
-              updatedOrders.push({ id: doc.id, ...doc.data() });
-            });
-            
-            orders = updatedOrders;
-            
-            if (isStaff) {
-              renderOrders();
-            }
-            
-            // Only show client's own orders
-            renderClientOrders(orders.filter(o => o.clientId === clientId));
-          }, 
-          (error) => {
-            console.error("Firestore listener error:", error);
-            showOrderStatus("Connection issue. Trying to reconnect...", "NETWORK ERROR");
-            // Reconnect after delay
-            setTimeout(setupRealTimeListener, 2000);
-          }
-        );
-    }
-
-    async function updateOrderStatus(orderId, status) {
-      try {
-        await db.collection("orders").doc(orderId).update({ status });
-      } catch (error) {
-        console.error("Error updating order:", error);
-        showOrderStatus("Failed to update order status", "SYSTEM ERROR");
-      }
-    }
-
-    async function deleteOrder(orderId) {
-      if (confirm("Are you sure you want to delete this order?")) {
-        try {
-          await db.collection("orders").doc(orderId).delete();
-        } catch (error) {
-          console.error("Error deleting order:", error);
-          showOrderStatus("Failed to delete order", "SYSTEM ERROR");
+    // Auto-refresh for staff dashboard
+    function startAutoRefresh() {
+      if (refreshInterval) clearInterval(refreshInterval);
+      refreshInterval = setInterval(() => {
+        if (isStaff && staffDashboard.style.display === 'block') {
+          renderOrders();
         }
+        renderClientOrders();
+      }, 3000); // Refresh every 3 seconds
+    }
+
+    // Check auth state on load
+    function checkAuthState() {
+      if (isStaff) {
+        guestBtn.classList.remove("active");
+        staffBtn.classList.add("active");
+        guestView.style.display = "none";
+        staffDashboard.style.display = "block";
+        renderOrders();
       }
     }
 
-    // ==================== CORE FUNCTIONS ====================
+    // Password check
+    function checkPassword() {
+      const passwordInput = document.getElementById("password");
+      if (passwordInput.value === STAFF_PASSWORD) {
+        isStaff = true;
+        localStorage.setItem(STAFF_TOKEN, 'true');
+        checkAuthState();
+        closeModal();
+      } else {
+        alert("Incorrect password. Please try again.");
+        passwordInput.value = "";
+      }
+    }
+
+    function closeModal() {
+      loginModal.style.display = "none";
+      document.getElementById("password").value = "";
+    }
+
+    // Update displayed model
     function updateModel() {
       const food = foods[currentIndex];
       modelViewer.src = food.model;
@@ -1000,10 +905,13 @@
       foodDesc.textContent = food.description;
       counter.textContent = `${currentIndex + 1}/${foods.length}`;
       addToCartBtn.textContent = `ADD TO ORDER - ${food.price.toFixed(2)} JD`;
+
+      // Disable buttons at ends
       prevBtn.disabled = currentIndex === 0;
       nextBtn.disabled = currentIndex === foods.length - 1;
     }
 
+    // Cart System
     function addToCart() {
       const currentFood = foods[currentIndex];
       cart.push({
@@ -1039,6 +947,7 @@
       cartTotalEl.textContent = `Total: ${total.toFixed(2)} JD`;
       cartCount.textContent = cart.length;
       
+      // Add event listeners to remove buttons
       document.querySelectorAll('.remove-item').forEach(btn => {
         btn.addEventListener('click', (e) => {
           removeFromCart(e.target.dataset.id);
@@ -1046,6 +955,38 @@
       });
     }
 
+    function checkout() {
+      if (cart.length === 0) return;
+      
+      const order = {
+        id: 'ORD-' + Date.now().toString().substr(-6),
+        items: [...cart],
+        total: cart.reduce((sum, item) => sum + item.price, 0),
+        time: new Date().toLocaleTimeString(),
+        status: 'pending',
+        clientId: 'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase()
+      };
+      
+      orders.push(order);
+      clientOrdersData.push(order);
+      localStorage.setItem('oakCafeOrders', JSON.stringify(orders));
+      localStorage.setItem(CLIENT_ORDERS_KEY, JSON.stringify(clientOrdersData));
+      
+      showOrderStatus(`Order #${order.id} confirmed!`, "ORDER CONFIRMED");
+      cart = [];
+      updateCart();
+      cartPanel.classList.remove('active');
+      renderClientOrders();
+      
+      if (staffDashboard.style.display === 'block') {
+        renderOrders();
+      }
+      
+      // Simulate kitchen updates
+      simulateKitchenUpdates(order.id);
+    }
+
+    // Render orders for staff
     function renderOrders() {
       ordersList.innerHTML = '';
       
@@ -1054,15 +995,10 @@
         return;
       }
       
-      // Sort by newest first and then by status
+      // Sort orders by status (pending first)
       const sortedOrders = [...orders].sort((a, b) => {
-        // First sort by status (pending first)
         const statusOrder = {pending: 0, preparing: 1, ready: 2, completed: 3};
-        if (statusOrder[a.status] !== statusOrder[b.status]) {
-          return statusOrder[a.status] - statusOrder[b.status];
-        }
-        // Then by timestamp (newest first)
-        return b.timestamp?.seconds - a.timestamp?.seconds;
+        return statusOrder[a.status] - statusOrder[b.status];
       });
       
       sortedOrders.forEach(order => {
@@ -1095,7 +1031,48 @@
       });
     }
 
-    function renderClientOrders(clientOrdersData) {
+    // Delete order function
+    function deleteOrder(orderId) {
+      if (confirm("Are you sure you want to delete this order?")) {
+        orders = orders.filter(order => order.id !== orderId);
+        clientOrdersData = clientOrdersData.filter(order => order.id !== orderId);
+        localStorage.setItem('oakCafeOrders', JSON.stringify(orders));
+        localStorage.setItem(CLIENT_ORDERS_KEY, JSON.stringify(clientOrdersData));
+        renderOrders();
+      }
+    }
+
+    // Update order status with client notification
+    function updateOrderStatus(orderId, status) {
+      orders = orders.map(order => {
+        if (order.id === orderId) {
+          // Notify client when status changes
+          if (status === 'preparing') {
+            showOrderStatus(`Your order #${orderId} is being prepared`, "KITCHEN UPDATE");
+          }
+          if (status === 'ready') {
+            showOrderStatus(`Your order #${orderId} is ready!`, "ORDER READY");
+          }
+          return { ...order, status };
+        }
+        return order;
+      });
+      
+      // Also update client orders data
+      clientOrdersData = clientOrdersData.map(order => {
+        if (order.id === orderId) {
+          return { ...order, status };
+        }
+        return order;
+      });
+      
+      localStorage.setItem('oakCafeOrders', JSON.stringify(orders));
+      localStorage.setItem(CLIENT_ORDERS_KEY, JSON.stringify(clientOrdersData));
+      renderOrders();
+    }
+
+    // Render client orders
+    function renderClientOrders() {
       clientOrdersList.innerHTML = '';
       
       if (clientOrdersData.length === 0) {
@@ -1104,9 +1081,7 @@
       }
       
       // Sort by newest first
-      const sortedOrders = [...clientOrdersData].sort((a, b) => 
-        b.timestamp?.seconds - a.timestamp?.seconds
-      );
+      const sortedOrders = [...clientOrdersData].reverse();
       
       sortedOrders.forEach(order => {
         const orderEl = document.createElement('div');
@@ -1130,78 +1105,44 @@
       });
     }
 
+    // Order Status Notification
     function showOrderStatus(message, title = "ORDER RECEIVED") {
       const statusTitle = orderStatus.querySelector(".status-title");
       const statusMessage = orderStatus.querySelector(".status-message");
       
       statusTitle.textContent = title;
       statusMessage.textContent = message;
+      
       orderStatus.classList.add("active");
       
       // Auto-hide after 5 seconds
       setTimeout(() => {
-        if (orderStatus.classList.contains("active")) {
-          orderStatus.classList.remove("active");
-        }
+        orderStatus.classList.remove("active");
       }, 5000);
     }
 
-    function checkPassword() {
-      const passwordInput = document.getElementById("password");
-      if (passwordInput.value === STAFF_PASSWORD) {
-        isStaff = true;
-        localStorage.setItem(STAFF_TOKEN, 'true');
-        checkAuthState();
-        closeModal();
-      } else {
-        alert("Incorrect password. Please try again.");
-        passwordInput.value = "";
-      }
+    // Simulate kitchen updates
+    function simulateKitchenUpdates(orderId) {
+      setTimeout(() => {
+        updateOrderStatus(orderId, 'preparing');
+      }, 8000);
+      
+      setTimeout(() => {
+        updateOrderStatus(orderId, 'ready');
+      }, 20000);
     }
 
-    function checkAuthState() {
-      if (isStaff) {
-        guestBtn.classList.remove("active");
-        staffBtn.classList.add("active");
-        guestView.style.display = "none";
-        staffDashboard.style.display = "block";
-        renderOrders();
-      } else {
-        guestBtn.classList.add("active");
-        staffBtn.classList.remove("active");
-        guestView.style.display = "block";
-        staffDashboard.style.display = "none";
-      }
-    }
-
-    function closeModal() {
-      loginModal.style.display = "none";
-      document.getElementById("password").value = "";
-    }
-
-    // ==================== EVENT LISTENERS ====================
-    document.addEventListener('DOMContentLoaded', () => {
-      try {
-        // Initialize client ID
-        if (!localStorage.getItem('clientId')) {
-          clientId = 'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-          localStorage.setItem('clientId', clientId);
-        }
-        
-        // Check if staff
-        isStaff = localStorage.getItem(STAFF_TOKEN) === 'true';
-        checkAuthState();
-        
-        // Setup real-time listener
-        setupRealTimeListener();
-        updateModel();
-        updateCart();
-      } catch (error) {
-        console.error("Initialization error:", error);
-        showOrderStatus("System loading... Please wait", "LOADING");
-        // Try to recover
-        setTimeout(() => window.location.reload(), 3000);
-      }
+    // Event Listeners
+    addToCartBtn.addEventListener('click', addToCart);
+    checkoutBtn.addEventListener('click', checkout);
+    closeStatusBtn.addEventListener('click', () => orderStatus.classList.remove('active'));
+    
+    cartToggle.addEventListener('click', () => {
+      cartPanel.classList.toggle('active');
+    });
+    
+    closeCartBtn.addEventListener('click', () => {
+      cartPanel.classList.remove('active');
     });
 
     // Navigation buttons
@@ -1219,15 +1160,6 @@
       }
     });
 
-    // Cart interactions
-    addToCartBtn.addEventListener('click', addToCart);
-    checkoutBtn.addEventListener('click', checkout);
-    cartToggle.addEventListener('click', () => cartPanel.classList.toggle('active'));
-    closeCartBtn.addEventListener('click', () => cartPanel.classList.remove('active'));
-
-    // Order status
-    closeStatusBtn.addEventListener('click', () => orderStatus.classList.remove('active'));
-
     // View orders toggle
     viewOrdersBtn.addEventListener('click', () => {
       clientOrders.classList.toggle('active');
@@ -1235,20 +1167,29 @@
         'HIDE MY ORDERS' : 'VIEW MY ORDERS';
     });
 
-    // User type switching
     guestBtn.addEventListener('click', () => {
+      guestBtn.classList.add('active');
+      staffBtn.classList.remove('active');
+      guestView.style.display = 'block';
+      staffDashboard.style.display = 'none';
       isStaff = false;
       localStorage.removeItem(STAFF_TOKEN);
-      checkAuthState();
     });
 
     staffBtn.addEventListener('click', () => {
       if (isStaff) {
-        checkAuthState();
+        guestBtn.classList.remove('active');
+        staffBtn.classList.add('active');
+        guestView.style.display = 'none';
+        staffDashboard.style.display = 'block';
+        renderOrders();
       } else {
         loginModal.style.display = 'flex';
       }
     });
+
+    // Initialize cart
+    updateCart();
   </script>
 </body>
 </html>
