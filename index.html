@@ -896,56 +896,98 @@
     const STAFF_PASSWORD = "OakCafe2025";
     const STAFF_TOKEN = "staff-auth-token";
 
-    // ==================== OPTIMIZED CHECKOUT FUNCTION ====================
-    async function checkout() {
-      if (cart.length === 0) return;
-      
-      // Set loading state
-      checkoutBtn.disabled = true;
-      checkoutBtn.classList.add('checkout-loading');
-      
-      try {
-        // Create order object
-        const order = {
-          id: 'ORD-' + Date.now().toString().substr(-6),
-          items: [...cart],
-          total: cart.reduce((sum, item) => sum + item.price, 0),
-          status: 'pending',
-          clientId: clientId,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
+      // ==================== CHECKOUT FUNCTION ====================
+  async function checkout() {
+    if (cart.length === 0) return;
 
-        // Add timeout to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Order timeout')), 8000); // 8 second timeout
-        });
+    checkoutBtn.disabled = true;
+    checkoutBtn.classList.add('checkout-loading');
 
-        // Try to add order with timeout protection
-        const orderPromise = db.collection("orders").add(order);
-        await Promise.race([orderPromise, timeoutPromise]);
-        
-        // Success - clear cart and update UI
-        cart = [];
-        updateCart();
-        cartPanel.classList.remove('active');
-        showOrderStatus(`Order #${order.id} confirmed!`, "ORDER CONFIRMED");
-        
-        // Log analytics event
-        analytics.logEvent('purchase', {
-          transaction_id: order.id,
-          value: order.total,
-          currency: 'JD',
-          items: order.items.length
-        });
-        
-      } catch (error) {
-        console.error("Checkout error:", error);
-        showOrderStatus(
-          error.message === 'Order timeout' 
-            ? "Order taking longer than expected. Please check your connection." 
-            : "Failed to place order. Please try again.",
-          "ORDER ERROR"
-        );
+    try {
+      const orderId = 'ORD-' + Date.now().toString().substr(-6);
+      const order = {
+        id: orderId,
+        items: [...cart],
+        total: cart.reduce((sum, item) => sum + item.price, 0),
+        status: 'pending',
+        clientId: clientId,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      const docRef = await db.collection("orders").add(order);
+      await docRef.update({ documentId: docRef.id });
+
+      cart = [];
+      updateCart();
+      cartPanel.classList.remove('active');
+      showOrderStatus(`Order #${orderId} confirmed!`, "ORDER CONFIRMED");
+
+    } catch (error) {
+      console.error("Checkout error:", error);
+      showOrderStatus("Failed to place order. Please try again.", "ORDER ERROR");
+    } finally {
+      checkoutBtn.disabled = false;
+      checkoutBtn.classList.remove('checkout-loading');
+    }
+  }
+
+  // ==================== UPDATE ORDER STATUS ====================
+  async function updateOrderStatus(orderId, status) {
+    try {
+      const querySnapshot = await db.collection("orders")
+        .where("id", "==", orderId)
+        .limit(1)
+        .get();
+
+      if (querySnapshot.empty) throw new Error("Order not found");
+
+      const docRef = querySnapshot.docs[0].ref;
+      await docRef.update({
+        status: status,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      const statusMessages = {
+        preparing: `Your order #${orderId} is being prepared`,
+        ready: `Your order #${orderId} is ready!`,
+        completed: `Your order #${orderId} has been completed`
+      };
+
+      if (statusMessages[status]) {
+        showOrderStatus(statusMessages[status], "ORDER UPDATE");
+      }
+    } catch (error) {
+      console.error("Update error:", error);
+      showOrderStatus(
+        error.message.includes("not found") ? "Order not found" : "Update failed. Try again.",
+        "UPDATE ERROR"
+      );
+    }
+  }
+
+  // ==================== DELETE ORDER ====================
+  async function deleteOrder(orderId) {
+    if (!confirm("Permanently delete this order?")) return;
+
+    try {
+      const querySnapshot = await db.collection("orders")
+        .where("id", "==", orderId)
+        .limit(1)
+        .get();
+
+      if (querySnapshot.empty) throw new Error("Order not found");
+
+      await querySnapshot.docs[0].ref.delete();
+      showOrderStatus(`Order #${orderId} deleted`, "ORDER DELETED");
+
+    } catch (error) {
+      console.error("Delete error:", error);
+      showOrderStatus(
+        error.message.includes("not found") ? "Order not found" : "Delete failed. Try again.",
+        "DELETE ERROR"
+      );
+    }
+  }
       } finally {
         // Reset button state
         checkoutBtn.disabled = false;
