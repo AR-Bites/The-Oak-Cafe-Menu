@@ -1084,11 +1084,11 @@
             Total: ${order.total.toFixed(2)} JD
           </div>
           <div class="order-actions">
-            <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'preparing')" style="background: #2196F3; color: white;">Preparing</button>
-            <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'ready')" style="background: #4CAF50; color: white;">Ready</button>
-            <button class="action-btn" onclick="updateOrderStatus('${order.id}', 'completed')" style="background: #9E9E9E; color: white;">Complete</button>
+            <button class="action-btn" onclick="updateOrderStatus('${order.id.replace(/'/g, "\\'")}', 'preparing')" style="background: #2196F3; color: white;">Preparing</button>
+            <button class="action-btn" onclick="updateOrderStatus('${order.id.replace(/'/g, "\\'")}', 'ready')" style="background: #4CAF50; color: white;">Ready</button>
+            <button class="action-btn" onclick="updateOrderStatus('${order.id.replace(/'/g, "\\'")}', 'completed')" style="background: #9E9E9E; color: white;">Complete</button>
           </div>
-          <button class="action-btn delete-order" onclick="deleteOrder('${order.id}')">DELETE ORDER</button>
+          <button class="action-btn delete-order" onclick="deleteOrder('${order.id.replace(/'/g, "\\'")}')">DELETE ORDER</button>
         `;
         ordersList.appendChild(orderEl);
       });
@@ -1096,7 +1096,10 @@
 
     async function updateOrderStatus(orderId, status) {
       try {
-        await db.collection("orders").doc(orderId).update({ status });
+        await db.collection("orders").doc(orderId).update({ 
+          status: status,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        });
         
         // Notify client when status changes
         const order = orders.find(o => o.id === orderId);
@@ -1117,6 +1120,7 @@
       if (confirm("Are you sure you want to delete this order?")) {
         try {
           await db.collection("orders").doc(orderId).delete();
+          showOrderStatus(`Order #${orderId} deleted`, "ORDER DELETED");
         } catch (error) {
           console.error("Error deleting order:", error);
           showOrderStatus("Failed to delete order", "ERROR");
