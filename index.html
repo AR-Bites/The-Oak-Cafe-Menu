@@ -1096,7 +1096,11 @@
 
     async function updateOrderStatus(orderId, status) {
       try {
-        await db.collection("orders").doc(orderId).update({ 
+        // Get a reference to the document
+        const orderRef = db.collection("orders").doc(orderId);
+        
+        // Update the document
+        await orderRef.update({ 
           status: status,
           timestamp: firebase.firestore.FieldValue.serverTimestamp() 
         });
@@ -1112,13 +1116,14 @@
         }
       } catch (error) {
         console.error("Error updating order status:", error);
-        showOrderStatus("Failed to update order status", "ERROR");
+        showOrderStatus("Failed to update order status. Please try again.", "ERROR");
       }
     }
 
     async function deleteOrder(orderId) {
       if (confirm("Are you sure you want to delete this order?")) {
         try {
+          // First try to delete using the full document ID
           await db.collection("orders").doc(orderId).delete();
           showOrderStatus(`Order #${orderId} deleted`, "ORDER DELETED");
         } catch (error) {
