@@ -1796,12 +1796,22 @@
           timestamp: firebase.firestore.FieldValue.serverTimestamp() 
         });
 
-        // If order is completed, release the table
+        // If order is completed, schedule its deletion after 5 minutes
         if (status === 'completed') {
           const orderData = querySnapshot.docs[0].data();
           if (orderData.tableNumber) {
             releaseTable(orderData.tableNumber);
           }
+          
+          // Schedule deletion after 5 minutes (300000 milliseconds)
+          setTimeout(async () => {
+            try {
+              await docRef.delete();
+              console.log(`Order #${orderId} automatically deleted after completion`);
+            } catch (error) {
+              console.error("Error deleting completed order:", error);
+            }
+          }, 300000); // 5 minutes = 300000 milliseconds
         }
         
         // Update notification
