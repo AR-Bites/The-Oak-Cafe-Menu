@@ -260,7 +260,7 @@
       font-size: 0.85rem;
     }
     
-    .input-group input {
+    .input-group input, .input-group textarea, .input-group select {
       width: 100%;
       padding: 10px;
       border-radius: 6px;
@@ -784,6 +784,105 @@
       justify-content: center;
     }
 
+    /* Notes section */
+    .notes-section {
+      margin-top: 10px;
+    }
+
+    .notes-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--light-cream);
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+      resize: none;
+      min-height: 60px;
+    }
+
+    /* Extras section */
+    .extras-section {
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .extras-title {
+      color: var(--light-cream);
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
+    .extras-select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .extras-select option {
+      background: var(--dark-green);
+      color: white;
+    }
+
+    /* Discount section */
+    .discount-section {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .discount-input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .apply-discount-btn {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+      color: var(--dark-green);
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    /* Staff total breakdown */
+    .total-breakdown {
+      margin-top: 10px;
+      text-align: right;
+      font-size: 0.8rem;
+    }
+
+    .breakdown-line {
+      margin-bottom: 3px;
+    }
+
+    /* Estimated time */
+    .estimated-time {
+      color: var(--light-cream);
+      font-size: 0.85rem;
+      margin-top: 8px;
+      text-align: center;
+    }
+
     /* Media Queries for Larger Screens */
     @media (min-width: 768px) {
       .overlay {
@@ -840,6 +939,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Table Number Modal -->
+  <div class="table-number-modal" id="table-number-modal">
+    <div class="table-number-content">
+      <h2 class="table-number-title">YOUR TABLE NUMBER</h2>
+      <input type="number" class="table-number-input" id="table-number-input" placeholder="Enter table number" min="1">
+      <div class="modal-buttons">
+        <button onclick="confirmTableNumber()" style="flex: 1;">CONFIRM</button>
+        <button onclick="closeTableModal()" style="background: var(--red); flex: 1;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Login Modal -->
   <div class="modal" id="login-modal">
     <div class="modal-content">
@@ -851,18 +962,6 @@
       <div class="modal-buttons">
         <button onclick="checkPassword()" style="flex: 1;">ENTER</button>
         <button onclick="closeModal()" style="background: var(--red); flex: 1;">CANCEL</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Table Number Modal -->
-  <div class="table-number-modal" id="table-number-modal">
-    <div class="table-number-content">
-      <h2 class="table-number-title">YOUR TABLE NUMBER</h2>
-      <input type="number" class="table-number-input" id="table-number-input" placeholder="Enter table number" min="1">
-      <div class="modal-buttons">
-        <button onclick="confirmOrderWithTable()" style="flex: 1;">CONFIRM</button>
-        <button onclick="closeTableModal()" style="background: var(--red); flex: 1;">CANCEL</button>
       </div>
     </div>
   </div>
@@ -886,6 +985,7 @@
       <div class="food-container">
         <h2 class="food-title" id="food-title">Margherita Pizza</h2>
         <p class="food-desc" id="food-desc">San Marzano tomato sauce, fresh mozzarella, basil</p>
+        <p class="estimated-time" id="estimated-time">Estimated time: 20-25 minutes</p>
         <model-viewer
           id="model-viewer"
           src="models/Margherita Pizza.glb"
@@ -898,6 +998,20 @@
         >
           <button slot="ar-button" class="ar-button">VIEW IN YOUR SPACE</button>
         </model-viewer>
+
+        <!-- Extras Section -->
+        <div class="extras-section" id="extras-section">
+          <div class="extras-title">ADD EXTRAS:</div>
+          <select class="extras-select" id="extras-select" multiple>
+            <!-- Extras will be added dynamically -->
+          </select>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="notes-section">
+          <label class="notes-label" for="item-notes">SPECIAL INSTRUCTIONS:</label>
+          <textarea class="notes-textarea" id="item-notes" placeholder="E.g. No onions, extra spicy, etc."></textarea>
+        </div>
 
         <button class="add-to-cart" id="add-to-cart">ADD TO ORDER - 5.99 JD</button>
 
@@ -921,6 +1035,7 @@
     <!-- Staff Dashboard -->
     <div class="staff-dashboard" id="staff-dashboard">
       <h2 style="color: var(--gold);">ORDERS DASHBOARD</h2>
+      <p class="estimated-time" id="staff-estimated-time">Current estimated time: 20-25 minutes</p>
       <div class="orders-list" id="orders-list">
         <!-- Orders will appear here -->
       </div>
@@ -957,7 +1072,21 @@
       <button id="close-cart">×</button>
     </div>
     <div class="cart-items" id="cart-items"></div>
-    <div class="cart-total" id="cart-total">Total: 0.00 JD</div>
+    <!-- Discount Section -->
+    <div class="discount-section">
+      <input type="text" class="discount-input" id="discount-code" placeholder="Discount code (optional)">
+      <button class="apply-discount-btn" id="apply-discount">APPLY</button>
+    </div>
+    <div class="cart-total" id="cart-total">Subtotal: 0.00 JD</div>
+    <div id="staff-total-breakdown" style="display: none;">
+      <div class="total-breakdown">
+        <div class="breakdown-line">Subtotal: <span id="staff-subtotal">0.00</span> JD</div>
+        <div class="breakdown-line">Service (5%): <span id="service-charge">0.00</span> JD</div>
+        <div class="breakdown-line">Tax (8%): <span id="tax-amount">0.00</span> JD</div>
+        <div class="breakdown-line">Discount: -<span id="discount-amount">0.00</span> JD</div>
+        <div class="breakdown-line" style="font-weight: bold;">Total: <span id="staff-total">0.00</span> JD</div>
+      </div>
+    </div>
     <button class="checkout-btn" id="checkout-btn">
       <span class="checkout-text">CONFIRM ORDER</span>
     </button>
@@ -1006,39 +1135,75 @@
         title: "Margherita Pizza",
         description: "San Marzano tomato sauce, fresh mozzarella, basil",
         model: "models/Margherita Pizza.glb",
-        price: 5.99
+        price: 5.99,
+        extras: [
+          { name: "Extra Cheese", price: 1.00 },
+          { name: "Pepperoni", price: 1.50 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
       },
       {
         title: "Pepperoni Pizza",
         description: "Pepperoni, mozzarella, tomato sauce",
         model: "models/Pepperoni Pizza.glb",
-        price: 6.99
+        price: 6.99,
+        extras: [
+          { name: "Extra Cheese", price: 1.00 },
+          { name: "Jalapeños", price: 0.80 },
+          { name: "Olives", price: 0.80 }
+        ]
       },
       {
         title: "Fettuccine Alfredo",
         description: "Handmade pasta, black truffle, parmesan cream",
         model: "models/Fettuccine Alfredo.glb",
-        price: 7.99
+        price: 7.99,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Shrimp", price: 3.00 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
       },
       {
         title: "Pesto Pasta",
         description: "Basil pesto, pine nuts, aged parmesan",
         model: "models/Pesto Pasta.glb",
-        price: 7.49
+        price: 7.49,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Sun-dried Tomatoes", price: 1.00 },
+          { name: "Parmesan", price: 0.50 }
+        ]
       },
       {
         title: "Rose Pasta",
         description: "Creamy tomato sauce, permesan cheese, basil",
         model: "models/Rose Pasta.glb",
-        price: 7.99
+        price: 7.99,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Bacon", price: 1.50 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
       },
       {
         title: "Sea Food Pasta",
         description: "Mix of sea food with spaghiti",
         model: "models/Sea Food Pasta.glb",
-        price: 8.99
+        price: 8.99,
+        extras: [
+          { name: "Extra Shrimp", price: 2.00 },
+          { name: "Clams", price: 1.50 },
+          { name: "White Wine Sauce", price: 1.00 }
+        ]
       }
     ];
+
+    // Discount codes
+    const DISCOUNT_CODES = {
+      "OAK10": 0.10, // 10% discount
+      "WELCOME5": 0.05 // 5% discount
+    };
 
     // ==================== GLOBAL VARIABLES ====================
     let currentIndex = 0;
@@ -1048,6 +1213,10 @@
     let clientId = localStorage.getItem('clientId') || 
                   'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     let firestoreListener = null;
+    let discountApplied = 0;
+    let estimatedTime = 20; // Base time in minutes
+    let occupiedTables = new Set(); // Track occupied tables
+    let tableNumber = localStorage.getItem('tableNumber') || null; // Current table number from localStorage
 
     // DOM Elements
     const modelViewer = document.getElementById("model-viewer");
@@ -1078,21 +1247,87 @@
     const clientOrdersList = document.getElementById("client-orders-list");
     const tableNumberModal = document.getElementById("table-number-modal");
     const tableNumberInput = document.getElementById("table-number-input");
+    const itemNotes = document.getElementById("item-notes");
+    const extrasSelect = document.getElementById("extras-select");
+    const discountCodeInput = document.getElementById("discount-code");
+    const applyDiscountBtn = document.getElementById("apply-discount");
+    const staffTotalBreakdown = document.getElementById("staff-total-breakdown");
+    const estimatedTimeEl = document.getElementById("estimated-time");
+    const staffEstimatedTimeEl = document.getElementById("staff-estimated-time");
 
     // Password - CHANGE THIS TO YOUR SECURE PASSWORD
     const STAFF_PASSWORD = "OakCafe2025";
     const STAFF_TOKEN = "staff-auth-token";
 
-    // ==================== CHECKOUT WITH TABLE NUMBER ====================
-    async function confirmOrderWithTable() {
-      const tableNumber = tableNumberInput.value.trim();
-      if (!tableNumber || isNaN(tableNumber) || parseInt(tableNumber) <= 0) {
+    // ==================== INITIALIZATION ====================
+    function initialize() {
+      if (!localStorage.getItem('clientId')) {
+        clientId = 'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        localStorage.setItem('clientId', clientId);
+      }
+      
+      isStaff = localStorage.getItem(STAFF_TOKEN) === 'true';
+      checkAuthState();
+      
+      setupRealTimeListener();
+      updateModel();
+      updateCart();
+      updateEstimatedTime();
+      
+      // Show table number modal only if not already set
+      if (!isStaff && !tableNumber) {
+        setTimeout(() => {
+          showTableModal();
+        }, 500);
+      }
+      
+      analytics.logEvent('page_view');
+    }
+
+    // ==================== TABLE MANAGEMENT ====================
+    function confirmTableNumber() {
+      const tableNum = tableNumberInput.value.trim();
+      
+      if (!tableNum || isNaN(tableNum)) {
         alert("Please enter a valid table number");
         return;
       }
       
+      const tableNumberInt = parseInt(tableNum);
+      
+      // Save table number to localStorage
+      tableNumber = tableNumberInt;
+      localStorage.setItem('tableNumber', tableNumber);
+      
       closeTableModal();
-      await checkout(tableNumber);
+      showOrderStatus(`Table ${tableNumber} assigned`, "TABLE SET");
+    }
+
+    async function checkTableAvailability(tableNum) {
+      try {
+        // Check if table is already occupied in memory
+        if (occupiedTables.has(parseInt(tableNum))) {
+          return false;
+        }
+        
+        // Double check with database
+        const querySnapshot = await db.collection("orders")
+          .where("tableNumber", "==", parseInt(tableNum))
+          .where("status", "in", ["pending", "preparing", "ready"])
+          .limit(1)
+          .get();
+        
+        return querySnapshot.empty;
+      } catch (error) {
+        console.error("Table check error:", error);
+        return false;
+      }
+    }
+
+    async function releaseTable(tableNum) {
+      if (tableNum) {
+        occupiedTables.delete(parseInt(tableNum));
+      }
     }
 
     function showTableModal() {
@@ -1104,9 +1339,23 @@
       tableNumberModal.style.display = "none";
     }
 
-    // ==================== OPTIMIZED CHECKOUT FUNCTION ====================
-    async function checkout(tableNumber = null) {
+    // ==================== ORDER PROCESSING ====================
+    async function checkout() {
       if (cart.length === 0) return;
+      
+      // If no table number set, show modal
+      if (!tableNumber) {
+        showTableModal();
+        return;
+      }
+      
+      // Check if table is available
+      const isAvailable = await checkTableAvailability(tableNumber);
+      if (!isAvailable) {
+        showOrderStatus(`Table ${tableNumber} is occupied. Please choose another.`, "TABLE ERROR");
+        showTableModal();
+        return;
+      }
       
       checkoutBtn.disabled = true;
       checkoutBtn.classList.add('checkout-loading');
@@ -1115,13 +1364,24 @@
         const order = {
           id: 'ORD-' + Date.now().toString().substr(-6),
           items: [...cart],
-          total: cart.reduce((sum, item) => sum + item.price, 0),
+          subtotal: cart.reduce((sum, item) => sum + item.price, 0),
+          serviceCharge: 0.05, // 5%
+          taxRate: 0.08, // 8%
+          discount: discountApplied,
           status: 'pending',
           clientId: clientId,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          tableNumber: tableNumber || "Not specified"
+          tableNumber: tableNumber,
+          notes: cart.map(item => item.notes).filter(n => n),
+          estimatedTime: estimatedTime
         };
 
+        // Calculate total with taxes and discount
+        const serviceAmount = order.subtotal * order.serviceCharge;
+        const taxAmount = order.subtotal * order.taxRate;
+        const discountAmount = order.subtotal * order.discount;
+        order.total = order.subtotal + serviceAmount + taxAmount - discountAmount;
+        
         // Add the order and get the document reference
         const docRef = await db.collection("orders").add(order);
         
@@ -1130,7 +1390,16 @@
           documentId: docRef.id  // Store the Firestore-generated ID
         });
 
+        // Reserve the table
+        occupiedTables.add(tableNumber);
+        
+        // Update estimated time for next order
+        estimatedTime = Math.min(estimatedTime + 5, 60); // Increase by 5 mins, max 60
+        updateEstimatedTime();
+        
         cart = [];
+        discountApplied = 0;
+        discountCodeInput.value = "";
         updateCart();
         cartPanel.classList.remove('active');
         showOrderStatus(`Order #${order.id} confirmed!`, "ORDER CONFIRMED");
@@ -1151,7 +1420,28 @@
       }
     }
 
-    // ==================== IMPROVED FIREBASE FUNCTIONS ====================
+    // ==================== DISCOUNT HANDLING ====================
+    function applyDiscount() {
+      const code = discountCodeInput.value.trim().toUpperCase();
+      
+      if (!code) {
+        discountApplied = 0;
+        updateCart();
+        return;
+      }
+      
+      if (DISCOUNT_CODES[code]) {
+        discountApplied = DISCOUNT_CODES[code];
+        updateCart();
+        showOrderStatus(`Discount applied: ${discountApplied * 100}% off`, "DISCOUNT APPLIED");
+      } else {
+        discountApplied = 0;
+        updateCart();
+        showOrderStatus("Invalid discount code", "DISCOUNT ERROR");
+      }
+    }
+
+    // ==================== FIREBASE FUNCTIONS ====================
     function setupRealTimeListener() {
       if (firestoreListener) {
         firestoreListener();
@@ -1161,15 +1451,25 @@
         .orderBy("timestamp", "desc")
         .onSnapshot((snapshot) => {
           const updatedOrders = [];
+          const newOccupiedTables = new Set();
+          
           snapshot.forEach((doc) => {
+            const orderData = doc.data();
             updatedOrders.push({ 
-              id: doc.data().id, // Use our custom ORD-123 ID
+              id: orderData.id, // Use our custom ORD-123 ID
               documentId: doc.id, // Store Firestore document ID
-              ...doc.data() 
+              ...orderData 
             });
+            
+            // Track occupied tables for pending/preparing/ready orders
+            if (orderData.tableNumber && typeof orderData.tableNumber === 'number' && 
+                ['pending', 'preparing', 'ready'].includes(orderData.status)) {
+              newOccupiedTables.add(orderData.tableNumber);
+            }
           });
           
           orders = updatedOrders;
+          occupiedTables = newOccupiedTables;
           
           if (isStaff) {
             renderOrders();
@@ -1193,22 +1493,74 @@
       addToCartBtn.textContent = `ADD TO ORDER - ${food.price.toFixed(2)} JD`;
       prevBtn.disabled = currentIndex === 0;
       nextBtn.disabled = currentIndex === foods.length - 1;
+      
+      // Update extras options
+      extrasSelect.innerHTML = '';
+      if (food.extras && food.extras.length > 0) {
+        // Add default empty option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = "Select extras (optional)";
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        extrasSelect.appendChild(defaultOption);
+        
+        // Add extras options
+        food.extras.forEach(extra => {
+          const option = document.createElement('option');
+          option.value = JSON.stringify(extra);
+          option.textContent = `${extra.name} (+${extra.price.toFixed(2)} JD)`;
+          extrasSelect.appendChild(option);
+        });
+        
+        // Enable multiple selection
+        extrasSelect.multiple = true;
+        extrasSelect.style.display = 'block';
+      } else {
+        extrasSelect.innerHTML = '<option value="" disabled selected>No extras available</option>';
+        extrasSelect.multiple = false;
+      }
     }
 
     function addToCart() {
       const currentFood = foods[currentIndex];
+      const notes = itemNotes.value.trim();
+      const selectedExtras = [];
+      
+      // Get selected extras
+      const selectedOptions = Array.from(extrasSelect.selectedOptions)
+        .filter(option => option.value)
+        .map(option => JSON.parse(option.value));
+      
+      // Calculate total price with extras
+      let totalPrice = currentFood.price;
+      selectedOptions.forEach(extra => {
+        totalPrice += extra.price;
+        selectedExtras.push(extra);
+      });
+      
       cart.push({
         ...currentFood,
-        id: Date.now() + Math.random().toString(36).substr(2, 9)
+        id: Date.now() + Math.random().toString(36).substr(2, 9),
+        price: totalPrice,
+        extras: selectedExtras,
+        notes: notes
       });
+      
       updateCart();
       showOrderStatus(`${currentFood.title} added to order`, "ORDER UPDATED");
       cartPanel.classList.add("active");
+      itemNotes.value = ""; // Clear notes after adding
+      
+      // Reset extras selection
+      if (extrasSelect.options.length > 0) {
+        extrasSelect.options[0].selected = true;
+      }
       
       analytics.logEvent('add_to_cart', {
         items: cart.length,
         item_name: currentFood.title,
-        value: currentFood.price
+        value: totalPrice
       });
     }
 
@@ -1219,21 +1571,61 @@
 
     function updateCart() {
       cartItemsEl.innerHTML = '';
-      let total = 0;
+      let subtotal = 0;
       
       cart.forEach(item => {
         const itemEl = document.createElement('div');
         itemEl.className = 'cart-item';
+        
+        let extrasText = '';
+        if (item.extras && item.extras.length > 0) {
+          extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
+            Extras: ${item.extras.map(e => e.name).join(', ')}
+          </div>`;
+        }
+        
+        let notesText = '';
+        if (item.notes) {
+          notesText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
+            Notes: ${item.notes}
+          </div>`;
+        }
+        
         itemEl.innerHTML = `
-          <span class="item-name">${item.title}</span>
+          <div style="flex: 2; text-align: left;">
+            <div style="font-size: 0.85rem;">${item.title}</div>
+            ${extrasText}
+            ${notesText}
+          </div>
           <span class="item-price">${item.price.toFixed(2)} JD</span>
           <button class="remove-item" data-id="${item.id}">×</button>
         `;
         cartItemsEl.appendChild(itemEl);
-        total += item.price;
+        subtotal += item.price;
       });
       
-      cartTotalEl.textContent = `Total: ${total.toFixed(2)} JD`;
+      // Calculate discount amount
+      const discountAmount = subtotal * discountApplied;
+      
+      // For guest view, just show subtotal
+      cartTotalEl.textContent = `Subtotal: ${subtotal.toFixed(2)} JD`;
+      
+      // For staff view, show full breakdown
+      if (isStaff) {
+        staffTotalBreakdown.style.display = 'block';
+        const serviceAmount = subtotal * 0.05;
+        const taxAmount = subtotal * 0.08;
+        const total = subtotal + serviceAmount + taxAmount - discountAmount;
+        
+        document.getElementById('staff-subtotal').textContent = subtotal.toFixed(2);
+        document.getElementById('service-charge').textContent = serviceAmount.toFixed(2);
+        document.getElementById('tax-amount').textContent = taxAmount.toFixed(2);
+        document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
+        document.getElementById('staff-total').textContent = total.toFixed(2);
+      } else {
+        staffTotalBreakdown.style.display = 'none';
+      }
+      
       cartCount.textContent = cart.length;
       
       document.querySelectorAll('.remove-item').forEach(btn => {
@@ -1241,6 +1633,13 @@
           removeFromCart(e.target.dataset.id);
         });
       });
+    }
+
+    function updateEstimatedTime() {
+      estimatedTimeEl.textContent = `Estimated time: ${estimatedTime}-${estimatedTime + 5} minutes`;
+      if (staffEstimatedTimeEl) {
+        staffEstimatedTimeEl.textContent = `Current estimated time: ${estimatedTime}-${estimatedTime + 5} minutes`;
+      }
     }
 
     function renderOrders() {
@@ -1303,13 +1702,32 @@
             <div class="order-id">Order #${order.id} (Table ${order.tableNumber})</div>
             <div class="order-status status-${order.status}">${order.status.toUpperCase()}</div>
           </div>
+          <div style="color: var(--light-cream); font-size: 0.8rem; margin-bottom: 5px;">
+            Estimated time: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} minutes
+          </div>
           <div class="order-items">
-            ${order.items.map(item => `
-              <div class="order-item">
-                <span>${item.title}</span>
-                <span>${item.price.toFixed(2)} JD</span>
-              </div>
-            `).join('')}
+            ${order.items.map(item => {
+              let extrasText = '';
+              if (item.extras && item.extras.length > 0) {
+                extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (Extras: ${item.extras.map(e => e.name).join(', ')})
+                </div>`;
+              }
+              
+              let notesText = '';
+              if (item.notes) {
+                notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (Notes: ${item.notes})
+                </div>`;
+              }
+              
+              return `
+                <div class="order-item">
+                  <span>${item.title} ${extrasText} ${notesText}</span>
+                  <span>${item.price.toFixed(2)} JD</span>
+                </div>
+              `;
+            }).join('')}
           </div>
           <div style="text-align: right; font-weight: bold; color: var(--gold);">
             Total: ${order.total.toFixed(2)} JD
@@ -1344,6 +1762,14 @@
           timestamp: firebase.firestore.FieldValue.serverTimestamp() 
         });
 
+        // If order is completed, release the table
+        if (status === 'completed') {
+          const orderData = querySnapshot.docs[0].data();
+          if (orderData.tableNumber) {
+            releaseTable(orderData.tableNumber);
+          }
+        }
+        
         // Update notification
         const statusMessages = {
           preparing: `Your order #${orderId} is being prepared`,
@@ -1378,8 +1804,16 @@
           throw new Error("Order not found");
         }
 
+        const orderData = querySnapshot.docs[0].data();
+        
         // Delete using the document reference
         await querySnapshot.docs[0].ref.delete();
+        
+        // Release the table if it was assigned
+        if (orderData.tableNumber) {
+          releaseTable(orderData.tableNumber);
+        }
+        
         showOrderStatus(`Order #${orderId} deleted`, "ORDER DELETED");
         
       } catch (error) {
@@ -1407,13 +1841,33 @@
             <div class="client-order-id">#${order.id}</div>
             <div class="client-order-status status-${order.status}">${order.status.toUpperCase()}</div>
           </div>
+          <div style="color: var(--light-cream); font-size: 0.7rem; margin-bottom: 5px;">
+            Table: ${order.tableNumber || 'Not specified'} | 
+            Estimated: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} mins
+          </div>
           <div class="client-order-items">
-            ${order.items.map(item => `
-              <div class="client-order-item">
-                <span>${item.title}</span>
-                <span>${item.price.toFixed(2)} JD</span>
-              </div>
-            `).join('')}
+            ${order.items.map(item => {
+              let extrasText = '';
+              if (item.extras && item.extras.length > 0) {
+                extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (Extras: ${item.extras.map(e => e.name).join(', ')})
+                </div>`;
+              }
+              
+              let notesText = '';
+              if (item.notes) {
+                notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (Notes: ${item.notes})
+                </div>`;
+              }
+              
+              return `
+                <div class="client-order-item">
+                  <span>${item.title} ${extrasText} ${notesText}</span>
+                  <span>${item.price.toFixed(2)} JD</span>
+                </div>
+              `;
+            }).join('')}
           </div>
           <div class="client-order-total">Total: ${order.total.toFixed(2)} JD</div>
         `;
@@ -1455,6 +1909,20 @@
         staffBtn.classList.add("active");
         guestView.style.display = "none";
         staffDashboard.style.display = "block";
+        staffTotalBreakdown.style.display = 'block';
+      } else {
+        guestBtn.classList.add("active");
+        staffBtn.classList.remove("active");
+        guestView.style.display = "block";
+        staffDashboard.style.display = "none";
+        staffTotalBreakdown.style.display = 'none';
+        
+        // If no table number set, show modal
+        if (!tableNumber) {
+          setTimeout(() => {
+            showTableModal();
+          }, 500);
+        }
       }
     }
 
@@ -1464,31 +1932,11 @@
     }
 
     // ==================== EVENT LISTENERS ====================
-    document.addEventListener('DOMContentLoaded', () => {
-      try {
-        if (!localStorage.getItem('clientId')) {
-          clientId = 'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-          localStorage.setItem('clientId', clientId);
-        }
-        
-        isStaff = localStorage.getItem(STAFF_TOKEN) === 'true';
-        checkAuthState();
-        
-        setupRealTimeListener();
-        updateModel();
-        updateCart();
-        
-        analytics.logEvent('page_view');
-      } catch (error) {
-        console.error("Initialization error:", error);
-        showOrderStatus("System loading... Please wait", "LOADING");
-        setTimeout(() => window.location.reload(), 3000);
-      }
-    });
+    document.addEventListener('DOMContentLoaded', initialize);
 
     // Button event listeners
     addToCartBtn.addEventListener('click', addToCart);
-    checkoutBtn.addEventListener('click', showTableModal);
+    checkoutBtn.addEventListener('click', checkout);
     closeStatusBtn.addEventListener('click', () => orderStatus.classList.remove('active'));
     cartToggle.addEventListener('click', () => cartPanel.classList.toggle('active'));
     closeCartBtn.addEventListener('click', () => cartPanel.classList.remove('active'));
@@ -1496,6 +1944,10 @@
       clientOrders.classList.toggle('active');
       viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? 
         'HIDE MY ORDERS' : 'VIEW MY ORDERS';
+    });
+    applyDiscountBtn.addEventListener('click', applyDiscount);
+    discountCodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyDiscount();
     });
 
     // Navigation buttons
@@ -1519,16 +1971,21 @@
       staffBtn.classList.remove('active');
       guestView.style.display = 'block';
       staffDashboard.style.display = 'none';
+      staffTotalBreakdown.style.display = 'none';
       isStaff = false;
       localStorage.removeItem(STAFF_TOKEN);
+      
+      // If no table number set, show modal
+      if (!tableNumber) {
+        setTimeout(() => {
+          showTableModal();
+        }, 500);
+      }
     });
 
     staffBtn.addEventListener('click', () => {
       if (isStaff) {
-        guestBtn.classList.remove('active');
-        staffBtn.classList.add('active');
-        guestView.style.display = 'none';
-        staffDashboard.style.display = 'block';
+        checkAuthState();
       } else {
         loginModal.style.display = 'flex';
       }
