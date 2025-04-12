@@ -121,8 +121,8 @@
     }
     
     .ar-button {
-      background: linear-gradient(135deg, var(--red) 0%, #D63B3B 100%) !important;
-      color: white !important;
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%) !important;
+      color: var(--dark-green) !important;
       position: absolute;
       bottom: 12px;
       left: 50%;
@@ -689,13 +689,6 @@
       font-size: 0.8rem;
     }
 
-    .client-order-total {
-      text-align: right;
-      font-weight: bold;
-      color: var(--gold);
-      font-size: 0.85rem;
-    }
-
     .view-orders-btn {
       margin-top: 12px;
       background: rgba(245, 245, 220, 0.1);
@@ -881,6 +874,17 @@
       font-size: 0.85rem;
       margin-top: 8px;
       text-align: center;
+    }
+
+    /* Staff status headers */
+    .status-header {
+      color: var(--light-cream);
+      margin: 15px 0 8px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 5px;
     }
 
     /* Media Queries for Larger Screens */
@@ -1649,96 +1653,126 @@
         ordersList.innerHTML = '<p style="color: var(--light-cream);">No orders yet</p>';
         return;
       }
-      
-      const sortedOrders = [...orders].sort((a, b) => {
-        const statusOrder = {pending: 0, preparing: 1, ready: 2, completed: 3};
-        if (statusOrder[a.status] !== statusOrder[b.status]) {
-          return statusOrder[a.status] - statusOrder[b.status];
-        }
-        return b.timestamp?.toMillis() - a.timestamp?.toMillis();
+
+      // Group orders by status
+      const ordersByStatus = {
+        pending: [],
+        preparing: [],
+        ready: [],
+        completed: []
+      };
+
+      orders.forEach(order => {
+        ordersByStatus[order.status].push(order);
       });
-      
-      sortedOrders.forEach(order => {
-        const orderEl = document.createElement('div');
-        orderEl.className = 'order-card';
-        
-        // Create buttons with proper event handlers
-        const preparingBtn = document.createElement('button');
-        preparingBtn.className = 'action-btn';
-        preparingBtn.style.background = '#2196F3';
-        preparingBtn.style.color = 'white';
-        preparingBtn.textContent = 'Preparing';
-        preparingBtn.onclick = () => updateOrderStatus(order.id, 'preparing');
-        
-        const readyBtn = document.createElement('button');
-        readyBtn.className = 'action-btn';
-        readyBtn.style.background = '#4CAF50';
-        readyBtn.style.color = 'white';
-        readyBtn.textContent = 'Ready';
-        readyBtn.onclick = () => updateOrderStatus(order.id, 'ready');
-        
-        const completeBtn = document.createElement('button');
-        completeBtn.className = 'action-btn';
-        completeBtn.style.background = '#9E9E9E';
-        completeBtn.style.color = 'white';
-        completeBtn.textContent = 'Complete';
-        completeBtn.onclick = () => updateOrderStatus(order.id, 'completed');
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'action-btn delete-order';
-        deleteBtn.textContent = 'DELETE ORDER';
-        deleteBtn.onclick = () => deleteOrder(order.id);
-        
-        // Create actions container
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'order-actions';
-        actionsDiv.appendChild(preparingBtn);
-        actionsDiv.appendChild(readyBtn);
-        actionsDiv.appendChild(completeBtn);
-        
-        // Build order card
-        orderEl.innerHTML = `
-          <div class="order-header">
-            <div class="order-id">Order #${order.id} (Table ${order.tableNumber})</div>
-            <div class="order-status status-${order.status}">${order.status.toUpperCase()}</div>
-          </div>
-          <div style="color: var(--light-cream); font-size: 0.8rem; margin-bottom: 5px;">
-            Estimated time: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} minutes
-          </div>
-          <div class="order-items">
-            ${order.items.map(item => {
-              let extrasText = '';
-              if (item.extras && item.extras.length > 0) {
-                extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
-                  (Extras: ${item.extras.map(e => e.name).join(', ')})
-                </div>`;
-              }
-              
-              let notesText = '';
-              if (item.notes) {
-                notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
-                  (Notes: ${item.notes})
-                </div>`;
-              }
-              
-              return `
-                <div class="order-item">
-                  <span>${item.title} ${extrasText} ${notesText}</span>
-                  <span>${item.price.toFixed(2)} JD</span>
-                </div>
-              `;
-            }).join('')}
-          </div>
-          <div style="text-align: right; font-weight: bold; color: var(--gold);">
-            Total: ${order.total.toFixed(2)} JD
-          </div>
-        `;
-        
-        // Append dynamically created buttons
-        orderEl.appendChild(actionsDiv);
-        orderEl.appendChild(deleteBtn);
-        
-        ordersList.appendChild(orderEl);
+
+      // Render each status group with a header
+      ['pending', 'preparing', 'ready', 'completed'].forEach(status => {
+        if (ordersByStatus[status].length > 0) {
+          // Add status header
+          const statusHeader = document.createElement('div');
+          statusHeader.className = 'status-header';
+          statusHeader.style.color = status === 'pending' ? '#FFC107' : 
+                                   status === 'preparing' ? '#2196F3' :
+                                   status === 'ready' ? '#4CAF50' : '#9E9E9E';
+          statusHeader.textContent = `${status.toUpperCase()} (${ordersByStatus[status].length})`;
+          ordersList.appendChild(statusHeader);
+
+          // Add orders for this status
+          ordersByStatus[status].forEach(order => {
+            const orderEl = document.createElement('div');
+            orderEl.className = 'order-card';
+            
+            // Create buttons with proper event handlers
+            const preparingBtn = document.createElement('button');
+            preparingBtn.className = 'action-btn';
+            preparingBtn.style.background = '#2196F3';
+            preparingBtn.style.color = 'white';
+            preparingBtn.textContent = 'Preparing';
+            preparingBtn.onclick = () => updateOrderStatus(order.id, 'preparing');
+            
+            const readyBtn = document.createElement('button');
+            readyBtn.className = 'action-btn';
+            readyBtn.style.background = '#4CAF50';
+            readyBtn.style.color = 'white';
+            readyBtn.textContent = 'Ready';
+            readyBtn.onclick = () => updateOrderStatus(order.id, 'ready');
+            
+            const completeBtn = document.createElement('button');
+            completeBtn.className = 'action-btn';
+            completeBtn.style.background = '#9E9E9E';
+            completeBtn.style.color = 'white';
+            completeBtn.textContent = 'Complete';
+            completeBtn.onclick = () => updateOrderStatus(order.id, 'completed');
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'action-btn delete-order';
+            deleteBtn.textContent = 'DELETE ORDER';
+            deleteBtn.onclick = () => deleteOrder(order.id);
+            
+            // Create actions container
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'order-actions';
+            
+            // Only show relevant buttons based on current status
+            if (order.status === 'pending') {
+              actionsDiv.appendChild(preparingBtn);
+              actionsDiv.appendChild(deleteBtn);
+            } else if (order.status === 'preparing') {
+              actionsDiv.appendChild(readyBtn);
+            } else if (order.status === 'ready') {
+              actionsDiv.appendChild(completeBtn);
+            }
+            
+            // Build order card
+            orderEl.innerHTML = `
+              <div class="order-header">
+                <div class="order-id">Order #${order.id} (Table ${order.tableNumber})</div>
+                <div class="order-status status-${order.status}">${order.status.toUpperCase()}</div>
+              </div>
+              <div style="color: var(--light-cream); font-size: 0.8rem; margin-bottom: 5px;">
+                Estimated time: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} minutes
+              </div>
+              <div class="order-items">
+                ${order.items.map(item => {
+                  let extrasText = '';
+                  if (item.extras && item.extras.length > 0) {
+                    extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                      (Extras: ${item.extras.map(e => e.name).join(', ')})
+                    </div>`;
+                  }
+                  
+                  let notesText = '';
+                  if (item.notes) {
+                    notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                      (Notes: ${item.notes})
+                    </div>`;
+                  }
+                  
+                  return `
+                    <div class="order-item">
+                      <span>${item.title} ${extrasText} ${notesText}</span>
+                      <span>${item.price.toFixed(2)} JD</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div style="text-align: right; font-weight: bold; color: var(--gold);">
+                Total: ${order.total.toFixed(2)} JD
+              </div>
+            `;
+            
+            // Append dynamically created buttons
+            orderEl.appendChild(actionsDiv);
+            
+            // Show delete button for all statuses except completed
+            if (order.status !== 'completed') {
+              orderEl.appendChild(deleteBtn);
+            }
+            
+            ordersList.appendChild(orderEl);
+          });
+        }
       });
     }
 
@@ -1864,12 +1898,10 @@
               return `
                 <div class="client-order-item">
                   <span>${item.title} ${extrasText} ${notesText}</span>
-                  <span>${item.price.toFixed(2)} JD</span>
                 </div>
               `;
             }).join('')}
           </div>
-          <div class="client-order-total">Total: ${order.total.toFixed(2)} JD</div>
         `;
         clientOrdersList.appendChild(orderEl);
       });
