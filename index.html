@@ -1081,15 +1081,12 @@
       <input type="text" class="discount-input" id="discount-code" placeholder="Discount code (optional)">
       <button class="apply-discount-btn" id="apply-discount">APPLY</button>
     </div>
-    <div class="cart-total" id="cart-total">Subtotal: 0.00 JD</div>
-    <div id="staff-total-breakdown" style="display: none;">
-      <div class="total-breakdown">
-        <div class="breakdown-line">Subtotal: <span id="staff-subtotal">0.00</span> JD</div>
-        <div class="breakdown-line">Service (5%): <span id="service-charge">0.00</span> JD</div>
-        <div class="breakdown-line">Tax (8%): <span id="tax-amount">0.00</span> JD</div>
-        <div class="breakdown-line">Discount: -<span id="discount-amount">0.00</span> JD</div>
-        <div class="breakdown-line" style="font-weight: bold;">Total: <span id="staff-total">0.00</span> JD</div>
-      </div>
+    <div class="total-breakdown">
+      <div class="breakdown-line">Subtotal: <span id="subtotal">0.00</span> JD</div>
+      <div class="breakdown-line">Service (5%): <span id="service-charge">0.00</span> JD</div>
+      <div class="breakdown-line">Tax (8%): <span id="tax-amount">0.00</span> JD</div>
+      <div class="breakdown-line">Discount: -<span id="discount-amount">0.00</span> JD</div>
+      <div class="breakdown-line" style="font-weight: bold;">Total: <span id="total">0.00</span> JD</div>
     </div>
     <button class="checkout-btn" id="checkout-btn">
       <span class="checkout-text">CONFIRM ORDER</span>
@@ -1238,7 +1235,6 @@
     const ordersList = document.getElementById("orders-list");
     const cartPanel = document.getElementById("cart-panel");
     const cartItemsEl = document.getElementById("cart-items");
-    const cartTotalEl = document.getElementById("cart-total");
     const checkoutBtn = document.getElementById("checkout-btn");
     const checkoutText = document.querySelector(".checkout-text");
     const cartToggle = document.getElementById("cart-toggle");
@@ -1255,7 +1251,6 @@
     const extrasSelect = document.getElementById("extras-select");
     const discountCodeInput = document.getElementById("discount-code");
     const applyDiscountBtn = document.getElementById("apply-discount");
-    const staffTotalBreakdown = document.getElementById("staff-total-breakdown");
     const estimatedTimeEl = document.getElementById("estimated-time");
     const staffEstimatedTimeEl = document.getElementById("staff-estimated-time");
 
@@ -1608,27 +1603,18 @@
         subtotal += item.price;
       });
       
-      // Calculate discount amount
+      // Calculate breakdown
+      const serviceAmount = subtotal * 0.05;
+      const taxAmount = subtotal * 0.08;
       const discountAmount = subtotal * discountApplied;
+      const total = subtotal + serviceAmount + taxAmount - discountAmount;
       
-      // For guest view, just show subtotal
-      cartTotalEl.textContent = `Subtotal: ${subtotal.toFixed(2)} JD`;
-      
-      // For staff view, show full breakdown
-      if (isStaff) {
-        staffTotalBreakdown.style.display = 'block';
-        const serviceAmount = subtotal * 0.05;
-        const taxAmount = subtotal * 0.08;
-        const total = subtotal + serviceAmount + taxAmount - discountAmount;
-        
-        document.getElementById('staff-subtotal').textContent = subtotal.toFixed(2);
-        document.getElementById('service-charge').textContent = serviceAmount.toFixed(2);
-        document.getElementById('tax-amount').textContent = taxAmount.toFixed(2);
-        document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
-        document.getElementById('staff-total').textContent = total.toFixed(2);
-      } else {
-        staffTotalBreakdown.style.display = 'none';
-      }
+      // Update the breakdown display
+      document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+      document.getElementById('service-charge').textContent = serviceAmount.toFixed(2);
+      document.getElementById('tax-amount').textContent = taxAmount.toFixed(2);
+      document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
+      document.getElementById('total').textContent = total.toFixed(2);
       
       cartCount.textContent = cart.length;
       
@@ -1951,13 +1937,11 @@
         staffBtn.classList.add("active");
         guestView.style.display = "none";
         staffDashboard.style.display = "block";
-        staffTotalBreakdown.style.display = 'block';
       } else {
         guestBtn.classList.add("active");
         staffBtn.classList.remove("active");
         guestView.style.display = "block";
         staffDashboard.style.display = "none";
-        staffTotalBreakdown.style.display = 'none';
         
         // If no table number set, show modal
         if (!tableNumber) {
@@ -2013,7 +1997,6 @@
       staffBtn.classList.remove('active');
       guestView.style.display = 'block';
       staffDashboard.style.display = 'none';
-      staffTotalBreakdown.style.display = 'none';
       isStaff = false;
       localStorage.removeItem(STAFF_TOKEN);
       
