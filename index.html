@@ -885,6 +885,136 @@
       padding-left: 5px;
     }
 
+    /* Tables Overview Section */
+    .tables-overview {
+      margin-top: 20px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .tables-overview h3 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .table-item {
+      background: rgba(26, 58, 47, 0.7);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid var(--gold);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .table-item.occupied {
+      background: rgba(178, 34, 34, 0.7);
+    }
+
+    .table-number {
+      font-weight: bold;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .table-status {
+      font-size: 0.7rem;
+      margin-top: 3px;
+    }
+
+    .table-details {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1200;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .table-details-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 350px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .table-details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .table-details-title {
+      color: var(--gold);
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .close-details {
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .table-orders-list {
+      margin-top: 10px;
+    }
+
+    .table-order-item {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .table-order-id {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .table-order-status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      margin-left: 5px;
+    }
+
+    .table-order-items {
+      margin-top: 5px;
+      font-size: 0.8rem;
+    }
+
+    .table-order-item-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
     /* Media Queries for Larger Screens */
     @media (min-width: 768px) {
       .overlay {
@@ -941,6 +1071,10 @@
         bottom: 20px;
         right: 20px;
       }
+
+      .tables-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
@@ -954,6 +1088,19 @@
       <div class="modal-buttons">
         <button onclick="confirmTableNumber()" style="flex: 1;">CONFIRM</button>
         <button onclick="closeTableModal()" style="background: var(--red); flex: 1;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Details Modal -->
+  <div class="table-details" id="table-details">
+    <div class="table-details-content">
+      <div class="table-details-header">
+        <h3 class="table-details-title" id="table-details-title">Table Details</h3>
+        <button class="close-details" id="close-details">×</button>
+      </div>
+      <div class="table-orders-list" id="table-orders-list">
+        <!-- Table orders will appear here -->
       </div>
     </div>
   </div>
@@ -1043,6 +1190,15 @@
     <div class="staff-dashboard" id="staff-dashboard">
       <h2 style="color: var(--gold);">ORDERS DASHBOARD</h2>
       <p class="estimated-time" id="staff-estimated-time">Current estimated time: 20-25 minutes</p>
+      
+      <!-- Tables Overview Section -->
+      <div class="tables-overview">
+        <h3>OCCUPIED TABLES</h3>
+        <div class="tables-grid" id="tables-grid">
+          <!-- Tables will appear here -->
+        </div>
+      </div>
+      
       <div class="orders-list" id="orders-list">
         <!-- Orders will appear here -->
       </div>
@@ -1221,7 +1377,9 @@
     let discountApplied = 0;
     let estimatedTime = 20; // Base time in minutes
     let occupiedTables = new Set(); // Track occupied tables
-    let tableNumber = localStorage.getItem('tableNumber') || null; // Current table number from localStorage
+    let tableNumber = null; // Current table number
+    let tableNumberExpiry = null; // When the table number expires
+    let tableDetails = {}; // Store table details for staff view
 
     // DOM Elements
     const modelViewer = document.getElementById("model-viewer");
@@ -1258,10 +1416,17 @@
     const totalBreakdown = document.getElementById("total-breakdown");
     const estimatedTimeEl = document.getElementById("estimated-time");
     const staffEstimatedTimeEl = document.getElementById("staff-estimated-time");
+    const tablesGrid = document.getElementById("tables-grid");
+    const tableDetailsModal = document.getElementById("table-details");
+    const tableDetailsTitle = document.getElementById("table-details-title");
+    const tableOrdersList = document.getElementById("table-orders-list");
+    const closeDetailsBtn = document.getElementById("close-details");
 
     // Password - CHANGE THIS TO YOUR SECURE PASSWORD
     const STAFF_PASSWORD = "OakCafe2025";
     const STAFF_TOKEN = "staff-auth-token";
+    const TABLE_NUMBER_KEY = "tableNumber";
+    const TABLE_EXPIRY_KEY = "tableExpiry";
 
     // ==================== INITIALIZATION ====================
     function initialize() {
@@ -1269,6 +1434,9 @@
         clientId = 'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
         localStorage.setItem('clientId', clientId);
       }
+      
+      // Check for expired table number
+      checkTableNumberExpiry();
       
       isStaff = localStorage.getItem(STAFF_TOKEN) === 'true';
       checkAuthState();
@@ -1278,18 +1446,41 @@
       updateCart();
       updateEstimatedTime();
       
-      // Show table number modal only if not already set
-      if (!isStaff && !tableNumber) {
-        setTimeout(() => {
-          showTableModal();
-        }, 500);
-      }
+      // Show table number modal if needed
+      checkTableNumber();
       
       analytics.logEvent('page_view');
     }
 
     // ==================== TABLE MANAGEMENT ====================
-    function confirmTableNumber() {
+    function checkTableNumberExpiry() {
+      const expiry = localStorage.getItem(TABLE_EXPIRY_KEY);
+      if (expiry && new Date(expiry) < new Date()) {
+        // Table number expired
+        localStorage.removeItem(TABLE_NUMBER_KEY);
+        localStorage.removeItem(TABLE_EXPIRY_KEY);
+        tableNumber = null;
+        tableNumberExpiry = null;
+      } else if (expiry) {
+        tableNumberExpiry = new Date(expiry);
+      }
+      
+      // Load table number if valid
+      const savedTable = localStorage.getItem(TABLE_NUMBER_KEY);
+      if (savedTable && tableNumberExpiry) {
+        tableNumber = parseInt(savedTable);
+      }
+    }
+
+    function checkTableNumber() {
+      if (!isStaff && !tableNumber) {
+        setTimeout(() => {
+          showTableModal();
+        }, 500);
+      }
+    }
+
+    async function confirmTableNumber() {
       const tableNum = tableNumberInput.value.trim();
       
       if (!tableNum || isNaN(tableNum)) {
@@ -1299,9 +1490,19 @@
       
       const tableNumberInt = parseInt(tableNum);
       
-      // Save table number to localStorage
+      // Check if table is available
+      const isAvailable = await checkTableAvailability(tableNumberInt);
+      if (!isAvailable) {
+        showOrderStatus(`Table ${tableNumberInt} is occupied. Please choose another.`, "TABLE ERROR");
+        return;
+      }
+      
+      // Save table number with 1 hour expiry
       tableNumber = tableNumberInt;
-      localStorage.setItem('tableNumber', tableNumber);
+      tableNumberExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+      
+      localStorage.setItem(TABLE_NUMBER_KEY, tableNumber);
+      localStorage.setItem(TABLE_EXPIRY_KEY, tableNumberExpiry.toISOString());
       
       closeTableModal();
       showOrderStatus(`Table ${tableNumber} assigned`, "TABLE SET");
@@ -1310,13 +1511,13 @@
     async function checkTableAvailability(tableNum) {
       try {
         // Check if table is already occupied in memory
-        if (occupiedTables.has(parseInt(tableNum))) {
+        if (occupiedTables.has(tableNum)) {
           return false;
         }
         
         // Double check with database
         const querySnapshot = await db.collection("orders")
-          .where("tableNumber", "==", parseInt(tableNum))
+          .where("tableNumber", "==", tableNum)
           .where("status", "in", ["pending", "preparing", "ready"])
           .limit(1)
           .get();
@@ -1330,7 +1531,7 @@
 
     async function releaseTable(tableNum) {
       if (tableNum) {
-        occupiedTables.delete(parseInt(tableNum));
+        occupiedTables.delete(tableNum);
       }
     }
 
@@ -1456,6 +1657,7 @@
         .onSnapshot((snapshot) => {
           const updatedOrders = [];
           const newOccupiedTables = new Set();
+          const newTableDetails = {};
           
           snapshot.forEach((doc) => {
             const orderData = doc.data();
@@ -1469,14 +1671,25 @@
             if (orderData.tableNumber && typeof orderData.tableNumber === 'number' && 
                 ['pending', 'preparing', 'ready'].includes(orderData.status)) {
               newOccupiedTables.add(orderData.tableNumber);
+              
+              // Build table details for staff view
+              if (!newTableDetails[orderData.tableNumber]) {
+                newTableDetails[orderData.tableNumber] = {
+                  tableNumber: orderData.tableNumber,
+                  orders: []
+                };
+              }
+              newTableDetails[orderData.tableNumber].orders.push(orderData);
             }
           });
           
           orders = updatedOrders;
           occupiedTables = newOccupiedTables;
+          tableDetails = newTableDetails;
           
           if (isStaff) {
             renderOrders();
+            renderTablesOverview();
           }
           
           renderClientOrders(orders.filter(o => o.clientId === clientId));
@@ -1639,6 +1852,134 @@
       if (staffEstimatedTimeEl) {
         staffEstimatedTimeEl.textContent = `Current estimated time: ${estimatedTime}-${estimatedTime + 5} minutes`;
       }
+    }
+
+    function renderTablesOverview() {
+      tablesGrid.innerHTML = '';
+      
+      if (occupiedTables.size === 0) {
+        tablesGrid.innerHTML = '<p style="grid-column: 1 / -1; color: var(--light-cream);">No occupied tables</p>';
+        return;
+      }
+      
+      // Convert Set to array and sort
+      const sortedTables = Array.from(occupiedTables).sort((a, b) => a - b);
+      
+      sortedTables.forEach(tableNum => {
+        const tableData = tableDetails[tableNum];
+        const tableEl = document.createElement('div');
+        tableEl.className = `table-item ${tableData ? 'occupied' : ''}`;
+        tableEl.onclick = () => showTableDetails(tableNum);
+        
+        let statusText = 'Available';
+        let statusClass = '';
+        
+        if (tableData) {
+          // Find the most urgent order status for this table
+          const hasPending = tableData.orders.some(o => o.status === 'pending');
+          const hasPreparing = tableData.orders.some(o => o.status === 'preparing');
+          
+          if (hasPending) {
+            statusText = 'Pending';
+            statusClass = 'status-pending';
+          } else if (hasPreparing) {
+            statusText = 'Preparing';
+            statusClass = 'status-preparing';
+          } else {
+            statusText = 'Ready';
+            statusClass = 'status-ready';
+          }
+        }
+        
+        tableEl.innerHTML = `
+          <div class="table-number">${tableNum}</div>
+          <div class="table-status ${statusClass}">${statusText}</div>
+          <div style="font-size: 0.7rem; margin-top: 3px;">
+            ${tableData ? tableData.orders.length + ' order(s)' : ''}
+          </div>
+        `;
+        
+        tablesGrid.appendChild(tableEl);
+      });
+    }
+
+    function showTableDetails(tableNum) {
+      const tableData = tableDetails[tableNum];
+      if (!tableData) return;
+      
+      tableDetailsTitle.textContent = `Table ${tableNum} Details`;
+      tableOrdersList.innerHTML = '';
+      
+      // Group orders by status
+      const ordersByStatus = {
+        pending: [],
+        preparing: [],
+        ready: []
+      };
+      
+      tableData.orders.forEach(order => {
+        ordersByStatus[order.status].push(order);
+      });
+      
+      // Render orders by status
+      ['pending', 'preparing', 'ready'].forEach(status => {
+        if (ordersByStatus[status].length > 0) {
+          // Add status header
+          const statusHeader = document.createElement('div');
+          statusHeader.className = 'status-header';
+          statusHeader.style.color = status === 'pending' ? '#FFC107' : 
+                                   status === 'preparing' ? '#2196F3' : '#4CAF50';
+          statusHeader.textContent = `${status.toUpperCase()} (${ordersByStatus[status].length})`;
+          tableOrdersList.appendChild(statusHeader);
+          
+          // Add orders
+          ordersByStatus[status].forEach(order => {
+            const orderEl = document.createElement('div');
+            orderEl.className = 'table-order-item';
+            
+            orderEl.innerHTML = `
+              <div class="table-order-id">
+                Order #${order.id}
+                <span class="table-order-status status-${order.status}">${order.status.toUpperCase()}</span>
+              </div>
+              <div style="color: var(--light-cream); font-size: 0.8rem; margin: 5px 0;">
+                Estimated: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} mins
+              </div>
+              <div class="table-order-items">
+                ${order.items.map(item => {
+                  let extrasText = '';
+                  if (item.extras && item.extras.length > 0) {
+                    extrasText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
+                      (Extras: ${item.extras.map(e => e.name).join(', ')})
+                    </span>`;
+                  }
+                  
+                  let notesText = '';
+                  if (item.notes) {
+                    notesText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
+                      (Notes: ${item.notes})
+                    </span>`;
+                  }
+                  
+                  return `
+                    <div class="table-order-item-row">
+                      <span>${item.title} ${extrasText} ${notesText}</span>
+                      <span>${item.price.toFixed(2)} JD</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div style="text-align: right; font-weight: bold; color: var(--gold); margin-top: 5px;">
+                Total: ${order.total.toFixed(2)} JD
+              </div>
+            `;
+            
+            tableOrdersList.appendChild(orderEl);
+          });
+        }
+      });
+      
+      tableDetailsModal.style.display = 'flex';
     }
 
     function renderOrders() {
@@ -1955,17 +2296,17 @@
         totalBreakdown.style.display = 'none';
         
         // If no table number set, show modal
-        if (!tableNumber) {
-          setTimeout(() => {
-            showTableModal();
-          }, 500);
-        }
+        checkTableNumber();
       }
     }
 
     function closeModal() {
       loginModal.style.display = "none";
       document.getElementById("password").value = "";
+    }
+
+    function closeDetailsModal() {
+      tableDetailsModal.style.display = "none";
     }
 
     // ==================== EVENT LISTENERS ====================
@@ -1986,6 +2327,7 @@
     discountCodeInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') applyDiscount();
     });
+    closeDetailsBtn.addEventListener('click', closeDetailsModal);
 
     // Navigation buttons
     prevBtn.addEventListener('click', () => {
@@ -2013,11 +2355,7 @@
       localStorage.removeItem(STAFF_TOKEN);
       
       // If no table number set, show modal
-      if (!tableNumber) {
-        setTimeout(() => {
-          showTableModal();
-        }, 500);
-      }
+      checkTableNumber();
     });
 
     staffBtn.addEventListener('click', () => {
