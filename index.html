@@ -79,6 +79,8 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.15);
       border: 1px solid var(--gold);
       flex-grow: 1;
+      position: relative;
+      z-index: 1;
     }
     
     model-viewer {
@@ -96,6 +98,8 @@
       align-items: center;
       gap: 8px;
       margin: 15px 0;
+      position: relative;
+      z-index: 2;
     }
     
     button {
@@ -149,6 +153,7 @@
       border-radius: 12px 12px 0 0;
       border-top: 2px solid var(--gold);
       position: relative;
+      z-index: 1;
     }
     
     .footer::before {
@@ -421,7 +426,7 @@
       z-index: 900;
       transform: translateX(120%);
       transition: var(--transition);
-      max-height: 70vh;
+      max-height: 60vh;
       display: flex;
       flex-direction: column;
     }
@@ -449,7 +454,7 @@
       flex: 1;
       overflow-y: auto;
       margin-bottom: 10px;
-      max-height: 40vh;
+      max-height: 30vh;
       padding-right: 5px;
     }
     
@@ -857,11 +862,12 @@
       font-size: 0.8rem;
     }
 
-    /* Staff total breakdown */
+    /* Total breakdown - only for staff */
     .total-breakdown {
       margin-top: 10px;
       text-align: right;
       font-size: 0.8rem;
+      display: none;
     }
 
     .breakdown-line {
@@ -930,6 +936,11 @@
       .cart-panel {
         right: 20px;
         bottom: 20px;
+        max-height: 70vh;
+      }
+      
+      .cart-items {
+        max-height: 50vh;
       }
       
       .cart-toggle {
@@ -1081,12 +1092,15 @@
       <input type="text" class="discount-input" id="discount-code" placeholder="Discount code (optional)">
       <button class="apply-discount-btn" id="apply-discount">APPLY</button>
     </div>
-    <div class="total-breakdown">
-      <div class="breakdown-line">Subtotal: <span id="subtotal">0.00</span> JD</div>
+    <!-- Only show subtotal for guests -->
+    <div class="cart-total" id="cart-total">Subtotal: 0.00 JD</div>
+    <!-- Full breakdown (only for staff) -->
+    <div class="total-breakdown" id="total-breakdown">
+      <div class="breakdown-line">Subtotal: <span id="staff-subtotal">0.00</span> JD</div>
       <div class="breakdown-line">Service (5%): <span id="service-charge">0.00</span> JD</div>
       <div class="breakdown-line">Tax (8%): <span id="tax-amount">0.00</span> JD</div>
       <div class="breakdown-line">Discount: -<span id="discount-amount">0.00</span> JD</div>
-      <div class="breakdown-line" style="font-weight: bold;">Total: <span id="total">0.00</span> JD</div>
+      <div class="breakdown-line" style="font-weight: bold;">Total: <span id="staff-total">0.00</span> JD</div>
     </div>
     <button class="checkout-btn" id="checkout-btn">
       <span class="checkout-text">CONFIRM ORDER</span>
@@ -1235,6 +1249,7 @@
     const ordersList = document.getElementById("orders-list");
     const cartPanel = document.getElementById("cart-panel");
     const cartItemsEl = document.getElementById("cart-items");
+    const cartTotalEl = document.getElementById("cart-total");
     const checkoutBtn = document.getElementById("checkout-btn");
     const checkoutText = document.querySelector(".checkout-text");
     const cartToggle = document.getElementById("cart-toggle");
@@ -1251,6 +1266,7 @@
     const extrasSelect = document.getElementById("extras-select");
     const discountCodeInput = document.getElementById("discount-code");
     const applyDiscountBtn = document.getElementById("apply-discount");
+    const totalBreakdown = document.getElementById("total-breakdown");
     const estimatedTimeEl = document.getElementById("estimated-time");
     const staffEstimatedTimeEl = document.getElementById("staff-estimated-time");
 
@@ -1603,18 +1619,25 @@
         subtotal += item.price;
       });
       
-      // Calculate breakdown
-      const serviceAmount = subtotal * 0.05;
-      const taxAmount = subtotal * 0.08;
-      const discountAmount = subtotal * discountApplied;
-      const total = subtotal + serviceAmount + taxAmount - discountAmount;
+      // For guests, just show subtotal
+      cartTotalEl.textContent = `Subtotal: ${subtotal.toFixed(2)} JD`;
       
-      // Update the breakdown display
-      document.getElementById('subtotal').textContent = subtotal.toFixed(2);
-      document.getElementById('service-charge').textContent = serviceAmount.toFixed(2);
-      document.getElementById('tax-amount').textContent = taxAmount.toFixed(2);
-      document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
-      document.getElementById('total').textContent = total.toFixed(2);
+      // For staff, show full breakdown
+      if (isStaff) {
+        totalBreakdown.style.display = 'block';
+        const serviceAmount = subtotal * 0.05;
+        const taxAmount = subtotal * 0.08;
+        const discountAmount = subtotal * discountApplied;
+        const total = subtotal + serviceAmount + taxAmount - discountAmount;
+        
+        document.getElementById('staff-subtotal').textContent = subtotal.toFixed(2);
+        document.getElementById('service-charge').textContent = serviceAmount.toFixed(2);
+        document.getElementById('tax-amount').textContent = taxAmount.toFixed(2);
+        document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
+        document.getElementById('staff-total').textContent = total.toFixed(2);
+      } else {
+        totalBreakdown.style.display = 'none';
+      }
       
       cartCount.textContent = cart.length;
       
@@ -1937,11 +1960,13 @@
         staffBtn.classList.add("active");
         guestView.style.display = "none";
         staffDashboard.style.display = "block";
+        totalBreakdown.style.display = 'block';
       } else {
         guestBtn.classList.add("active");
         staffBtn.classList.remove("active");
         guestView.style.display = "block";
         staffDashboard.style.display = "none";
+        totalBreakdown.style.display = 'none';
         
         // If no table number set, show modal
         if (!tableNumber) {
@@ -1997,6 +2022,7 @@
       staffBtn.classList.remove('active');
       guestView.style.display = 'block';
       staffDashboard.style.display = 'none';
+      totalBreakdown.style.display = 'none';
       isStaff = false;
       localStorage.removeItem(STAFF_TOKEN);
       
