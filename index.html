@@ -44,6 +44,7 @@
     
     .header {
       padding: 10px 0;
+      position: relative;
     }
     
     .logo {
@@ -57,7 +58,7 @@
       font-size: 1.8rem;
       color: var(--gold);
       margin: 8px 0 4px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3));
       line-height: 1.2;
     }
     
@@ -77,7 +78,7 @@
       backdrop-filter: blur(10px);
       border-radius: 12px;
       padding: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15));
       border: 1px solid var(--gold);
       flex-grow: 1;
       position: relative;
@@ -90,7 +91,7 @@
       margin: 12px 0;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15));
     }
     
     .nav-buttons {
@@ -113,7 +114,7 @@
       font-weight: 600;
       font-size: 0.85rem;
       transition: var(--transition);
-      box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+      box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3));
       flex: 1;
       min-width: 0;
       white-space: nowrap;
@@ -409,7 +410,7 @@
       border: none;
       cursor: pointer;
       transition: var(--transition);
-      box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
+      box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3));
       font-size: 0.9rem;
     }
     
@@ -422,7 +423,7 @@
       background: rgba(26, 58, 47, 0.98);
       border-radius: 12px;
       padding: 15px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3));
       border: 1px solid var(--gold);
       z-index: 900;
       transform: translateX(120%);
@@ -442,7 +443,7 @@
       align-items: center;
       margin-bottom: 10px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3));
     }
     
     .cart-header h3 {
@@ -549,7 +550,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2));
       z-index: 800;
       transition: var(--transition);
     }
@@ -579,7 +580,7 @@
       color: var(--dark-green);
       padding: 10px 12px;
       border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2));
       z-index: 1000;
       display: flex;
       align-items: center;
@@ -1105,6 +1106,12 @@
       border-radius: 8px;
       padding: 10px;
       border: 1px solid var(--gold);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     .stat-title {
@@ -1131,6 +1138,11 @@
       padding: 10px;
       margin-bottom: 10px;
       border-left: 3px solid var(--gold);
+      transition: var(--transition);
+    }
+
+    .rating-item:hover {
+      background: rgba(245, 245, 220, 0.2);
     }
 
     .rating-header {
@@ -1186,6 +1198,153 @@
       font-size: 0.8rem;
       color: var(--light-cream);
       margin-top: 5px;
+    }
+
+    /* Language Switcher */
+    .language-switcher {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .language-btn {
+      width: 30px;
+      height: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .language-btn.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    .language-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Admin Tabs */
+    .admin-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      margin-bottom: 15px;
+    }
+
+    .admin-tab {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--light-cream);
+      font-size: 0.9rem;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .admin-tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+      font-weight: bold;
+    }
+
+    .admin-tab-content {
+      display: none;
+    }
+
+    .admin-tab-content.active {
+      display: block;
+    }
+
+    /* Admin Order Summary */
+    .admin-order-summary {
+      margin-top: 15px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .admin-order-summary h3 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    /* Admin Search */
+    .admin-search {
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .admin-search input {
+      width: 100%;
+      padding: 10px 15px 10px 35px;
+      border-radius: 25px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .admin-search i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+    }
+
+    /* Admin Filter */
+    .admin-filter {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }
+
+    .admin-filter-btn {
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      border: 1px solid var(--gold);
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .admin-filter-btn.active {
+      background: var(--gold);
+      color: var(--dark-green);
+    }
+
+    /* Admin Order Card */
+    .admin-order-card {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .admin-order-card-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .admin-order-card-time {
+      color: var(--light-cream);
+      font-size: 0.7rem;
     }
 
     /* Media Queries for Larger Screens */
@@ -1251,6 +1410,14 @@
 
       .admin-stats {
         grid-template-columns: repeat(4, 1fr);
+      }
+
+      .admin-tabs {
+        justify-content: center;
+      }
+
+      .admin-tab {
+        padding: 10px 20px;
       }
     }
   </style>
@@ -1324,6 +1491,16 @@
 
   <!-- Main Content -->
   <div class="overlay" id="main-content">
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+      <div class="language-btn active" id="lang-en">
+        <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" alt="English">
+      </div>
+      <div class="language-btn" id="lang-ar">
+        <img src="https://cdn.countryflags.com/thumbs/jordan/flag-400.png" alt="Arabic">
+      </div>
+    </div>
+
     <!-- User Type Selection -->
     <div class="user-type">
       <button class="user-btn active" id="guest-btn">GUEST</button>
@@ -1414,32 +1591,68 @@
     <div class="admin-dashboard" id="admin-dashboard">
       <h2 style="color: var(--gold);">ADMIN DASHBOARD</h2>
       
-      <div class="admin-stats">
-        <div class="stat-card">
-          <div class="stat-title">TOTAL ORDERS</div>
-          <div class="stat-value" id="total-orders">0</div>
+      <!-- Admin Tabs -->
+      <div class="admin-tabs">
+        <div class="admin-tab active" data-tab="stats">STATISTICS</div>
+        <div class="admin-tab" data-tab="orders">ORDERS</div>
+        <div class="admin-tab" data-tab="ratings">RATINGS</div>
+      </div>
+      
+      <!-- Stats Tab -->
+      <div class="admin-tab-content active" id="stats-tab">
+        <div class="admin-stats">
+          <div class="stat-card">
+            <div class="stat-title">TOTAL ORDERS</div>
+            <div class="stat-value" id="total-orders">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">AVG RATING</div>
+            <div class="stat-value" id="avg-rating">0.0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">LOW RATINGS</div>
+            <div class="stat-value" id="low-ratings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">ACTIVE STAFF</div>
+            <div class="stat-value" id="active-staff">3</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-title">AVG RATING</div>
-          <div class="stat-value" id="avg-rating">0.0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-title">LOW RATINGS</div>
-          <div class="stat-value" id="low-ratings">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-title">ACTIVE STAFF</div>
-          <div class="stat-value" id="active-staff">3</div>
+        
+        <div class="chart-container">
+          <canvas id="ratings-chart"></canvas>
         </div>
       </div>
       
-      <div class="chart-container">
-        <canvas id="ratings-chart"></canvas>
+      <!-- Orders Tab -->
+      <div class="admin-tab-content" id="orders-tab">
+        <div class="admin-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="admin-search-input" placeholder="Search orders...">
+        </div>
+        
+        <div class="admin-filter">
+          <div class="admin-filter-btn active" data-filter="all">ALL</div>
+          <div class="admin-filter-btn" data-filter="pending">PENDING</div>
+          <div class="admin-filter-btn" data-filter="preparing">PREPARING</div>
+          <div class="admin-filter-btn" data-filter="ready">READY</div>
+          <div class="admin-filter-btn" data-filter="completed">COMPLETED</div>
+        </div>
+        
+        <div class="admin-order-summary">
+          <h3>RECENT ORDERS</h3>
+          <div id="admin-orders-list">
+            <!-- Admin orders will appear here -->
+          </div>
+        </div>
       </div>
       
-      <h3 style="color: var(--gold); margin-top: 20px;">RECENT RATINGS</h3>
-      <div class="ratings-list" id="ratings-list">
-        <!-- Ratings will appear here -->
+      <!-- Ratings Tab -->
+      <div class="admin-tab-content" id="ratings-tab">
+        <h3 style="color: var(--gold); margin-top: 0;">RECENT RATINGS</h3>
+        <div class="ratings-list" id="ratings-list">
+          <!-- Ratings will appear here -->
+        </div>
       </div>
     </div>
 
@@ -1599,6 +1812,148 @@
       }
     ];
 
+    // Arabic translations
+    const translations = {
+      en: {
+        guest: "GUEST",
+        staff: "STAFF",
+        admin: "ADMIN",
+        foodTitle: {
+          "Margherita Pizza": "Margherita Pizza",
+          "Pepperoni Pizza": "Pepperoni Pizza",
+          "Fettuccine Alfredo": "Fettuccine Alfredo",
+          "Pesto Pasta": "Pesto Pasta",
+          "Rose Pasta": "Rose Pasta",
+          "Sea Food Pasta": "Sea Food Pasta"
+        },
+        foodDesc: {
+          "San Marzano tomato sauce, fresh mozzarella, basil": "San Marzano tomato sauce, fresh mozzarella, basil",
+          "Pepperoni, mozzarella, tomato sauce": "Pepperoni, mozzarella, tomato sauce",
+          "Handmade pasta, black truffle, parmesan cream": "Handmade pasta, black truffle, parmesan cream",
+          "Basil pesto, pine nuts, aged parmesan": "Basil pesto, pine nuts, aged parmesan",
+          "Creamy tomato sauce, permesan cheese, basil": "Creamy tomato sauce, permesan cheese, basil",
+          "Mix of sea food with spaghiti": "Mix of sea food with spaghiti"
+        },
+        addToCart: "ADD TO ORDER - {price} JD",
+        viewOrders: "VIEW MY ORDERS",
+        hideOrders: "HIDE MY ORDERS",
+        yourOrders: "YOUR ORDERS",
+        specialInstructions: "SPECIAL INSTRUCTIONS:",
+        addExtras: "ADD EXTRAS:",
+        noExtras: "No extras available",
+        selectExtras: "Select extras (optional)",
+        estimatedTime: "Estimated time: {time} minutes",
+        currentEstimatedTime: "Current estimated time: {time} minutes",
+        orderReceived: "ORDER RECEIVED",
+        orderBeingPrepared: "Your order is being prepared",
+        tableNumber: "YOUR TABLE NUMBER",
+        confirm: "CONFIRM",
+        cancel: "CANCEL",
+        rateExperience: "RATE YOUR EXPERIENCE",
+        submit: "SUBMIT",
+        skip: "SKIP",
+        feedbackLabel: "Please share your feedback (required for low ratings):",
+        feedbackPlaceholder: "Your feedback helps us improve...",
+        ordersDashboard: "ORDERS DASHBOARD",
+        occupiedTables: "OCCUPIED TABLES",
+        adminDashboard: "ADMIN DASHBOARD",
+        statistics: "STATISTICS",
+        orders: "ORDERS",
+        ratings: "RATINGS",
+        totalOrders: "TOTAL ORDERS",
+        avgRating: "AVG RATING",
+        lowRatings: "LOW RATINGS",
+        activeStaff: "ACTIVE STAFF",
+        recentOrders: "RECENT ORDERS",
+        recentRatings: "RECENT RATINGS",
+        searchOrders: "Search orders...",
+        all: "ALL",
+        pending: "PENDING",
+        preparing: "PREPARING",
+        ready: "READY",
+        completed: "COMPLETED",
+        tableDetails: "Table Details",
+        orderConfirmed: "ORDER CONFIRMED",
+        orderUpdated: "ORDER UPDATE",
+        orderDeleted: "ORDER DELETED",
+        tableSet: "TABLE SET",
+        tableError: "TABLE ERROR",
+        updateError: "UPDATE ERROR",
+        deleteError: "DELETE ERROR",
+        ratingSubmitted: "RATING SUBMITTED",
+        networkError: "NETWORK ERROR"
+      },
+      ar: {
+        guest: "زائر",
+        staff: "موظف",
+        admin: "مدير",
+        foodTitle: {
+          "Margherita Pizza": "بيتزا مارغريتا",
+          "Pepperoni Pizza": "بيتزا بيبروني",
+          "Fettuccine Alfredo": "فيتوتشيني ألفريدو",
+          "Pesto Pasta": "باستو باستا",
+          "Rose Pasta": "باستا روز",
+          "Sea Food Pasta": "باستا مأكولات بحرية"
+        },
+        foodDesc: {
+          "San Marzano tomato sauce, fresh mozzarella, basil": "صلصة طماطم سان مارزانو، موزاريلا طازجة، ريحان",
+          "Pepperoni, mozzarella, tomato sauce": "بيبروني، موزاريلا، صلصة طماطم",
+          "Handmade pasta, black truffle, parmesan cream": "باستا يدوية، كمأة سوداء، كريمة بارميزان",
+          "Basil pesto, pine nuts, aged parmesan": "بيستو ريحان، صنوبر، بارميزان معتق",
+          "Creamy tomato sauce, permesan cheese, basil": "صلصة طماطم كريمية، جبن بارميزان، ريحان",
+          "Mix of sea food with spaghiti": "مزيج من المأكولات البحرية مع السباغيتي"
+        },
+        addToCart: "أضف إلى الطلب - {price} دينار",
+        viewOrders: "عرض طلباتي",
+        hideOrders: "إخفاء طلباتي",
+        yourOrders: "طلباتك",
+        specialInstructions: "تعليمات خاصة:",
+        addExtras: "إضافات:",
+        noExtras: "لا توجد إضافات متاحة",
+        selectExtras: "اختر إضافات (اختياري)",
+        estimatedTime: "الوقت المقدر: {time} دقيقة",
+        currentEstimatedTime: "الوقت المقدر الحالي: {time} دقيقة",
+        orderReceived: "تم استلام الطلب",
+        orderBeingPrepared: "طلبك قيد التحضير",
+        tableNumber: "رقم طاولتك",
+        confirm: "تأكيد",
+        cancel: "إلغاء",
+        rateExperience: "قيم تجربتك",
+        submit: "إرسال",
+        skip: "تخطي",
+        feedbackLabel: "يرجى مشاركة ملاحظاتك (مطلوب للتقييمات المنخفضة):",
+        feedbackPlaceholder: "ملاحظاتك تساعدنا على التحسين...",
+        ordersDashboard: "لوحة الطلبات",
+        occupiedTables: "الطاولات المشغولة",
+        adminDashboard: "لوحة المدير",
+        statistics: "إحصائيات",
+        orders: "الطلبات",
+        ratings: "التقييمات",
+        totalOrders: "إجمالي الطلبات",
+        avgRating: "متوسط التقييم",
+        lowRatings: "تقييمات منخفضة",
+        activeStaff: "موظفين نشطين",
+        recentOrders: "الطلبات الحديثة",
+        recentRatings: "التقييمات الحديثة",
+        searchOrders: "ابحث في الطلبات...",
+        all: "الكل",
+        pending: "قيد الانتظار",
+        preparing: "قيد التحضير",
+        ready: "جاهز",
+        completed: "مكتمل",
+        tableDetails: "تفاصيل الطاولة",
+        orderConfirmed: "تم تأكيد الطلب",
+        orderUpdated: "تحديث الطلب",
+        orderDeleted: "تم حذف الطلب",
+        tableSet: "تم تعيين الطاولة",
+        tableError: "خطأ في الطاولة",
+        updateError: "خطأ في التحديث",
+        deleteError: "خطأ في الحذف",
+        ratingSubmitted: "تم إرسال التقييم",
+        networkError: "خطأ في الشبكة"
+      }
+    };
+
     // Discount codes
     const DISCOUNT_CODES = {
       "OAK10": 0.10, // 10% discount
@@ -1650,6 +2005,8 @@
     let currentRating = 0;
     let currentOrderForRating = null;
     let ratingsChart = null;
+    let currentLanguage = localStorage.getItem('language') || 'en';
+    let activeAdminTab = 'stats';
 
     // DOM Elements
     const modelViewer = document.getElementById("model-viewer");
@@ -1708,6 +2065,13 @@
     const ratingsChartCtx = document.getElementById("ratings-chart");
     const usernameInput = document.getElementById("username");
     const passwordInput = document.getElementById("password");
+    const langEnBtn = document.getElementById("lang-en");
+    const langArBtn = document.getElementById("lang-ar");
+    const adminTabs = document.querySelectorAll(".admin-tab");
+    const adminTabContents = document.querySelectorAll(".admin-tab-content");
+    const adminSearchInput = document.getElementById("admin-search-input");
+    const adminFilterBtns = document.querySelectorAll(".admin-filter-btn");
+    const adminOrdersList = document.getElementById("admin-orders-list");
 
     // Auth tokens
     const USER_TYPE_KEY = "userType";
@@ -1715,6 +2079,7 @@
     const ADMIN_TOKEN = "adminToken";
     const TABLE_NUMBER_KEY = "tableNumber";
     const TABLE_EXPIRY_KEY = "tableExpiry";
+    const LANGUAGE_KEY = "language";
 
     // ==================== INITIALIZATION ====================
     function initialize() {
@@ -1740,7 +2105,127 @@
       // Show table number modal if needed
       checkTableNumber();
       
+      // Set language
+      setLanguage(currentLanguage);
+      
       analytics.logEvent('page_view');
+    }
+
+    // ==================== LANGUAGE FUNCTIONS ====================
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem(LANGUAGE_KEY, lang);
+      
+      // Update UI language
+      updateLanguageUI();
+      
+      // Update active language button
+      langEnBtn.classList.toggle('active', lang === 'en');
+      langArBtn.classList.toggle('active', lang === 'ar');
+      
+      // Update text direction
+      document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    }
+
+    function updateLanguageUI() {
+      const t = translations[currentLanguage];
+      
+      // Update guest view
+      if (guestView) {
+        guestBtn.textContent = t.guest;
+        staffBtn.textContent = t.staff;
+        adminBtn.textContent = t.admin;
+        viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? t.hideOrders : t.viewOrders;
+        document.querySelector('.notes-label').textContent = t.specialInstructions;
+        document.querySelector('.extras-title').textContent = t.addExtras;
+        
+        // Update food items
+        const currentFood = foods[currentIndex];
+        foodTitle.textContent = t.foodTitle[currentFood.title] || currentFood.title;
+        foodDesc.textContent = t.foodDesc[currentFood.description] || currentFood.description;
+        
+        // Update add to cart button
+        addToCartBtn.textContent = t.addToCart.replace('{price}', currentFood.price.toFixed(2));
+        
+        // Update estimated time
+        estimatedTimeEl.textContent = t.estimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+        
+        // Update extras select
+        if (extrasSelect.options.length > 0) {
+          if (extrasSelect.options[0].disabled) {
+            extrasSelect.options[0].textContent = currentFood.extras && currentFood.extras.length > 0 ? 
+              t.selectExtras : t.noExtras;
+          }
+        }
+      }
+      
+      // Update staff view
+      if (staffDashboard) {
+        staffEstimatedTimeEl.textContent = t.currentEstimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+        document.querySelector('.tables-overview h3').textContent = t.occupiedTables;
+      }
+      
+      // Update admin view
+      if (adminDashboard) {
+        document.querySelectorAll('.admin-tab').forEach((tab, index) => {
+          if (index === 0) tab.textContent = t.statistics;
+          else if (index === 1) tab.textContent = t.orders;
+          else if (index === 2) tab.textContent = t.ratings;
+        });
+        
+        document.querySelectorAll('.stat-title').forEach((title, index) => {
+          if (index === 0) title.textContent = t.totalOrders;
+          else if (index === 1) title.textContent = t.avgRating;
+          else if (index === 2) title.textContent = t.lowRatings;
+          else if (index === 3) title.textContent = t.activeStaff;
+        });
+        
+        document.querySelector('.admin-order-summary h3').textContent = t.recentOrders;
+        adminSearchInput.placeholder = t.searchOrders;
+        
+        adminFilterBtns.forEach((btn, index) => {
+          if (index === 0) btn.textContent = t.all;
+          else if (index === 1) btn.textContent = t.pending;
+          else if (index === 2) btn.textContent = t.preparing;
+          else if (index === 3) btn.textContent = t.ready;
+          else if (index === 4) btn.textContent = t.completed;
+        });
+      }
+      
+      // Update modals
+      if (tableNumberModal.style.display === 'flex') {
+        document.querySelector('.table-number-title').textContent = t.tableNumber;
+        document.querySelector('.table-number-content button:nth-child(1)').textContent = t.confirm;
+        document.querySelector('.table-number-content button:nth-child(2)').textContent = t.cancel;
+      }
+      
+      if (ratingModal.style.display === 'flex') {
+        document.querySelector('.rating-title').textContent = t.rateExperience;
+        document.querySelector('.rating-content button:nth-child(1)').textContent = t.submit;
+        document.querySelector('.rating-content button:nth-child(2)').textContent = t.skip;
+        ratingFeedbackLabel.textContent = t.feedbackLabel;
+        ratingFeedback.placeholder = t.feedbackPlaceholder;
+      }
+      
+      if (tableDetailsModal.style.display === 'flex') {
+        tableDetailsTitle.textContent = t.tableDetails;
+      }
+      
+      // Update cart
+      if (cartPanel.classList.contains('active')) {
+        document.querySelector('.cart-header h3').textContent = t.yourOrders;
+      }
+    }
+
+    function translate(key, params = {}) {
+      let translation = translations[currentLanguage][key] || translations['en'][key] || key;
+      
+      // Replace placeholders
+      for (const [param, value] of Object.entries(params)) {
+        translation = translation.replace(`{${param}}`, value);
+      }
+      
+      return translation;
     }
 
     // ==================== AUTHENTICATION ====================
@@ -1769,7 +2254,7 @@
         return;
       }
       
-      alert("Invalid username or password");
+      alert(currentLanguage === 'ar' ? "اسم المستخدم أو كلمة المرور غير صحيحة" : "Invalid username or password");
       passwordInput.value = "";
     }
 
@@ -1804,6 +2289,9 @@
           totalBreakdown.style.display = 'none';
           checkTableNumber();
       }
+      
+      // Update language UI
+      updateLanguageUI();
     }
 
     function updateStaffAssignment() {
@@ -1811,7 +2299,7 @@
         const staff = STAFF_ACCOUNTS[currentStaff];
         staffAssignment.innerHTML = `
           <span style="color: var(--gold);">${staff.name}</span> - 
-          Responsible for tables ${staff.tables[0]} to ${staff.tables[1]}
+          ${currentLanguage === 'ar' ? 'مسؤول عن الطاولات' : 'Responsible for tables'} ${staff.tables[0]} ${currentLanguage === 'ar' ? 'إلى' : 'to'} ${staff.tables[1]}
         `;
       }
     }
@@ -1848,7 +2336,7 @@
       const tableNum = tableNumberInput.value.trim();
       
       if (!tableNum || isNaN(tableNum)) {
-        alert("Please enter a valid table number");
+        alert(currentLanguage === 'ar' ? "الرجاء إدخال رقم طاولة صحيح" : "Please enter a valid table number");
         return;
       }
       
@@ -1857,7 +2345,11 @@
       // Check if table is available
       const isAvailable = await checkTableAvailability(tableNumberInt);
       if (!isAvailable) {
-        showOrderStatus(`Table ${tableNumberInt} is occupied. Please choose another.`, "TABLE ERROR");
+        showOrderStatus(
+          currentLanguage === 'ar' ? `الطاولة ${tableNumberInt} مشغولة. الرجاء اختيار طاولة أخرى` : 
+          `Table ${tableNumberInt} is occupied. Please choose another.`, 
+          currentLanguage === 'ar' ? "خطأ في الطاولة" : "TABLE ERROR"
+        );
         return;
       }
       
@@ -1869,7 +2361,10 @@
       localStorage.setItem(TABLE_EXPIRY_KEY, tableNumberExpiry.toISOString());
       
       closeTableModal();
-      showOrderStatus(`Table ${tableNumber} assigned`, "TABLE SET");
+      showOrderStatus(
+        currentLanguage === 'ar' ? `تم تعيين الطاولة ${tableNumber}` : `Table ${tableNumber} assigned`,
+        currentLanguage === 'ar' ? "تم تعيين الطاولة" : "TABLE SET"
+      );
     }
 
     async function checkTableAvailability(tableNum) {
@@ -1902,6 +2397,7 @@
     function showTableModal() {
       tableNumberInput.value = "";
       tableNumberModal.style.display = "flex";
+      updateLanguageUI(); // Ensure modal is translated
     }
 
     function closeTableModal() {
@@ -1946,6 +2442,7 @@
       ratingFeedback.value = "";
       
       ratingModal.style.display = "flex";
+      updateLanguageUI(); // Ensure modal is translated
     }
 
     function closeRatingModal() {
@@ -1979,12 +2476,12 @@
 
     async function submitRating() {
       if (currentRating === 0) {
-        alert("Please select a rating");
+        alert(currentLanguage === 'ar' ? "الرجاء اختيار تقييم" : "Please select a rating");
         return;
       }
       
       if (currentRating <= 3 && !ratingFeedback.value.trim()) {
-        alert("Please provide feedback for your low rating");
+        alert(currentLanguage === 'ar' ? "الرجاء تقديم ملاحظات للتقييم المنخفض" : "Please provide feedback for your low rating");
         return;
       }
       
@@ -2013,11 +2510,17 @@
         });
         
         closeRatingModal();
-        showOrderStatus("Thank you for your feedback!", "RATING SUBMITTED");
+        showOrderStatus(
+          currentLanguage === 'ar' ? "شكراً لك على ملاحظاتك!" : "Thank you for your feedback!",
+          currentLanguage === 'ar' ? "تم إرسال التقييم" : "RATING SUBMITTED"
+        );
         
       } catch (error) {
         console.error("Error submitting rating:", error);
-        showOrderStatus("Failed to submit rating. Please try again.", "ERROR");
+        showOrderStatus(
+          currentLanguage === 'ar' ? "فشل إرسال التقييم. الرجاء المحاولة مرة أخرى." : "Failed to submit rating. Please try again.",
+          currentLanguage === 'ar' ? "خطأ" : "ERROR"
+        );
       }
     }
 
@@ -2055,7 +2558,7 @@
       const recentRatings = ratings.slice(0, 10); // Show last 10 ratings
       
       if (recentRatings.length === 0) {
-        ratingsList.innerHTML = '<p style="color: var(--light-cream);">No ratings yet</p>';
+        ratingsList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>`;
         return;
       }
       
@@ -2075,7 +2578,7 @@
         
         ratingEl.innerHTML = `
           <div class="rating-header">
-            <div class="rating-table">Table ${rating.tableNumber}</div>
+            <div class="rating-table">${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${rating.tableNumber}</div>
             <div class="rating-staff">${rating.staff}</div>
           </div>
           <div class="rating-stars-display">
@@ -2089,6 +2592,79 @@
         `;
         
         ratingsList.appendChild(ratingEl);
+      });
+      
+      // Render admin orders list if on orders tab
+      if (activeAdminTab === 'orders') {
+        renderAdminOrders();
+      }
+    }
+
+    function renderAdminOrders() {
+      adminOrdersList.innerHTML = '';
+      
+      if (orders.length === 0) {
+        adminOrdersList.innerHTML = `<p style="color: var(--light-cream); text-align: center;">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
+        return;
+      }
+      
+      // Get active filter
+      const activeFilter = document.querySelector('.admin-filter-btn.active')?.dataset.filter || 'all';
+      
+      // Filter orders
+      let filteredOrders = orders;
+      if (activeFilter !== 'all') {
+        filteredOrders = orders.filter(order => order.status === activeFilter);
+      }
+      
+      // Apply search if any
+      const searchTerm = adminSearchInput.value.toLowerCase();
+      if (searchTerm) {
+        filteredOrders = filteredOrders.filter(order => 
+          order.id.toLowerCase().includes(searchTerm) || 
+          order.tableNumber.toString().includes(searchTerm)
+        );
+      }
+      
+      // Sort by timestamp (newest first)
+      filteredOrders.sort((a, b) => b.timestamp?.toDate() - a.timestamp?.toDate());
+      
+      // Show only recent orders
+      filteredOrders = filteredOrders.slice(0, 20);
+      
+      if (filteredOrders.length === 0) {
+        adminOrdersList.innerHTML = `<p style="color: var(--light-cream); text-align: center;">${currentLanguage === 'ar' ? 'لا توجد طلبات تطابق بحثك' : 'No orders match your search'}</p>`;
+        return;
+      }
+      
+      filteredOrders.forEach(order => {
+        const orderEl = document.createElement('div');
+        orderEl.className = 'admin-order-card';
+        
+        const timeString = order.timestamp?.toDate().toLocaleTimeString() || '';
+        const dateString = order.timestamp?.toDate().toLocaleDateString() || '';
+        
+        orderEl.innerHTML = `
+          <div class="admin-order-card-header">
+            <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id}</div>
+            <div class="order-status status-${order.status}">${order.status.toUpperCase()}</div>
+          </div>
+          <div class="admin-order-card-time">
+            ${dateString} ${timeString} | ${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${order.tableNumber}
+          </div>
+          <div style="margin-top: 8px;">
+            ${order.items.map(item => `
+              <div style="font-size: 0.85rem; margin-bottom: 3px;">
+                ${item.title} - ${item.price.toFixed(2)} JD
+              </div>
+            `).join('')}
+          </div>
+          <div style="text-align: right; font-weight: bold; color: var(--gold); margin-top: 5px;">
+            ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: ${order.total.toFixed(2)} JD
+          </div>
+        `;
+        
+        adminOrdersList.appendChild(orderEl);
       });
     }
 
@@ -2108,9 +2684,15 @@
       ratingsChart = new Chart(ratingsChartCtx, {
         type: 'bar',
         data: {
-          labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+          labels: [
+            currentLanguage === 'ar' ? 'نجمة واحدة' : '1 Star',
+            currentLanguage === 'ar' ? 'نجمتان' : '2 Stars',
+            currentLanguage === 'ar' ? '3 نجوم' : '3 Stars',
+            currentLanguage === 'ar' ? '4 نجوم' : '4 Stars',
+            currentLanguage === 'ar' ? '5 نجوم' : '5 Stars'
+          ],
           datasets: [{
-            label: 'Ratings Distribution',
+            label: currentLanguage === 'ar' ? 'توزيع التقييمات' : 'Ratings Distribution',
             data: ratingCounts,
             backgroundColor: [
               'rgba(178, 34, 34, 0.7)',
@@ -2172,7 +2754,11 @@
       // Check if table is available
       const isAvailable = await checkTableAvailability(tableNumber);
       if (!isAvailable) {
-        showOrderStatus(`Table ${tableNumber} is occupied. Please choose another.`, "TABLE ERROR");
+        showOrderStatus(
+          currentLanguage === 'ar' ? `الطاولة ${tableNumber} مشغولة. الرجاء اختيار طاولة أخرى` : 
+          `Table ${tableNumber} is occupied. Please choose another.`, 
+          currentLanguage === 'ar' ? "خطأ في الطاولة" : "TABLE ERROR"
+        );
         showTableModal();
         return;
       }
@@ -2222,7 +2808,10 @@
         discountCodeInput.value = "";
         updateCart();
         cartPanel.classList.remove('active');
-        showOrderStatus(`Order #${order.id} confirmed!`, "ORDER CONFIRMED");
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم تأكيد الطلب #${order.id}!` : `Order #${order.id} confirmed!`,
+          currentLanguage === 'ar' ? "تم تأكيد الطلب" : "ORDER CONFIRMED"
+        );
         
         analytics.logEvent('purchase', {
           transaction_id: order.id,
@@ -2233,7 +2822,10 @@
         
       } catch (error) {
         console.error("Checkout error:", error);
-        showOrderStatus("Failed to place order. Please try again.", "ORDER ERROR");
+        showOrderStatus(
+          currentLanguage === 'ar' ? "فشل تقديم الطلب. الرجاء المحاولة مرة أخرى." : "Failed to place order. Please try again.",
+          currentLanguage === 'ar' ? "خطأ في الطلب" : "ORDER ERROR"
+        );
       } finally {
         checkoutBtn.disabled = false;
         checkoutBtn.classList.remove('checkout-loading');
@@ -2253,11 +2845,17 @@
       if (DISCOUNT_CODES[code]) {
         discountApplied = DISCOUNT_CODES[code];
         updateCart();
-        showOrderStatus(`Discount applied: ${discountApplied * 100}% off`, "DISCOUNT APPLIED");
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم تطبيق خصم: ${discountApplied * 100}%` : `Discount applied: ${discountApplied * 100}% off`,
+          currentLanguage === 'ar' ? "تم تطبيق الخصم" : "DISCOUNT APPLIED"
+        );
       } else {
         discountApplied = 0;
         updateCart();
-        showOrderStatus("Invalid discount code", "DISCOUNT ERROR");
+        showOrderStatus(
+          currentLanguage === 'ar' ? "كود خصم غير صالح" : "Invalid discount code",
+          currentLanguage === 'ar' ? "خطأ في الخصم" : "DISCOUNT ERROR"
+        );
       }
     }
 
@@ -2322,7 +2920,10 @@
           renderClientOrders(orders.filter(o => o.clientId === clientId));
         }, (error) => {
           console.error("Firestore listener error:", error);
-          showOrderStatus("Connection issue. Trying to reconnect...", "NETWORK ERROR");
+          showOrderStatus(
+            currentLanguage === 'ar' ? "مشكلة في الاتصال. جاري إعادة الاتصال..." : "Connection issue. Trying to reconnect...",
+            currentLanguage === 'ar' ? "خطأ في الشبكة" : "NETWORK ERROR"
+          );
           setTimeout(setupRealTimeListener, 2000);
         });
     }
@@ -2331,10 +2932,14 @@
     function updateModel() {
       const food = foods[currentIndex];
       modelViewer.src = food.model;
-      foodTitle.textContent = food.title;
-      foodDesc.textContent = food.description;
+      
+      // Use translated text if available
+      const t = translations[currentLanguage];
+      foodTitle.textContent = t.foodTitle[food.title] || food.title;
+      foodDesc.textContent = t.foodDesc[food.description] || food.description;
+      
       counter.textContent = `${currentIndex + 1}/${foods.length}`;
-      addToCartBtn.textContent = `ADD TO ORDER - ${food.price.toFixed(2)} JD`;
+      addToCartBtn.textContent = t.addToCart.replace('{price}', food.price.toFixed(2));
       prevBtn.disabled = currentIndex === 0;
       nextBtn.disabled = currentIndex === foods.length - 1;
       
@@ -2344,7 +2949,7 @@
         // Add default empty option
         const defaultOption = document.createElement('option');
         defaultOption.value = "";
-        defaultOption.textContent = "Select extras (optional)";
+        defaultOption.textContent = t.selectExtras;
         defaultOption.selected = true;
         defaultOption.disabled = true;
         extrasSelect.appendChild(defaultOption);
@@ -2361,7 +2966,7 @@
         extrasSelect.multiple = true;
         extrasSelect.style.display = 'block';
       } else {
-        extrasSelect.innerHTML = '<option value="" disabled selected>No extras available</option>';
+        extrasSelect.innerHTML = `<option value="" disabled selected>${t.noExtras}</option>`;
         extrasSelect.multiple = false;
       }
     }
@@ -2392,7 +2997,10 @@
       });
       
       updateCart();
-      showOrderStatus(`${currentFood.title} added to order`, "ORDER UPDATED");
+      showOrderStatus(
+        currentLanguage === 'ar' ? `${currentFood.title} تمت إضافته إلى الطلب` : `${currentFood.title} added to order`,
+        currentLanguage === 'ar' ? "تم تحديث الطلب" : "ORDER UPDATED"
+      );
       cartPanel.classList.add("active");
       itemNotes.value = ""; // Clear notes after adding
       
@@ -2424,14 +3032,14 @@
         let extrasText = '';
         if (item.extras && item.extras.length > 0) {
           extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
-            Extras: ${item.extras.map(e => e.name).join(', ')}
+            ${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')}
           </div>`;
         }
         
         let notesText = '';
         if (item.notes) {
           notesText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
-            Notes: ${item.notes}
+            ${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes}
           </div>`;
         }
         
@@ -2472,12 +3080,16 @@
           removeFromCart(e.target.dataset.id);
         });
       });
+      
+      // Update checkout button text
+      checkoutBtn.querySelector('.checkout-text').textContent = currentLanguage === 'ar' ? 'تأكيد الطلب' : 'CONFIRM ORDER';
     }
 
     function updateEstimatedTime() {
-      estimatedTimeEl.textContent = `Estimated time: ${estimatedTime}-${estimatedTime + 5} minutes`;
+      const t = translations[currentLanguage];
+      estimatedTimeEl.textContent = t.estimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
       if (staffEstimatedTimeEl) {
-        staffEstimatedTimeEl.textContent = `Current estimated time: ${estimatedTime}-${estimatedTime + 5} minutes`;
+        staffEstimatedTimeEl.textContent = t.currentEstimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
       }
     }
 
@@ -2485,7 +3097,7 @@
       tablesGrid.innerHTML = '';
       
       if (occupiedTables.size === 0) {
-        tablesGrid.innerHTML = '<p style="grid-column: 1 / -1; color: var(--light-cream);">No occupied tables</p>';
+        tablesGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 'No occupied tables'}</p>`;
         return;
       }
       
@@ -2498,7 +3110,7 @@
         tableEl.className = `table-item ${tableData ? 'occupied' : ''}`;
         tableEl.onclick = () => showTableDetails(tableNum);
         
-        let statusText = 'Available';
+        let statusText = currentLanguage === 'ar' ? 'متاحة' : 'Available';
         let statusClass = '';
         
         if (tableData) {
@@ -2507,13 +3119,13 @@
           const hasPreparing = tableData.orders.some(o => o.status === 'preparing');
           
           if (hasPending) {
-            statusText = 'Pending';
+            statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
             statusClass = 'status-pending';
           } else if (hasPreparing) {
-            statusText = 'Preparing';
+            statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
             statusClass = 'status-preparing';
           } else {
-            statusText = 'Ready';
+            statusText = currentLanguage === 'ar' ? 'جاهزة' : 'Ready';
             statusClass = 'status-ready';
           }
         }
@@ -2522,7 +3134,7 @@
           <div class="table-number">${tableNum}</div>
           <div class="table-status ${statusClass}">${statusText}</div>
           <div style="font-size: 0.7rem; margin-top: 3px;">
-            ${tableData ? tableData.orders.length + ' order(s)' : ''}
+            ${tableData ? tableData.orders.length + (currentLanguage === 'ar' ? ' طلب' : ' order(s)') : ''}
           </div>
         `;
         
@@ -2534,7 +3146,8 @@
       const tableData = tableDetails[tableNum];
       if (!tableData) return;
       
-      tableDetailsTitle.textContent = `Table ${tableNum} Details`;
+      const t = translations[currentLanguage];
+      tableDetailsTitle.textContent = t.tableDetails;
       tableOrdersList.innerHTML = '';
       
       // Group orders by status
@@ -2566,25 +3179,25 @@
             
             orderEl.innerHTML = `
               <div class="table-order-id">
-                Order #${order.id}
-                <span class="table-order-status status-${order.status}">${order.status.toUpperCase()}</span>
+                ${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id}
+                <span class="table-order-status status-${order.status}">${status.toUpperCase()}</span>
               </div>
               <div style="color: var(--light-cream); font-size: 0.8rem; margin: 5px 0;">
-                Estimated: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} mins
+                ${currentLanguage === 'ar' ? 'مقدر:' : 'Estimated:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'mins'}
               </div>
               <div class="table-order-items">
                 ${order.items.map(item => {
                   let extrasText = '';
                   if (item.extras && item.extras.length > 0) {
                     extrasText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
-                      (Extras: ${item.extras.map(e => e.name).join(', ')})
+                      (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
                     </span>`;
                   }
                   
                   let notesText = '';
                   if (item.notes) {
                     notesText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
-                      (Notes: ${item.notes})
+                      (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
                     </span>`;
                   }
                   
@@ -2597,7 +3210,7 @@
                 }).join('')}
               </div>
               <div style="text-align: right; font-weight: bold; color: var(--gold); margin-top: 5px;">
-                Total: ${order.total.toFixed(2)} JD
+                ${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${order.total.toFixed(2)} JD
               </div>
             `;
             
@@ -2613,7 +3226,7 @@
       ordersList.innerHTML = '';
       
       if (orders.length === 0) {
-        ordersList.innerHTML = '<p style="color: var(--light-cream);">No orders yet</p>';
+        ordersList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
         return;
       }
 
@@ -2660,26 +3273,26 @@
             preparingBtn.className = 'action-btn';
             preparingBtn.style.background = '#2196F3';
             preparingBtn.style.color = 'white';
-            preparingBtn.textContent = 'Preparing';
+            preparingBtn.textContent = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
             preparingBtn.onclick = () => updateOrderStatus(order.id, 'preparing');
             
             const readyBtn = document.createElement('button');
             readyBtn.className = 'action-btn';
             readyBtn.style.background = '#4CAF50';
             readyBtn.style.color = 'white';
-            readyBtn.textContent = 'Ready';
+            readyBtn.textContent = currentLanguage === 'ar' ? 'جاهزة' : 'Ready';
             readyBtn.onclick = () => updateOrderStatus(order.id, 'ready');
             
             const completeBtn = document.createElement('button');
             completeBtn.className = 'action-btn';
             completeBtn.style.background = '#9E9E9E';
             completeBtn.style.color = 'white';
-            completeBtn.textContent = 'Complete';
+            completeBtn.textContent = currentLanguage === 'ar' ? 'مكتملة' : 'Complete';
             completeBtn.onclick = () => updateOrderStatus(order.id, 'completed');
             
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'action-btn delete-order';
-            deleteBtn.textContent = 'DELETE ORDER';
+            deleteBtn.textContent = currentLanguage === 'ar' ? 'حذف الطلب' : 'DELETE ORDER';
             deleteBtn.onclick = () => deleteOrder(order.id);
             
             // Create actions container
@@ -2699,25 +3312,25 @@
             // Build order card
             orderEl.innerHTML = `
               <div class="order-header">
-                <div class="order-id">Order #${order.id} (Table ${order.tableNumber})</div>
-                <div class="order-status status-${order.status}">${order.status.toUpperCase()}</div>
+                <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id} (${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${order.tableNumber})</div>
+                <div class="order-status status-${order.status}">${status.toUpperCase()}</div>
               </div>
               <div style="color: var(--light-cream); font-size: 0.8rem; margin-bottom: 5px;">
-                Estimated time: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} minutes
+                ${currentLanguage === 'ar' ? 'الوقت المقدر:' : 'Estimated time:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'minutes'}
               </div>
               <div class="order-items">
                 ${order.items.map(item => {
                   let extrasText = '';
                   if (item.extras && item.extras.length > 0) {
                     extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
-                      (Extras: ${item.extras.map(e => e.name).join(', ')})
+                      (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
                     </div>`;
                   }
                   
                   let notesText = '';
                   if (item.notes) {
                     notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
-                      (Notes: ${item.notes})
+                      (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
                     </div>`;
                   }
                   
@@ -2730,7 +3343,7 @@
                 }).join('')}
               </div>
               <div style="text-align: right; font-weight: bold; color: var(--gold);">
-                Total: ${order.total.toFixed(2)} JD
+                ${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${order.total.toFixed(2)} JD
               </div>
             `;
             
@@ -2788,26 +3401,38 @@
         
         // Update notification
         const statusMessages = {
-          preparing: `Your order #${orderId} is being prepared`,
-          ready: `Your order #${orderId} is ready!`,
-          completed: `Your order #${orderId} has been completed`
+          preparing: currentLanguage === 'ar' ? 
+            `طلبك #${orderId} قيد التحضير` : 
+            `Your order #${orderId} is being prepared`,
+          ready: currentLanguage === 'ar' ?
+            `طلبك #${orderId} جاهز!` :
+            `Your order #${orderId} is ready!`,
+          completed: currentLanguage === 'ar' ?
+            `طلبك #${orderId} تم إكماله` :
+            `Your order #${orderId} has been completed`
         };
         
         if (statusMessages[status]) {
-          showOrderStatus(statusMessages[status], "ORDER UPDATE");
+          showOrderStatus(
+            statusMessages[status],
+            currentLanguage === 'ar' ? 'تحديث الطلب' : 'ORDER UPDATE'
+          );
         }
         
       } catch (error) {
         console.error("Update error:", error);
         showOrderStatus(
-          error.message.includes("not found") ? "Order not found" : "Update failed. Try again.",
-          "UPDATE ERROR"
+          error.message.includes("not found") ? 
+            (currentLanguage === 'ar' ? "الطلب غير موجود" : "Order not found") : 
+            (currentLanguage === 'ar' ? "فشل التحديث. حاول مرة أخرى." : "Update failed. Try again."),
+          currentLanguage === 'ar' ? "خطأ في التحديث" : "UPDATE ERROR"
         );
       }
     }
 
     async function deleteOrder(orderId) {
-      if (!confirm("Permanently delete this order?")) return;
+      const t = translations[currentLanguage];
+      if (!confirm(t.deleteConfirm || "Permanently delete this order?")) return;
 
       try {
         // Find the document containing this order ID
@@ -2830,13 +3455,18 @@
           releaseTable(orderData.tableNumber);
         }
         
-        showOrderStatus(`Order #${orderId} deleted`, "ORDER DELETED");
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم حذف الطلب #${orderId}` : `Order #${orderId} deleted`,
+          currentLanguage === 'ar' ? "تم حذف الطلب" : "ORDER DELETED"
+        );
         
       } catch (error) {
         console.error("Delete error:", error);
         showOrderStatus(
-          error.message.includes("not found") ? "Order not found" : "Delete failed. Try again.",
-          "DELETE ERROR"
+          error.message.includes("not found") ? 
+            (currentLanguage === 'ar' ? "الطلب غير موجود" : "Order not found") : 
+            (currentLanguage === 'ar' ? "فشل الحذف. حاول مرة أخرى." : "Delete failed. Try again."),
+          currentLanguage === 'ar' ? "خطأ في الحذف" : "DELETE ERROR"
         );
       }
     }
@@ -2845,7 +3475,7 @@
       clientOrdersList.innerHTML = '';
       
       if (clientOrdersData.length === 0) {
-        clientOrdersList.innerHTML = '<p style="color: var(--light-cream);">No orders yet</p>';
+        clientOrdersList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
         return;
       }
       
@@ -2858,22 +3488,22 @@
             <div class="client-order-status status-${order.status}">${order.status.toUpperCase()}</div>
           </div>
           <div style="color: var(--light-cream); font-size: 0.7rem; margin-bottom: 5px;">
-            Table: ${order.tableNumber || 'Not specified'} | 
-            Estimated: ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} mins
+            ${currentLanguage === 'ar' ? 'طاولة:' : 'Table:'} ${order.tableNumber || (currentLanguage === 'ar' ? 'غير محدد' : 'Not specified')} | 
+            ${currentLanguage === 'ar' ? 'مقدر:' : 'Estimated:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'mins'}
           </div>
           <div class="client-order-items">
             ${order.items.map(item => {
               let extrasText = '';
               if (item.extras && item.extras.length > 0) {
                 extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
-                  (Extras: ${item.extras.map(e => e.name).join(', ')})
+                  (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
                 </div>`;
               }
               
               let notesText = '';
               if (item.notes) {
                 notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
-                  (Notes: ${item.notes})
+                  (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
                 </div>`;
               }
               
@@ -2890,10 +3520,11 @@
     }
 
     function showOrderStatus(message, title = "ORDER RECEIVED") {
+      const t = translations[currentLanguage];
       const statusTitle = orderStatus.querySelector(".status-title");
       const statusMessage = orderStatus.querySelector(".status-message");
       
-      statusTitle.textContent = title;
+      statusTitle.textContent = t[title.toLowerCase().replace(' ', '')] || title;
       statusMessage.textContent = message;
       orderStatus.classList.add("active");
       
@@ -2912,6 +3543,34 @@
       tableDetailsModal.style.display = "none";
     }
 
+    // ==================== ADMIN FUNCTIONS ====================
+    function switchAdminTab(tabId) {
+      activeAdminTab = tabId;
+      
+      // Update tabs
+      adminTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabId);
+      });
+      
+      // Update content
+      adminTabContents.forEach(content => {
+        content.classList.toggle('active', content.id === `${tabId}-tab`);
+      });
+      
+      // Render content if needed
+      if (tabId === 'orders') {
+        renderAdminOrders();
+      }
+    }
+
+    function filterAdminOrders(filter) {
+      adminFilterBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
+      
+      renderAdminOrders();
+    }
+
     // ==================== EVENT LISTENERS ====================
     document.addEventListener('DOMContentLoaded', initialize);
 
@@ -2923,8 +3582,9 @@
     closeCartBtn.addEventListener('click', () => cartPanel.classList.remove('active'));
     viewOrdersBtn.addEventListener('click', () => {
       clientOrders.classList.toggle('active');
+      const t = translations[currentLanguage];
       viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? 
-        'HIDE MY ORDERS' : 'VIEW MY ORDERS';
+        t.hideOrders : t.viewOrders;
     });
     applyDiscountBtn.addEventListener('click', applyDiscount);
     discountCodeInput.addEventListener('keypress', (e) => {
@@ -2938,6 +3598,21 @@
         const rating = parseInt(star.dataset.rating);
         setRating(rating);
       });
+    });
+
+    // Language switcher
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+    langArBtn.addEventListener('click', () => setLanguage('ar'));
+
+    // Admin tabs
+    adminTabs.forEach(tab => {
+      tab.addEventListener('click', () => switchAdminTab(tab.dataset.tab));
+    });
+
+    // Admin search and filter
+    adminSearchInput.addEventListener('input', () => renderAdminOrders());
+    adminFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => filterAdminOrders(btn.dataset.filter));
     });
 
     // Navigation buttons
@@ -2968,7 +3643,7 @@
       if (userType === "staff") {
         checkAuthState();
       } else {
-        loginModalTitle.textContent = "STAFF LOGIN";
+        loginModalTitle.textContent = currentLanguage === 'ar' ? "تسجيل دخول الموظفين" : "STAFF LOGIN";
         loginModal.style.display = 'flex';
       }
     });
@@ -2977,7 +3652,7 @@
       if (userType === "admin") {
         checkAuthState();
       } else {
-        loginModalTitle.textContent = "ADMIN LOGIN";
+        loginModalTitle.textContent = currentLanguage === 'ar' ? "تسجيل دخول المدير" : "ADMIN LOGIN";
         loginModal.style.display = 'flex';
       }
     });
