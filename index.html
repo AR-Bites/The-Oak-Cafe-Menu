@@ -1202,12 +1202,16 @@
 
     /* Language Switcher */
     .language-switcher {
-      position: absolute;
+      position: fixed;
       top: 15px;
       right: 15px;
       display: flex;
       gap: 8px;
       z-index: 100;
+      background: rgba(26, 58, 47, 0.8);
+      padding: 5px;
+      border-radius: 20px;
+      border: 1px solid var(--gold);
     }
 
     .language-btn {
@@ -1881,7 +1885,10 @@
         updateError: "UPDATE ERROR",
         deleteError: "DELETE ERROR",
         ratingSubmitted: "RATING SUBMITTED",
-        networkError: "NETWORK ERROR"
+        networkError: "NETWORK ERROR",
+        usernamePlaceholder: "Your username",
+        passwordPlaceholder: "Your password",
+        deleteConfirm: "Permanently delete this order?"
       },
       ar: {
         guest: "زائر",
@@ -1950,7 +1957,10 @@
         updateError: "خطأ في التحديث",
         deleteError: "خطأ في الحذف",
         ratingSubmitted: "تم إرسال التقييم",
-        networkError: "خطأ في الشبكة"
+        networkError: "خطأ في الشبكة",
+        usernamePlaceholder: "اسم المستخدم",
+        passwordPlaceholder: "كلمة المرور",
+        deleteConfirm: "هل تريد حذف هذا الطلب نهائياً؟"
       }
     };
 
@@ -2125,6 +2135,31 @@
       
       // Update text direction
       document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      
+      // Update input placeholders
+      updateInputPlaceholders();
+    }
+
+    function updateInputPlaceholders() {
+      const t = translations[currentLanguage];
+      
+      // Update login modal placeholders
+      usernameInput.placeholder = t.usernamePlaceholder;
+      passwordInput.placeholder = t.passwordPlaceholder;
+      
+      // Update table number modal placeholder
+      tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم الطاولة' : 'Enter table number';
+      
+      // Update notes placeholder
+      document.getElementById('item-notes').placeholder = currentLanguage === 'ar' ? 
+        'مثال: بدون بصل، حار جداً، إلخ.' : 'E.g. No onions, extra spicy, etc.';
+      
+      // Update discount code placeholder
+      document.getElementById('discount-code').placeholder = currentLanguage === 'ar' ? 
+        'كود الخصم (اختياري)' : 'Discount code (optional)';
+      
+      // Update search placeholder
+      document.getElementById('admin-search-input').placeholder = t.searchOrders;
     }
 
     function updateLanguageUI() {
@@ -2181,7 +2216,6 @@
         });
         
         document.querySelector('.admin-order-summary h3').textContent = t.recentOrders;
-        adminSearchInput.placeholder = t.searchOrders;
         
         adminFilterBtns.forEach((btn, index) => {
           if (index === 0) btn.textContent = t.all;
@@ -3432,7 +3466,7 @@
 
     async function deleteOrder(orderId) {
       const t = translations[currentLanguage];
-      if (!confirm(t.deleteConfirm || "Permanently delete this order?")) return;
+      if (!confirm(t.deleteConfirm)) return;
 
       try {
         // Find the document containing this order ID
