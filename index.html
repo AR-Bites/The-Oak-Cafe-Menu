@@ -6,6 +6,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root {
@@ -1015,6 +1016,178 @@
       margin-bottom: 3px;
     }
 
+    /* Rating Modal */
+    .rating-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1300;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .rating-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .rating-title {
+      color: var(--gold);
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .rating-stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .rating-star {
+      font-size: 2rem;
+      color: var(--light-cream);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .rating-star.active {
+      color: var(--gold);
+    }
+
+    .rating-feedback {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+      resize: none;
+      min-height: 80px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .rating-feedback-label {
+      display: none;
+      color: var(--light-cream);
+      margin-bottom: 6px;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    /* Admin Dashboard */
+    .admin-dashboard {
+      display: none;
+      padding: 12px;
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .stat-card {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid var(--gold);
+    }
+
+    .stat-title {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      color: var(--gold);
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .ratings-list {
+      margin-top: 15px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .rating-item {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .rating-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .rating-table {
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .rating-staff {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+    }
+
+    .rating-stars-display {
+      display: flex;
+      gap: 5px;
+      margin: 5px 0;
+    }
+
+    .rating-star-display {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .rating-star-display.empty {
+      color: var(--light-cream);
+      opacity: 0.5;
+    }
+
+    .rating-feedback-text {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      margin-top: 15px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid var(--gold);
+    }
+
+    /* Staff Assignment */
+    .staff-assignment {
+      font-size: 0.8rem;
+      color: var(--light-cream);
+      margin-top: 5px;
+    }
+
     /* Media Queries for Larger Screens */
     @media (min-width: 768px) {
       .overlay {
@@ -1075,9 +1248,14 @@
       .tables-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       }
+
+      .admin-stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
   <!-- Table Number Modal -->
@@ -1088,6 +1266,26 @@
       <div class="modal-buttons">
         <button onclick="confirmTableNumber()" style="flex: 1;">CONFIRM</button>
         <button onclick="closeTableModal()" style="background: var(--red); flex: 1;">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rating Modal -->
+  <div class="rating-modal" id="rating-modal">
+    <div class="rating-content">
+      <h2 class="rating-title">RATE YOUR EXPERIENCE</h2>
+      <div class="rating-stars">
+        <i class="fas fa-star rating-star" data-rating="1"></i>
+        <i class="fas fa-star rating-star" data-rating="2"></i>
+        <i class="fas fa-star rating-star" data-rating="3"></i>
+        <i class="fas fa-star rating-star" data-rating="4"></i>
+        <i class="fas fa-star rating-star" data-rating="5"></i>
+      </div>
+      <label class="rating-feedback-label" id="rating-feedback-label">Please share your feedback (required for low ratings):</label>
+      <textarea class="rating-feedback" id="rating-feedback" placeholder="Your feedback helps us improve..."></textarea>
+      <div class="modal-buttons">
+        <button onclick="submitRating()" style="flex: 1;" id="submit-rating-btn">SUBMIT</button>
+        <button onclick="closeRatingModal()" style="background: var(--red); flex: 1;">SKIP</button>
       </div>
     </div>
   </div>
@@ -1108,13 +1306,17 @@
   <!-- Login Modal -->
   <div class="modal" id="login-modal">
     <div class="modal-content">
-      <h2 class="modal-title">STAFF LOGIN</h2>
+      <h2 class="modal-title" id="login-modal-title">STAFF LOGIN</h2>
       <div class="input-group">
-        <label for="password">Enter Password:</label>
-        <input type="password" id="password" placeholder="Your secure password">
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Your username">
+      </div>
+      <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Your password">
       </div>
       <div class="modal-buttons">
-        <button onclick="checkPassword()" style="flex: 1;">ENTER</button>
+        <button onclick="checkLogin()" style="flex: 1;">LOGIN</button>
         <button onclick="closeModal()" style="background: var(--red); flex: 1;">CANCEL</button>
       </div>
     </div>
@@ -1126,6 +1328,7 @@
     <div class="user-type">
       <button class="user-btn active" id="guest-btn">GUEST</button>
       <button class="user-btn" id="staff-btn">STAFF</button>
+      <button class="user-btn" id="admin-btn">ADMIN</button>
     </div>
 
     <!-- Guest View -->
@@ -1190,6 +1393,9 @@
     <div class="staff-dashboard" id="staff-dashboard">
       <h2 style="color: var(--gold);">ORDERS DASHBOARD</h2>
       <p class="estimated-time" id="staff-estimated-time">Current estimated time: 20-25 minutes</p>
+      <div class="staff-assignment" id="staff-assignment">
+        <!-- Staff assignment info will appear here -->
+      </div>
       
       <!-- Tables Overview Section -->
       <div class="tables-overview">
@@ -1201,6 +1407,39 @@
       
       <div class="orders-list" id="orders-list">
         <!-- Orders will appear here -->
+      </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="admin-dashboard">
+      <h2 style="color: var(--gold);">ADMIN DASHBOARD</h2>
+      
+      <div class="admin-stats">
+        <div class="stat-card">
+          <div class="stat-title">TOTAL ORDERS</div>
+          <div class="stat-value" id="total-orders">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">AVG RATING</div>
+          <div class="stat-value" id="avg-rating">0.0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">LOW RATINGS</div>
+          <div class="stat-value" id="low-ratings">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">ACTIVE STAFF</div>
+          <div class="stat-value" id="active-staff">3</div>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="ratings-chart"></canvas>
+      </div>
+      
+      <h3 style="color: var(--gold); margin-top: 20px;">RECENT RATINGS</h3>
+      <div class="ratings-list" id="ratings-list">
+        <!-- Ratings will appear here -->
       </div>
     </div>
 
@@ -1366,20 +1605,51 @@
       "WELCOME5": 0.05 // 5% discount
     };
 
+    // Staff accounts with table assignments
+    const STAFF_ACCOUNTS = {
+      "ahmad": {
+        password: "ahmad123",
+        name: "Ahmad",
+        tables: [1, 20] // Tables 1-20
+      },
+      "khaled": {
+        password: "khaled123",
+        name: "Khaled",
+        tables: [21, 40] // Tables 21-40
+      },
+      "mohammad": {
+        password: "mohammad123",
+        name: "Mohammad",
+        tables: [41, 60] // Tables 41-60
+      }
+    };
+
+    // Admin account
+    const ADMIN_ACCOUNT = {
+      username: "hussien",
+      password: "admin123"
+    };
+
     // ==================== GLOBAL VARIABLES ====================
     let currentIndex = 0;
     let cart = [];
     let orders = [];
-    let isStaff = false;
+    let ratings = [];
+    let userType = "guest"; // guest, staff, admin
+    let currentStaff = null;
     let clientId = localStorage.getItem('clientId') || 
                   'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     let firestoreListener = null;
+    let ratingsListener = null;
     let discountApplied = 0;
     let estimatedTime = 20; // Base time in minutes
     let occupiedTables = new Set(); // Track occupied tables
     let tableNumber = null; // Current table number
     let tableNumberExpiry = null; // When the table number expires
     let tableDetails = {}; // Store table details for staff view
+    let currentRating = 0;
+    let currentOrderForRating = null;
+    let ratingsChart = null;
 
     // DOM Elements
     const modelViewer = document.getElementById("model-viewer");
@@ -1391,9 +1661,12 @@
     const addToCartBtn = document.getElementById("add-to-cart");
     const guestBtn = document.getElementById("guest-btn");
     const staffBtn = document.getElementById("staff-btn");
+    const adminBtn = document.getElementById("admin-btn");
     const guestView = document.getElementById("guest-view");
     const staffDashboard = document.getElementById("staff-dashboard");
+    const adminDashboard = document.getElementById("admin-dashboard");
     const loginModal = document.getElementById("login-modal");
+    const loginModalTitle = document.getElementById("login-modal-title");
     const ordersList = document.getElementById("orders-list");
     const cartPanel = document.getElementById("cart-panel");
     const cartItemsEl = document.getElementById("cart-items");
@@ -1421,10 +1694,25 @@
     const tableDetailsTitle = document.getElementById("table-details-title");
     const tableOrdersList = document.getElementById("table-orders-list");
     const closeDetailsBtn = document.getElementById("close-details");
+    const ratingModal = document.getElementById("rating-modal");
+    const ratingStars = document.querySelectorAll(".rating-star");
+    const ratingFeedback = document.getElementById("rating-feedback");
+    const ratingFeedbackLabel = document.getElementById("rating-feedback-label");
+    const submitRatingBtn = document.getElementById("submit-rating-btn");
+    const staffAssignment = document.getElementById("staff-assignment");
+    const totalOrdersEl = document.getElementById("total-orders");
+    const avgRatingEl = document.getElementById("avg-rating");
+    const lowRatingsEl = document.getElementById("low-ratings");
+    const activeStaffEl = document.getElementById("active-staff");
+    const ratingsList = document.getElementById("ratings-list");
+    const ratingsChartCtx = document.getElementById("ratings-chart");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
 
-    // Password - CHANGE THIS TO YOUR SECURE PASSWORD
-    const STAFF_PASSWORD = "OakCafe2025";
-    const STAFF_TOKEN = "staff-auth-token";
+    // Auth tokens
+    const USER_TYPE_KEY = "userType";
+    const STAFF_TOKEN = "staffToken";
+    const ADMIN_TOKEN = "adminToken";
     const TABLE_NUMBER_KEY = "tableNumber";
     const TABLE_EXPIRY_KEY = "tableExpiry";
 
@@ -1438,10 +1726,13 @@
       // Check for expired table number
       checkTableNumberExpiry();
       
-      isStaff = localStorage.getItem(STAFF_TOKEN) === 'true';
+      // Check auth state
+      userType = localStorage.getItem(USER_TYPE_KEY) || "guest";
+      currentStaff = localStorage.getItem(STAFF_TOKEN);
       checkAuthState();
       
       setupRealTimeListener();
+      setupRatingsListener();
       updateModel();
       updateCart();
       updateEstimatedTime();
@@ -1450,6 +1741,79 @@
       checkTableNumber();
       
       analytics.logEvent('page_view');
+    }
+
+    // ==================== AUTHENTICATION ====================
+    function checkLogin() {
+      const username = usernameInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+      
+      // Check admin login
+      if (username === ADMIN_ACCOUNT.username && password === ADMIN_ACCOUNT.password) {
+        userType = "admin";
+        localStorage.setItem(USER_TYPE_KEY, "admin");
+        localStorage.setItem(ADMIN_TOKEN, "true");
+        closeModal();
+        checkAuthState();
+        return;
+      }
+      
+      // Check staff login
+      if (STAFF_ACCOUNTS[username] && STAFF_ACCOUNTS[username].password === password) {
+        userType = "staff";
+        currentStaff = username;
+        localStorage.setItem(USER_TYPE_KEY, "staff");
+        localStorage.setItem(STAFF_TOKEN, username);
+        closeModal();
+        checkAuthState();
+        return;
+      }
+      
+      alert("Invalid username or password");
+      passwordInput.value = "";
+    }
+
+    function checkAuthState() {
+      // Reset all views
+      guestView.style.display = "none";
+      staffDashboard.style.display = "none";
+      adminDashboard.style.display = "none";
+      
+      // Update buttons
+      guestBtn.classList.remove("active");
+      staffBtn.classList.remove("active");
+      adminBtn.classList.remove("active");
+      
+      // Show appropriate view based on user type
+      switch(userType) {
+        case "staff":
+          staffBtn.classList.add("active");
+          staffDashboard.style.display = "block";
+          totalBreakdown.style.display = 'block';
+          updateStaffAssignment();
+          break;
+        case "admin":
+          adminBtn.classList.add("active");
+          adminDashboard.style.display = "block";
+          renderAdminDashboard();
+          break;
+        default: // guest
+          userType = "guest";
+          guestBtn.classList.add("active");
+          guestView.style.display = "block";
+          totalBreakdown.style.display = 'none';
+          checkTableNumber();
+      }
+    }
+
+    function updateStaffAssignment() {
+      if (currentStaff && STAFF_ACCOUNTS[currentStaff]) {
+        const staff = STAFF_ACCOUNTS[currentStaff];
+        staffAssignment.innerHTML = `
+          <span style="color: var(--gold);">${staff.name}</span> - 
+          Responsible for tables ${staff.tables[0]} to ${staff.tables[1]}
+        `;
+      }
     }
 
     // ==================== TABLE MANAGEMENT ====================
@@ -1473,7 +1837,7 @@
     }
 
     function checkTableNumber() {
-      if (!isStaff && !tableNumber) {
+      if (userType === "guest" && !tableNumber) {
         setTimeout(() => {
           showTableModal();
         }, 500);
@@ -1542,6 +1906,257 @@
 
     function closeTableModal() {
       tableNumberModal.style.display = "none";
+    }
+
+    // ==================== RATING SYSTEM ====================
+    function setupRatingsListener() {
+      if (ratingsListener) {
+        ratingsListener();
+      }
+      
+      ratingsListener = db.collection("ratings")
+        .orderBy("timestamp", "desc")
+        .limit(50)
+        .onSnapshot((snapshot) => {
+          const updatedRatings = [];
+          snapshot.forEach((doc) => {
+            updatedRatings.push(doc.data());
+          });
+          
+          ratings = updatedRatings;
+          
+          if (userType === "admin") {
+            renderAdminDashboard();
+          }
+        });
+    }
+
+    function showRatingModal(orderId) {
+      currentOrderForRating = orderId;
+      currentRating = 0;
+      
+      // Reset stars
+      ratingStars.forEach(star => {
+        star.classList.remove("active");
+      });
+      
+      // Hide feedback initially
+      ratingFeedback.style.display = "none";
+      ratingFeedbackLabel.style.display = "none";
+      ratingFeedback.value = "";
+      
+      ratingModal.style.display = "flex";
+    }
+
+    function closeRatingModal() {
+      ratingModal.style.display = "none";
+      currentOrderForRating = null;
+    }
+
+    function setRating(rating) {
+      currentRating = rating;
+      
+      // Update star display
+      ratingStars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.add("active");
+        } else {
+          star.classList.remove("active");
+        }
+      });
+      
+      // Show feedback if rating is 3 or less
+      if (rating <= 3) {
+        ratingFeedback.style.display = "block";
+        ratingFeedbackLabel.style.display = "block";
+        ratingFeedback.required = true;
+      } else {
+        ratingFeedback.style.display = "none";
+        ratingFeedbackLabel.style.display = "none";
+        ratingFeedback.required = false;
+      }
+    }
+
+    async function submitRating() {
+      if (currentRating === 0) {
+        alert("Please select a rating");
+        return;
+      }
+      
+      if (currentRating <= 3 && !ratingFeedback.value.trim()) {
+        alert("Please provide feedback for your low rating");
+        return;
+      }
+      
+      try {
+        // Find the order to get table number and staff info
+        const orderQuery = await db.collection("orders")
+          .where("id", "==", currentOrderForRating)
+          .limit(1)
+          .get();
+        
+        if (orderQuery.empty) {
+          throw new Error("Order not found");
+        }
+        
+        const orderData = orderQuery.docs[0].data();
+        const staffMember = getStaffForTable(orderData.tableNumber);
+        
+        // Save rating
+        await db.collection("ratings").add({
+          orderId: currentOrderForRating,
+          tableNumber: orderData.tableNumber,
+          rating: currentRating,
+          feedback: currentRating <= 3 ? ratingFeedback.value.trim() : null,
+          staff: staffMember ? staffMember.name : "Unknown",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        closeRatingModal();
+        showOrderStatus("Thank you for your feedback!", "RATING SUBMITTED");
+        
+      } catch (error) {
+        console.error("Error submitting rating:", error);
+        showOrderStatus("Failed to submit rating. Please try again.", "ERROR");
+      }
+    }
+
+    function getStaffForTable(tableNumber) {
+      for (const [username, staff] of Object.entries(STAFF_ACCOUNTS)) {
+        if (tableNumber >= staff.tables[0] && tableNumber <= staff.tables[1]) {
+          return staff;
+        }
+      }
+      return null;
+    }
+
+    function renderAdminDashboard() {
+      // Update stats
+      totalOrdersEl.textContent = orders.length;
+      
+      // Calculate ratings stats
+      if (ratings.length > 0) {
+        const totalRating = ratings.reduce((sum, r) => sum + r.rating, 0);
+        const avgRating = totalRating / ratings.length;
+        const lowRatings = ratings.filter(r => r.rating <= 3).length;
+        
+        avgRatingEl.textContent = avgRating.toFixed(1);
+        lowRatingsEl.textContent = lowRatings;
+        
+        // Update chart
+        updateRatingsChart();
+      } else {
+        avgRatingEl.textContent = "0.0";
+        lowRatingsEl.textContent = "0";
+      }
+      
+      // Render recent ratings
+      ratingsList.innerHTML = '';
+      const recentRatings = ratings.slice(0, 10); // Show last 10 ratings
+      
+      if (recentRatings.length === 0) {
+        ratingsList.innerHTML = '<p style="color: var(--light-cream);">No ratings yet</p>';
+        return;
+      }
+      
+      recentRatings.forEach(rating => {
+        const ratingEl = document.createElement('div');
+        ratingEl.className = 'rating-item';
+        
+        // Create star display
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= rating.rating) {
+            starsHtml += '<i class="fas fa-star rating-star-display"></i>';
+          } else {
+            starsHtml += '<i class="fas fa-star rating-star-display empty"></i>';
+          }
+        }
+        
+        ratingEl.innerHTML = `
+          <div class="rating-header">
+            <div class="rating-table">Table ${rating.tableNumber}</div>
+            <div class="rating-staff">${rating.staff}</div>
+          </div>
+          <div class="rating-stars-display">
+            ${starsHtml}
+          </div>
+          ${rating.feedback ? `
+            <div class="rating-feedback-text">
+              "${rating.feedback}"
+            </div>
+          ` : ''}
+        `;
+        
+        ratingsList.appendChild(ratingEl);
+      });
+    }
+
+    function updateRatingsChart() {
+      // Group ratings by value (1-5)
+      const ratingCounts = [0, 0, 0, 0, 0];
+      ratings.forEach(r => {
+        ratingCounts[r.rating - 1]++;
+      });
+      
+      // Destroy previous chart if exists
+      if (ratingsChart) {
+        ratingsChart.destroy();
+      }
+      
+      // Create new chart
+      ratingsChart = new Chart(ratingsChartCtx, {
+        type: 'bar',
+        data: {
+          labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+          datasets: [{
+            label: 'Ratings Distribution',
+            data: ratingCounts,
+            backgroundColor: [
+              'rgba(178, 34, 34, 0.7)',
+              'rgba(255, 159, 64, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(54, 162, 235, 0.7)'
+            ],
+            borderColor: [
+              'rgba(178, 34, 34, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(54, 162, 235, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: 'var(--light-cream)'
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              }
+            },
+            x: {
+              ticks: {
+                color: 'var(--light-cream)'
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
     }
 
     // ==================== ORDER PROCESSING ====================
@@ -1687,9 +2302,13 @@
           occupiedTables = newOccupiedTables;
           tableDetails = newTableDetails;
           
-          if (isStaff) {
+          if (userType === "staff") {
             renderOrders();
             renderTablesOverview();
+          }
+          
+          if (userType === "admin") {
+            renderAdminDashboard();
           }
           
           renderClientOrders(orders.filter(o => o.clientId === clientId));
@@ -1821,8 +2440,8 @@
         subtotal += item.price;
       });
       
-      // For staff, show full breakdown
-      if (isStaff) {
+      // For staff/admin, show full breakdown
+      if (userType === "staff" || userType === "admin") {
         totalBreakdown.style.display = 'block';
         const serviceAmount = subtotal * 0.05;
         const taxAmount = subtotal * 0.08;
@@ -1990,6 +2609,15 @@
         return;
       }
 
+      // Filter orders based on staff's table assignment
+      let filteredOrders = orders;
+      if (currentStaff && STAFF_ACCOUNTS[currentStaff]) {
+        const staffTables = STAFF_ACCOUNTS[currentStaff].tables;
+        filteredOrders = orders.filter(order => 
+          order.tableNumber >= staffTables[0] && order.tableNumber <= staffTables[1]
+        );
+      }
+
       // Group orders by status
       const ordersByStatus = {
         pending: [],
@@ -1998,7 +2626,7 @@
         completed: []
       };
 
-      orders.forEach(order => {
+      filteredOrders.forEach(order => {
         ordersByStatus[order.status].push(order);
       });
 
@@ -2132,11 +2760,18 @@
           timestamp: firebase.firestore.FieldValue.serverTimestamp() 
         });
 
-        // If order is completed, schedule its deletion after 5 minutes
+        // If order is completed, handle accordingly
         if (status === 'completed') {
           const orderData = querySnapshot.docs[0].data();
           if (orderData.tableNumber) {
             releaseTable(orderData.tableNumber);
+          }
+          
+          // Show rating modal to guest if they're viewing their orders
+          if (userType === "guest" && orderData.clientId === clientId) {
+            setTimeout(() => {
+              showRatingModal(orderId);
+            }, 1000);
           }
           
           // Schedule deletion after 5 minutes (300000 milliseconds)
@@ -2266,43 +2901,10 @@
       }, 5000);
     }
 
-    function checkPassword() {
-      const passwordInput = document.getElementById("password");
-      if (passwordInput.value === STAFF_PASSWORD) {
-        isStaff = true;
-        localStorage.setItem(STAFF_TOKEN, 'true');
-        checkAuthState();
-        closeModal();
-        
-        analytics.logEvent('staff_login');
-      } else {
-        alert("Incorrect password. Please try again.");
-        passwordInput.value = "";
-      }
-    }
-
-    function checkAuthState() {
-      if (isStaff) {
-        guestBtn.classList.remove("active");
-        staffBtn.classList.add("active");
-        guestView.style.display = "none";
-        staffDashboard.style.display = "block";
-        totalBreakdown.style.display = 'block';
-      } else {
-        guestBtn.classList.add("active");
-        staffBtn.classList.remove("active");
-        guestView.style.display = "block";
-        staffDashboard.style.display = "none";
-        totalBreakdown.style.display = 'none';
-        
-        // If no table number set, show modal
-        checkTableNumber();
-      }
-    }
-
     function closeModal() {
       loginModal.style.display = "none";
-      document.getElementById("password").value = "";
+      usernameInput.value = "";
+      passwordInput.value = "";
     }
 
     function closeDetailsModal() {
@@ -2329,6 +2931,14 @@
     });
     closeDetailsBtn.addEventListener('click', closeDetailsModal);
 
+    // Rating star click handlers
+    ratingStars.forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = parseInt(star.dataset.rating);
+        setRating(rating);
+      });
+    });
+
     // Navigation buttons
     prevBtn.addEventListener('click', () => {
       if (currentIndex > 0) {
@@ -2346,22 +2956,27 @@
 
     // User type switching
     guestBtn.addEventListener('click', () => {
-      guestBtn.classList.add('active');
-      staffBtn.classList.remove('active');
-      guestView.style.display = 'block';
-      staffDashboard.style.display = 'none';
-      totalBreakdown.style.display = 'none';
-      isStaff = false;
+      userType = "guest";
+      localStorage.setItem(USER_TYPE_KEY, "guest");
       localStorage.removeItem(STAFF_TOKEN);
-      
-      // If no table number set, show modal
-      checkTableNumber();
+      localStorage.removeItem(ADMIN_TOKEN);
+      checkAuthState();
     });
 
     staffBtn.addEventListener('click', () => {
-      if (isStaff) {
+      if (userType === "staff") {
         checkAuthState();
       } else {
+        loginModalTitle.textContent = "STAFF LOGIN";
+        loginModal.style.display = 'flex';
+      }
+    });
+
+    adminBtn.addEventListener('click', () => {
+      if (userType === "admin") {
+        checkAuthState();
+      } else {
+        loginModalTitle.textContent = "ADMIN LOGIN";
         loginModal.style.display = 'flex';
       }
     });
