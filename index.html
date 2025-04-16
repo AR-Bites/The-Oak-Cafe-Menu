@@ -1455,7 +1455,7 @@
         
         <div class="social-links">
           <a href="https://www.instagram.com/ar.bitesjo?igsh=ajhmd3ZvbjJhamJh" class="social-link" target="_blank">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/2048px-Instagram_icon.png" alt="Instagram" class="instagram-icon">
+            <img src="https://upload.wikimedia.org/commons/thumb/a/a5/Instagram_icon.png/2048px-Instagram_icon.png" alt="Instagram" class="instagram-icon">
             @ar.bitesjo
           </a>
           <a href="tel:+962790753376" class="social-link">
@@ -2296,6 +2296,14 @@
               }
               newTableDetails[orderData.tableNumber].orders.push(orderData);
             }
+            
+            // Check if this order belongs to the current client and was just completed
+            if (orderData.clientId === clientId && orderData.status === 'completed') {
+              // Show rating modal immediately for the guest
+              if (userType === 'guest') {
+                showRatingModal(orderData.id);
+              }
+            }
           });
           
           orders = updatedOrders;
@@ -2766,14 +2774,6 @@
           if (orderData.tableNumber) {
             releaseTable(orderData.tableNumber);
           }
-
-          // Immediately show rating modal to guest if they're the client
-          if (orderData.clientId === clientId) {
-             showRatingModal(orderId);
-            }
-
-          
-
           
           // Schedule deletion after 5 minutes (300000 milliseconds)
           setTimeout(async () => {
