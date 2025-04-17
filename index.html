@@ -1432,11 +1432,11 @@
   <!-- Table Number Modal -->
   <div class="table-number-modal" id="table-number-modal">
     <div class="table-number-content">
-      <h2 class="table-number-title">YOUR TABLE NUMBER</h2>
+      <h2 class="table-number-title" id="table-number-title">YOUR TABLE NUMBER</h2>
       <input type="number" class="table-number-input" id="table-number-input" placeholder="Enter table number" min="1">
       <div class="modal-buttons">
-        <button onclick="confirmTableNumber()" style="flex: 1;">CONFIRM</button>
-        <button onclick="closeTableModal()" style="background: var(--red); flex: 1;">CANCEL</button>
+        <button onclick="confirmTableNumber()" style="flex: 1;" id="confirm-table-btn">CONFIRM</button>
+        <button onclick="closeTableModal()" style="background: var(--red); flex: 1;" id="cancel-table-btn">CANCEL</button>
       </div>
     </div>
   </div>
@@ -1444,7 +1444,7 @@
   <!-- Rating Modal -->
   <div class="rating-modal" id="rating-modal">
     <div class="rating-content">
-      <h2 class="rating-title">RATE YOUR EXPERIENCE</h2>
+      <h2 class="rating-title" id="rating-title">RATE YOUR EXPERIENCE</h2>
       <div class="rating-stars">
         <i class="fas fa-star rating-star" data-rating="1"></i>
         <i class="fas fa-star rating-star" data-rating="2"></i>
@@ -1456,7 +1456,7 @@
       <textarea class="rating-feedback" id="rating-feedback" placeholder="Your feedback helps us improve..."></textarea>
       <div class="modal-buttons">
         <button onclick="submitRating()" style="flex: 1;" id="submit-rating-btn">SUBMIT</button>
-        <button onclick="closeRatingModal()" style="background: var(--red); flex: 1;">SKIP</button>
+        <button onclick="closeRatingModal()" style="background: var(--red); flex: 1;" id="skip-rating-btn">SKIP</button>
       </div>
     </div>
   </div>
@@ -1479,16 +1479,16 @@
     <div class="modal-content">
       <h2 class="modal-title" id="login-modal-title">STAFF LOGIN</h2>
       <div class="input-group">
-        <label for="username">Username:</label>
+        <label for="username" id="username-label">Username:</label>
         <input type="text" id="username" placeholder="Your username">
       </div>
       <div class="input-group">
-        <label for="password">Password:</label>
+        <label for="password" id="password-label">Password:</label>
         <input type="password" id="password" placeholder="Your password">
       </div>
       <div class="modal-buttons">
-        <button onclick="checkLogin()" style="flex: 1;">LOGIN</button>
-        <button onclick="closeModal()" style="background: var(--red); flex: 1;">CANCEL</button>
+        <button onclick="checkLogin()" style="flex: 1;" id="login-btn">LOGIN</button>
+        <button onclick="closeModal()" style="background: var(--red); flex: 1;" id="cancel-login-btn">CANCEL</button>
       </div>
     </div>
   </div>
@@ -1534,12 +1534,12 @@
           shadow-intensity="1.2"
           exposure="1.1"
         >
-          <button slot="ar-button" class="ar-button">VIEW IN YOUR SPACE</button>
+          <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN YOUR SPACE</button>
         </model-viewer>
 
         <!-- Extras Section -->
         <div class="extras-section" id="extras-section">
-          <div class="extras-title">ADD EXTRAS:</div>
+          <div class="extras-title" id="extras-title">ADD EXTRAS:</div>
           <select class="extras-select" id="extras-select" multiple>
             <!-- Extras will be added dynamically -->
           </select>
@@ -1547,7 +1547,7 @@
 
         <!-- Notes Section -->
         <div class="notes-section">
-          <label class="notes-label" for="item-notes">SPECIAL INSTRUCTIONS:</label>
+          <label class="notes-label" for="item-notes" id="notes-label">SPECIAL INSTRUCTIONS:</label>
           <textarea class="notes-textarea" id="item-notes" placeholder="E.g. No onions, extra spicy, etc."></textarea>
         </div>
 
@@ -1562,7 +1562,7 @@
         <!-- Client Order Status Section -->
         <button class="view-orders-btn" id="view-orders-btn">VIEW MY ORDERS</button>
         <div class="client-orders" id="client-orders">
-          <h3>YOUR ORDERS</h3>
+          <h3 id="your-orders-title">YOUR ORDERS</h3>
           <div id="client-orders-list">
             <!-- Client orders will appear here -->
           </div>
@@ -1572,7 +1572,7 @@
 
     <!-- Staff Dashboard -->
     <div class="staff-dashboard" id="staff-dashboard">
-      <h2 style="color: var(--gold);">ORDERS DASHBOARD</h2>
+      <h2 style="color: var(--gold);" id="staff-dashboard-title">ORDERS DASHBOARD</h2>
       <p class="estimated-time" id="staff-estimated-time">Current estimated time: 20-25 minutes</p>
       <div class="staff-assignment" id="staff-assignment">
         <!-- Staff assignment info will appear here -->
@@ -1580,7 +1580,7 @@
       
       <!-- Tables Overview Section -->
       <div class="tables-overview">
-        <h3>OCCUPIED TABLES</h3>
+        <h3 id="occupied-tables-title">OCCUPIED TABLES</h3>
         <div class="tables-grid" id="tables-grid">
           <!-- Tables will appear here -->
         </div>
@@ -1593,32 +1593,32 @@
 
     <!-- Admin Dashboard -->
     <div class="admin-dashboard" id="admin-dashboard">
-      <h2 style="color: var(--gold);">ADMIN DASHBOARD</h2>
+      <h2 style="color: var(--gold);" id="admin-dashboard-title">ADMIN DASHBOARD</h2>
       
       <!-- Admin Tabs -->
       <div class="admin-tabs">
-        <div class="admin-tab active" data-tab="stats">STATISTICS</div>
-        <div class="admin-tab" data-tab="orders">ORDERS</div>
-        <div class="admin-tab" data-tab="ratings">RATINGS</div>
+        <div class="admin-tab active" data-tab="stats" id="stats-tab">STATISTICS</div>
+        <div class="admin-tab" data-tab="orders" id="orders-tab">ORDERS</div>
+        <div class="admin-tab" data-tab="ratings" id="ratings-tab">RATINGS</div>
       </div>
       
       <!-- Stats Tab -->
       <div class="admin-tab-content active" id="stats-tab">
         <div class="admin-stats">
           <div class="stat-card">
-            <div class="stat-title">TOTAL ORDERS</div>
+            <div class="stat-title" id="total-orders-title">TOTAL ORDERS</div>
             <div class="stat-value" id="total-orders">0</div>
           </div>
           <div class="stat-card">
-            <div class="stat-title">AVG RATING</div>
+            <div class="stat-title" id="avg-rating-title">AVG RATING</div>
             <div class="stat-value" id="avg-rating">0.0</div>
           </div>
           <div class="stat-card">
-            <div class="stat-title">LOW RATINGS</div>
+            <div class="stat-title" id="low-ratings-title">LOW RATINGS</div>
             <div class="stat-value" id="low-ratings">0</div>
           </div>
           <div class="stat-card">
-            <div class="stat-title">ACTIVE STAFF</div>
+            <div class="stat-title" id="active-staff-title">ACTIVE STAFF</div>
             <div class="stat-value" id="active-staff">3</div>
           </div>
         </div>
@@ -1636,15 +1636,15 @@
         </div>
         
         <div class="admin-filter">
-          <div class="admin-filter-btn active" data-filter="all">ALL</div>
-          <div class="admin-filter-btn" data-filter="pending">PENDING</div>
-          <div class="admin-filter-btn" data-filter="preparing">PREPARING</div>
-          <div class="admin-filter-btn" data-filter="ready">READY</div>
-          <div class="admin-filter-btn" data-filter="completed">COMPLETED</div>
+          <div class="admin-filter-btn active" data-filter="all" id="filter-all">ALL</div>
+          <div class="admin-filter-btn" data-filter="pending" id="filter-pending">PENDING</div>
+          <div class="admin-filter-btn" data-filter="preparing" id="filter-preparing">PREPARING</div>
+          <div class="admin-filter-btn" data-filter="ready" id="filter-ready">READY</div>
+          <div class="admin-filter-btn" data-filter="completed" id="filter-completed">COMPLETED</div>
         </div>
         
         <div class="admin-order-summary">
-          <h3>RECENT ORDERS</h3>
+          <h3 id="recent-orders-title">RECENT ORDERS</h3>
           <div id="admin-orders-list">
             <!-- Admin orders will appear here -->
           </div>
@@ -1653,7 +1653,7 @@
       
       <!-- Ratings Tab -->
       <div class="admin-tab-content" id="ratings-tab">
-        <h3 style="color: var(--gold); margin-top: 0;">RECENT RATINGS</h3>
+        <h3 style="color: var(--gold); margin-top: 0;" id="recent-ratings-title">RECENT RATINGS</h3>
         <div class="ratings-list" id="ratings-list">
           <!-- Ratings will appear here -->
         </div>
@@ -1664,10 +1664,10 @@
       <div class="footer-grid">
         <div class="branding-section">
           <div class="powered-by">
-            <span style="color: var(--light-cream);">Powered by</span>
+            <span style="color: var(--light-cream);" id="powered-by-text">Powered by</span>
             <img src="ar-bites-logo.png" alt="AR Bites Logo" class="ar-bites-logo">
           </div>
-          <p class="copyright">© 2025 AR BITES. ALL RIGHTS RESERVED</p>
+          <p class="copyright" id="copyright-text">© 2025 AR BITES. ALL RIGHTS RESERVED</p>
         </div>
         
         <div class="social-links">
@@ -1687,7 +1687,7 @@
   <!-- Cart Panel -->
   <div class="cart-panel" id="cart-panel">
     <div class="cart-header">
-      <h3>YOUR ORDER</h3>
+      <h3 id="cart-title">YOUR ORDER</h3>
       <button id="close-cart">×</button>
     </div>
     <div class="cart-items" id="cart-items"></div>
@@ -1723,8 +1723,8 @@
   <div class="order-status-notification" id="order-status">
     <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Status" class="status-icon">
     <div class="status-content">
-      <div class="status-title">ORDER RECEIVED</div>
-      <div class="status-message">Your order is being prepared</div>
+      <div class="status-title" id="status-title">ORDER RECEIVED</div>
+      <div class="status-message" id="status-message">Your order is being prepared</div>
     </div>
     <button class="close-status" id="close-status">×</button>
   </div>
@@ -1888,7 +1888,17 @@
         networkError: "NETWORK ERROR",
         usernamePlaceholder: "Your username",
         passwordPlaceholder: "Your password",
-        deleteConfirm: "Permanently delete this order?"
+        deleteConfirm: "Permanently delete this order?",
+        poweredBy: "Powered by",
+        copyright: "© 2025 AR BITES. ALL RIGHTS RESERVED",
+        prev: "← PREV",
+        next: "NEXT →",
+        arButton: "VIEW IN YOUR SPACE",
+        cartTitle: "YOUR ORDER",
+        confirmOrder: "CONFIRM ORDER",
+        usernameLabel: "Username:",
+        passwordLabel: "Password:",
+        login: "LOGIN"
       },
       ar: {
         guest: "زائر",
@@ -1960,7 +1970,17 @@
         networkError: "خطأ في الشبكة",
         usernamePlaceholder: "اسم المستخدم",
         passwordPlaceholder: "كلمة المرور",
-        deleteConfirm: "هل تريد حذف هذا الطلب نهائياً؟"
+        deleteConfirm: "هل تريد حذف هذا الطلب نهائياً؟",
+        poweredBy: "مقدم من",
+        copyright: "© 2025 AR BITES. جميع الحقوق محفوظة",
+        prev: "السابق ←",
+        next: "→ التالي",
+        arButton: "عرض في مساحتك",
+        cartTitle: "طلبك",
+        confirmOrder: "تأكيد الطلب",
+        usernameLabel: "اسم المستخدم:",
+        passwordLabel: "كلمة المرور:",
+        login: "تسجيل الدخول"
       }
     };
 
@@ -2082,6 +2102,41 @@
     const adminSearchInput = document.getElementById("admin-search-input");
     const adminFilterBtns = document.querySelectorAll(".admin-filter-btn");
     const adminOrdersList = document.getElementById("admin-orders-list");
+    const arButton = document.getElementById("ar-button");
+    const yourOrdersTitle = document.getElementById("your-orders-title");
+    const notesLabel = document.getElementById("notes-label");
+    const extrasTitle = document.getElementById("extras-title");
+    const tableNumberTitle = document.getElementById("table-number-title");
+    const confirmTableBtn = document.getElementById("confirm-table-btn");
+    const cancelTableBtn = document.getElementById("cancel-table-btn");
+    const ratingTitle = document.getElementById("rating-title");
+    const skipRatingBtn = document.getElementById("skip-rating-btn");
+    const staffDashboardTitle = document.getElementById("staff-dashboard-title");
+    const occupiedTablesTitle = document.getElementById("occupied-tables-title");
+    const adminDashboardTitle = document.getElementById("admin-dashboard-title");
+    const totalOrdersTitle = document.getElementById("total-orders-title");
+    const avgRatingTitle = document.getElementById("avg-rating-title");
+    const lowRatingsTitle = document.getElementById("low-ratings-title");
+    const activeStaffTitle = document.getElementById("active-staff-title");
+    const recentOrdersTitle = document.getElementById("recent-orders-title");
+    const recentRatingsTitle = document.getElementById("recent-ratings-title");
+    const poweredByText = document.getElementById("powered-by-text");
+    const copyrightText = document.getElementById("copyright-text");
+    const cartTitle = document.getElementById("cart-title");
+    const statusTitle = document.getElementById("status-title");
+    const statusMessage = document.getElementById("status-message");
+    const usernameLabel = document.getElementById("username-label");
+    const passwordLabel = document.getElementById("password-label");
+    const loginBtn = document.getElementById("login-btn");
+    const cancelLoginBtn = document.getElementById("cancel-login-btn");
+    const statsTab = document.getElementById("stats-tab");
+    const ordersTab = document.getElementById("orders-tab");
+    const ratingsTab = document.getElementById("ratings-tab");
+    const filterAll = document.getElementById("filter-all");
+    const filterPending = document.getElementById("filter-pending");
+    const filterPreparing = document.getElementById("filter-preparing");
+    const filterReady = document.getElementById("filter-ready");
+    const filterCompleted = document.getElementById("filter-completed");
 
     // Auth tokens
     const USER_TYPE_KEY = "userType";
@@ -2151,15 +2206,15 @@
       tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم الطاولة' : 'Enter table number';
       
       // Update notes placeholder
-      document.getElementById('item-notes').placeholder = currentLanguage === 'ar' ? 
+      itemNotes.placeholder = currentLanguage === 'ar' ? 
         'مثال: بدون بصل، حار جداً، إلخ.' : 'E.g. No onions, extra spicy, etc.';
       
       // Update discount code placeholder
-      document.getElementById('discount-code').placeholder = currentLanguage === 'ar' ? 
+      discountCodeInput.placeholder = currentLanguage === 'ar' ? 
         'كود الخصم (اختياري)' : 'Discount code (optional)';
       
       // Update search placeholder
-      document.getElementById('admin-search-input').placeholder = t.searchOrders;
+      adminSearchInput.placeholder = t.searchOrders;
     }
 
     function updateLanguageUI() {
@@ -2171,8 +2226,12 @@
         staffBtn.textContent = t.staff;
         adminBtn.textContent = t.admin;
         viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? t.hideOrders : t.viewOrders;
-        document.querySelector('.notes-label').textContent = t.specialInstructions;
-        document.querySelector('.extras-title').textContent = t.addExtras;
+        notesLabel.textContent = t.specialInstructions;
+        extrasTitle.textContent = t.addExtras;
+        yourOrdersTitle.textContent = t.yourOrders;
+        prevBtn.textContent = t.prev;
+        nextBtn.textContent = t.next;
+        arButton.textContent = t.arButton;
         
         // Update food items
         const currentFood = foods[currentIndex];
@@ -2196,59 +2255,56 @@
       
       // Update staff view
       if (staffDashboard) {
+        staffDashboardTitle.textContent = t.ordersDashboard;
         staffEstimatedTimeEl.textContent = t.currentEstimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
-        document.querySelector('.tables-overview h3').textContent = t.occupiedTables;
+        occupiedTablesTitle.textContent = t.occupiedTables;
       }
       
       // Update admin view
       if (adminDashboard) {
-        document.querySelectorAll('.admin-tab').forEach((tab, index) => {
-          if (index === 0) tab.textContent = t.statistics;
-          else if (index === 1) tab.textContent = t.orders;
-          else if (index === 2) tab.textContent = t.ratings;
-        });
-        
-        document.querySelectorAll('.stat-title').forEach((title, index) => {
-          if (index === 0) title.textContent = t.totalOrders;
-          else if (index === 1) title.textContent = t.avgRating;
-          else if (index === 2) title.textContent = t.lowRatings;
-          else if (index === 3) title.textContent = t.activeStaff;
-        });
-        
-        document.querySelector('.admin-order-summary h3').textContent = t.recentOrders;
-        
-        adminFilterBtns.forEach((btn, index) => {
-          if (index === 0) btn.textContent = t.all;
-          else if (index === 1) btn.textContent = t.pending;
-          else if (index === 2) btn.textContent = t.preparing;
-          else if (index === 3) btn.textContent = t.ready;
-          else if (index === 4) btn.textContent = t.completed;
-        });
+        adminDashboardTitle.textContent = t.adminDashboard;
+        statsTab.textContent = t.statistics;
+        ordersTab.textContent = t.orders;
+        ratingsTab.textContent = t.ratings;
+        totalOrdersTitle.textContent = t.totalOrders;
+        avgRatingTitle.textContent = t.avgRating;
+        lowRatingsTitle.textContent = t.lowRatings;
+        activeStaffTitle.textContent = t.activeStaff;
+        recentOrdersTitle.textContent = t.recentOrders;
+        recentRatingsTitle.textContent = t.recentRatings;
+        filterAll.textContent = t.all;
+        filterPending.textContent = t.pending;
+        filterPreparing.textContent = t.preparing;
+        filterReady.textContent = t.ready;
+        filterCompleted.textContent = t.completed;
       }
       
       // Update modals
-      if (tableNumberModal.style.display === 'flex') {
-        document.querySelector('.table-number-title').textContent = t.tableNumber;
-        document.querySelector('.table-number-content button:nth-child(1)').textContent = t.confirm;
-        document.querySelector('.table-number-content button:nth-child(2)').textContent = t.cancel;
-      }
+      tableNumberTitle.textContent = t.tableNumber;
+      confirmTableBtn.textContent = t.confirm;
+      cancelTableBtn.textContent = t.cancel;
       
-      if (ratingModal.style.display === 'flex') {
-        document.querySelector('.rating-title').textContent = t.rateExperience;
-        document.querySelector('.rating-content button:nth-child(1)').textContent = t.submit;
-        document.querySelector('.rating-content button:nth-child(2)').textContent = t.skip;
-        ratingFeedbackLabel.textContent = t.feedbackLabel;
-        ratingFeedback.placeholder = t.feedbackPlaceholder;
-      }
+      ratingTitle.textContent = t.rateExperience;
+      submitRatingBtn.textContent = t.submit;
+      skipRatingBtn.textContent = t.skip;
+      ratingFeedbackLabel.textContent = t.feedbackLabel;
+      ratingFeedback.placeholder = t.feedbackPlaceholder;
       
-      if (tableDetailsModal.style.display === 'flex') {
-        tableDetailsTitle.textContent = t.tableDetails;
-      }
+      tableDetailsTitle.textContent = t.tableDetails;
       
       // Update cart
-      if (cartPanel.classList.contains('active')) {
-        document.querySelector('.cart-header h3').textContent = t.yourOrders;
-      }
+      cartTitle.textContent = t.cartTitle;
+      checkoutText.textContent = t.confirmOrder;
+      
+      // Update login modal
+      usernameLabel.textContent = t.usernameLabel;
+      passwordLabel.textContent = t.passwordLabel;
+      loginBtn.textContent = t.login;
+      cancelLoginBtn.textContent = t.cancel;
+      
+      // Update footer
+      poweredByText.textContent = t.poweredBy;
+      copyrightText.textContent = t.copyright;
     }
 
     function translate(key, params = {}) {
@@ -3116,7 +3172,7 @@
       });
       
       // Update checkout button text
-      checkoutBtn.querySelector('.checkout-text').textContent = currentLanguage === 'ar' ? 'تأكيد الطلب' : 'CONFIRM ORDER';
+      checkoutBtn.querySelector('.checkout-text').textContent = translations[currentLanguage].confirmOrder;
     }
 
     function updateEstimatedTime() {
@@ -3555,9 +3611,6 @@
 
     function showOrderStatus(message, title = "ORDER RECEIVED") {
       const t = translations[currentLanguage];
-      const statusTitle = orderStatus.querySelector(".status-title");
-      const statusMessage = orderStatus.querySelector(".status-message");
-      
       statusTitle.textContent = t[title.toLowerCase().replace(' ', '')] || title;
       statusMessage.textContent = message;
       orderStatus.classList.add("active");
