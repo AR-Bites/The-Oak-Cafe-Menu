@@ -1,227 +1,1736 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Oak Cafe Menu</title>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>The Oak Cafe - Premium AR Dining</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500&display=swap');
+    :root {
+      --gold: #D4AF37;
+      --dark-green: #1A3A2F;
+      --light-cream: #F5F5DC;
+      --red: #B22222;
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     
     body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f9f5f0;
-      color: #333;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
     }
     
-    h1, h2, h3, h4 {
-      font-family: 'Playfair Display', serif;
+    .overlay {
+      background-color: rgba(26, 58, 47, 0.95);
+      min-height: 100vh;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
     }
     
-    .menu-section {
-      transition: all 0.3s ease;
+    .header {
+      padding: 10px 0;
+      position: relative;
     }
     
-    .menu-item {
-      transition: transform 0.2s;
+    .logo {
+      height: 60px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      max-width: 100%;
     }
     
-    .menu-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    h1 {
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin: 8px 0 4px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3));
+      line-height: 1.2;
     }
     
-    .table-number {
-      transition: all 0.3s ease;
+    .tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      color: var(--light-cream);
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
     
-    .table-number:hover {
-      background-color: #4e342e;
+    .food-container {
+      width: 100%;
+      margin: 0 auto;
+      background: rgba(245, 245, 220, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15));
+      border: 1px solid var(--gold);
+      flex-grow: 1;
+      position: relative;
+      z-index: 1;
+    }
+    
+    model-viewer {
+      width: 100%;
+      height: 220px;
+      margin: 12px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15));
+    }
+    
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin: 15px 0;
+      position: relative;
+      z-index: 2;
+    }
+    
+    button {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+      color: var(--dark-green);
+      border: none;
+      padding: 10px 12px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3));
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    button:active {
+      transform: scale(0.98);
+    }
+    
+    .ar-button {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%) !important;
+      color: var(--dark-green) !important;
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 15px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+      font-size: 0.85rem;
+      width: calc(100% - 24px);
+      max-width: 220px;
+      border-radius: 25px !important;
+    }
+    
+    @keyframes pulse {
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.03); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+    
+    .footer {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(26, 58, 47, 0.95);
+      border-radius: 12px 12px 0 0;
+      border-top: 2px solid var(--gold);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin: 0 auto;
+    }
+    
+    .branding-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .powered-by {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .ar-bites-logo {
+      height: 35px;
+      transition: var(--transition);
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .social-link {
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.9rem;
+    }
+    
+    .instagram-icon {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .copyright {
+      font-size: 0.75rem;
+      margin-top: 15px;
+      color: rgba(255,255,255,0.7);
+    }
+    
+    /* Login Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+    
+    .modal-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 320px;
+    }
+    
+    .modal-title {
+      color: var(--gold);
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--light-cream);
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    
+    .input-group input, .input-group textarea, .input-group select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 1rem;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    /* Staff Dashboard */
+    .staff-dashboard {
+      display: none;
+      padding: 12px;
+    }
+    
+    .orders-list {
+      margin-top: 15px;
+    }
+    
+    .order-card {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-left: 3px solid var(--gold);
+    }
+    
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    
+    .order-id {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+    
+    .order-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+    }
+    
+    .status-pending {
+      background: rgba(255, 193, 7, 0.2);
+      color: #FFC107;
+    }
+    
+    .status-preparing {
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196F3;
+    }
+    
+    .status-ready {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+    }
+    
+    .status-completed {
+      background: rgba(158, 158, 158, 0.2);
+      color: #9E9E9E;
+    }
+    
+    .order-items {
+      margin-bottom: 8px;
+    }
+    
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 0.85rem;
+    }
+    
+    .order-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 6px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      min-width: 70px;
+      font-size: 0.75rem;
+    }
+    
+    /* User Type Selection */
+    .user-type {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .user-btn {
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      border: 1px solid var(--gold);
+      padding: 10px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      font-size: 0.85rem;
+    }
+    
+    .user-btn.active {
+      background: var(--gold);
+      color: var(--dark-green);
+    }
+    
+    /* Cart System */
+    .add-to-cart {
+      background: linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%);
+      color: white;
+      padding: 12px;
+      border-radius: 25px;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 12px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3));
+      font-size: 0.9rem;
+    }
+    
+    .cart-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      width: calc(100% - 20px);
+      max-width: 400px;
+      background: rgba(26, 58, 47, 0.98);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3));
+      border: 1px solid var(--gold);
+      z-index: 900;
+      transform: translateX(120%);
+      transition: var(--transition);
+      max-height: 50vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .cart-panel.active {
+      transform: translateX(0);
+    }
+    
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3));
+    }
+    
+    .cart-header h3 {
+      margin: 0;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+    
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      max-height: 30vh;
+      padding-right: 5px;
     }
     
     .cart-item {
-      animation: fadeIn 0.5s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .item-name {
+      flex: 2;
+      text-align: left;
+      font-size: 0.85rem;
     }
     
-    .badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background-color: #d4a373;
-      color: white;
-      border-radius: 50%;
+    .item-price {
+      flex: 1;
+      text-align: right;
+      color: var(--gold);
+      font-size: 0.85rem;
+    }
+    
+    .remove-item {
+      background: none;
+      border: none;
+      color: #ff6b6b;
+      cursor: pointer;
+      margin-left: 6px;
+      font-size: 1rem;
       width: 22px;
       height: 22px;
-      font-size: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
-    .order-btn {
-      transition: all 0.3s ease;
+    .checkout-btn {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+      color: var(--dark-green);
+      width: 100%;
+      padding: 12px;
+      border-radius: 25px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      font-size: 0.9rem;
     }
     
-    .order-btn:hover {
-      transform: scale(1.05);
+    .checkout-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
     
-    .order-status {
-      transition: all 0.3s ease;
+    .checkout-loading .checkout-text {
+      visibility: hidden;
+    }
+    
+    .checkout-loading::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      margin: -8px 0 0 -8px;
+      border: 2px solid rgba(26, 58, 47, 0.2);
+      border-top-color: var(--dark-green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .cart-toggle {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      background: var(--gold);
+      color: var(--dark-green);
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2));
+      z-index: 800;
+      transition: var(--transition);
+    }
+    
+    .cart-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--red);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+    
+    /* Order Status Notification */
+    .order-status-notification {
+      position: fixed;
+      bottom: 12px;
+      left: 12px;
+      background: white;
+      color: var(--dark-green);
+      padding: 10px 12px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2));
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(-120%);
+      transition: var(--transition);
+      border-left: 3px solid var(--gold);
+      width: calc(100% - 24px);
+      max-width: 350px;
+    }
+    
+    .order-status-notification.active {
+      transform: translateX(0);
+    }
+    
+    .status-icon {
+      width: 22px;
+      height: 22px;
+    }
+    
+    .status-content {
+      flex: 1;
+      text-align: left;
+    }
+    
+    .status-title {
+      font-weight: bold;
+      margin-bottom: 2px;
+      color: var(--dark-green);
+      font-size: 0.9rem;
+    }
+    
+    .status-message {
+      font-size: 0.8rem;
+      color: #555;
+    }
+    
+    .close-status {
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-left: 6px;
+    }
+
+    /* Client Order Status */
+    .client-orders {
+      display: none;
+      margin-top: 15px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .client-orders.active {
+      display: block;
+    }
+
+    .client-orders h3 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+
+    .client-order {
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .client-order:last-child {
+      border-bottom: none;
+    }
+
+    .client-order-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .client-order-id {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.85rem;
+    }
+
+    .client-order-status {
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+    }
+
+    .client-order-items {
+      margin-bottom: 6px;
+    }
+
+    .client-order-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+      font-size: 0.8rem;
+    }
+
+    .view-orders-btn {
+      margin-top: 12px;
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      border: 1px solid var(--gold);
+      padding: 10px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      font-size: 0.85rem;
+    }
+
+    /* Table Number Modal */
+    .table-number-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1100;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+    
+    .table-number-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 320px;
+    }
+    
+    .table-number-title {
+      color: var(--gold);
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    
+    .table-number-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    /* Delete button for staff */
+    .delete-order {
+      background: var(--red) !important;
+      color: white !important;
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      font-size: 0.8rem;
+    }
+
+    /* Counter between nav buttons */
+    #counter {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.85rem;
+      min-width: 40px;
+    }
+
+    /* Close cart button */
+    #close-cart {
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Notes section */
+    .notes-section {
+      margin-top: 10px;
+    }
+
+    .notes-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--light-cream);
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+      resize: none;
+      min-height: 60px;
+    }
+
+    /* Extras section */
+    .extras-section {
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .extras-title {
+      color: var(--light-cream);
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
+    .extras-select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .extras-select option {
+      background: var(--dark-green);
+      color: white;
+    }
+
+    /* Discount section */
+    .discount-section {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .discount-input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .apply-discount-btn {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+      color: var(--dark-green);
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    /* Staff total breakdown */
+    .total-breakdown {
+      margin-top: 10px;
+      text-align: right;
+      font-size: 0.8rem;
+      display: none;
+    }
+
+    .breakdown-line {
+      margin-bottom: 3px;
+    }
+
+    /* Estimated time */
+    .estimated-time {
+      color: var(--light-cream);
+      font-size: 0.85rem;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* Staff status headers */
+    .status-header {
+      color: var(--light-cream);
+      margin: 15px 0 8px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 5px;
+    }
+
+    /* Tables Overview Section */
+    .tables-overview {
+      margin-top: 20px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .tables-overview h3 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .table-item {
+      background: rgba(26, 58, 47, 0.7);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid var(--gold);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .table-item.occupied {
+      background: rgba(178, 34, 34, 0.7);
+    }
+
+    .table-number {
+      font-weight: bold;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .table-status {
+      font-size: 0.7rem;
+      margin-top: 3px;
+    }
+
+    .table-details {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1200;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .table-details-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 350px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .table-details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .table-details-title {
+      color: var(--gold);
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .close-details {
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .table-orders-list {
+      margin-top: 10px;
+    }
+
+    .table-order-item {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .table-order-id {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .table-order-status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      margin-left: 5px;
+    }
+
+    .table-order-items {
+      margin-top: 5px;
+      font-size: 0.8rem;
+    }
+
+    .table-order-item-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    /* Rating Modal */
+    .rating-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1300;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .rating-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .rating-title {
+      color: var(--gold);
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .rating-stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .rating-star {
+      font-size: 2rem;
+      color: var(--light-cream);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .rating-star.active {
+      color: var(--gold);
+    }
+
+    .rating-feedback {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+      resize: none;
+      min-height: 80px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .rating-feedback-label {
+      display: none;
+      color: var(--light-cream);
+      margin-bottom: 6px;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    /* Admin Dashboard */
+    .admin-dashboard {
+      display: none;
+      padding: 12px;
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .stat-card {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid var(--gold);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .stat-title {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      color: var(--gold);
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .ratings-list {
+      margin-top: 15px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .rating-item {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+      transition: var(--transition);
+    }
+
+    .rating-item:hover {
+      background: rgba(245, 245, 220, 0.2);
+    }
+
+    .rating-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .rating-table {
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .rating-staff {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+    }
+
+    .rating-stars-display {
+      display: flex;
+      gap: 5px;
+      margin: 5px 0;
+    }
+
+    .rating-star-display {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .rating-star-display.empty {
+      color: var(--light-cream);
+      opacity: 0.5;
+    }
+
+    .rating-feedback-text {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      margin-top: 15px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid var(--gold);
+    }
+
+    /* Staff Assignment */
+    .staff-assignment {
+      font-size: 0.8rem;
+      color: var(--light-cream);
+      margin-top: 5px;
+    }
+
+    /* Language Switcher */
+    .language-switcher {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+      background: rgba(26, 58, 47, 0.8);
+      padding: 5px;
+      border-radius: 20px;
+      border: 1px solid var(--gold);
+    }
+
+    .language-btn {
+      width: 30px;
+      height: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .language-btn.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    .language-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Admin Tabs */
+    .admin-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      margin-bottom: 15px;
+    }
+
+    .admin-tab {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--light-cream);
+      font-size: 0.9rem;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .admin-tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+      font-weight: bold;
+    }
+
+    .admin-tab-content {
+      display: none;
+    }
+
+    .admin-tab-content.active {
+      display: block;
+    }
+
+    /* Admin Order Summary */
+    .admin-order-summary {
+      margin-top: 15px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .admin-order-summary h3 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    /* Admin Search */
+    .admin-search {
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .admin-search input {
+      width: 100%;
+      padding: 10px 15px 10px 35px;
+      border-radius: 25px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .admin-search i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+    }
+
+    /* Admin Filter */
+    .admin-filter {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }
+
+    .admin-filter-btn {
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      border: 1px solid var(--gold);
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .admin-filter-btn.active {
+      background: var(--gold);
+      color: var(--dark-green);
+    }
+
+    /* Admin Order Card */
+    .admin-order-card {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .admin-order-card-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .admin-order-card-time {
+      color: var(--light-cream);
+      font-size: 0.7rem;
+    }
+
+    /* Media Queries for Larger Screens */
+    @media (min-width: 768px) {
+      .overlay {
+        padding: 20px;
+      }
+      
+      .logo {
+        height: 70px;
+      }
+      
+      h1 {
+        font-size: 2.2rem;
+      }
+      
+      .tagline {
+        font-size: 0.95rem;
+      }
+      
+      .food-container {
+        padding: 20px;
+        border-radius: 15px;
+      }
+      
+      model-viewer {
+        height: 280px;
+      }
+      
+      .nav-buttons {
+        gap: 12px;
+      }
+      
+      button {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+      }
+      
+      .user-type {
+        max-width: 350px;
+      }
+      
+      .cart-panel {
+        right: 20px;
+        bottom: 20px;
+        max-height: 60vh;
+      }
+      
+      .cart-items {
+        max-height: 40vh;
+      }
+      
+      .cart-toggle {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+      }
+
+      .tables-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+
+      .admin-stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .admin-tabs {
+        justify-content: center;
+      }
+
+      .admin-tab {
+        padding: 10px 20px;
+      }
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
-<body class="min-h-screen">
-  <header class="bg-[#5c4033] text-white py-4 sticky top-0 z-10 shadow-md">
-    <div class="container mx-auto px-4 flex justify-between items-center">
-      <h1 class="text-2xl md:text-3xl font-bold">The Oak Cafe</h1>
-      <div class="flex items-center space-x-4">
-        <button id="tableBtn" class="text-sm bg-[#8b5a2b] hover:bg-[#6b4423] py-2 px-3 rounded-full">
-          Table: <span id="tableNumber">Select</span>
-        </button>
-        <div class="relative">
-          <button id="cartBtn" class="flex items-center bg-[#d4a373] hover:bg-[#c49262] py-2 px-4 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span class="hidden md:inline">Cart</span>
-            <span id="cartBadge" class="badge hidden">0</span>
-          </button>
-        </div>
-        <button id="orderStatusBtn" class="hidden text-sm bg-[#8b5a2b] hover:bg-[#6b4423] py-2 px-3 rounded-full">
-          View Order
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <main class="container mx-auto px-4 py-8">
-    <!-- Category Navigation -->
-    <div class="flex overflow-x-auto space-x-4 pb-4 mb-8 sticky top-16 bg-[#f9f5f0] z-10 pt-4">
-      <button class="category-btn flex-shrink-0 px-4 py-2 bg-[#5c4033] text-white rounded-full focus:outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-category="all">All</button>
-      <button class="category-btn flex-shrink-0 px-4 py-2 bg-white hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-category="Starters">Starters</button>
-      <button class="category-btn flex-shrink-0 px-4 py-2 bg-white hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-category="Pizza">Pizza</button>
-      <button class="category-btn flex-shrink-0 px-4 py-2 bg-white hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-category="Pasta">Pasta</button>
-      <button class="category-btn flex-shrink-0 px-4 py-2 bg-white hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-category="Dessert">Desserts</button>
-      <button class="category-btn flex-shrink-0 px-4 py-2 bg-white hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-[#8b5a2b]" data-category="Drinks">Drinks</button>
-    </div>
-
-    <!-- Loading Indicator -->
-    <div id="loading" class="flex flex-col items-center justify-center py-20">
-      <div class="w-12 h-12 border-4 border-[#d4a373] border-t-transparent rounded-full animate-spin"></div>
-      <p class="mt-4 text-lg text-gray-600">Loading menu items...</p>
-    </div>
-
-    <!-- Menu Items Grid -->
-    <div id="menuContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
-      <!-- Menu items will be populated here -->
-    </div>
-  </main>
-
-  <!-- Table Selection Modal -->
-  <div id="tableModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg p-6 w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-4 text-[#5c4033]">Select Your Table</h2>
-      <p class="text-gray-600 mb-6">Please select your table number to proceed with your order.</p>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="1">1</button>
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="2">2</button>
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="3">3</button>
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="4">4</button>
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="5">5</button>
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="6">6</button>
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="7">7</button>
-        <button class="table-number bg-[#5c4033] hover:bg-[#4e342e] text-white font-bold py-6 rounded-lg" data-table="8">8</button>
+<body>
+  <!-- Table Number Modal -->
+  <div class="table-number-modal" id="table-number-modal">
+    <div class="table-number-content">
+      <h2 class="table-number-title" id="table-number-title">YOUR TABLE NUMBER</h2>
+      <input type="number" class="table-number-input" id="table-number-input" placeholder="Enter table number" min="1">
+      <div class="modal-buttons">
+        <button onclick="confirmTableNumber()" style="flex: 1;" id="confirm-table-btn">CONFIRM</button>
+        <button onclick="closeTableModal()" style="background: var(--red); flex: 1;" id="cancel-table-btn">CANCEL</button>
       </div>
     </div>
   </div>
 
-  <!-- Cart Modal -->
-  <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-end md:items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-t-lg md:rounded-lg p-6 w-full max-w-md md:max-h-[80vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold text-[#5c4033]">Your Cart</h2>
-        <button id="closeCartBtn" class="text-gray-500 hover:text-gray-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+  <!-- Rating Modal -->
+  <div class="rating-modal" id="rating-modal">
+    <div class="rating-content">
+      <h2 class="rating-title" id="rating-title">RATE YOUR EXPERIENCE</h2>
+      <div class="rating-stars">
+        <i class="fas fa-star rating-star" data-rating="1"></i>
+        <i class="fas fa-star rating-star" data-rating="2"></i>
+        <i class="fas fa-star rating-star" data-rating="3"></i>
+        <i class="fas fa-star rating-star" data-rating="4"></i>
+        <i class="fas fa-star rating-star" data-rating="5"></i>
       </div>
-      <div id="cartItems" class="mb-6 divide-y divide-gray-200">
-        <!-- Cart items will be populated here -->
-        <p id="emptyCart" class="py-8 text-center text-gray-500">Your cart is empty</p>
-      </div>
-      <div id="cartTotal" class="font-bold text-xl mb-6 text-right">Total: $0.00</div>
-      <div class="flex flex-col space-y-3">
-        <button id="placeOrderBtn" class="bg-[#5c4033] hover:bg-[#4e342e] text-white py-3 rounded-lg font-medium order-btn disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-          Place Order
-        </button>
-        <button id="clearCartBtn" class="border border-red-500 text-red-500 hover:bg-red-50 py-2 rounded-lg">
-          Clear Cart
-        </button>
+      <label class="rating-feedback-label" id="rating-feedback-label">Please share your feedback (required for low ratings):</label>
+      <textarea class="rating-feedback" id="rating-feedback" placeholder="Your feedback helps us improve..."></textarea>
+      <div class="modal-buttons">
+        <button onclick="submitRating()" style="flex: 1;" id="submit-rating-btn">SUBMIT</button>
+        <button onclick="closeRatingModal()" style="background: var(--red); flex: 1;" id="skip-rating-btn">SKIP</button>
       </div>
     </div>
   </div>
 
-  <!-- Order Status Modal -->
-  <div id="orderStatusModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-end md:items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-t-lg md:rounded-lg p-6 w-full max-w-md">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold text-[#5c4033]">Order Status</h2>
-        <button id="closeOrderStatusBtn" class="text-gray-500 hover:text-gray-700">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+  <!-- Table Details Modal -->
+  <div class="table-details" id="table-details">
+    <div class="table-details-content">
+      <div class="table-details-header">
+        <h3 class="table-details-title" id="table-details-title">Table Details</h3>
+        <button class="close-details" id="close-details">×</button>
       </div>
-      <div class="mb-6">
-        <div id="orderNumber" class="text-lg font-medium mb-2">Order #12345</div>
-        <div id="orderStatus" class="mb-4">
-          <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium order-status">
-            Preparing
-          </span>
+      <div class="table-orders-list" id="table-orders-list">
+        <!-- Table orders will appear here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal" id="login-modal">
+    <div class="modal-content">
+      <h2 class="modal-title" id="login-modal-title">STAFF LOGIN</h2>
+      <div class="input-group">
+        <label for="username" id="username-label">Username:</label>
+        <input type="text" id="username" placeholder="Your username">
+      </div>
+      <div class="input-group">
+        <label for="password" id="password-label">Password:</label>
+        <input type="password" id="password" placeholder="Your password">
+      </div>
+      <div class="modal-buttons">
+        <button onclick="checkLogin()" style="flex: 1;" id="login-btn">LOGIN</button>
+        <button onclick="closeModal()" style="background: var(--red); flex: 1;" id="cancel-login-btn">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="overlay" id="main-content">
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+      <div class="language-btn active" id="lang-en">
+        <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" alt="English">
+      </div>
+      <div class="language-btn" id="lang-ar">
+        <img src="https://cdn.countryflags.com/thumbs/jordan/flag-400.png" alt="Arabic">
+      </div>
+    </div>
+
+    <!-- User Type Selection -->
+    <div class="user-type">
+      <button class="user-btn active" id="guest-btn">GUEST</button>
+      <button class="user-btn" id="staff-btn">STAFF</button>
+      <button class="user-btn" id="admin-btn">ADMIN</button>
+    </div>
+
+    <!-- Guest View -->
+    <div id="guest-view">
+      <div class="header">
+        <img src="images-removebg-preview (1).png" alt="The Oak Cafe Logo" class="logo">
+        <h1>TASTE ITALY IN 3D</h1>
+        <p class="tagline">SCAN • TAP • POINT</p>
+      </div>
+
+      <div class="food-container">
+        <h2 class="food-title" id="food-title">Margherita Pizza</h2>
+        <p class="food-desc" id="food-desc">San Marzano tomato sauce, fresh mozzarella, basil</p>
+        <p class="estimated-time" id="estimated-time">Estimated time: 20-25 minutes</p>
+        <model-viewer
+          id="model-viewer"
+          src="models/Margherita Pizza.glb"
+          ar
+          ar-modes="quick-look scene-viewer webxr"
+          camera-controls
+          auto-rotate
+          shadow-intensity="1.2"
+          exposure="1.1"
+        >
+          <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN YOUR SPACE</button>
+        </model-viewer>
+
+        <!-- Extras Section -->
+        <div class="extras-section" id="extras-section">
+          <div class="extras-title" id="extras-title">ADD EXTRAS:</div>
+          <select class="extras-select" id="extras-select" multiple>
+            <!-- Extras will be added dynamically -->
+          </select>
         </div>
-        <div class="divide-y divide-gray-200">
-          <div class="py-4">
-            <div class="font-medium">Estimated wait time:</div>
-            <div id="estimatedTime" class="text-gray-600">15-20 minutes</div>
+
+        <!-- Notes Section -->
+        <div class="notes-section">
+          <label class="notes-label" for="item-notes" id="notes-label">SPECIAL INSTRUCTIONS:</label>
+          <textarea class="notes-textarea" id="item-notes" placeholder="E.g. No onions, extra spicy, etc."></textarea>
+        </div>
+
+        <button class="add-to-cart" id="add-to-cart">ADD TO ORDER - 5.99 JD</button>
+
+        <div class="nav-buttons">
+          <button id="prev-btn">← PREV</button>
+          <span id="counter">1/6</span>
+          <button id="next-btn">NEXT →</button>
+        </div>
+
+        <!-- Client Order Status Section -->
+        <button class="view-orders-btn" id="view-orders-btn">VIEW MY ORDERS</button>
+        <div class="client-orders" id="client-orders">
+          <h3 id="your-orders-title">YOUR ORDERS</h3>
+          <div id="client-orders-list">
+            <!-- Client orders will appear here -->
           </div>
-          <div class="py-4">
-            <div class="font-medium mb-2">Order Items:</div>
-            <ul id="orderItems" class="space-y-2 text-gray-600">
-              <!-- Order items will be populated here -->
-            </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff Dashboard -->
+    <div class="staff-dashboard" id="staff-dashboard">
+      <h2 style="color: var(--gold);" id="staff-dashboard-title">ORDERS DASHBOARD</h2>
+      <p class="estimated-time" id="staff-estimated-time">Current estimated time: 20-25 minutes</p>
+      <div class="staff-assignment" id="staff-assignment">
+        <!-- Staff assignment info will appear here -->
+      </div>
+      
+      <!-- Tables Overview Section -->
+      <div class="tables-overview">
+        <h3 id="occupied-tables-title">OCCUPIED TABLES</h3>
+        <div class="tables-grid" id="tables-grid">
+          <!-- Tables will appear here -->
+        </div>
+      </div>
+      
+      <div class="orders-list" id="orders-list">
+        <!-- Orders will appear here -->
+      </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="admin-dashboard">
+      <h2 style="color: var(--gold);" id="admin-dashboard-title">ADMIN DASHBOARD</h2>
+      
+      <!-- Admin Tabs -->
+      <div class="admin-tabs">
+        <div class="admin-tab active" data-tab="stats" id="stats-tab">STATISTICS</div>
+        <div class="admin-tab" data-tab="orders" id="orders-tab">ORDERS</div>
+        <div class="admin-tab" data-tab="ratings" id="ratings-tab">RATINGS</div>
+      </div>
+      
+      <!-- Stats Tab -->
+      <div class="admin-tab-content active" id="stats-tab">
+        <div class="admin-stats">
+          <div class="stat-card">
+            <div class="stat-title" id="total-orders-title">TOTAL ORDERS</div>
+            <div class="stat-value" id="total-orders">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title" id="avg-rating-title">AVG RATING</div>
+            <div class="stat-value" id="avg-rating">0.0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title" id="low-ratings-title">LOW RATINGS</div>
+            <div class="stat-value" id="low-ratings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title" id="active-staff-title">ACTIVE STAFF</div>
+            <div class="stat-value" id="active-staff">3</div>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="ratings-chart"></canvas>
+        </div>
+      </div>
+      
+      <!-- Orders Tab -->
+      <div class="admin-tab-content" id="orders-tab">
+        <div class="admin-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="admin-search-input" placeholder="Search orders...">
+        </div>
+        
+        <div class="admin-filter">
+          <div class="admin-filter-btn active" data-filter="all" id="filter-all">ALL</div>
+          <div class="admin-filter-btn" data-filter="pending" id="filter-pending">PENDING</div>
+          <div class="admin-filter-btn" data-filter="preparing" id="filter-preparing">PREPARING</div>
+          <div class="admin-filter-btn" data-filter="ready" id="filter-ready">READY</div>
+          <div class="admin-filter-btn" data-filter="completed" id="filter-completed">COMPLETED</div>
+        </div>
+        
+        <div class="admin-order-summary">
+          <h3 id="recent-orders-title">RECENT ORDERS</h3>
+          <div id="admin-orders-list">
+            <!-- Admin orders will appear here -->
           </div>
         </div>
       </div>
-      <div id="cancelOrderContainer" class="mb-4">
-        <button id="cancelOrderBtn" class="w-full border border-red-500 text-red-500 hover:bg-red-50 py-2 rounded-lg">
-          Cancel Order
-        </button>
+      
+      <!-- Ratings Tab -->
+      <div class="admin-tab-content" id="ratings-tab">
+        <h3 style="color: var(--gold); margin-top: 0;" id="recent-ratings-title">RECENT RATINGS</h3>
+        <div class="ratings-list" id="ratings-list">
+          <!-- Ratings will appear here -->
+        </div>
       </div>
-      <div class="text-center text-gray-500 text-sm">
-        Thank you for dining with us!
+    </div>
+
+    <div class="footer">
+      <div class="footer-grid">
+        <div class="branding-section">
+          <div class="powered-by">
+            <span style="color: var(--light-cream);" id="powered-by-text">Powered by</span>
+            <img src="ar-bites-logo.png" alt="AR Bites Logo" class="ar-bites-logo">
+          </div>
+          <p class="copyright" id="copyright-text">© 2025 AR BITES. ALL RIGHTS RESERVED</p>
+        </div>
+        
+        <div class="social-links">
+          <a href="https://www.instagram.com/ar.bitesjo?igsh=ajhmd3ZvbjJhamJh" class="social-link" target="_blank">
+            <img src="https://upload.wikimedia.org/commons/thumb/a/a5/Instagram_icon.png/2048px-Instagram_icon.png" alt="Instagram" class="instagram-icon">
+            @ar.bitesjo
+          </a>
+          <a href="tel:+962790753376" class="social-link">
+            <img src="https://cdn-icons-png.flaticon.com/512/455/455705.png" alt="Phone" class="instagram-icon">
+            +962 790 753 376
+          </a>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Success Notification -->
-  <div id="notification" class="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300">
-    Item added to cart!
+  <!-- Cart Panel -->
+  <div class="cart-panel" id="cart-panel">
+    <div class="cart-header">
+      <h3 id="cart-title">YOUR ORDER</h3>
+      <button id="close-cart">×</button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <!-- Discount Section -->
+    <div class="discount-section">
+      <input type="text" class="discount-input" id="discount-code" placeholder="Discount code (optional)">
+      <button class="apply-discount-btn" id="apply-discount">APPLY</button>
+    </div>
+    <!-- Full breakdown (only for staff) -->
+    <div class="total-breakdown" id="total-breakdown">
+      <div class="breakdown-line">Subtotal: <span id="staff-subtotal">0.00</span> JD</div>
+      <div class="breakdown-line">Service (5%): <span id="service-charge">0.00</span> JD</div>
+      <div class="breakdown-line">Tax (8%): <span id="tax-amount">0.00</span> JD</div>
+      <div class="breakdown-line">Discount: -<span id="discount-amount">0.00</span> JD</div>
+      <div class="breakdown-line" style="font-weight: bold;">Total: <span id="staff-total">0.00</span> JD</div>
+    </div>
+    <button class="checkout-btn" id="checkout-btn">
+      <span class="checkout-text">CONFIRM ORDER</span>
+    </button>
+  </div>
+
+  <!-- Cart Toggle Button -->
+  <div class="cart-toggle" id="cart-toggle">
+    <span class="cart-count" id="cart-count">0</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+    </svg>
+  </div>
+
+  <!-- Order Status Notification -->
+  <div class="order-status-notification" id="order-status">
+    <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Status" class="status-icon">
+    <div class="status-content">
+      <div class="status-title" id="status-title">ORDER RECEIVED</div>
+      <div class="status-message" id="status-message">Your order is being prepared</div>
+    </div>
+    <button class="close-status" id="close-status">×</button>
   </div>
 
   <script>
-    // Initialize Firebase
+    // ==================== FIREBASE CONFIG ====================
     const firebaseConfig = {
       apiKey: "AIzaSyAUCymhsmIx4IOkHphEFpLEhfLnPk0iPhU",
       authDomain: "the-oak-cafe-menu.firebaseapp.com",
@@ -233,770 +1742,2010 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const analytics = firebase.analytics();
 
-    // App State
-    let menuItems = [];
-    let cartItems = [];
-    let currentOrder = null;
-    let selectedTable = null;
-    let cancelTimerId = null;
+    // ==================== APP DATA ====================
+    const foods = [
+      {
+        title: "Margherita Pizza",
+        description: "San Marzano tomato sauce, fresh mozzarella, basil",
+        model: "models/Margherita Pizza.glb",
+        price: 5.99,
+        extras: [
+          { name: "Extra Cheese", price: 1.00 },
+          { name: "Pepperoni", price: 1.50 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
+      },
+      {
+        title: "Pepperoni Pizza",
+        description: "Pepperoni, mozzarella, tomato sauce",
+        model: "models/Pepperoni Pizza.glb",
+        price: 6.99,
+        extras: [
+          { name: "Extra Cheese", price: 1.00 },
+          { name: "Jalapeños", price: 0.80 },
+          { name: "Olives", price: 0.80 }
+        ]
+      },
+      {
+        title: "Fettuccine Alfredo",
+        description: "Handmade pasta, black truffle, parmesan cream",
+        model: "models/Fettuccine Alfredo.glb",
+        price: 7.99,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Shrimp", price: 3.00 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
+      },
+      {
+        title: "Pesto Pasta",
+        description: "Basil pesto, pine nuts, aged parmesan",
+        model: "models/Pesto Pasta.glb",
+        price: 7.49,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Sun-dried Tomatoes", price: 1.00 },
+          { name: "Parmesan", price: 0.50 }
+        ]
+      },
+      {
+        title: "Rose Pasta",
+        description: "Creamy tomato sauce, permesan cheese, basil",
+        model: "models/Rose Pasta.glb",
+        price: 7.99,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Bacon", price: 1.50 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
+      },
+      {
+        title: "Sea Food Pasta",
+        description: "Mix of sea food with spaghiti",
+        model: "models/Sea Food Pasta.glb",
+        price: 8.99,
+        extras: [
+          { name: "Extra Shrimp", price: 2.00 },
+          { name: "Clams", price: 1.50 },
+          { name: "White Wine Sauce", price: 1.00 }
+        ]
+      }
+    ];
+
+    // Arabic translations
+    const translations = {
+      en: {
+        guest: "GUEST",
+        staff: "STAFF",
+        admin: "ADMIN",
+        foodTitle: {
+          "Margherita Pizza": "Margherita Pizza",
+          "Pepperoni Pizza": "Pepperoni Pizza",
+          "Fettuccine Alfredo": "Fettuccine Alfredo",
+          "Pesto Pasta": "Pesto Pasta",
+          "Rose Pasta": "Rose Pasta",
+          "Sea Food Pasta": "Sea Food Pasta"
+        },
+        foodDesc: {
+          "San Marzano tomato sauce, fresh mozzarella, basil": "San Marzano tomato sauce, fresh mozzarella, basil",
+          "Pepperoni, mozzarella, tomato sauce": "Pepperoni, mozzarella, tomato sauce",
+          "Handmade pasta, black truffle, parmesan cream": "Handmade pasta, black truffle, parmesan cream",
+          "Basil pesto, pine nuts, aged parmesan": "Basil pesto, pine nuts, aged parmesan",
+          "Creamy tomato sauce, permesan cheese, basil": "Creamy tomato sauce, permesan cheese, basil",
+          "Mix of sea food with spaghiti": "Mix of sea food with spaghiti"
+        },
+        addToCart: "ADD TO ORDER - {price} JD",
+        viewOrders: "VIEW MY ORDERS",
+        hideOrders: "HIDE MY ORDERS",
+        yourOrders: "YOUR ORDERS",
+        specialInstructions: "SPECIAL INSTRUCTIONS:",
+        addExtras: "ADD EXTRAS:",
+        noExtras: "No extras available",
+        selectExtras: "Select extras (optional)",
+        estimatedTime: "Estimated time: {time} minutes",
+        currentEstimatedTime: "Current estimated time: {time} minutes",
+        orderReceived: "ORDER RECEIVED",
+        orderBeingPrepared: "Your order is being prepared",
+        tableNumber: "YOUR TABLE NUMBER",
+        confirm: "CONFIRM",
+        cancel: "CANCEL",
+        rateExperience: "RATE YOUR EXPERIENCE",
+        submit: "SUBMIT",
+        skip: "SKIP",
+        feedbackLabel: "Please share your feedback (required for low ratings):",
+        feedbackPlaceholder: "Your feedback helps us improve...",
+        ordersDashboard: "ORDERS DASHBOARD",
+        occupiedTables: "OCCUPIED TABLES",
+        adminDashboard: "ADMIN DASHBOARD",
+        statistics: "STATISTICS",
+        orders: "ORDERS",
+        ratings: "RATINGS",
+        totalOrders: "TOTAL ORDERS",
+        avgRating: "AVG RATING",
+        lowRatings: "LOW RATINGS",
+        activeStaff: "ACTIVE STAFF",
+        recentOrders: "RECENT ORDERS",
+        recentRatings: "RECENT RATINGS",
+        searchOrders: "Search orders...",
+        all: "ALL",
+        pending: "PENDING",
+        preparing: "PREPARING",
+        ready: "READY",
+        completed: "COMPLETED",
+        tableDetails: "Table Details",
+        orderConfirmed: "ORDER CONFIRMED",
+        orderUpdated: "ORDER UPDATE",
+        orderDeleted: "ORDER DELETED",
+        tableSet: "TABLE SET",
+        tableError: "TABLE ERROR",
+        updateError: "UPDATE ERROR",
+        deleteError: "DELETE ERROR",
+        ratingSubmitted: "RATING SUBMITTED",
+        networkError: "NETWORK ERROR",
+        usernamePlaceholder: "Your username",
+        passwordPlaceholder: "Your password",
+        deleteConfirm: "Permanently delete this order?",
+        poweredBy: "Powered by",
+        copyright: "© 2025 AR BITES. ALL RIGHTS RESERVED",
+        prev: "← PREV",
+        next: "NEXT →",
+        arButton: "VIEW IN YOUR SPACE",
+        cartTitle: "YOUR ORDER",
+        confirmOrder: "CONFIRM ORDER",
+        usernameLabel: "Username:",
+        passwordLabel: "Password:",
+        login: "LOGIN"
+      },
+      ar: {
+        guest: "زائر",
+        staff: "موظف",
+        admin: "مدير",
+        foodTitle: {
+          "Margherita Pizza": "بيتزا مارغريتا",
+          "Pepperoni Pizza": "بيتزا بيبروني",
+          "Fettuccine Alfredo": "فيتوتشيني ألفريدو",
+          "Pesto Pasta": "باستو باستا",
+          "Rose Pasta": "باستا روز",
+          "Sea Food Pasta": "باستا مأكولات بحرية"
+        },
+        foodDesc: {
+          "San Marzano tomato sauce, fresh mozzarella, basil": "صلصة طماطم سان مارزانو، موزاريلا طازجة، ريحان",
+          "Pepperoni, mozzarella, tomato sauce": "بيبروني، موزاريلا، صلصة طماطم",
+          "Handmade pasta, black truffle, parmesan cream": "باستا يدوية، كمأة سوداء، كريمة بارميزان",
+          "Basil pesto, pine nuts, aged parmesan": "بيستو ريحان، صنوبر، بارميزان معتق",
+          "Creamy tomato sauce, permesan cheese, basil": "صلصة طماطم كريمية، جبن بارميزان، ريحان",
+          "Mix of sea food with spaghiti": "مزيج من المأكولات البحرية مع السباغيتي"
+        },
+        addToCart: "أضف إلى الطلب - {price} دينار",
+        viewOrders: "عرض طلباتي",
+        hideOrders: "إخفاء طلباتي",
+        yourOrders: "طلباتك",
+        specialInstructions: "تعليمات خاصة:",
+        addExtras: "إضافات:",
+        noExtras: "لا توجد إضافات متاحة",
+        selectExtras: "اختر إضافات (اختياري)",
+        estimatedTime: "الوقت المقدر: {time} دقيقة",
+        currentEstimatedTime: "الوقت المقدر الحالي: {time} دقيقة",
+        orderReceived: "تم استلام الطلب",
+        orderBeingPrepared: "طلبك قيد التحضير",
+        tableNumber: "رقم طاولتك",
+        confirm: "تأكيد",
+        cancel: "إلغاء",
+        rateExperience: "قيم تجربتك",
+        submit: "إرسال",
+        skip: "تخطي",
+        feedbackLabel: "يرجى مشاركة ملاحظاتك (مطلوب للتقييمات المنخفضة):",
+        feedbackPlaceholder: "ملاحظاتك تساعدنا على التحسين...",
+        ordersDashboard: "لوحة الطلبات",
+        occupiedTables: "الطاولات المشغولة",
+        adminDashboard: "لوحة المدير",
+        statistics: "إحصائيات",
+        orders: "الطلبات",
+        ratings: "التقييمات",
+        totalOrders: "إجمالي الطلبات",
+        avgRating: "متوسط التقييم",
+        lowRatings: "تقييمات منخفضة",
+        activeStaff: "موظفين نشطين",
+        recentOrders: "الطلبات الحديثة",
+        recentRatings: "التقييمات الحديثة",
+        searchOrders: "ابحث في الطلبات...",
+        all: "الكل",
+        pending: "قيد الانتظار",
+        preparing: "قيد التحضير",
+        ready: "جاهز",
+        completed: "مكتمل",
+        tableDetails: "تفاصيل الطاولة",
+        orderConfirmed: "تم تأكيد الطلب",
+        orderUpdated: "تحديث الطلب",
+        orderDeleted: "تم حذف الطلب",
+        tableSet: "تم تعيين الطاولة",
+        tableError: "خطأ في الطاولة",
+        updateError: "خطأ في التحديث",
+        deleteError: "خطأ في الحذف",
+        ratingSubmitted: "تم إرسال التقييم",
+        networkError: "خطأ في الشبكة",
+        usernamePlaceholder: "اسم المستخدم",
+        passwordPlaceholder: "كلمة المرور",
+        deleteConfirm: "هل تريد حذف هذا الطلب نهائياً؟",
+        poweredBy: "مقدم من",
+        copyright: "© 2025 AR BITES. جميع الحقوق محفوظة",
+        prev: "السابق ←",
+        next: "→ التالي",
+        arButton: "عرض في مساحتك",
+        cartTitle: "طلبك",
+        confirmOrder: "تأكيد الطلب",
+        usernameLabel: "اسم المستخدم:",
+        passwordLabel: "كلمة المرور:",
+        login: "تسجيل الدخول"
+      }
+    };
+
+    // Discount codes
+    const DISCOUNT_CODES = {
+      "OAK10": 0.10, // 10% discount
+      "WELCOME5": 0.05 // 5% discount
+    };
+
+    // Staff accounts with table assignments
+    const STAFF_ACCOUNTS = {
+      "ahmad": {
+        password: "ahmad123",
+        name: "Ahmad",
+        tables: [1, 20] // Tables 1-20
+      },
+      "khaled": {
+        password: "khaled123",
+        name: "Khaled",
+        tables: [21, 40] // Tables 21-40
+      },
+      "mohammad": {
+        password: "mohammad123",
+        name: "Mohammad",
+        tables: [41, 60] // Tables 41-60
+      }
+    };
+
+    // Admin account
+    const ADMIN_ACCOUNT = {
+      username: "hussien",
+      password: "admin123"
+    };
+
+    // ==================== GLOBAL VARIABLES ====================
+    let currentIndex = 0;
+    let cart = [];
+    let orders = [];
+    let ratings = [];
+    let userType = "guest"; // guest, staff, admin
+    let currentStaff = null;
+    let clientId = localStorage.getItem('clientId') || 
+                  'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    let firestoreListener = null;
+    let ratingsListener = null;
+    let discountApplied = 0;
+    let estimatedTime = 20; // Base time in minutes
+    let occupiedTables = new Set(); // Track occupied tables
+    let tableNumber = null; // Current table number
+    let tableNumberExpiry = null; // When the table number expires
+    let tableDetails = {}; // Store table details for staff view
+    let currentRating = 0;
+    let currentOrderForRating = null;
+    let ratingsChart = null;
+    let currentLanguage = localStorage.getItem('language') || 'en';
+    let activeAdminTab = 'stats';
 
     // DOM Elements
-    const menuContainer = document.getElementById('menuContainer');
-    const loading = document.getElementById('loading');
-    const tableModal = document.getElementById('tableModal');
-    const cartModal = document.getElementById('cartModal');
-    const orderStatusModal = document.getElementById('orderStatusModal');
-    const tableNumber = document.getElementById('tableNumber');
-    const tableBtn = document.getElementById('tableBtn');
-    const cartBtn = document.getElementById('cartBtn');
-    const cartBadge = document.getElementById('cartBadge');
-    const closeCartBtn = document.getElementById('closeCartBtn');
-    const cartItems_el = document.getElementById('cartItems');
-    const cartTotal = document.getElementById('cartTotal');
-    const emptyCart = document.getElementById('emptyCart');
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
-    const clearCartBtn = document.getElementById('clearCartBtn');
-    const orderStatusBtn = document.getElementById('orderStatusBtn');
-    const closeOrderStatusBtn = document.getElementById('closeOrderStatusBtn');
-    const orderNumber_el = document.getElementById('orderNumber');
-    const orderStatus_el = document.getElementById('orderStatus');
-    const estimatedTime = document.getElementById('estimatedTime');
-    const orderItems_el = document.getElementById('orderItems');
-    const cancelOrderBtn = document.getElementById('cancelOrderBtn');
-    const cancelOrderContainer = document.getElementById('cancelOrderContainer');
-    const categoryButtons = document.querySelectorAll('.category-btn');
-    const notification = document.getElementById('notification');
+    const modelViewer = document.getElementById("model-viewer");
+    const foodTitle = document.getElementById("food-title");
+    const foodDesc = document.getElementById("food-desc");
+    const counter = document.getElementById("counter");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const addToCartBtn = document.getElementById("add-to-cart");
+    const guestBtn = document.getElementById("guest-btn");
+    const staffBtn = document.getElementById("staff-btn");
+    const adminBtn = document.getElementById("admin-btn");
+    const guestView = document.getElementById("guest-view");
+    const staffDashboard = document.getElementById("staff-dashboard");
+    const adminDashboard = document.getElementById("admin-dashboard");
+    const loginModal = document.getElementById("login-modal");
+    const loginModalTitle = document.getElementById("login-modal-title");
+    const ordersList = document.getElementById("orders-list");
+    const cartPanel = document.getElementById("cart-panel");
+    const cartItemsEl = document.getElementById("cart-items");
+    const checkoutBtn = document.getElementById("checkout-btn");
+    const checkoutText = document.querySelector(".checkout-text");
+    const cartToggle = document.getElementById("cart-toggle");
+    const cartCount = document.getElementById("cart-count");
+    const closeCartBtn = document.getElementById("close-cart");
+    const orderStatus = document.getElementById("order-status");
+    const closeStatusBtn = document.getElementById("close-status");
+    const viewOrdersBtn = document.getElementById("view-orders-btn");
+    const clientOrders = document.getElementById("client-orders");
+    const clientOrdersList = document.getElementById("client-orders-list");
+    const tableNumberModal = document.getElementById("table-number-modal");
+    const tableNumberInput = document.getElementById("table-number-input");
+    const itemNotes = document.getElementById("item-notes");
+    const extrasSelect = document.getElementById("extras-select");
+    const discountCodeInput = document.getElementById("discount-code");
+    const applyDiscountBtn = document.getElementById("apply-discount");
+    const totalBreakdown = document.getElementById("total-breakdown");
+    const estimatedTimeEl = document.getElementById("estimated-time");
+    const staffEstimatedTimeEl = document.getElementById("staff-estimated-time");
+    const tablesGrid = document.getElementById("tables-grid");
+    const tableDetailsModal = document.getElementById("table-details");
+    const tableDetailsTitle = document.getElementById("table-details-title");
+    const tableOrdersList = document.getElementById("table-orders-list");
+    const closeDetailsBtn = document.getElementById("close-details");
+    const ratingModal = document.getElementById("rating-modal");
+    const ratingStars = document.querySelectorAll(".rating-star");
+    const ratingFeedback = document.getElementById("rating-feedback");
+    const ratingFeedbackLabel = document.getElementById("rating-feedback-label");
+    const submitRatingBtn = document.getElementById("submit-rating-btn");
+    const staffAssignment = document.getElementById("staff-assignment");
+    const totalOrdersEl = document.getElementById("total-orders");
+    const avgRatingEl = document.getElementById("avg-rating");
+    const lowRatingsEl = document.getElementById("low-ratings");
+    const activeStaffEl = document.getElementById("active-staff");
+    const ratingsList = document.getElementById("ratings-list");
+    const ratingsChartCtx = document.getElementById("ratings-chart");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const langEnBtn = document.getElementById("lang-en");
+    const langArBtn = document.getElementById("lang-ar");
+    const adminTabs = document.querySelectorAll(".admin-tab");
+    const adminTabContents = document.querySelectorAll(".admin-tab-content");
+    const adminSearchInput = document.getElementById("admin-search-input");
+    const adminFilterBtns = document.querySelectorAll(".admin-filter-btn");
+    const adminOrdersList = document.getElementById("admin-orders-list");
+    const arButton = document.getElementById("ar-button");
+    const yourOrdersTitle = document.getElementById("your-orders-title");
+    const notesLabel = document.getElementById("notes-label");
+    const extrasTitle = document.getElementById("extras-title");
+    const tableNumberTitle = document.getElementById("table-number-title");
+    const confirmTableBtn = document.getElementById("confirm-table-btn");
+    const cancelTableBtn = document.getElementById("cancel-table-btn");
+    const ratingTitle = document.getElementById("rating-title");
+    const skipRatingBtn = document.getElementById("skip-rating-btn");
+    const staffDashboardTitle = document.getElementById("staff-dashboard-title");
+    const occupiedTablesTitle = document.getElementById("occupied-tables-title");
+    const adminDashboardTitle = document.getElementById("admin-dashboard-title");
+    const totalOrdersTitle = document.getElementById("total-orders-title");
+    const avgRatingTitle = document.getElementById("avg-rating-title");
+    const lowRatingsTitle = document.getElementById("low-ratings-title");
+    const activeStaffTitle = document.getElementById("active-staff-title");
+    const recentOrdersTitle = document.getElementById("recent-orders-title");
+    const recentRatingsTitle = document.getElementById("recent-ratings-title");
+    const poweredByText = document.getElementById("powered-by-text");
+    const copyrightText = document.getElementById("copyright-text");
+    const cartTitle = document.getElementById("cart-title");
+    const statusTitle = document.getElementById("status-title");
+    const statusMessage = document.getElementById("status-message");
+    const usernameLabel = document.getElementById("username-label");
+    const passwordLabel = document.getElementById("password-label");
+    const loginBtn = document.getElementById("login-btn");
+    const cancelLoginBtn = document.getElementById("cancel-login-btn");
+    const statsTab = document.getElementById("stats-tab");
+    const ordersTab = document.getElementById("orders-tab");
+    const ratingsTab = document.getElementById("ratings-tab");
+    const filterAll = document.getElementById("filter-all");
+    const filterPending = document.getElementById("filter-pending");
+    const filterPreparing = document.getElementById("filter-preparing");
+    const filterReady = document.getElementById("filter-ready");
+    const filterCompleted = document.getElementById("filter-completed");
 
-    // Initialize the app
-    document.addEventListener('DOMContentLoaded', initialize);
+    // Auth tokens
+    const USER_TYPE_KEY = "userType";
+    const STAFF_TOKEN = "staffToken";
+    const ADMIN_TOKEN = "adminToken";
+    const TABLE_NUMBER_KEY = "tableNumber";
+    const TABLE_EXPIRY_KEY = "tableExpiry";
+    const LANGUAGE_KEY = "language";
 
+    // ==================== INITIALIZATION ====================
     function initialize() {
-      // Show table selection modal on load
-      showTableModal();
-      
-      // Fetch menu items
-      fetchMenuItems();
-      
-      // Set up event listeners
-      setupEventListeners();
-    }
-
-    function fetchMenuItems() {
-      db.collection('menuItems').get()
-        .then(snapshot => {
-          if (snapshot.empty) {
-            addSampleMenuItems().then(() => fetchMenuItems());
-            return;
-          }
-
-          menuItems = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          
-          renderMenuItems('all');
-          loading.classList.add('hidden');
-          menuContainer.classList.remove('hidden');
-        })
-        .catch(error => {
-          console.error("Error fetching menu items:", error);
-          // Fallback to local data if Firebase not accessible
-          useSampleMenuItems();
-        });
-    }
-
-    function useSampleMenuItems() {
-      menuItems = [
-        {
-          id: '1',
-          name: 'Margherita Pizza',
-          description: 'Classic pizza with tomato sauce, mozzarella, and basil',
-          price: 1299,
-          category: 'Pizza',
-          imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          id: '2',
-          name: 'Pepperoni Pizza',
-          description: 'Pizza topped with pepperoni slices and cheese',
-          price: 1499,
-          category: 'Pizza',
-          imageUrl: 'https://images.unsplash.com/photo-1628840042765-356cda07504e',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          id: '3',
-          name: 'Caprese Salad',
-          description: 'Fresh tomatoes, mozzarella, and basil with balsamic glaze',
-          price: 899,
-          category: 'Starters',
-          imageUrl: 'https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          id: '4',
-          name: 'Bruschetta',
-          description: 'Toasted bread topped with tomatoes, garlic, and basil',
-          price: 799,
-          category: 'Starters',
-          imageUrl: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          id: '5',
-          name: 'Spaghetti Carbonara',
-          description: 'Pasta with eggs, cheese, pancetta, and black pepper',
-          price: 1599,
-          category: 'Pasta',
-          imageUrl: 'https://images.unsplash.com/photo-1600803907087-f56d462fd26b',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          id: '6',
-          name: 'Fettuccine Alfredo',
-          description: 'Pasta in creamy parmesan sauce',
-          price: 1499,
-          category: 'Pasta',
-          imageUrl: 'https://images.unsplash.com/photo-1645112411341-6c4fd023882c',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          id: '7',
-          name: 'Tiramisu',
-          description: 'Classic Italian dessert with coffee and mascarpone',
-          price: 899,
-          category: 'Dessert',
-          imageUrl: 'https://images.unsplash.com/photo-1551024601-44f9a98f7272',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          id: '8',
-          name: 'Cheesecake',
-          description: 'New York style cheesecake with berry compote',
-          price: 899,
-          category: 'Dessert',
-          imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          id: '9',
-          name: 'Soft Drink',
-          description: 'Choice of cola, lemon, or orange',
-          price: 299,
-          category: 'Drinks',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          id: '10',
-          name: 'Italian Mineral Water',
-          description: 'Still or sparkling',
-          price: 249,
-          category: 'Drinks',
-          isPopular: false,
-          isAvailable: true
-        }
-      ];
-      
-      renderMenuItems('all');
-      loading.classList.add('hidden');
-      menuContainer.classList.remove('hidden');
-    }
-
-    async function addSampleMenuItems() {
-      const batch = db.batch();
-      
-      const sampleMenuItems = [
-        {
-          name: 'Margherita Pizza',
-          description: 'Classic pizza with tomato sauce, mozzarella, and basil',
-          price: 1299,
-          category: 'Pizza',
-          imageUrl: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: 'Pepperoni Pizza',
-          description: 'Pizza topped with pepperoni slices and cheese',
-          price: 1499,
-          category: 'Pizza',
-          imageUrl: 'https://images.unsplash.com/photo-1628840042765-356cda07504e',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: 'Caprese Salad',
-          description: 'Fresh tomatoes, mozzarella, and basil with balsamic glaze',
-          price: 899,
-          category: 'Starters',
-          imageUrl: 'https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          name: 'Bruschetta',
-          description: 'Toasted bread topped with tomatoes, garlic, and basil',
-          price: 799,
-          category: 'Starters',
-          imageUrl: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: 'Spaghetti Carbonara',
-          description: 'Pasta with eggs, cheese, pancetta, and black pepper',
-          price: 1599,
-          category: 'Pasta',
-          imageUrl: 'https://images.unsplash.com/photo-1600803907087-f56d462fd26b',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: 'Fettuccine Alfredo',
-          description: 'Pasta in creamy parmesan sauce',
-          price: 1499,
-          category: 'Pasta',
-          imageUrl: 'https://images.unsplash.com/photo-1645112411341-6c4fd023882c',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          name: 'Tiramisu',
-          description: 'Classic Italian dessert with coffee and mascarpone',
-          price: 899,
-          category: 'Dessert',
-          imageUrl: 'https://images.unsplash.com/photo-1551024601-44f9a98f7272',
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: 'Cheesecake',
-          description: 'New York style cheesecake with berry compote',
-          price: 899,
-          category: 'Dessert',
-          imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          name: 'Soft Drink',
-          description: 'Choice of cola, lemon, or orange',
-          price: 299,
-          category: 'Drinks',
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          name: 'Italian Mineral Water',
-          description: 'Still or sparkling',
-          price: 249,
-          category: 'Drinks',
-          isPopular: false,
-          isAvailable: true
-        }
-      ];
-      
-      sampleMenuItems.forEach(item => {
-        const docRef = db.collection('menuItems').doc();
-        batch.set(docRef, item);
-      });
-      
-      await batch.commit();
-      console.log("Sample menu items added to Firebase");
-    }
-
-    function setupEventListeners() {
-      // Table selection
-      document.querySelectorAll('.table-number').forEach(btn => {
-        btn.addEventListener('click', () => {
-          selectTable(btn.getAttribute('data-table'));
-        });
-      });
-      
-      // Table button
-      tableBtn.addEventListener('click', showTableModal);
-      
-      // Category buttons
-      categoryButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          // Update active button styles
-          categoryButtons.forEach(b => {
-            b.classList.remove('bg-[#5c4033]', 'text-white');
-            b.classList.add('bg-white', 'hover:bg-gray-100');
-          });
-          
-          btn.classList.remove('bg-white', 'hover:bg-gray-100');
-          btn.classList.add('bg-[#5c4033]', 'text-white');
-          
-          // Filter menu items
-          renderMenuItems(btn.getAttribute('data-category'));
-        });
-      });
-      
-      // Cart buttons
-      cartBtn.addEventListener('click', showCartModal);
-      closeCartBtn.addEventListener('click', hideCartModal);
-      clearCartBtn.addEventListener('click', clearCart);
-      placeOrderBtn.addEventListener('click', placeOrder);
-      
-      // Order status buttons
-      orderStatusBtn.addEventListener('click', showOrderStatusModal);
-      closeOrderStatusBtn.addEventListener('click', hideOrderStatusModal);
-      cancelOrderBtn.addEventListener('click', cancelOrder);
-      
-      // Close modals when clicking outside
-      window.addEventListener('click', e => {
-        if (e.target === tableModal) tableModal.classList.add('hidden');
-        if (e.target === cartModal) hideCartModal();
-        if (e.target === orderStatusModal) hideOrderStatusModal();
-      });
-    }
-
-    function renderMenuItems(category) {
-      let filteredItems = menuItems;
-      
-      // Filter by category
-      if (category !== 'all') {
-        filteredItems = menuItems.filter(item => item.category === category);
+      if (!localStorage.getItem('clientId')) {
+        clientId = 'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        localStorage.setItem('clientId', clientId);
       }
       
-      // Clear the container
-      menuContainer.innerHTML = '';
+      // Check for expired table number
+      checkTableNumberExpiry();
       
-      if (filteredItems.length === 0) {
-        menuContainer.innerHTML = `
-          <div class="col-span-full text-center py-12">
-            <p class="text-gray-500 text-lg">No menu items found in this category.</p>
-          </div>
-        `;
+      // Check auth state
+      userType = localStorage.getItem(USER_TYPE_KEY) || "guest";
+      currentStaff = localStorage.getItem(STAFF_TOKEN);
+      checkAuthState();
+      
+      setupRealTimeListener();
+      setupRatingsListener();
+      updateModel();
+      updateCart();
+      updateEstimatedTime();
+      
+      // Show table number modal if needed
+      checkTableNumber();
+      
+      // Set language
+      setLanguage(currentLanguage);
+      
+      analytics.logEvent('page_view');
+    }
+
+    // ==================== LANGUAGE FUNCTIONS ====================
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem(LANGUAGE_KEY, lang);
+      
+      // Update UI language
+      updateLanguageUI();
+      
+      // Update active language button
+      langEnBtn.classList.toggle('active', lang === 'en');
+      langArBtn.classList.toggle('active', lang === 'ar');
+      
+      // Update text direction
+      document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      
+      // Update input placeholders
+      updateInputPlaceholders();
+    }
+
+    function updateInputPlaceholders() {
+      const t = translations[currentLanguage];
+      
+      // Update login modal placeholders
+      usernameInput.placeholder = t.usernamePlaceholder;
+      passwordInput.placeholder = t.passwordPlaceholder;
+      
+      // Update table number modal placeholder
+      tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم الطاولة' : 'Enter table number';
+      
+      // Update notes placeholder
+      itemNotes.placeholder = currentLanguage === 'ar' ? 
+        'مثال: بدون بصل، حار جداً، إلخ.' : 'E.g. No onions, extra spicy, etc.';
+      
+      // Update discount code placeholder
+      discountCodeInput.placeholder = currentLanguage === 'ar' ? 
+        'كود الخصم (اختياري)' : 'Discount code (optional)';
+      
+      // Update search placeholder
+      adminSearchInput.placeholder = t.searchOrders;
+    }
+
+    function updateLanguageUI() {
+      const t = translations[currentLanguage];
+      
+      // Update guest view
+      if (guestView) {
+        guestBtn.textContent = t.guest;
+        staffBtn.textContent = t.staff;
+        adminBtn.textContent = t.admin;
+        viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? t.hideOrders : t.viewOrders;
+        notesLabel.textContent = t.specialInstructions;
+        extrasTitle.textContent = t.addExtras;
+        yourOrdersTitle.textContent = t.yourOrders;
+        prevBtn.textContent = t.prev;
+        nextBtn.textContent = t.next;
+        arButton.textContent = t.arButton;
+        
+        // Update food items
+        const currentFood = foods[currentIndex];
+        foodTitle.textContent = t.foodTitle[currentFood.title] || currentFood.title;
+        foodDesc.textContent = t.foodDesc[currentFood.description] || currentFood.description;
+        
+        // Update add to cart button
+        addToCartBtn.textContent = t.addToCart.replace('{price}', currentFood.price.toFixed(2));
+        
+        // Update estimated time
+        estimatedTimeEl.textContent = t.estimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+        
+        // Update extras select
+        if (extrasSelect.options.length > 0) {
+          if (extrasSelect.options[0].disabled) {
+            extrasSelect.options[0].textContent = currentFood.extras && currentFood.extras.length > 0 ? 
+              t.selectExtras : t.noExtras;
+          }
+        }
+      }
+      
+      // Update staff view
+      if (staffDashboard) {
+        staffDashboardTitle.textContent = t.ordersDashboard;
+        staffEstimatedTimeEl.textContent = t.currentEstimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+        occupiedTablesTitle.textContent = t.occupiedTables;
+      }
+      
+      // Update admin view
+      if (adminDashboard) {
+        adminDashboardTitle.textContent = t.adminDashboard;
+        statsTab.textContent = t.statistics;
+        ordersTab.textContent = t.orders;
+        ratingsTab.textContent = t.ratings;
+        totalOrdersTitle.textContent = t.totalOrders;
+        avgRatingTitle.textContent = t.avgRating;
+        lowRatingsTitle.textContent = t.lowRatings;
+        activeStaffTitle.textContent = t.activeStaff;
+        recentOrdersTitle.textContent = t.recentOrders;
+        recentRatingsTitle.textContent = t.recentRatings;
+        filterAll.textContent = t.all;
+        filterPending.textContent = t.pending;
+        filterPreparing.textContent = t.preparing;
+        filterReady.textContent = t.ready;
+        filterCompleted.textContent = t.completed;
+      }
+      
+      // Update modals
+      tableNumberTitle.textContent = t.tableNumber;
+      confirmTableBtn.textContent = t.confirm;
+      cancelTableBtn.textContent = t.cancel;
+      
+      ratingTitle.textContent = t.rateExperience;
+      submitRatingBtn.textContent = t.submit;
+      skipRatingBtn.textContent = t.skip;
+      ratingFeedbackLabel.textContent = t.feedbackLabel;
+      ratingFeedback.placeholder = t.feedbackPlaceholder;
+      
+      tableDetailsTitle.textContent = t.tableDetails;
+      
+      // Update cart
+      cartTitle.textContent = t.cartTitle;
+      checkoutText.textContent = t.confirmOrder;
+      
+      // Update login modal
+      usernameLabel.textContent = t.usernameLabel;
+      passwordLabel.textContent = t.passwordLabel;
+      loginBtn.textContent = t.login;
+      cancelLoginBtn.textContent = t.cancel;
+      
+      // Update footer
+      poweredByText.textContent = t.poweredBy;
+      copyrightText.textContent = t.copyright;
+    }
+
+    function translate(key, params = {}) {
+      let translation = translations[currentLanguage][key] || translations['en'][key] || key;
+      
+      // Replace placeholders
+      for (const [param, value] of Object.entries(params)) {
+        translation = translation.replace(`{${param}}`, value);
+      }
+      
+      return translation;
+    }
+
+    // ==================== AUTHENTICATION ====================
+    function checkLogin() {
+      const username = usernameInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+      
+      // Check admin login
+      if (username === ADMIN_ACCOUNT.username && password === ADMIN_ACCOUNT.password) {
+        userType = "admin";
+        localStorage.setItem(USER_TYPE_KEY, "admin");
+        localStorage.setItem(ADMIN_TOKEN, "true");
+        closeModal();
+        checkAuthState();
         return;
       }
       
-      // Render each item
-      filteredItems.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'menu-item bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl';
-        
-        // Format price properly
-        const price = (item.price / 100).toFixed(2);
-        
-        card.innerHTML = `
-          <div class="relative h-48 bg-gray-200">
-            ${item.imageUrl ? `
-              <img src="${item.imageUrl}" alt="${item.name}" class="w-full h-full object-cover">
-            ` : `
-              <div class="w-full h-full flex items-center justify-center bg-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            `}
-            ${item.isPopular ? `
-              <div class="absolute top-2 right-2 bg-[#d4a373] text-white text-xs px-2 py-1 rounded-full">
-                Popular
-              </div>
-            ` : ''}
-          </div>
-          <div class="p-4">
-            <div class="flex justify-between items-start mb-2">
-              <h3 class="text-xl font-bold text-[#5c4033]">${item.name}</h3>
-              <span class="font-bold text-[#5c4033]">$${price}</span>
-            </div>
-            <p class="text-gray-600 mb-4 text-sm">${item.description}</p>
-            <button class="add-to-cart w-full bg-[#5c4033] hover:bg-[#4e342e] text-white py-2 rounded-lg transition-colors" data-id="${item.id}">
-              Add to Cart
-            </button>
-          </div>
+      // Check staff login
+      if (STAFF_ACCOUNTS[username] && STAFF_ACCOUNTS[username].password === password) {
+        userType = "staff";
+        currentStaff = username;
+        localStorage.setItem(USER_TYPE_KEY, "staff");
+        localStorage.setItem(STAFF_TOKEN, username);
+        closeModal();
+        checkAuthState();
+        return;
+      }
+      
+      alert(currentLanguage === 'ar' ? "اسم المستخدم أو كلمة المرور غير صحيحة" : "Invalid username or password");
+      passwordInput.value = "";
+    }
+
+    function checkAuthState() {
+      // Reset all views
+      guestView.style.display = "none";
+      staffDashboard.style.display = "none";
+      adminDashboard.style.display = "none";
+      
+      // Update buttons
+      guestBtn.classList.remove("active");
+      staffBtn.classList.remove("active");
+      adminBtn.classList.remove("active");
+      
+      // Show appropriate view based on user type
+      switch(userType) {
+        case "staff":
+          staffBtn.classList.add("active");
+          staffDashboard.style.display = "block";
+          totalBreakdown.style.display = 'block';
+          updateStaffAssignment();
+          break;
+        case "admin":
+          adminBtn.classList.add("active");
+          adminDashboard.style.display = "block";
+          renderAdminDashboard();
+          break;
+        default: // guest
+          userType = "guest";
+          guestBtn.classList.add("active");
+          guestView.style.display = "block";
+          totalBreakdown.style.display = 'none';
+          checkTableNumber();
+      }
+      
+      // Update language UI
+      updateLanguageUI();
+    }
+
+    function updateStaffAssignment() {
+      if (currentStaff && STAFF_ACCOUNTS[currentStaff]) {
+        const staff = STAFF_ACCOUNTS[currentStaff];
+        staffAssignment.innerHTML = `
+          <span style="color: var(--gold);">${staff.name}</span> - 
+          ${currentLanguage === 'ar' ? 'مسؤول عن الطاولات' : 'Responsible for tables'} ${staff.tables[0]} ${currentLanguage === 'ar' ? 'إلى' : 'to'} ${staff.tables[1]}
         `;
-        
-        menuContainer.appendChild(card);
-        
-        // Add event listener to the "Add to Cart" button
-        card.querySelector('.add-to-cart').addEventListener('click', () => {
-          addToCart(item);
-        });
-      });
+      }
     }
 
-    function addToCart(item) {
-      // Check if the item is already in the cart
-      const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
-      
-      if (existingItem) {
-        // Increment quantity
-        existingItem.quantity += 1;
-      } else {
-        // Add new item
-        cartItems.push({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: 1
-        });
+    // ==================== TABLE MANAGEMENT ====================
+    function checkTableNumberExpiry() {
+      const expiry = localStorage.getItem(TABLE_EXPIRY_KEY);
+      if (expiry && new Date(expiry) < new Date()) {
+        // Table number expired
+        localStorage.removeItem(TABLE_NUMBER_KEY);
+        localStorage.removeItem(TABLE_EXPIRY_KEY);
+        tableNumber = null;
+        tableNumberExpiry = null;
+      } else if (expiry) {
+        tableNumberExpiry = new Date(expiry);
       }
       
-      // Update UI
-      updateCartUI();
-      showNotification('Item added to cart!');
+      // Load table number if valid
+      const savedTable = localStorage.getItem(TABLE_NUMBER_KEY);
+      if (savedTable && tableNumberExpiry) {
+        tableNumber = parseInt(savedTable);
+      }
+    }
+
+    function checkTableNumber() {
+      if (userType === "guest" && !tableNumber) {
+        setTimeout(() => {
+          showTableModal();
+        }, 500);
+      }
+    }
+
+    async function confirmTableNumber() {
+      const tableNum = tableNumberInput.value.trim();
       
-      // Analytics event
+      if (!tableNum || isNaN(tableNum)) {
+        alert(currentLanguage === 'ar' ? "الرجاء إدخال رقم طاولة صحيح" : "Please enter a valid table number");
+        return;
+      }
+      
+      const tableNumberInt = parseInt(tableNum);
+      
+      // Check if table is available
+      const isAvailable = await checkTableAvailability(tableNumberInt);
+      if (!isAvailable) {
+        showOrderStatus(
+          currentLanguage === 'ar' ? `الطاولة ${tableNumberInt} مشغولة. الرجاء اختيار طاولة أخرى` : 
+          `Table ${tableNumberInt} is occupied. Please choose another.`, 
+          currentLanguage === 'ar' ? "خطأ في الطاولة" : "TABLE ERROR"
+        );
+        return;
+      }
+      
+      // Save table number with 1 hour expiry
+      tableNumber = tableNumberInt;
+      tableNumberExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+      
+      localStorage.setItem(TABLE_NUMBER_KEY, tableNumber);
+      localStorage.setItem(TABLE_EXPIRY_KEY, tableNumberExpiry.toISOString());
+      
+      closeTableModal();
+      showOrderStatus(
+        currentLanguage === 'ar' ? `تم تعيين الطاولة ${tableNumber}` : `Table ${tableNumber} assigned`,
+        currentLanguage === 'ar' ? "تم تعيين الطاولة" : "TABLE SET"
+      );
+    }
+
+    async function checkTableAvailability(tableNum) {
       try {
-        analytics.logEvent('add_to_cart', {
-          items: [{
-            id: item.id,
-            name: item.name,
-            price: item.price / 100
-          }]
-        });
-      } catch (error) {
-        console.error("Analytics error:", error);
-      }
-    }
-
-    function updateCartUI() {
-      // Update cart badge
-      const totalQuantity = cartItems.reduce((total, item) => total + item.quantity, 0);
-      
-      if (totalQuantity > 0) {
-        cartBadge.textContent = totalQuantity;
-        cartBadge.classList.remove('hidden');
-        placeOrderBtn.disabled = false;
-      } else {
-        cartBadge.classList.add('hidden');
-        placeOrderBtn.disabled = true;
-      }
-      
-      // Update cart items
-      if (cartItems.length === 0) {
-        emptyCart.classList.remove('hidden');
-        cartItems_el.querySelectorAll('.cart-item').forEach(el => el.remove());
-      } else {
-        emptyCart.classList.add('hidden');
-        
-        // Clear current items
-        cartItems_el.querySelectorAll('.cart-item').forEach(el => el.remove());
-        
-        // Add items
-        cartItems.forEach(item => {
-          const itemPrice = (item.price / 100).toFixed(2);
-          const itemTotal = ((item.price * item.quantity) / 100).toFixed(2);
-          
-          const cartItem = document.createElement('div');
-          cartItem.className = 'cart-item py-4';
-          cartItem.innerHTML = `
-            <div class="flex justify-between mb-2">
-              <div>
-                <span class="font-medium">${item.name}</span>
-                <div class="text-gray-500 text-sm">$${itemPrice} each</div>
-              </div>
-              <div class="text-[#5c4033] font-medium">$${itemTotal}</div>
-            </div>
-            <div class="flex justify-between items-center">
-              <div class="flex items-center space-x-2">
-                <button class="cart-quantity-btn bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center" data-action="decrease" data-id="${item.id}">-</button>
-                <span>${item.quantity}</span>
-                <button class="cart-quantity-btn bg-gray-200 hover:bg-gray-300 rounded-full w-6 h-6 flex items-center justify-center" data-action="increase" data-id="${item.id}">+</button>
-              </div>
-              <button class="remove-item text-red-500 hover:text-red-700 text-sm" data-id="${item.id}">Remove</button>
-            </div>
-          `;
-          
-          cartItems_el.appendChild(cartItem);
-          
-          // Add event listeners for quantity buttons
-          cartItem.querySelectorAll('.cart-quantity-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-              const action = btn.getAttribute('data-action');
-              const itemId = btn.getAttribute('data-id');
-              updateCartItemQuantity(itemId, action);
-            });
-          });
-          
-          // Add event listener for remove button
-          cartItem.querySelector('.remove-item').addEventListener('click', () => {
-            const itemId = cartItem.querySelector('.remove-item').getAttribute('data-id');
-            removeCartItem(itemId);
-          });
-        });
-      }
-      
-      // Update total
-      const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      cartTotal.textContent = `Total: $${(total / 100).toFixed(2)}`;
-    }
-
-    function updateCartItemQuantity(itemId, action) {
-      const item = cartItems.find(item => item.id === itemId);
-      
-      if (!item) return;
-      
-      if (action === 'increase') {
-        item.quantity += 1;
-      } else if (action === 'decrease') {
-        item.quantity -= 1;
-        
-        // Remove item if quantity is 0
-        if (item.quantity <= 0) {
-          removeCartItem(itemId);
-          return;
+        // Check if table is already occupied in memory
+        if (occupiedTables.has(tableNum)) {
+          return false;
         }
+        
+        // Double check with database
+        const querySnapshot = await db.collection("orders")
+          .where("tableNumber", "==", tableNum)
+          .where("status", "in", ["pending", "preparing", "ready"])
+          .limit(1)
+          .get();
+        
+        return querySnapshot.empty;
+      } catch (error) {
+        console.error("Table check error:", error);
+        return false;
       }
-      
-      updateCartUI();
     }
 
-    function removeCartItem(itemId) {
-      cartItems = cartItems.filter(item => item.id !== itemId);
-      updateCartUI();
-    }
-
-    function clearCart() {
-      cartItems = [];
-      updateCartUI();
-    }
-
-    function placeOrder() {
-      if (cartItems.length === 0 || !selectedTable) return;
-      
-      const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      
-      // Create order object
-      const order = {
-        tableNumber: selectedTable,
-        status: 'pending',
-        items: cartItems,
-        totalPrice: total,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      
-      // Add to Firestore
-      db.collection('orders').add(order)
-        .then(docRef => {
-          console.log("Order created with ID:", docRef.id);
-          
-          // Set current order
-          currentOrder = {
-            id: docRef.id,
-            ...order
-          };
-          
-          // Analytics event
-          try {
-            analytics.logEvent('purchase', {
-              transaction_id: docRef.id,
-              value: total / 100,
-              currency: 'USD',
-              items: cartItems.map(item => ({
-                id: item.id,
-                name: item.name,
-                price: item.price / 100,
-                quantity: item.quantity
-              }))
-            });
-          } catch (error) {
-            console.error("Analytics error:", error);
-          }
-          
-          // Show order status button
-          orderStatusBtn.classList.remove('hidden');
-          
-          // Show order status
-          hideCartModal();
-          showOrderStatusModal();
-          
-          // Clear cart
-          clearCart();
-          
-          // Start the cancel timer
-          startCancelTimer();
-        })
-        .catch(error => {
-          console.error("Error placing order:", error);
-          
-          // Fallback for offline mode
-          const orderId = 'local-' + Date.now();
-          currentOrder = {
-            id: orderId,
-            ...order,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
-          
-          orderStatusBtn.classList.remove('hidden');
-          hideCartModal();
-          showOrderStatusModal();
-          clearCart();
-          startCancelTimer();
-        });
-    }
-
-    function selectTable(tableNum) {
-      selectedTable = parseInt(tableNum);
-      tableNumber.textContent = tableNum;
-      tableModal.classList.add('hidden');
-      
-      // Update place order button
-      if (cartItems.length > 0) {
-        placeOrderBtn.disabled = false;
+    async function releaseTable(tableNum) {
+      if (tableNum) {
+        occupiedTables.delete(tableNum);
       }
     }
 
     function showTableModal() {
-      tableModal.classList.remove('hidden');
+      tableNumberInput.value = "";
+      tableNumberModal.style.display = "flex";
+      updateLanguageUI(); // Ensure modal is translated
     }
 
-    function showCartModal() {
-      cartModal.classList.remove('hidden');
+    function closeTableModal() {
+      tableNumberModal.style.display = "none";
     }
 
-    function hideCartModal() {
-      cartModal.classList.add('hidden');
-    }
-
-    function showOrderStatusModal() {
-      if (!currentOrder) return;
-      
-      // Update the order UI
-      orderNumber_el.textContent = `Order #${currentOrder.id.substring(0, 8)}`;
-      
-      // Set status text and color
-      let statusText = currentOrder.status.charAt(0).toUpperCase() + currentOrder.status.slice(1);
-      let statusColor = getStatusColor(currentOrder.status);
-      
-      orderStatus_el.innerHTML = `
-        <span class="px-3 py-1 ${statusColor} rounded-full text-sm font-medium order-status">
-          ${statusText}
-        </span>
-      `;
-      
-      // Set estimated time based on status
-      let timeText = '';
-      switch (currentOrder.status) {
-        case 'pending':
-          timeText = '10-15 minutes';
-          break;
-        case 'preparing':
-          timeText = '10-15 minutes';
-          break;
-        case 'ready':
-          timeText = 'Ready for pickup!';
-          break;
-        case 'completed':
-          timeText = 'Completed';
-          break;
-        case 'cancelled':
-          timeText = 'Cancelled';
-          break;
+    // ==================== RATING SYSTEM ====================
+    function setupRatingsListener() {
+      if (ratingsListener) {
+        ratingsListener();
       }
       
-      estimatedTime.textContent = timeText;
+      ratingsListener = db.collection("ratings")
+        .orderBy("timestamp", "desc")
+        .limit(50)
+        .onSnapshot((snapshot) => {
+          const updatedRatings = [];
+          snapshot.forEach((doc) => {
+            updatedRatings.push(doc.data());
+          });
+          
+          ratings = updatedRatings;
+          
+          if (userType === "admin") {
+            renderAdminDashboard();
+          }
+        });
+    }
+
+    function showRatingModal(orderId) {
+      currentOrderForRating = orderId;
+      currentRating = 0;
       
-      // Update order items
-      orderItems_el.innerHTML = '';
-      currentOrder.items.forEach(item => {
-        const orderItem = document.createElement('li');
-        orderItem.className = 'flex justify-between';
-        orderItem.innerHTML = `
-          <span>${item.quantity}x ${item.name}</span>
-          <span>$${((item.price * item.quantity) / 100).toFixed(2)}</span>
-        `;
-        orderItems_el.appendChild(orderItem);
+      // Reset stars
+      ratingStars.forEach(star => {
+        star.classList.remove("active");
       });
       
-      // Show/hide cancel button based on order status
-      if (currentOrder.status === 'pending') {
-        cancelOrderContainer.classList.remove('hidden');
-      } else {
-        cancelOrderContainer.classList.add('hidden');
-      }
+      // Hide feedback initially
+      ratingFeedback.style.display = "none";
+      ratingFeedbackLabel.style.display = "none";
+      ratingFeedback.value = "";
       
-      orderStatusModal.classList.remove('hidden');
+      ratingModal.style.display = "flex";
+      updateLanguageUI(); // Ensure modal is translated
     }
 
-    function hideOrderStatusModal() {
-      orderStatusModal.classList.add('hidden');
+    function closeRatingModal() {
+      ratingModal.style.display = "none";
+      currentOrderForRating = null;
     }
 
-    function cancelOrder() {
-      if (!currentOrder) return;
+    function setRating(rating) {
+      currentRating = rating;
       
-      // Update order status
-      db.collection('orders').doc(currentOrder.id).update({
-        status: 'cancelled',
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        currentOrder.status = 'cancelled';
-        showOrderStatusModal(); // Refresh the modal
-      })
-      .catch(error => {
-        console.error("Error cancelling order:", error);
-        
-        // Fallback for offline mode
-        currentOrder.status = 'cancelled';
-        showOrderStatusModal();
-      });
-      
-      // Clear the cancel timer
-      if (cancelTimerId) {
-        clearTimeout(cancelTimerId);
-        cancelTimerId = null;
-      }
-    }
-
-    function startCancelTimer() {
-      // Allow cancellation for 3 minutes (180,000 ms)
-      if (cancelTimerId) {
-        clearTimeout(cancelTimerId);
-      }
-      
-      cancelTimerId = setTimeout(() => {
-        if (currentOrder && currentOrder.status === 'pending') {
-          cancelOrderContainer.classList.add('hidden');
+      // Update star display
+      ratingStars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.add("active");
+        } else {
+          star.classList.remove("active");
         }
-      }, 180000); // 3 minutes
-    }
-
-    function getStatusColor(status) {
-      switch (status) {
-        case 'pending':
-          return 'bg-yellow-100 text-yellow-800';
-        case 'preparing':
-          return 'bg-orange-100 text-orange-800';
-        case 'ready':
-          return 'bg-green-100 text-green-800';
-        case 'completed':
-          return 'bg-blue-100 text-blue-800';
-        case 'cancelled':
-          return 'bg-red-100 text-red-800';
-        default:
-          return 'bg-gray-100 text-gray-800';
+      });
+      
+      // Show feedback if rating is 3 or less
+      if (rating <= 3) {
+        ratingFeedback.style.display = "block";
+        ratingFeedbackLabel.style.display = "block";
+        ratingFeedback.required = true;
+      } else {
+        ratingFeedback.style.display = "none";
+        ratingFeedbackLabel.style.display = "none";
+        ratingFeedback.required = false;
       }
     }
 
-    function showNotification(message) {
-      notification.textContent = message;
-      notification.classList.remove('translate-y-20', 'opacity-0');
+    async function submitRating() {
+      if (currentRating === 0) {
+        alert(currentLanguage === 'ar' ? "الرجاء اختيار تقييم" : "Please select a rating");
+        return;
+      }
+      
+      if (currentRating <= 3 && !ratingFeedback.value.trim()) {
+        alert(currentLanguage === 'ar' ? "الرجاء تقديم ملاحظات للتقييم المنخفض" : "Please provide feedback for your low rating");
+        return;
+      }
+      
+      try {
+        // Find the order to get table number and staff info
+        const orderQuery = await db.collection("orders")
+          .where("id", "==", currentOrderForRating)
+          .limit(1)
+          .get();
+        
+        if (orderQuery.empty) {
+          throw new Error("Order not found");
+        }
+        
+        const orderData = orderQuery.docs[0].data();
+        const staffMember = getStaffForTable(orderData.tableNumber);
+        
+        // Save rating
+        await db.collection("ratings").add({
+          orderId: currentOrderForRating,
+          tableNumber: orderData.tableNumber,
+          rating: currentRating,
+          feedback: currentRating <= 3 ? ratingFeedback.value.trim() : null,
+          staff: staffMember ? staffMember.name : "Unknown",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        closeRatingModal();
+        showOrderStatus(
+          currentLanguage === 'ar' ? "شكراً لك على ملاحظاتك!" : "Thank you for your feedback!",
+          currentLanguage === 'ar' ? "تم إرسال التقييم" : "RATING SUBMITTED"
+        );
+        
+      } catch (error) {
+        console.error("Error submitting rating:", error);
+        showOrderStatus(
+          currentLanguage === 'ar' ? "فشل إرسال التقييم. الرجاء المحاولة مرة أخرى." : "Failed to submit rating. Please try again.",
+          currentLanguage === 'ar' ? "خطأ" : "ERROR"
+        );
+      }
+    }
+
+    function getStaffForTable(tableNumber) {
+      for (const [username, staff] of Object.entries(STAFF_ACCOUNTS)) {
+        if (tableNumber >= staff.tables[0] && tableNumber <= staff.tables[1]) {
+          return staff;
+        }
+      }
+      return null;
+    }
+
+    function renderAdminDashboard() {
+      // Update stats
+      totalOrdersEl.textContent = orders.length;
+      
+      // Calculate ratings stats
+      if (ratings.length > 0) {
+        const totalRating = ratings.reduce((sum, r) => sum + r.rating, 0);
+        const avgRating = totalRating / ratings.length;
+        const lowRatings = ratings.filter(r => r.rating <= 3).length;
+        
+        avgRatingEl.textContent = avgRating.toFixed(1);
+        lowRatingsEl.textContent = lowRatings;
+        
+        // Update chart
+        updateRatingsChart();
+      } else {
+        avgRatingEl.textContent = "0.0";
+        lowRatingsEl.textContent = "0";
+      }
+      
+      // Render recent ratings
+      ratingsList.innerHTML = '';
+      const recentRatings = ratings.slice(0, 10); // Show last 10 ratings
+      
+      if (recentRatings.length === 0) {
+        ratingsList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>`;
+        return;
+      }
+      
+      recentRatings.forEach(rating => {
+        const ratingEl = document.createElement('div');
+        ratingEl.className = 'rating-item';
+        
+        // Create star display
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= rating.rating) {
+            starsHtml += '<i class="fas fa-star rating-star-display"></i>';
+          } else {
+            starsHtml += '<i class="fas fa-star rating-star-display empty"></i>';
+          }
+        }
+        
+        ratingEl.innerHTML = `
+          <div class="rating-header">
+            <div class="rating-table">${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${rating.tableNumber}</div>
+            <div class="rating-staff">${rating.staff}</div>
+          </div>
+          <div class="rating-stars-display">
+            ${starsHtml}
+          </div>
+          ${rating.feedback ? `
+            <div class="rating-feedback-text">
+              "${rating.feedback}"
+            </div>
+          ` : ''}
+        `;
+        
+        ratingsList.appendChild(ratingEl);
+      });
+      
+      // Render admin orders list if on orders tab
+      if (activeAdminTab === 'orders') {
+        renderAdminOrders();
+      }
+    }
+
+    function renderAdminOrders() {
+      adminOrdersList.innerHTML = '';
+      
+      if (orders.length === 0) {
+        adminOrdersList.innerHTML = `<p style="color: var(--light-cream); text-align: center;">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
+        return;
+      }
+      
+      // Get active filter
+      const activeFilter = document.querySelector('.admin-filter-btn.active')?.dataset.filter || 'all';
+      
+      // Filter orders
+      let filteredOrders = orders;
+      if (activeFilter !== 'all') {
+        filteredOrders = orders.filter(order => order.status === activeFilter);
+      }
+      
+      // Apply search if any
+      const searchTerm = adminSearchInput.value.toLowerCase();
+      if (searchTerm) {
+        filteredOrders = filteredOrders.filter(order => 
+          order.id.toLowerCase().includes(searchTerm) || 
+          order.tableNumber.toString().includes(searchTerm)
+        );
+      }
+      
+      // Sort by timestamp (newest first)
+      filteredOrders.sort((a, b) => b.timestamp?.toDate() - a.timestamp?.toDate());
+      
+      // Show only recent orders
+      filteredOrders = filteredOrders.slice(0, 20);
+      
+      if (filteredOrders.length === 0) {
+        adminOrdersList.innerHTML = `<p style="color: var(--light-cream); text-align: center;">${currentLanguage === 'ar' ? 'لا توجد طلبات تطابق بحثك' : 'No orders match your search'}</p>`;
+        return;
+      }
+      
+      filteredOrders.forEach(order => {
+        const orderEl = document.createElement('div');
+        orderEl.className = 'admin-order-card';
+        
+        const timeString = order.timestamp?.toDate().toLocaleTimeString() || '';
+        const dateString = order.timestamp?.toDate().toLocaleDateString() || '';
+        
+        orderEl.innerHTML = `
+          <div class="admin-order-card-header">
+            <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id}</div>
+            <div class="order-status status-${order.status}">${order.status.toUpperCase()}</div>
+          </div>
+          <div class="admin-order-card-time">
+            ${dateString} ${timeString} | ${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${order.tableNumber}
+          </div>
+          <div style="margin-top: 8px;">
+            ${order.items.map(item => `
+              <div style="font-size: 0.85rem; margin-bottom: 3px;">
+                ${item.title} - ${item.price.toFixed(2)} JD
+              </div>
+            `).join('')}
+          </div>
+          <div style="text-align: right; font-weight: bold; color: var(--gold); margin-top: 5px;">
+            ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: ${order.total.toFixed(2)} JD
+          </div>
+        `;
+        
+        adminOrdersList.appendChild(orderEl);
+      });
+    }
+
+    function updateRatingsChart() {
+      // Group ratings by value (1-5)
+      const ratingCounts = [0, 0, 0, 0, 0];
+      ratings.forEach(r => {
+        ratingCounts[r.rating - 1]++;
+      });
+      
+      // Destroy previous chart if exists
+      if (ratingsChart) {
+        ratingsChart.destroy();
+      }
+      
+      // Create new chart
+      ratingsChart = new Chart(ratingsChartCtx, {
+        type: 'bar',
+        data: {
+          labels: [
+            currentLanguage === 'ar' ? 'نجمة واحدة' : '1 Star',
+            currentLanguage === 'ar' ? 'نجمتان' : '2 Stars',
+            currentLanguage === 'ar' ? '3 نجوم' : '3 Stars',
+            currentLanguage === 'ar' ? '4 نجوم' : '4 Stars',
+            currentLanguage === 'ar' ? '5 نجوم' : '5 Stars'
+          ],
+          datasets: [{
+            label: currentLanguage === 'ar' ? 'توزيع التقييمات' : 'Ratings Distribution',
+            data: ratingCounts,
+            backgroundColor: [
+              'rgba(178, 34, 34, 0.7)',
+              'rgba(255, 159, 64, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(54, 162, 235, 0.7)'
+            ],
+            borderColor: [
+              'rgba(178, 34, 34, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(54, 162, 235, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: 'var(--light-cream)'
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              }
+            },
+            x: {
+              ticks: {
+                color: 'var(--light-cream)'
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // ==================== ORDER PROCESSING ====================
+    async function checkout() {
+      if (cart.length === 0) return;
+      
+      // If no table number set, show modal
+      if (!tableNumber) {
+        showTableModal();
+        return;
+      }
+      
+      // Check if table is available
+      const isAvailable = await checkTableAvailability(tableNumber);
+      if (!isAvailable) {
+        showOrderStatus(
+          currentLanguage === 'ar' ? `الطاولة ${tableNumber} مشغولة. الرجاء اختيار طاولة أخرى` : 
+          `Table ${tableNumber} is occupied. Please choose another.`, 
+          currentLanguage === 'ar' ? "خطأ في الطاولة" : "TABLE ERROR"
+        );
+        showTableModal();
+        return;
+      }
+      
+      checkoutBtn.disabled = true;
+      checkoutBtn.classList.add('checkout-loading');
+      
+      try {
+        const order = {
+          id: 'ORD-' + Date.now().toString().substr(-6),
+          items: [...cart],
+          subtotal: cart.reduce((sum, item) => sum + item.price, 0),
+          serviceCharge: 0.05, // 5%
+          taxRate: 0.08, // 8%
+          discount: discountApplied,
+          status: 'pending',
+          clientId: clientId,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          tableNumber: tableNumber,
+          notes: cart.map(item => item.notes).filter(n => n),
+          estimatedTime: estimatedTime
+        };
+
+        // Calculate total with taxes and discount
+        const serviceAmount = order.subtotal * order.serviceCharge;
+        const taxAmount = order.subtotal * order.taxRate;
+        const discountAmount = order.subtotal * order.discount;
+        order.total = order.subtotal + serviceAmount + taxAmount - discountAmount;
+        
+        // Add the order and get the document reference
+        const docRef = await db.collection("orders").add(order);
+        
+        // Store both the order ID and document ID
+        await docRef.update({ 
+          documentId: docRef.id  // Store the Firestore-generated ID
+        });
+
+        // Reserve the table
+        occupiedTables.add(tableNumber);
+        
+        // Update estimated time for next order
+        estimatedTime = Math.min(estimatedTime + 5, 60); // Increase by 5 mins, max 60
+        updateEstimatedTime();
+        
+        cart = [];
+        discountApplied = 0;
+        discountCodeInput.value = "";
+        updateCart();
+        cartPanel.classList.remove('active');
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم تأكيد الطلب #${order.id}!` : `Order #${order.id} confirmed!`,
+          currentLanguage === 'ar' ? "تم تأكيد الطلب" : "ORDER CONFIRMED"
+        );
+        
+        analytics.logEvent('purchase', {
+          transaction_id: order.id,
+          value: order.total,
+          currency: 'JD',
+          items: order.items.length
+        });
+        
+      } catch (error) {
+        console.error("Checkout error:", error);
+        showOrderStatus(
+          currentLanguage === 'ar' ? "فشل تقديم الطلب. الرجاء المحاولة مرة أخرى." : "Failed to place order. Please try again.",
+          currentLanguage === 'ar' ? "خطأ في الطلب" : "ORDER ERROR"
+        );
+      } finally {
+        checkoutBtn.disabled = false;
+        checkoutBtn.classList.remove('checkout-loading');
+      }
+    }
+
+    // ==================== DISCOUNT HANDLING ====================
+    function applyDiscount() {
+      const code = discountCodeInput.value.trim().toUpperCase();
+      
+      if (!code) {
+        discountApplied = 0;
+        updateCart();
+        return;
+      }
+      
+      if (DISCOUNT_CODES[code]) {
+        discountApplied = DISCOUNT_CODES[code];
+        updateCart();
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم تطبيق خصم: ${discountApplied * 100}%` : `Discount applied: ${discountApplied * 100}% off`,
+          currentLanguage === 'ar' ? "تم تطبيق الخصم" : "DISCOUNT APPLIED"
+        );
+      } else {
+        discountApplied = 0;
+        updateCart();
+        showOrderStatus(
+          currentLanguage === 'ar' ? "كود خصم غير صالح" : "Invalid discount code",
+          currentLanguage === 'ar' ? "خطأ في الخصم" : "DISCOUNT ERROR"
+        );
+      }
+    }
+
+    // ==================== FIREBASE FUNCTIONS ====================
+    function setupRealTimeListener() {
+      if (firestoreListener) {
+        firestoreListener();
+      }
+      
+      firestoreListener = db.collection("orders")
+        .orderBy("timestamp", "desc")
+        .onSnapshot((snapshot) => {
+          const updatedOrders = [];
+          const newOccupiedTables = new Set();
+          const newTableDetails = {};
+          
+          snapshot.forEach((doc) => {
+            const orderData = doc.data();
+            updatedOrders.push({ 
+              id: orderData.id, // Use our custom ORD-123 ID
+              documentId: doc.id, // Store Firestore document ID
+              ...orderData 
+            });
+            
+            // Track occupied tables for pending/preparing/ready orders
+            if (orderData.tableNumber && typeof orderData.tableNumber === 'number' && 
+                ['pending', 'preparing', 'ready'].includes(orderData.status)) {
+              newOccupiedTables.add(orderData.tableNumber);
+              
+              // Build table details for staff view
+              if (!newTableDetails[orderData.tableNumber]) {
+                newTableDetails[orderData.tableNumber] = {
+                  tableNumber: orderData.tableNumber,
+                  orders: []
+                };
+              }
+              newTableDetails[orderData.tableNumber].orders.push(orderData);
+            }
+            
+            // Check if this order belongs to the current client and was just completed
+            if (orderData.clientId === clientId && orderData.status === 'completed') {
+              // Show rating modal immediately for the guest
+              if (userType === 'guest') {
+                showRatingModal(orderData.id);
+              }
+            }
+          });
+          
+          orders = updatedOrders;
+          occupiedTables = newOccupiedTables;
+          tableDetails = newTableDetails;
+          
+          if (userType === "staff") {
+            renderOrders();
+            renderTablesOverview();
+          }
+          
+          if (userType === "admin") {
+            renderAdminDashboard();
+          }
+          
+          renderClientOrders(orders.filter(o => o.clientId === clientId));
+        }, (error) => {
+          console.error("Firestore listener error:", error);
+          showOrderStatus(
+            currentLanguage === 'ar' ? "مشكلة في الاتصال. جاري إعادة الاتصال..." : "Connection issue. Trying to reconnect...",
+            currentLanguage === 'ar' ? "خطأ في الشبكة" : "NETWORK ERROR"
+          );
+          setTimeout(setupRealTimeListener, 2000);
+        });
+    }
+
+    // ==================== CORE FUNCTIONS ====================
+    function updateModel() {
+      const food = foods[currentIndex];
+      modelViewer.src = food.model;
+      
+      // Use translated text if available
+      const t = translations[currentLanguage];
+      foodTitle.textContent = t.foodTitle[food.title] || food.title;
+      foodDesc.textContent = t.foodDesc[food.description] || food.description;
+      
+      counter.textContent = `${currentIndex + 1}/${foods.length}`;
+      addToCartBtn.textContent = t.addToCart.replace('{price}', food.price.toFixed(2));
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === foods.length - 1;
+      
+      // Update extras options
+      extrasSelect.innerHTML = '';
+      if (food.extras && food.extras.length > 0) {
+        // Add default empty option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = t.selectExtras;
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        extrasSelect.appendChild(defaultOption);
+        
+        // Add extras options
+        food.extras.forEach(extra => {
+          const option = document.createElement('option');
+          option.value = JSON.stringify(extra);
+          option.textContent = `${extra.name} (+${extra.price.toFixed(2)} JD)`;
+          extrasSelect.appendChild(option);
+        });
+        
+        // Enable multiple selection
+        extrasSelect.multiple = true;
+        extrasSelect.style.display = 'block';
+      } else {
+        extrasSelect.innerHTML = `<option value="" disabled selected>${t.noExtras}</option>`;
+        extrasSelect.multiple = false;
+      }
+    }
+
+    function addToCart() {
+      const currentFood = foods[currentIndex];
+      const notes = itemNotes.value.trim();
+      const selectedExtras = [];
+      
+      // Get selected extras
+      const selectedOptions = Array.from(extrasSelect.selectedOptions)
+        .filter(option => option.value)
+        .map(option => JSON.parse(option.value));
+      
+      // Calculate total price with extras
+      let totalPrice = currentFood.price;
+      selectedOptions.forEach(extra => {
+        totalPrice += extra.price;
+        selectedExtras.push(extra);
+      });
+      
+      cart.push({
+        ...currentFood,
+        id: Date.now() + Math.random().toString(36).substr(2, 9),
+        price: totalPrice,
+        extras: selectedExtras,
+        notes: notes
+      });
+      
+      updateCart();
+      showOrderStatus(
+        currentLanguage === 'ar' ? `${currentFood.title} تمت إضافته إلى الطلب` : `${currentFood.title} added to order`,
+        currentLanguage === 'ar' ? "تم تحديث الطلب" : "ORDER UPDATED"
+      );
+      cartPanel.classList.add("active");
+      itemNotes.value = ""; // Clear notes after adding
+      
+      // Reset extras selection
+      if (extrasSelect.options.length > 0) {
+        extrasSelect.options[0].selected = true;
+      }
+      
+      analytics.logEvent('add_to_cart', {
+        items: cart.length,
+        item_name: currentFood.title,
+        value: totalPrice
+      });
+    }
+
+    function removeFromCart(itemId) {
+      cart = cart.filter(item => item.id !== itemId);
+      updateCart();
+    }
+
+    function updateCart() {
+      cartItemsEl.innerHTML = '';
+      let subtotal = 0;
+      
+      cart.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'cart-item';
+        
+        let extrasText = '';
+        if (item.extras && item.extras.length > 0) {
+          extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
+            ${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')}
+          </div>`;
+        }
+        
+        let notesText = '';
+        if (item.notes) {
+          notesText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
+            ${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes}
+          </div>`;
+        }
+        
+        itemEl.innerHTML = `
+          <div style="flex: 2; text-align: left;">
+            <div style="font-size: 0.85rem;">${item.title}</div>
+            ${extrasText}
+            ${notesText}
+          </div>
+          <span class="item-price">${item.price.toFixed(2)} JD</span>
+          <button class="remove-item" data-id="${item.id}">×</button>
+        `;
+        cartItemsEl.appendChild(itemEl);
+        subtotal += item.price;
+      });
+      
+      // For staff/admin, show full breakdown
+      if (userType === "staff" || userType === "admin") {
+        totalBreakdown.style.display = 'block';
+        const serviceAmount = subtotal * 0.05;
+        const taxAmount = subtotal * 0.08;
+        const discountAmount = subtotal * discountApplied;
+        const total = subtotal + serviceAmount + taxAmount - discountAmount;
+        
+        document.getElementById('staff-subtotal').textContent = subtotal.toFixed(2);
+        document.getElementById('service-charge').textContent = serviceAmount.toFixed(2);
+        document.getElementById('tax-amount').textContent = taxAmount.toFixed(2);
+        document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
+        document.getElementById('staff-total').textContent = total.toFixed(2);
+      } else {
+        totalBreakdown.style.display = 'none';
+      }
+      
+      cartCount.textContent = cart.length;
+      
+      document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          removeFromCart(e.target.dataset.id);
+        });
+      });
+      
+      // Update checkout button text
+      checkoutBtn.querySelector('.checkout-text').textContent = translations[currentLanguage].confirmOrder;
+    }
+
+    function updateEstimatedTime() {
+      const t = translations[currentLanguage];
+      estimatedTimeEl.textContent = t.estimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+      if (staffEstimatedTimeEl) {
+        staffEstimatedTimeEl.textContent = t.currentEstimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+      }
+    }
+
+    function renderTablesOverview() {
+      tablesGrid.innerHTML = '';
+      
+      if (occupiedTables.size === 0) {
+        tablesGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 'No occupied tables'}</p>`;
+        return;
+      }
+      
+      // Convert Set to array and sort
+      const sortedTables = Array.from(occupiedTables).sort((a, b) => a - b);
+      
+      sortedTables.forEach(tableNum => {
+        const tableData = tableDetails[tableNum];
+        const tableEl = document.createElement('div');
+        tableEl.className = `table-item ${tableData ? 'occupied' : ''}`;
+        tableEl.onclick = () => showTableDetails(tableNum);
+        
+        let statusText = currentLanguage === 'ar' ? 'متاحة' : 'Available';
+        let statusClass = '';
+        
+        if (tableData) {
+          // Find the most urgent order status for this table
+          const hasPending = tableData.orders.some(o => o.status === 'pending');
+          const hasPreparing = tableData.orders.some(o => o.status === 'preparing');
+          
+          if (hasPending) {
+            statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
+            statusClass = 'status-pending';
+          } else if (hasPreparing) {
+            statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
+            statusClass = 'status-preparing';
+          } else {
+            statusText = currentLanguage === 'ar' ? 'جاهزة' : 'Ready';
+            statusClass = 'status-ready';
+          }
+        }
+        
+        tableEl.innerHTML = `
+          <div class="table-number">${tableNum}</div>
+          <div class="table-status ${statusClass}">${statusText}</div>
+          <div style="font-size: 0.7rem; margin-top: 3px;">
+            ${tableData ? tableData.orders.length + (currentLanguage === 'ar' ? ' طلب' : ' order(s)') : ''}
+          </div>
+        `;
+        
+        tablesGrid.appendChild(tableEl);
+      });
+    }
+
+    function showTableDetails(tableNum) {
+      const tableData = tableDetails[tableNum];
+      if (!tableData) return;
+      
+      const t = translations[currentLanguage];
+      tableDetailsTitle.textContent = t.tableDetails;
+      tableOrdersList.innerHTML = '';
+      
+      // Group orders by status
+      const ordersByStatus = {
+        pending: [],
+        preparing: [],
+        ready: []
+      };
+      
+      tableData.orders.forEach(order => {
+        ordersByStatus[order.status].push(order);
+      });
+      
+      // Render orders by status
+      ['pending', 'preparing', 'ready'].forEach(status => {
+        if (ordersByStatus[status].length > 0) {
+          // Add status header
+          const statusHeader = document.createElement('div');
+          statusHeader.className = 'status-header';
+          statusHeader.style.color = status === 'pending' ? '#FFC107' : 
+                                   status === 'preparing' ? '#2196F3' : '#4CAF50';
+          statusHeader.textContent = `${status.toUpperCase()} (${ordersByStatus[status].length})`;
+          tableOrdersList.appendChild(statusHeader);
+          
+          // Add orders
+          ordersByStatus[status].forEach(order => {
+            const orderEl = document.createElement('div');
+            orderEl.className = 'table-order-item';
+            
+            orderEl.innerHTML = `
+              <div class="table-order-id">
+                ${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id}
+                <span class="table-order-status status-${order.status}">${status.toUpperCase()}</span>
+              </div>
+              <div style="color: var(--light-cream); font-size: 0.8rem; margin: 5px 0;">
+                ${currentLanguage === 'ar' ? 'مقدر:' : 'Estimated:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'mins'}
+              </div>
+              <div class="table-order-items">
+                ${order.items.map(item => {
+                  let extrasText = '';
+                  if (item.extras && item.extras.length > 0) {
+                    extrasText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
+                    </span>`;
+                  }
+                  
+                  let notesText = '';
+                  if (item.notes) {
+                    notesText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
+                    </span>`;
+                  }
+                  
+                  return `
+                    <div class="table-order-item-row">
+                      <span>${item.title} ${extrasText} ${notesText}</span>
+                      <span>${item.price.toFixed(2)} JD</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div style="text-align: right; font-weight: bold; color: var(--gold); margin-top: 5px;">
+                ${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${order.total.toFixed(2)} JD
+              </div>
+            `;
+            
+            tableOrdersList.appendChild(orderEl);
+          });
+        }
+      });
+      
+      tableDetailsModal.style.display = 'flex';
+    }
+
+    function renderOrders() {
+      ordersList.innerHTML = '';
+      
+      if (orders.length === 0) {
+        ordersList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
+        return;
+      }
+
+      // Filter orders based on staff's table assignment
+      let filteredOrders = orders;
+      if (currentStaff && STAFF_ACCOUNTS[currentStaff]) {
+        const staffTables = STAFF_ACCOUNTS[currentStaff].tables;
+        filteredOrders = orders.filter(order => 
+          order.tableNumber >= staffTables[0] && order.tableNumber <= staffTables[1]
+        );
+      }
+
+      // Group orders by status
+      const ordersByStatus = {
+        pending: [],
+        preparing: [],
+        ready: [],
+        completed: []
+      };
+
+      filteredOrders.forEach(order => {
+        ordersByStatus[order.status].push(order);
+      });
+
+      // Render each status group with a header
+      ['pending', 'preparing', 'ready', 'completed'].forEach(status => {
+        if (ordersByStatus[status].length > 0) {
+          // Add status header
+          const statusHeader = document.createElement('div');
+          statusHeader.className = 'status-header';
+          statusHeader.style.color = status === 'pending' ? '#FFC107' : 
+                                   status === 'preparing' ? '#2196F3' :
+                                   status === 'ready' ? '#4CAF50' : '#9E9E9E';
+          statusHeader.textContent = `${status.toUpperCase()} (${ordersByStatus[status].length})`;
+          ordersList.appendChild(statusHeader);
+
+          // Add orders for this status
+          ordersByStatus[status].forEach(order => {
+            const orderEl = document.createElement('div');
+            orderEl.className = 'order-card';
+            
+            // Create buttons with proper event handlers
+            const preparingBtn = document.createElement('button');
+            preparingBtn.className = 'action-btn';
+            preparingBtn.style.background = '#2196F3';
+            preparingBtn.style.color = 'white';
+            preparingBtn.textContent = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
+            preparingBtn.onclick = () => updateOrderStatus(order.id, 'preparing');
+            
+            const readyBtn = document.createElement('button');
+            readyBtn.className = 'action-btn';
+            readyBtn.style.background = '#4CAF50';
+            readyBtn.style.color = 'white';
+            readyBtn.textContent = currentLanguage === 'ar' ? 'جاهزة' : 'Ready';
+            readyBtn.onclick = () => updateOrderStatus(order.id, 'ready');
+            
+            const completeBtn = document.createElement('button');
+            completeBtn.className = 'action-btn';
+            completeBtn.style.background = '#9E9E9E';
+            completeBtn.style.color = 'white';
+            completeBtn.textContent = currentLanguage === 'ar' ? 'مكتملة' : 'Complete';
+            completeBtn.onclick = () => updateOrderStatus(order.id, 'completed');
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'action-btn delete-order';
+            deleteBtn.textContent = currentLanguage === 'ar' ? 'حذف الطلب' : 'DELETE ORDER';
+            deleteBtn.onclick = () => deleteOrder(order.id);
+            
+            // Create actions container
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'order-actions';
+            
+            // Only show relevant buttons based on current status
+            if (order.status === 'pending') {
+              actionsDiv.appendChild(preparingBtn);
+              actionsDiv.appendChild(deleteBtn);
+            } else if (order.status === 'preparing') {
+              actionsDiv.appendChild(readyBtn);
+            } else if (order.status === 'ready') {
+              actionsDiv.appendChild(completeBtn);
+            }
+            
+            // Build order card
+            orderEl.innerHTML = `
+              <div class="order-header">
+                <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id} (${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${order.tableNumber})</div>
+                <div class="order-status status-${order.status}">${status.toUpperCase()}</div>
+              </div>
+              <div style="color: var(--light-cream); font-size: 0.8rem; margin-bottom: 5px;">
+                ${currentLanguage === 'ar' ? 'الوقت المقدر:' : 'Estimated time:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'minutes'}
+              </div>
+              <div class="order-items">
+                ${order.items.map(item => {
+                  let extrasText = '';
+                  if (item.extras && item.extras.length > 0) {
+                    extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
+                    </div>`;
+                  }
+                  
+                  let notesText = '';
+                  if (item.notes) {
+                    notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
+                    </div>`;
+                  }
+                  
+                  return `
+                    <div class="order-item">
+                      <span>${item.title} ${extrasText} ${notesText}</span>
+                      <span>${item.price.toFixed(2)} JD</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div style="text-align: right; font-weight: bold; color: var(--gold);">
+                ${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${order.total.toFixed(2)} JD
+              </div>
+            `;
+            
+            // Append dynamically created buttons
+            orderEl.appendChild(actionsDiv);
+            
+            // Show delete button for all statuses except completed
+            if (order.status !== 'completed') {
+              orderEl.appendChild(deleteBtn);
+            }
+            
+            ordersList.appendChild(orderEl);
+          });
+        }
+      });
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        // Find the document that contains this order ID
+        const querySnapshot = await db.collection("orders")
+          .where("id", "==", orderId)
+          .limit(1)
+          .get();
+
+        if (querySnapshot.empty) {
+          throw new Error("Order not found");
+        }
+
+        // Get the actual document reference
+        const docRef = querySnapshot.docs[0].ref;
+        
+        await docRef.update({ 
+          status: status,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+
+        // If order is completed, handle accordingly
+        if (status === 'completed') {
+          const orderData = querySnapshot.docs[0].data();
+          if (orderData.tableNumber) {
+            releaseTable(orderData.tableNumber);
+          }
+          
+          // Schedule deletion after 5 minutes (300000 milliseconds)
+          setTimeout(async () => {
+            try {
+              await docRef.delete();
+              console.log(`Order #${orderId} automatically deleted after completion`);
+            } catch (error) {
+              console.error("Error deleting completed order:", error);
+            }
+          }, 300000); // 5 minutes = 300000 milliseconds
+        }
+        
+        // Update notification
+        const statusMessages = {
+          preparing: currentLanguage === 'ar' ? 
+            `طلبك #${orderId} قيد التحضير` : 
+            `Your order #${orderId} is being prepared`,
+          ready: currentLanguage === 'ar' ?
+            `طلبك #${orderId} جاهز!` :
+            `Your order #${orderId} is ready!`,
+          completed: currentLanguage === 'ar' ?
+            `طلبك #${orderId} تم إكماله` :
+            `Your order #${orderId} has been completed`
+        };
+        
+        if (statusMessages[status]) {
+          showOrderStatus(
+            statusMessages[status],
+            currentLanguage === 'ar' ? 'تحديث الطلب' : 'ORDER UPDATE'
+          );
+        }
+        
+      } catch (error) {
+        console.error("Update error:", error);
+        showOrderStatus(
+          error.message.includes("not found") ? 
+            (currentLanguage === 'ar' ? "الطلب غير موجود" : "Order not found") : 
+            (currentLanguage === 'ar' ? "فشل التحديث. حاول مرة أخرى." : "Update failed. Try again."),
+          currentLanguage === 'ar' ? "خطأ في التحديث" : "UPDATE ERROR"
+        );
+      }
+    }
+
+    async function deleteOrder(orderId) {
+      const t = translations[currentLanguage];
+      if (!confirm(t.deleteConfirm)) return;
+
+      try {
+        // Find the document containing this order ID
+        const querySnapshot = await db.collection("orders")
+          .where("id", "==", orderId)
+          .limit(1)
+          .get();
+
+        if (querySnapshot.empty) {
+          throw new Error("Order not found");
+        }
+
+        const orderData = querySnapshot.docs[0].data();
+        
+        // Delete using the document reference
+        await querySnapshot.docs[0].ref.delete();
+        
+        // Release the table if it was assigned
+        if (orderData.tableNumber) {
+          releaseTable(orderData.tableNumber);
+        }
+        
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم حذف الطلب #${orderId}` : `Order #${orderId} deleted`,
+          currentLanguage === 'ar' ? "تم حذف الطلب" : "ORDER DELETED"
+        );
+        
+      } catch (error) {
+        console.error("Delete error:", error);
+        showOrderStatus(
+          error.message.includes("not found") ? 
+            (currentLanguage === 'ar' ? "الطلب غير موجود" : "Order not found") : 
+            (currentLanguage === 'ar' ? "فشل الحذف. حاول مرة أخرى." : "Delete failed. Try again."),
+          currentLanguage === 'ar' ? "خطأ في الحذف" : "DELETE ERROR"
+        );
+      }
+    }
+
+    function renderClientOrders(clientOrdersData) {
+      clientOrdersList.innerHTML = '';
+      
+      if (clientOrdersData.length === 0) {
+        clientOrdersList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
+        return;
+      }
+      
+      clientOrdersData.forEach(order => {
+        const orderEl = document.createElement('div');
+        orderEl.className = 'client-order';
+        orderEl.innerHTML = `
+          <div class="client-order-header">
+            <div class="client-order-id">#${order.id}</div>
+            <div class="client-order-status status-${order.status}">${order.status.toUpperCase()}</div>
+          </div>
+          <div style="color: var(--light-cream); font-size: 0.7rem; margin-bottom: 5px;">
+            ${currentLanguage === 'ar' ? 'طاولة:' : 'Table:'} ${order.tableNumber || (currentLanguage === 'ar' ? 'غير محدد' : 'Not specified')} | 
+            ${currentLanguage === 'ar' ? 'مقدر:' : 'Estimated:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'mins'}
+          </div>
+          <div class="client-order-items">
+            ${order.items.map(item => {
+              let extrasText = '';
+              if (item.extras && item.extras.length > 0) {
+                extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
+                </div>`;
+              }
+              
+              let notesText = '';
+              if (item.notes) {
+                notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
+                </div>`;
+              }
+              
+              return `
+                <div class="client-order-item">
+                  <span>${item.title} ${extrasText} ${notesText}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        clientOrdersList.appendChild(orderEl);
+      });
+    }
+
+    function showOrderStatus(message, title = "ORDER RECEIVED") {
+      const t = translations[currentLanguage];
+      statusTitle.textContent = t[title.toLowerCase().replace(' ', '')] || title;
+      statusMessage.textContent = message;
+      orderStatus.classList.add("active");
       
       setTimeout(() => {
-        notification.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
+        orderStatus.classList.remove("active");
+      }, 5000);
     }
+
+    function closeModal() {
+      loginModal.style.display = "none";
+      usernameInput.value = "";
+      passwordInput.value = "";
+    }
+
+    function closeDetailsModal() {
+      tableDetailsModal.style.display = "none";
+    }
+
+    // ==================== ADMIN FUNCTIONS ====================
+    function switchAdminTab(tabId) {
+      activeAdminTab = tabId;
+      
+      // Update tabs
+      adminTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabId);
+      });
+      
+      // Update content
+      adminTabContents.forEach(content => {
+        content.classList.toggle('active', content.id === `${tabId}-tab`);
+      });
+      
+      // Render content if needed
+      if (tabId === 'orders') {
+        renderAdminOrders();
+      }
+    }
+
+    function filterAdminOrders(filter) {
+      adminFilterBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
+      
+      renderAdminOrders();
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    // Button event listeners
+    addToCartBtn.addEventListener('click', addToCart);
+    checkoutBtn.addEventListener('click', checkout);
+    closeStatusBtn.addEventListener('click', () => orderStatus.classList.remove('active'));
+    cartToggle.addEventListener('click', () => cartPanel.classList.toggle('active'));
+    closeCartBtn.addEventListener('click', () => cartPanel.classList.remove('active'));
+    viewOrdersBtn.addEventListener('click', () => {
+      clientOrders.classList.toggle('active');
+      const t = translations[currentLanguage];
+      viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? 
+        t.hideOrders : t.viewOrders;
+    });
+    applyDiscountBtn.addEventListener('click', applyDiscount);
+    discountCodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyDiscount();
+    });
+    closeDetailsBtn.addEventListener('click', closeDetailsModal);
+
+    // Rating star click handlers
+    ratingStars.forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = parseInt(star.dataset.rating);
+        setRating(rating);
+      });
+    });
+
+    // Language switcher
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+    langArBtn.addEventListener('click', () => setLanguage('ar'));
+
+    // Admin tabs
+    adminTabs.forEach(tab => {
+      tab.addEventListener('click', () => switchAdminTab(tab.dataset.tab));
+    });
+
+    // Admin search and filter
+    adminSearchInput.addEventListener('input', () => renderAdminOrders());
+    adminFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => filterAdminOrders(btn.dataset.filter));
+    });
+
+    // Navigation buttons
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateModel();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < foods.length - 1) {
+        currentIndex++;
+        updateModel();
+      }
+    });
+
+    // User type switching
+    guestBtn.addEventListener('click', () => {
+      userType = "guest";
+      localStorage.setItem(USER_TYPE_KEY, "guest");
+      localStorage.removeItem(STAFF_TOKEN);
+      localStorage.removeItem(ADMIN_TOKEN);
+      checkAuthState();
+    });
+
+    staffBtn.addEventListener('click', () => {
+      if (userType === "staff") {
+        checkAuthState();
+      } else {
+        loginModalTitle.textContent = currentLanguage === 'ar' ? "تسجيل دخول الموظفين" : "STAFF LOGIN";
+        loginModal.style.display = 'flex';
+      }
+    });
+
+    adminBtn.addEventListener('click', () => {
+      if (userType === "admin") {
+        checkAuthState();
+      } else {
+        loginModalTitle.textContent = currentLanguage === 'ar' ? "تسجيل دخول المدير" : "ADMIN LOGIN";
+        loginModal.style.display = 'flex';
+      }
+    });
+
+    // Initialize cart
+    updateCart();
   </script>
 </body>
 </html>
