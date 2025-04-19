@@ -58,7 +58,7 @@
       font-size: 1.8rem;
       color: var(--gold);
       margin: 8px 0 4px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3));
       line-height: 1.2;
     }
     
@@ -78,7 +78,7 @@
       backdrop-filter: blur(10px);
       border-radius: 12px;
       padding: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15));
       border: 1px solid var(--gold);
       flex-grow: 1;
       position: relative;
@@ -91,70 +91,35 @@
       margin: 12px 0;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15));
     }
     
-    /* IMPROVED: Navigation controls - more visible and fixed positioning */
     .nav-buttons {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 15px;
+      gap: 8px;
       margin: 15px 0;
       position: relative;
       z-index: 2;
-      padding: 5px;
-    }
-    
-    /* NEW: Sticky navigation controls that are always visible */
-    .nav-controls {
-      position: fixed;
-      bottom: 70px;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      z-index: 800;
-      padding: 0 15px;
-    }
-    
-    .nav-controls button {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--dark-green);
-      color: var(--gold);
-      border: 2px solid var(--gold);
-      font-size: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      opacity: 0.9;
-    }
-    
-    .nav-controls button:active {
-      transform: scale(0.95);
     }
     
     button {
       background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
       color: var(--dark-green);
       border: none;
-      padding: 10px 16px;  /* IMPROVED: Slightly wider padding */
+      padding: 10px 12px;
       border-radius: 25px;
       cursor: pointer;
       font-weight: 600;
       font-size: 0.85rem;
       transition: var(--transition);
-      box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3);
+      box-shadow: 0 2px 6px rgba(212, 175, 55, 0.3));
       flex: 1;
       min-width: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin: 5px;  /* IMPROVED: Added margin between buttons */
     }
     
     button:active {
@@ -317,86 +282,10 @@
       gap: 10px;
     }
     
-    /* Staff Dashboard - IMPROVED for better clarity and mobile experience */
+    /* Staff Dashboard */
     .staff-dashboard {
       display: none;
       padding: 12px;
-    }
-    
-    /* IMPROVED: Better staff dashboard layout */
-    .dashboard-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    
-    .stat-card {
-      background: rgba(245, 245, 220, 0.1);
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-      border: 1px solid rgba(212, 175, 55, 0.3);
-    }
-    
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--gold);
-      margin-bottom: 5px;
-    }
-    
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--light-cream);
-    }
-    
-    /* IMPROVED: Better styling for tables management */
-    .tables-management {
-      margin-top: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .tables-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    .table-card {
-      position: relative;
-      padding: 15px 10px;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    
-    .table-card.available {
-      background: rgba(76, 175, 80, 0.2);
-      border: 1px solid rgba(76, 175, 80, 0.5);
-    }
-    
-    .table-card.occupied {
-      background: rgba(244, 67, 54, 0.2);
-      border: 1px solid rgba(244, 67, 54, 0.5);
-    }
-    
-    .table-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .table-number {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: var(--gold);
-    }
-    
-    .table-status {
-      font-size: 0.7rem;
-      margin-top: 5px;
     }
     
     .orders-list {
@@ -452,11 +341,6 @@
       color: #9E9E9E;
     }
     
-    .status-cancelled {
-      background: rgba(244, 67, 54, 0.2);
-      color: #F44336;
-    }
-    
     .order-items {
       margin-bottom: 8px;
     }
@@ -470,20 +354,19 @@
     
     .order-actions {
       display: flex;
-      gap: 8px; /* IMPROVED: Better spacing */
+      gap: 6px;
       margin-top: 10px;
       flex-wrap: wrap;
     }
     
     .action-btn {
       flex: 1;
-      padding: 8px; /* IMPROVED: Better padding */
+      padding: 6px;
       border-radius: 4px;
       border: none;
       cursor: pointer;
       min-width: 70px;
       font-size: 0.75rem;
-      margin: 0; /* Override general button margin */
     }
     
     /* User Type Selection */
@@ -508,7 +391,6 @@
       transition: var(--transition);
       width: 100%;
       font-size: 0.85rem;
-      margin: 0; /* Override general button margin */
     }
     
     .user-btn.active {
@@ -516,7 +398,7 @@
       color: var(--dark-green);
     }
     
-    /* Cart System - IMPROVED with better spacing and recommendation layout */
+    /* Cart System */
     .add-to-cart {
       background: linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%);
       color: white;
@@ -528,9 +410,8 @@
       border: none;
       cursor: pointer;
       transition: var(--transition);
-      box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3);
+      box-shadow: 0 2px 6px rgba(46, 125, 50, 0.3));
       font-size: 0.9rem;
-      margin: 5px 0; /* Override general button margin */
     }
     
     .cart-panel {
@@ -542,12 +423,12 @@
       background: rgba(26, 58, 47, 0.98);
       border-radius: 12px;
       padding: 15px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3));
       border: 1px solid var(--gold);
       z-index: 900;
       transform: translateX(120%);
       transition: var(--transition);
-      max-height: 80vh; /* IMPROVED: Taller cart panel */
+      max-height: 50vh;
       display: flex;
       flex-direction: column;
     }
@@ -562,7 +443,7 @@
       align-items: center;
       margin-bottom: 10px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3));
     }
     
     .cart-header h3 {
@@ -612,57 +493,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0; /* Override general button margin */
-    }
-    
-    /* NEW: Recommendations section in cart */
-    .recommendations {
-      margin-top: 15px;
-      margin-bottom: 15px;
-      border-top: 1px dashed rgba(212, 175, 55, 0.5);
-      padding-top: 15px;
-    }
-    
-    .recommendations h4 {
-      color: var(--gold);
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-      text-align: left;
-    }
-    
-    .recommendation-items {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-    }
-    
-    .recommendation-item {
-      background: rgba(245, 245, 220, 0.1);
-      border-radius: 8px;
-      padding: 10px;
-      min-width: 120px;
-      flex: 0 0 auto;
-      text-align: left;
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    
-    .recommendation-item:hover {
-      background: rgba(245, 245, 220, 0.2);
-      transform: translateY(-2px);
-    }
-    
-    .recommendation-name {
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    
-    .recommendation-price {
-      font-size: 0.75rem;
-      color: var(--gold);
     }
     
     .checkout-btn {
@@ -677,13 +507,6 @@
       transition: var(--transition);
       position: relative;
       font-size: 0.9rem;
-      margin: 5px 0; /* Override general button margin */
-    }
-    
-    .cart-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 10px; /* IMPROVED: Better spacing between buttons */
     }
     
     .checkout-btn:disabled {
@@ -727,7 +550,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2));
       z-index: 800;
       transition: var(--transition);
     }
@@ -748,16 +571,16 @@
       font-weight: bold;
     }
     
-    /* Order Status Notification - IMPROVED to make it more visible */
+    /* Order Status Notification */
     .order-status-notification {
       position: fixed;
       bottom: 12px;
       left: 12px;
       background: white;
       color: var(--dark-green);
-      padding: 12px 15px;
+      padding: 10px 12px;
       border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2));
       z-index: 1000;
       display: flex;
       align-items: center;
@@ -804,7 +627,7 @@
       margin-left: 6px;
     }
 
-    /* Client Order Status - IMPROVED with cancel button */
+    /* Client Order Status */
     .client-orders {
       display: none;
       margin-top: 15px;
@@ -828,7 +651,6 @@
       margin-bottom: 12px;
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(255,255,255,0.2);
-      position: relative;
     }
 
     .client-order:last-child {
@@ -866,53 +688,34 @@
       font-size: 0.8rem;
     }
 
-    /* NEW: Cancel order button */
-    .cancel-order {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: var(--red);
-      color: white;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      cursor: pointer;
-      opacity: 0.8;
-      transition: var(--transition);
-    }
-
-    .cancel-order:hover {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-
     .view-orders-btn {
-      margin-top: 15px;
-      width: 100%;
-      background: rgba(212, 175, 55, 0.2);
+      margin-top: 12px;
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
       border: 1px solid var(--gold);
-      color: var(--gold);
+      padding: 10px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: var(--transition);
+      width: 100%;
+      font-size: 0.85rem;
     }
 
-    /* Table Number Modal - NEW IMPROVED */
+    /* Table Number Modal */
     .table-number-modal {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0,0,0,0.8);
-      display: flex;
+      z-index: 1100;
       justify-content: center;
       align-items: center;
-      z-index: 1100;
       padding: 15px;
     }
-
+    
     .table-number-content {
       background: rgba(26, 58, 47, 0.95);
       padding: 20px;
@@ -920,248 +723,940 @@
       border: 1px solid var(--gold);
       width: 100%;
       max-width: 320px;
-      text-align: center;
     }
-
+    
     .table-number-title {
       color: var(--gold);
       margin-bottom: 15px;
       font-size: 1.2rem;
     }
+    
+    .table-number-input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    /* Delete button for staff */
+    .delete-order {
+      background: var(--red) !important;
+      color: white !important;
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      font-size: 0.8rem;
+    }
 
-    .table-number-grid {
+    /* Counter between nav buttons */
+    #counter {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.85rem;
+      min-width: 40px;
+    }
+
+    /* Close cart button */
+    #close-cart {
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Notes section */
+    .notes-section {
+      margin-top: 10px;
+    }
+
+    .notes-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--light-cream);
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+      resize: none;
+      min-height: 60px;
+    }
+
+    /* Extras section */
+    .extras-section {
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .extras-title {
+      color: var(--light-cream);
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
+    .extras-select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .extras-select option {
+      background: var(--dark-green);
+      color: white;
+    }
+
+    /* Discount section */
+    .discount-section {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .discount-input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .apply-discount-btn {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+      color: var(--dark-green);
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    /* Staff total breakdown */
+    .total-breakdown {
+      margin-top: 10px;
+      text-align: right;
+      font-size: 0.8rem;
+      display: none;
+    }
+
+    .breakdown-line {
+      margin-bottom: 3px;
+    }
+
+    /* Estimated time */
+    .estimated-time {
+      color: var(--light-cream);
+      font-size: 0.85rem;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* Staff status headers */
+    .status-header {
+      color: var(--light-cream);
+      margin: 15px 0 8px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 5px;
+    }
+
+    /* Tables Overview Section */
+    .tables-overview {
+      margin-top: 20px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .tables-overview h3 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .tables-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .table-item {
+      background: rgba(26, 58, 47, 0.7);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid var(--gold);
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .table-item.occupied {
+      background: rgba(178, 34, 34, 0.7);
+    }
+
+    .table-number {
+      font-weight: bold;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .table-status {
+      font-size: 0.7rem;
+      margin-top: 3px;
+    }
+
+    .table-details {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1200;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .table-details-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 350px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .table-details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .table-details-title {
+      color: var(--gold);
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .close-details {
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .table-orders-list {
+      margin-top: 10px;
+    }
+
+    .table-order-item {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .table-order-id {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .table-order-status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      margin-left: 5px;
+    }
+
+    .table-order-items {
+      margin-top: 5px;
+      font-size: 0.8rem;
+    }
+
+    .table-order-item-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+
+    /* Rating Modal */
+    .rating-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1300;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .rating-content {
+      background: rgba(26, 58, 47, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gold);
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .rating-title {
+      color: var(--gold);
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    .rating-stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .rating-star {
+      font-size: 2rem;
+      color: var(--light-cream);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .rating-star.active {
+      color: var(--gold);
+    }
+
+    .rating-feedback {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+      resize: none;
+      min-height: 80px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .rating-feedback-label {
+      display: none;
+      color: var(--light-cream);
+      margin-bottom: 6px;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    /* Admin Dashboard */
+    .admin-dashboard {
+      display: none;
+      padding: 12px;
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-bottom: 15px;
     }
 
-    .table-number-btn {
+    .stat-card {
       background: rgba(245, 245, 220, 0.1);
-      color: var(--gold);
-      border: 1px solid var(--gold);
+      border-radius: 8px;
       padding: 10px;
-      border-radius: 5px;
-      cursor: pointer;
+      border: 1px solid var(--gold);
       transition: var(--transition);
-      font-size: 1rem;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .stat-title {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      color: var(--gold);
+      font-size: 1.2rem;
       font-weight: bold;
     }
 
-    .table-number-btn:hover {
+    .ratings-list {
+      margin-top: 15px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .rating-item {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+      transition: var(--transition);
+    }
+
+    .rating-item:hover {
+      background: rgba(245, 245, 220, 0.2);
+    }
+
+    .rating-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .rating-table {
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .rating-staff {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+    }
+
+    .rating-stars-display {
+      display: flex;
+      gap: 5px;
+      margin: 5px 0;
+    }
+
+    .rating-star-display {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .rating-star-display.empty {
+      color: var(--light-cream);
+      opacity: 0.5;
+    }
+
+    .rating-feedback-text {
+      color: var(--light-cream);
+      font-size: 0.8rem;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      margin-top: 15px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid var(--gold);
+    }
+
+    /* Staff Assignment */
+    .staff-assignment {
+      font-size: 0.8rem;
+      color: var(--light-cream);
+      margin-top: 5px;
+    }
+
+    /* Language Switcher */
+    .language-switcher {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+      background: rgba(26, 58, 47, 0.8);
+      padding: 5px;
+      border-radius: 20px;
+      border: 1px solid var(--gold);
+    }
+
+    .language-btn {
+      width: 30px;
+      height: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .language-btn.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+
+    .language-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Admin Tabs */
+    .admin-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      margin-bottom: 15px;
+    }
+
+    .admin-tab {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--light-cream);
+      font-size: 0.9rem;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .admin-tab.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+      font-weight: bold;
+    }
+
+    .admin-tab-content {
+      display: none;
+    }
+
+    .admin-tab-content.active {
+      display: block;
+    }
+
+    /* Admin Order Summary */
+    .admin-order-summary {
+      margin-top: 15px;
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .admin-order-summary h3 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    /* Admin Search */
+    .admin-search {
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .admin-search input {
+      width: 100%;
+      padding: 10px 15px 10px 35px;
+      border-radius: 25px;
+      border: 1px solid var(--gold);
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .admin-search i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+    }
+
+    /* Admin Filter */
+    .admin-filter {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+    }
+
+    .admin-filter-btn {
+      background: rgba(245, 245, 220, 0.1);
+      color: white;
+      border: 1px solid var(--gold);
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .admin-filter-btn.active {
       background: var(--gold);
       color: var(--dark-green);
     }
 
-    /* NEW: Table number indicator for customers */
-    .change-table-btn {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background: rgba(212, 175, 55, 0.3);
-      color: var(--gold);
-      padding: 5px 10px;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      z-index: 800;
-      backdrop-filter: blur(5px);
+    /* Admin Order Card */
+    .admin-order-card {
+      background: rgba(245, 245, 220, 0.1);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .admin-order-card-header {
       display: flex;
-      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
     }
 
-    .current-table-number {
-      font-weight: bold;
-      margin-left: 5px;
+    .admin-order-card-time {
+      color: var(--light-cream);
+      font-size: 0.7rem;
     }
 
-    /* Making tables more readable on mobile */
-    @media (max-width: 480px) {
-      .nav-buttons button {
-        padding: 8px 12px;
-        font-size: 0.8rem;
+    /* Media Queries for Larger Screens */
+    @media (min-width: 768px) {
+      .overlay {
+        padding: 20px;
       }
       
-      .food-container {
-        padding: 10px;
+      .logo {
+        height: 70px;
       }
       
       h1 {
-        font-size: 1.5rem;
+        font-size: 2.2rem;
       }
       
-      .order-actions {
-        flex-direction: column;
+      .tagline {
+        font-size: 0.95rem;
       }
       
-      .action-btn {
-        width: 100%;
-        margin-bottom: 5px;
+      .food-container {
+        padding: 20px;
+        border-radius: 15px;
       }
       
+      model-viewer {
+        height: 280px;
+      }
+      
+      .nav-buttons {
+        gap: 12px;
+      }
+      
+      button {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+      }
+      
+      .user-type {
+        max-width: 350px;
+      }
+      
+      .cart-panel {
+        right: 20px;
+        bottom: 20px;
+        max-height: 60vh;
+      }
+      
+      .cart-items {
+        max-height: 40vh;
+      }
+      
+      .cart-toggle {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+      }
+
       .tables-grid {
-        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       }
-      
-      .table-card {
-        padding: 10px 5px;
+
+      .admin-stats {
+        grid-template-columns: repeat(4, 1fr);
       }
-      
-      .table-number {
-        font-size: 1rem;
+
+      .admin-tabs {
+        justify-content: center;
       }
-      
-      .dashboard-stats {
-        grid-template-columns: repeat(2, 1fr);
+
+      .admin-tab {
+        padding: 10px 20px;
       }
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <div class="overlay">
-    <div class="header">
-      <h1>The Oak Cafe</h1>
-      <p class="tagline">Premium AR Dining Experience</p>
-      
-      <!-- NEW: Table number display and change button for customers -->
-      <div id="changeTableBtn" class="change-table-btn" style="display: none;">
-        Table: <span id="currentTableNumber" class="current-table-number">1</span>
+  <!-- Table Number Modal -->
+  <div class="table-number-modal" id="table-number-modal">
+    <div class="table-number-content">
+      <h2 class="table-number-title" id="table-number-title">YOUR TABLE NUMBER</h2>
+      <input type="number" class="table-number-input" id="table-number-input" placeholder="Enter table number" min="1">
+      <div class="modal-buttons">
+        <button onclick="confirmTableNumber()" style="flex: 1;" id="confirm-table-btn">CONFIRM</button>
+        <button onclick="closeTableModal()" style="background: var(--red); flex: 1;" id="cancel-table-btn">CANCEL</button>
       </div>
+    </div>
+  </div>
 
-      <div class="user-type">
-        <button id="customerBtn" class="user-btn active">Customer</button>
-        <button id="staffBtn" class="user-btn">Staff</button>
+  <!-- Rating Modal -->
+  <div class="rating-modal" id="rating-modal">
+    <div class="rating-content">
+      <h2 class="rating-title" id="rating-title">RATE YOUR EXPERIENCE</h2>
+      <div class="rating-stars">
+        <i class="fas fa-star rating-star" data-rating="1"></i>
+        <i class="fas fa-star rating-star" data-rating="2"></i>
+        <i class="fas fa-star rating-star" data-rating="3"></i>
+        <i class="fas fa-star rating-star" data-rating="4"></i>
+        <i class="fas fa-star rating-star" data-rating="5"></i>
+      </div>
+      <label class="rating-feedback-label" id="rating-feedback-label">Please share your feedback (required for low ratings):</label>
+      <textarea class="rating-feedback" id="rating-feedback" placeholder="Your feedback helps us improve..."></textarea>
+      <div class="modal-buttons">
+        <button onclick="submitRating()" style="flex: 1;" id="submit-rating-btn">SUBMIT</button>
+        <button onclick="closeRatingModal()" style="background: var(--red); flex: 1;" id="skip-rating-btn">SKIP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Details Modal -->
+  <div class="table-details" id="table-details">
+    <div class="table-details-content">
+      <div class="table-details-header">
+        <h3 class="table-details-title" id="table-details-title">Table Details</h3>
+        <button class="close-details" id="close-details">×</button>
+      </div>
+      <div class="table-orders-list" id="table-orders-list">
+        <!-- Table orders will appear here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal" id="login-modal">
+    <div class="modal-content">
+      <h2 class="modal-title" id="login-modal-title">STAFF LOGIN</h2>
+      <div class="input-group">
+        <label for="username" id="username-label">Username:</label>
+        <input type="text" id="username" placeholder="Your username">
+      </div>
+      <div class="input-group">
+        <label for="password" id="password-label">Password:</label>
+        <input type="password" id="password" placeholder="Your password">
+      </div>
+      <div class="modal-buttons">
+        <button onclick="checkLogin()" style="flex: 1;" id="login-btn">LOGIN</button>
+        <button onclick="closeModal()" style="background: var(--red); flex: 1;" id="cancel-login-btn">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="overlay" id="main-content">
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+      <div class="language-btn active" id="lang-en">
+        <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" alt="English">
+      </div>
+      <div class="language-btn" id="lang-ar">
+        <img src="https://cdn.countryflags.com/thumbs/jordan/flag-400.png" alt="Arabic">
       </div>
     </div>
 
-    <!-- Customer View -->
-    <div id="customerView">
+    <!-- User Type Selection -->
+    <div class="user-type">
+      <button class="user-btn active" id="guest-btn">GUEST</button>
+      <button class="user-btn" id="staff-btn">STAFF</button>
+      <button class="user-btn" id="admin-btn">ADMIN</button>
+    </div>
+
+    <!-- Guest View -->
+    <div id="guest-view">
+      <div class="header">
+        <img src="images-removebg-preview (1).png" alt="The Oak Cafe Logo" class="logo">
+        <h1>TASTE ITALY IN 3D</h1>
+        <p class="tagline">SCAN • TAP • POINT</p>
+      </div>
+
       <div class="food-container">
-        <model-viewer id="foodModel" src="" alt="3D food model" ar ar-modes="webxr scene-viewer quick-look" 
-          camera-controls auto-rotate shadow-intensity="1" shadow-softness="1" exposure="1.2"
-          poster="https://cdn.glitch.com/d71c330f-b9a5-4cdd-82a3-b2f9afa9ab03%2Fgun_poster.png?v=1591287804224">
-          <button slot="ar-button" class="ar-button">
-            View in Your Space
-          </button>
+        <h2 class="food-title" id="food-title">Margherita Pizza</h2>
+        <p class="food-desc" id="food-desc">San Marzano tomato sauce, fresh mozzarella, basil</p>
+        <p class="estimated-time" id="estimated-time">Estimated time: 20-25 minutes</p>
+        <model-viewer
+          id="model-viewer"
+          src="models/Margherita Pizza.glb"
+          ar
+          ar-modes="quick-look scene-viewer webxr"
+          camera-controls
+          auto-rotate
+          shadow-intensity="1.2"
+          exposure="1.1"
+        >
+          <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN YOUR SPACE</button>
         </model-viewer>
 
+        <!-- Extras Section -->
+        <div class="extras-section" id="extras-section">
+          <div class="extras-title" id="extras-title">ADD EXTRAS:</div>
+          <select class="extras-select" id="extras-select" multiple>
+            <!-- Extras will be added dynamically -->
+          </select>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="notes-section">
+          <label class="notes-label" for="item-notes" id="notes-label">SPECIAL INSTRUCTIONS:</label>
+          <textarea class="notes-textarea" id="item-notes" placeholder="E.g. No onions, extra spicy, etc."></textarea>
+        </div>
+
+        <button class="add-to-cart" id="add-to-cart">ADD TO ORDER - 5.99 JD</button>
+
         <div class="nav-buttons">
-          <button id="previousBtn">Previous Item</button>
-          <button id="addToCartBtn">Add to Cart</button>
-          <button id="nextBtn">Next Item</button>
+          <button id="prev-btn">← PREV</button>
+          <span id="counter">1/6</span>
+          <button id="next-btn">NEXT →</button>
         </div>
 
-        <!-- NEW: Better positioned navigation controls that are always visible -->
-        <div class="nav-controls">
-          <button id="prevControlBtn">&lsaquo;</button>
-          <button id="nextControlBtn">&rsaquo;</button>
-        </div>
-
-        <!-- Client Orders Section -->
-        <div id="clientOrders" class="client-orders">
-          <h3>Your Orders</h3>
-          <div id="clientOrdersList">
-            <!-- Orders will be populated here -->
+        <!-- Client Order Status Section -->
+        <button class="view-orders-btn" id="view-orders-btn">VIEW MY ORDERS</button>
+        <div class="client-orders" id="client-orders">
+          <h3 id="your-orders-title">YOUR ORDERS</h3>
+          <div id="client-orders-list">
+            <!-- Client orders will appear here -->
           </div>
         </div>
-      </div>
-
-      <!-- Cart Toggle Button -->
-      <div id="cartToggle" class="cart-toggle">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        <span id="cartCount" class="cart-count" style="display: none;">0</span>
-      </div>
-
-      <!-- Cart Panel - IMPROVED with recommendations -->
-      <div id="cartPanel" class="cart-panel">
-        <div class="cart-header">
-          <h3>Your Cart</h3>
-          <button id="closeCart" class="close-status">×</button>
-        </div>
-        <div id="cartItems" class="cart-items">
-          <!-- Cart items will be populated here -->
-          <div class="cart-empty" style="text-align: center; padding: 20px;">
-            Your cart is empty
-          </div>
-        </div>
-
-        <!-- NEW: Recommendations Section -->
-        <div id="recommendations" class="recommendations" style="display: none;">
-          <h4>You might also like:</h4>
-          <div id="recommendationItems" class="recommendation-items">
-            <!-- Recommendations will be populated here -->
-          </div>
-        </div>
-
-        <!-- IMPROVED: Better spacing between buttons -->
-        <div class="cart-buttons">
-          <div id="cartTotal" style="text-align: right; margin-bottom: 10px; color: var(--gold); font-weight: bold;">Total: $0.00</div>
-          <button id="checkoutBtn" class="checkout-btn" disabled>
-            <span class="checkout-text">Complete Order</span>
-          </button>
-          <button id="clearCartBtn" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3);">
-            Clear Cart
-          </button>
-        </div>
-      </div>
-
-      <!-- Order Status Notification -->
-      <div id="orderStatusNotification" class="order-status-notification">
-        <div class="status-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="status-content">
-          <div class="status-title">Order Placed Successfully!</div>
-          <div class="status-message">Your order #12345 is being prepared.</div>
-        </div>
-        <button class="close-status">×</button>
       </div>
     </div>
 
-    <!-- Staff View - IMPROVED for better mobile experience and clarity -->
-    <div id="staffView" class="staff-dashboard">
-      <h2 style="color: var(--gold); margin-bottom: 15px;">Staff Dashboard</h2>
+    <!-- Staff Dashboard -->
+    <div class="staff-dashboard" id="staff-dashboard">
+      <h2 style="color: var(--gold);" id="staff-dashboard-title">ORDERS DASHBOARD</h2>
+      <p class="estimated-time" id="staff-estimated-time">Current estimated time: 20-25 minutes</p>
+      <div class="staff-assignment" id="staff-assignment">
+        <!-- Staff assignment info will appear here -->
+      </div>
       
-      <!-- Dashboard Stats -->
-      <div class="dashboard-stats">
-        <div class="stat-card">
-          <div id="pendingOrdersCount" class="stat-value">0</div>
-          <div class="stat-label">Pending Orders</div>
-        </div>
-        <div class="stat-card">
-          <div id="occupiedTablesCount" class="stat-value">0</div>
-          <div class="stat-label">Occupied Tables</div>
-        </div>
-        <div class="stat-card">
-          <div id="todayOrdersCount" class="stat-value">0</div>
-          <div class="stat-label">Today's Orders</div>
+      <!-- Tables Overview Section -->
+      <div class="tables-overview">
+        <h3 id="occupied-tables-title">OCCUPIED TABLES</h3>
+        <div class="tables-grid" id="tables-grid">
+          <!-- Tables will appear here -->
         </div>
       </div>
       
-      <!-- Tables Management - NEW improved interface -->
-      <div class="tables-management">
-        <h3 style="color: var(--gold); margin-bottom: 10px;">Tables Management</h3>
-        <div id="tablesGrid" class="tables-grid">
-          <!-- Tables will be populated here -->
+      <div class="orders-list" id="orders-list">
+        <!-- Orders will appear here -->
+      </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-dashboard" id="admin-dashboard">
+      <h2 style="color: var(--gold);" id="admin-dashboard-title">ADMIN DASHBOARD</h2>
+      
+      <!-- Admin Tabs -->
+      <div class="admin-tabs">
+        <div class="admin-tab active" data-tab="stats" id="stats-tab">STATISTICS</div>
+        <div class="admin-tab" data-tab="orders" id="orders-tab">ORDERS</div>
+        <div class="admin-tab" data-tab="ratings" id="ratings-tab">RATINGS</div>
+      </div>
+      
+      <!-- Stats Tab -->
+      <div class="admin-tab-content active" id="stats-tab">
+        <div class="admin-stats">
+          <div class="stat-card">
+            <div class="stat-title" id="total-orders-title">TOTAL ORDERS</div>
+            <div class="stat-value" id="total-orders">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title" id="avg-rating-title">AVG RATING</div>
+            <div class="stat-value" id="avg-rating">0.0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title" id="low-ratings-title">LOW RATINGS</div>
+            <div class="stat-value" id="low-ratings">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title" id="active-staff-title">ACTIVE STAFF</div>
+            <div class="stat-value" id="active-staff">3</div>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="ratings-chart"></canvas>
         </div>
       </div>
       
-      <!-- Orders Section -->
-      <h3 style="color: var(--gold); margin-top: 20px; margin-bottom: 10px;">Orders</h3>
-      <div class="orders-filter" style="margin-bottom: 15px; display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
-        <button id="filterAllOrders" class="action-btn" style="background: var(--gold); color: var(--dark-green);">All</button>
-        <button id="filterPendingOrders" class="action-btn" style="background: rgba(255, 193, 7, 0.2); color: #FFC107;">Pending</button>
-        <button id="filterPreparingOrders" class="action-btn" style="background: rgba(33, 150, 243, 0.2); color: #2196F3;">Preparing</button>
-        <button id="filterReadyOrders" class="action-btn" style="background: rgba(76, 175, 80, 0.2); color: #4CAF50;">Ready</button>
+      <!-- Orders Tab -->
+      <div class="admin-tab-content" id="orders-tab">
+        <div class="admin-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="admin-search-input" placeholder="Search orders...">
+        </div>
+        
+        <div class="admin-filter">
+          <div class="admin-filter-btn active" data-filter="all" id="filter-all">ALL</div>
+          <div class="admin-filter-btn" data-filter="pending" id="filter-pending">PENDING</div>
+          <div class="admin-filter-btn" data-filter="preparing" id="filter-preparing">PREPARING</div>
+          <div class="admin-filter-btn" data-filter="ready" id="filter-ready">READY</div>
+          <div class="admin-filter-btn" data-filter="completed" id="filter-completed">COMPLETED</div>
+        </div>
+        
+        <div class="admin-order-summary">
+          <h3 id="recent-orders-title">RECENT ORDERS</h3>
+          <div id="admin-orders-list">
+            <!-- Admin orders will appear here -->
+          </div>
+        </div>
       </div>
-      <div id="ordersList" class="orders-list">
-        <!-- Orders will be populated here -->
+      
+      <!-- Ratings Tab -->
+      <div class="admin-tab-content" id="ratings-tab">
+        <h3 style="color: var(--gold); margin-top: 0;" id="recent-ratings-title">RECENT RATINGS</h3>
+        <div class="ratings-list" id="ratings-list">
+          <!-- Ratings will appear here -->
+        </div>
       </div>
     </div>
 
@@ -1169,67 +1664,81 @@
       <div class="footer-grid">
         <div class="branding-section">
           <div class="powered-by">
-            <img src="https://source.unsplash.com/random/100x35/?logo,restaurant" alt="Logo" class="ar-bites-logo">
+            <span style="color: var(--light-cream);" id="powered-by-text">Powered by</span>
+            <img src="ar-bites-logo.png" alt="AR Bites Logo" class="ar-bites-logo">
           </div>
-          <div class="social-links">
-            <a href="#" class="social-link">
-              <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-              </svg>
-              @theoakcafe
-            </a>
-            <a href="#" class="social-link">
-              Contact Us
-            </a>
-          </div>
+          <p class="copyright" id="copyright-text">© 2025 AR BITES. ALL RIGHTS RESERVED</p>
+        </div>
+        
+        <div class="social-links">
+          <a href="https://www.instagram.com/ar.bitesjo?igsh=ajhmd3ZvbjJhamJh" class="social-link" target="_blank">
+            <img src="https://upload.wikimedia.org/commons/thumb/a/a5/Instagram_icon.png/2048px-Instagram_icon.png" alt="Instagram" class="instagram-icon">
+            @ar.bitesjo
+          </a>
+          <a href="tel:+962790753376" class="social-link">
+            <img src="https://cdn-icons-png.flaticon.com/512/455/455705.png" alt="Phone" class="instagram-icon">
+            +962 790 753 376
+          </a>
         </div>
       </div>
-      <div class="copyright">
-        © 2023 The Oak Cafe. All rights reserved.
-      </div>
     </div>
   </div>
 
-  <!-- Staff Login Modal -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <h3 class="modal-title">Staff Login</h3>
-      <div class="input-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter your username">
-      </div>
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password">
-      </div>
-      <div class="modal-buttons">
-        <button id="loginBtn" style="background: var(--gold); color: var(--dark-green);">Login</button>
-        <button id="cancelLoginBtn" style="background: rgba(255,255,255,0.1); color: white;">Cancel</button>
-      </div>
+  <!-- Cart Panel -->
+  <div class="cart-panel" id="cart-panel">
+    <div class="cart-header">
+      <h3 id="cart-title">YOUR ORDER</h3>
+      <button id="close-cart">×</button>
     </div>
+    <div class="cart-items" id="cart-items"></div>
+    <!-- Discount Section -->
+    <div class="discount-section">
+      <input type="text" class="discount-input" id="discount-code" placeholder="Discount code (optional)">
+      <button class="apply-discount-btn" id="apply-discount">APPLY</button>
+    </div>
+    <!-- Full breakdown (only for staff) -->
+    <div class="total-breakdown" id="total-breakdown">
+      <div class="breakdown-line">Subtotal: <span id="staff-subtotal">0.00</span> JD</div>
+      <div class="breakdown-line">Service (5%): <span id="service-charge">0.00</span> JD</div>
+      <div class="breakdown-line">Tax (8%): <span id="tax-amount">0.00</span> JD</div>
+      <div class="breakdown-line">Discount: -<span id="discount-amount">0.00</span> JD</div>
+      <div class="breakdown-line" style="font-weight: bold;">Total: <span id="staff-total">0.00</span> JD</div>
+    </div>
+    <button class="checkout-btn" id="checkout-btn">
+      <span class="checkout-text">CONFIRM ORDER</span>
+    </button>
   </div>
 
-  <!-- NEW: Table Number Selection Modal shown only once at first load -->
-  <div id="tableNumberModal" class="table-number-modal">
-    <div class="table-number-content">
-      <h3 class="table-number-title">Select Your Table Number</h3>
-      <p style="margin-bottom: 15px; color: var(--light-cream);">Please select your table number to continue</p>
-      <div class="table-number-grid">
-        <!-- Table numbers will be populated here -->
-      </div>
+  <!-- Cart Toggle Button -->
+  <div class="cart-toggle" id="cart-toggle">
+    <span class="cart-count" id="cart-count">0</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+    </svg>
+  </div>
+
+  <!-- Order Status Notification -->
+  <div class="order-status-notification" id="order-status">
+    <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Status" class="status-icon">
+    <div class="status-content">
+      <div class="status-title" id="status-title">ORDER RECEIVED</div>
+      <div class="status-message" id="status-message">Your order is being prepared</div>
     </div>
+    <button class="close-status" id="close-status">×</button>
   </div>
 
   <script>
-    // Initialize Firebase with your new configuration
+    // ==================== FIREBASE CONFIG ====================
     const firebaseConfig = {
-      apiKey: "AIzaSyAUCymhsmIx4IOkHphEFpLEhfLnPk0iPhU",
-      authDomain: "the-oak-cafe-menu.firebaseapp.com",
-      projectId: "the-oak-cafe-menu",
-      storageBucket: "the-oak-cafe-menu.firebasestorage.app",
-      messagingSenderId: "69318608602",
-      appId: "1:69318608602:web:e13a53b0e7d674522647e3",
-      measurementId: "G-8BNCQ270K7"
+      apiKey: "AIzaSyD5bF7rsIhlJ0-EBdRTHH67quCzjOFCRdQ",
+      authDomain: "the-oak-cafe.firebaseapp.com",
+      projectId: "the-oak-cafe",
+      storageBucket: "the-oak-cafe.appspot.com",
+      messagingSenderId: "871343311823",
+      appId: "1:871343311823:web:eb6724643e10cafde9e0ba",
+      measurementId: "G-G83C83HXWR"
     };
 
     // Initialize Firebase
@@ -1237,1237 +1746,2006 @@
     const db = firebase.firestore();
     const analytics = firebase.analytics();
 
-    // App state variables
+    // ==================== APP DATA ====================
+    const foods = [
+      {
+        title: "Margherita Pizza",
+        description: "San Marzano tomato sauce, fresh mozzarella, basil",
+        model: "models/Margherita Pizza.glb",
+        price: 5.99,
+        extras: [
+          { name: "Extra Cheese", price: 1.00 },
+          { name: "Pepperoni", price: 1.50 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
+      },
+      {
+        title: "Pepperoni Pizza",
+        description: "Pepperoni, mozzarella, tomato sauce",
+        model: "models/Pepperoni Pizza.glb",
+        price: 6.99,
+        extras: [
+          { name: "Extra Cheese", price: 1.00 },
+          { name: "Jalapeños", price: 0.80 },
+          { name: "Olives", price: 0.80 }
+        ]
+      },
+      {
+        title: "Fettuccine Alfredo",
+        description: "Handmade pasta, black truffle, parmesan cream",
+        model: "models/Fettuccine Alfredo.glb",
+        price: 7.99,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Shrimp", price: 3.00 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
+      },
+      {
+        title: "Pesto Pasta",
+        description: "Basil pesto, pine nuts, aged parmesan",
+        model: "models/Pesto Pasta.glb",
+        price: 7.49,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Sun-dried Tomatoes", price: 1.00 },
+          { name: "Parmesan", price: 0.50 }
+        ]
+      },
+      {
+        title: "Rose Pasta",
+        description: "Creamy tomato sauce, permesan cheese, basil",
+        model: "models/Rose Pasta.glb",
+        price: 7.99,
+        extras: [
+          { name: "Grilled Chicken", price: 2.00 },
+          { name: "Bacon", price: 1.50 },
+          { name: "Mushrooms", price: 0.80 }
+        ]
+      },
+      {
+        title: "Sea Food Pasta",
+        description: "Mix of sea food with spaghiti",
+        model: "models/Sea Food Pasta.glb",
+        price: 8.99,
+        extras: [
+          { name: "Extra Shrimp", price: 2.00 },
+          { name: "Clams", price: 1.50 },
+          { name: "White Wine Sauce", price: 1.00 }
+        ]
+      }
+    ];
+
+    // Arabic translations
+    const translations = {
+      en: {
+        guest: "GUEST",
+        staff: "STAFF",
+        admin: "ADMIN",
+        foodTitle: {
+          "Margherita Pizza": "Margherita Pizza",
+          "Pepperoni Pizza": "Pepperoni Pizza",
+          "Fettuccine Alfredo": "Fettuccine Alfredo",
+          "Pesto Pasta": "Pesto Pasta",
+          "Rose Pasta": "Rose Pasta",
+          "Sea Food Pasta": "Sea Food Pasta"
+        },
+        foodDesc: {
+          "San Marzano tomato sauce, fresh mozzarella, basil": "San Marzano tomato sauce, fresh mozzarella, basil",
+          "Pepperoni, mozzarella, tomato sauce": "Pepperoni, mozzarella, tomato sauce",
+          "Handmade pasta, black truffle, parmesan cream": "Handmade pasta, black truffle, parmesan cream",
+          "Basil pesto, pine nuts, aged parmesan": "Basil pesto, pine nuts, aged parmesan",
+          "Creamy tomato sauce, permesan cheese, basil": "Creamy tomato sauce, permesan cheese, basil",
+          "Mix of sea food with spaghiti": "Mix of sea food with spaghiti"
+        },
+        addToCart: "ADD TO ORDER - {price} JD",
+        viewOrders: "VIEW MY ORDERS",
+        hideOrders: "HIDE MY ORDERS",
+        yourOrders: "YOUR ORDERS",
+        specialInstructions: "SPECIAL INSTRUCTIONS:",
+        addExtras: "ADD EXTRAS:",
+        noExtras: "No extras available",
+        selectExtras: "Select extras (optional)",
+        estimatedTime: "Estimated time: {time} minutes",
+        currentEstimatedTime: "Current estimated time: {time} minutes",
+        orderReceived: "ORDER RECEIVED",
+        orderBeingPrepared: "Your order is being prepared",
+        tableNumber: "YOUR TABLE NUMBER",
+        confirm: "CONFIRM",
+        cancel: "CANCEL",
+        rateExperience: "RATE YOUR EXPERIENCE",
+        submit: "SUBMIT",
+        skip: "SKIP",
+        feedbackLabel: "Please share your feedback (required for low ratings):",
+        feedbackPlaceholder: "Your feedback helps us improve...",
+        ordersDashboard: "ORDERS DASHBOARD",
+        occupiedTables: "OCCUPIED TABLES",
+        adminDashboard: "ADMIN DASHBOARD",
+        statistics: "STATISTICS",
+        orders: "ORDERS",
+        ratings: "RATINGS",
+        totalOrders: "TOTAL ORDERS",
+        avgRating: "AVG RATING",
+        lowRatings: "LOW RATINGS",
+        activeStaff: "ACTIVE STAFF",
+        recentOrders: "RECENT ORDERS",
+        recentRatings: "RECENT RATINGS",
+        searchOrders: "Search orders...",
+        all: "ALL",
+        pending: "PENDING",
+        preparing: "PREPARING",
+        ready: "READY",
+        completed: "COMPLETED",
+        tableDetails: "Table Details",
+        orderConfirmed: "ORDER CONFIRMED",
+        orderUpdated: "ORDER UPDATE",
+        orderDeleted: "ORDER DELETED",
+        tableSet: "TABLE SET",
+        tableError: "TABLE ERROR",
+        updateError: "UPDATE ERROR",
+        deleteError: "DELETE ERROR",
+        ratingSubmitted: "RATING SUBMITTED",
+        networkError: "NETWORK ERROR",
+        usernamePlaceholder: "Your username",
+        passwordPlaceholder: "Your password",
+        deleteConfirm: "Permanently delete this order?",
+        poweredBy: "Powered by",
+        copyright: "© 2025 AR BITES. ALL RIGHTS RESERVED",
+        prev: "← PREV",
+        next: "NEXT →",
+        arButton: "VIEW IN YOUR SPACE",
+        cartTitle: "YOUR ORDER",
+        confirmOrder: "CONFIRM ORDER",
+        usernameLabel: "Username:",
+        passwordLabel: "Password:",
+        login: "LOGIN"
+      },
+      ar: {
+        guest: "زائر",
+        staff: "موظف",
+        admin: "مدير",
+        foodTitle: {
+          "Margherita Pizza": "بيتزا مارغريتا",
+          "Pepperoni Pizza": "بيتزا بيبروني",
+          "Fettuccine Alfredo": "فيتوتشيني ألفريدو",
+          "Pesto Pasta": "باستو باستا",
+          "Rose Pasta": "باستا روز",
+          "Sea Food Pasta": "باستا مأكولات بحرية"
+        },
+        foodDesc: {
+          "San Marzano tomato sauce, fresh mozzarella, basil": "صلصة طماطم سان مارزانو، موزاريلا طازجة، ريحان",
+          "Pepperoni, mozzarella, tomato sauce": "بيبروني، موزاريلا، صلصة طماطم",
+          "Handmade pasta, black truffle, parmesan cream": "باستا يدوية، كمأة سوداء، كريمة بارميزان",
+          "Basil pesto, pine nuts, aged parmesan": "بيستو ريحان، صنوبر، بارميزان معتق",
+          "Creamy tomato sauce, permesan cheese, basil": "صلصة طماطم كريمية، جبن بارميزان، ريحان",
+          "Mix of sea food with spaghiti": "مزيج من المأكولات البحرية مع السباغيتي"
+        },
+        addToCart: "أضف إلى الطلب - {price} دينار",
+        viewOrders: "عرض طلباتي",
+        hideOrders: "إخفاء طلباتي",
+        yourOrders: "طلباتك",
+        specialInstructions: "تعليمات خاصة:",
+        addExtras: "إضافات:",
+        noExtras: "لا توجد إضافات متاحة",
+        selectExtras: "اختر إضافات (اختياري)",
+        estimatedTime: "الوقت المقدر: {time} دقيقة",
+        currentEstimatedTime: "الوقت المقدر الحالي: {time} دقيقة",
+        orderReceived: "تم استلام الطلب",
+        orderBeingPrepared: "طلبك قيد التحضير",
+        tableNumber: "رقم طاولتك",
+        confirm: "تأكيد",
+        cancel: "إلغاء",
+        rateExperience: "قيم تجربتك",
+        submit: "إرسال",
+        skip: "تخطي",
+        feedbackLabel: "يرجى مشاركة ملاحظاتك (مطلوب للتقييمات المنخفضة):",
+        feedbackPlaceholder: "ملاحظاتك تساعدنا على التحسين...",
+        ordersDashboard: "لوحة الطلبات",
+        occupiedTables: "الطاولات المشغولة",
+        adminDashboard: "لوحة المدير",
+        statistics: "إحصائيات",
+        orders: "الطلبات",
+        ratings: "التقييمات",
+        totalOrders: "إجمالي الطلبات",
+        avgRating: "متوسط التقييم",
+        lowRatings: "تقييمات منخفضة",
+        activeStaff: "موظفين نشطين",
+        recentOrders: "الطلبات الحديثة",
+        recentRatings: "التقييمات الحديثة",
+        searchOrders: "ابحث في الطلبات...",
+        all: "الكل",
+        pending: "قيد الانتظار",
+        preparing: "قيد التحضير",
+        ready: "جاهز",
+        completed: "مكتمل",
+        tableDetails: "تفاصيل الطاولة",
+        orderConfirmed: "تم تأكيد الطلب",
+        orderUpdated: "تحديث الطلب",
+        orderDeleted: "تم حذف الطلب",
+        tableSet: "تم تعيين الطاولة",
+        tableError: "خطأ في الطاولة",
+        updateError: "خطأ في التحديث",
+        deleteError: "خطأ في الحذف",
+        ratingSubmitted: "تم إرسال التقييم",
+        networkError: "خطأ في الشبكة",
+        usernamePlaceholder: "اسم المستخدم",
+        passwordPlaceholder: "كلمة المرور",
+        deleteConfirm: "هل تريد حذف هذا الطلب نهائياً؟",
+        poweredBy: "مقدم من",
+        copyright: "© 2025 AR BITES. جميع الحقوق محفوظة",
+        prev: "السابق ←",
+        next: "→ التالي",
+        arButton: "عرض في مساحتك",
+        cartTitle: "طلبك",
+        confirmOrder: "تأكيد الطلب",
+        usernameLabel: "اسم المستخدم:",
+        passwordLabel: "كلمة المرور:",
+        login: "تسجيل الدخول"
+      }
+    };
+
+    // Discount codes
+    const DISCOUNT_CODES = {
+      "OAK10": 0.10, // 10% discount
+      "WELCOME5": 0.05 // 5% discount
+    };
+
+    // Staff accounts with table assignments
+    const STAFF_ACCOUNTS = {
+      "ahmad": {
+        password: "ahmad123",
+        name: "Ahmad",
+        tables: [1, 20] // Tables 1-20
+      },
+      "khaled": {
+        password: "khaled123",
+        name: "Khaled",
+        tables: [21, 40] // Tables 21-40
+      },
+      "mohammad": {
+        password: "mohammad123",
+        name: "Mohammad",
+        tables: [41, 60] // Tables 41-60
+      }
+    };
+
+    // Admin account
+    const ADMIN_ACCOUNT = {
+      username: "hussien",
+      password: "admin123"
+    };
+
+    // ==================== GLOBAL VARIABLES ====================
     let currentIndex = 0;
-    let menuItems = [];
-    let cartItems = [];
-    let currentTableNumber = null;
-    let isStaffLoggedIn = false;
+    let cart = [];
     let orders = [];
-    let tables = [];
-    let orderCancellationTimers = {};
+    let ratings = [];
+    let userType = "guest"; // guest, staff, admin
+    let currentStaff = null;
+    let clientId = localStorage.getItem('clientId') || 
+                  'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    let firestoreListener = null;
+    let ratingsListener = null;
+    let discountApplied = 0;
+    let estimatedTime = 20; // Base time in minutes
+    let occupiedTables = new Set(); // Track occupied tables
+    let tableNumber = null; // Current table number
+    let tableNumberExpiry = null; // When the table number expires
+    let tableDetails = {}; // Store table details for staff view
+    let currentRating = 0;
+    let currentOrderForRating = null;
+    let ratingsChart = null;
+    let currentLanguage = localStorage.getItem('language') || 'en';
+    let activeAdminTab = 'stats';
 
-    // DOM Element references
-    const customerView = document.getElementById('customerView');
-    const staffView = document.getElementById('staffView');
-    const customerBtn = document.getElementById('customerBtn');
-    const staffBtn = document.getElementById('staffBtn');
-    const foodModel = document.getElementById('foodModel');
-    const previousBtn = document.getElementById('previousBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const addToCartBtn = document.getElementById('addToCartBtn');
-    const cartToggle = document.getElementById('cartToggle');
-    const cartPanel = document.getElementById('cartPanel');
-    const cartItems_el = document.getElementById('cartItems');
-    const cartCount = document.getElementById('cartCount');
-    const closeCart = document.getElementById('closeCart');
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    const clearCartBtn = document.getElementById('clearCartBtn');
-    const orderStatusNotification = document.getElementById('orderStatusNotification');
-    const clientOrders = document.getElementById('clientOrders');
-    const clientOrdersList = document.getElementById('clientOrdersList');
-    const loginModal = document.getElementById('loginModal');
-    const tableNumberModal = document.getElementById('tableNumberModal');
-    const prevControlBtn = document.getElementById('prevControlBtn');
-    const nextControlBtn = document.getElementById('nextControlBtn');
-    const changeTableBtn = document.getElementById('changeTableBtn');
-    const currentTableNumber_el = document.getElementById('currentTableNumber');
-    const recommendations = document.getElementById('recommendations');
-    const recommendationItems = document.getElementById('recommendationItems');
-    
-    // Staff dashboard elements
-    const pendingOrdersCount = document.getElementById('pendingOrdersCount');
-    const occupiedTablesCount = document.getElementById('occupiedTablesCount');
-    const todayOrdersCount = document.getElementById('todayOrdersCount');
-    const tablesGrid = document.getElementById('tablesGrid');
-    const ordersList = document.getElementById('ordersList');
-    const filterAllOrders = document.getElementById('filterAllOrders');
-    const filterPendingOrders = document.getElementById('filterPendingOrders');
-    const filterPreparingOrders = document.getElementById('filterPreparingOrders');
-    const filterReadyOrders = document.getElementById('filterReadyOrders');
+    // DOM Elements
+    const modelViewer = document.getElementById("model-viewer");
+    const foodTitle = document.getElementById("food-title");
+    const foodDesc = document.getElementById("food-desc");
+    const counter = document.getElementById("counter");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const addToCartBtn = document.getElementById("add-to-cart");
+    const guestBtn = document.getElementById("guest-btn");
+    const staffBtn = document.getElementById("staff-btn");
+    const adminBtn = document.getElementById("admin-btn");
+    const guestView = document.getElementById("guest-view");
+    const staffDashboard = document.getElementById("staff-dashboard");
+    const adminDashboard = document.getElementById("admin-dashboard");
+    const loginModal = document.getElementById("login-modal");
+    const loginModalTitle = document.getElementById("login-modal-title");
+    const ordersList = document.getElementById("orders-list");
+    const cartPanel = document.getElementById("cart-panel");
+    const cartItemsEl = document.getElementById("cart-items");
+    const checkoutBtn = document.getElementById("checkout-btn");
+    const checkoutText = document.querySelector(".checkout-text");
+    const cartToggle = document.getElementById("cart-toggle");
+    const cartCount = document.getElementById("cart-count");
+    const closeCartBtn = document.getElementById("close-cart");
+    const orderStatus = document.getElementById("order-status");
+    const closeStatusBtn = document.getElementById("close-status");
+    const viewOrdersBtn = document.getElementById("view-orders-btn");
+    const clientOrders = document.getElementById("client-orders");
+    const clientOrdersList = document.getElementById("client-orders-list");
+    const tableNumberModal = document.getElementById("table-number-modal");
+    const tableNumberInput = document.getElementById("table-number-input");
+    const itemNotes = document.getElementById("item-notes");
+    const extrasSelect = document.getElementById("extras-select");
+    const discountCodeInput = document.getElementById("discount-code");
+    const applyDiscountBtn = document.getElementById("apply-discount");
+    const totalBreakdown = document.getElementById("total-breakdown");
+    const estimatedTimeEl = document.getElementById("estimated-time");
+    const staffEstimatedTimeEl = document.getElementById("staff-estimated-time");
+    const tablesGrid = document.getElementById("tables-grid");
+    const tableDetailsModal = document.getElementById("table-details");
+    const tableDetailsTitle = document.getElementById("table-details-title");
+    const tableOrdersList = document.getElementById("table-orders-list");
+    const closeDetailsBtn = document.getElementById("close-details");
+    const ratingModal = document.getElementById("rating-modal");
+    const ratingStars = document.querySelectorAll(".rating-star");
+    const ratingFeedback = document.getElementById("rating-feedback");
+    const ratingFeedbackLabel = document.getElementById("rating-feedback-label");
+    const submitRatingBtn = document.getElementById("submit-rating-btn");
+    const staffAssignment = document.getElementById("staff-assignment");
+    const totalOrdersEl = document.getElementById("total-orders");
+    const avgRatingEl = document.getElementById("avg-rating");
+    const lowRatingsEl = document.getElementById("low-ratings");
+    const activeStaffEl = document.getElementById("active-staff");
+    const ratingsList = document.getElementById("ratings-list");
+    const ratingsChartCtx = document.getElementById("ratings-chart");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const langEnBtn = document.getElementById("lang-en");
+    const langArBtn = document.getElementById("lang-ar");
+    const adminTabs = document.querySelectorAll(".admin-tab");
+    const adminTabContents = document.querySelectorAll(".admin-tab-content");
+    const adminSearchInput = document.getElementById("admin-search-input");
+    const adminFilterBtns = document.querySelectorAll(".admin-filter-btn");
+    const adminOrdersList = document.getElementById("admin-orders-list");
+    const arButton = document.getElementById("ar-button");
+    const yourOrdersTitle = document.getElementById("your-orders-title");
+    const notesLabel = document.getElementById("notes-label");
+    const extrasTitle = document.getElementById("extras-title");
+    const tableNumberTitle = document.getElementById("table-number-title");
+    const confirmTableBtn = document.getElementById("confirm-table-btn");
+    const cancelTableBtn = document.getElementById("cancel-table-btn");
+    const ratingTitle = document.getElementById("rating-title");
+    const skipRatingBtn = document.getElementById("skip-rating-btn");
+    const staffDashboardTitle = document.getElementById("staff-dashboard-title");
+    const occupiedTablesTitle = document.getElementById("occupied-tables-title");
+    const adminDashboardTitle = document.getElementById("admin-dashboard-title");
+    const totalOrdersTitle = document.getElementById("total-orders-title");
+    const avgRatingTitle = document.getElementById("avg-rating-title");
+    const lowRatingsTitle = document.getElementById("low-ratings-title");
+    const activeStaffTitle = document.getElementById("active-staff-title");
+    const recentOrdersTitle = document.getElementById("recent-orders-title");
+    const recentRatingsTitle = document.getElementById("recent-ratings-title");
+    const poweredByText = document.getElementById("powered-by-text");
+    const copyrightText = document.getElementById("copyright-text");
+    const cartTitle = document.getElementById("cart-title");
+    const statusTitle = document.getElementById("status-title");
+    const statusMessage = document.getElementById("status-message");
+    const usernameLabel = document.getElementById("username-label");
+    const passwordLabel = document.getElementById("password-label");
+    const loginBtn = document.getElementById("login-btn");
+    const cancelLoginBtn = document.getElementById("cancel-login-btn");
+    const statsTab = document.getElementById("stats-tab");
+    const ordersTab = document.getElementById("orders-tab");
+    const ratingsTab = document.getElementById("ratings-tab");
+    const filterAll = document.getElementById("filter-all");
+    const filterPending = document.getElementById("filter-pending");
+    const filterPreparing = document.getElementById("filter-preparing");
+    const filterReady = document.getElementById("filter-ready");
+    const filterCompleted = document.getElementById("filter-completed");
 
-    // Cart total element
-    const cartTotal = document.getElementById('cartTotal');
+    // Auth tokens
+    const USER_TYPE_KEY = "userType";
+    const STAFF_TOKEN = "staffToken";
+    const ADMIN_TOKEN = "adminToken";
+    const TABLE_NUMBER_KEY = "tableNumber";
+    const TABLE_EXPIRY_KEY = "tableExpiry";
+    const LANGUAGE_KEY = "language";
 
-    // Helper Functions
-
-    function formatPrice(price) {
-      return (price / 100).toFixed(2);
-    }
-
-    function formatTime(timestamp) {
-      if (!timestamp) return 'Just now';
+    // ==================== INITIALIZATION ====================
+    function initialize() {
+      if (!localStorage.getItem('clientId')) {
+        clientId = 'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        localStorage.setItem('clientId', clientId);
+      }
       
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
-    }
-
-    function getStatusColor(status) {
-      switch (status) {
-        case 'pending':
-          return 'status-pending';
-        case 'preparing':
-          return 'status-preparing';
-        case 'ready':
-          return 'status-ready';
-        case 'completed':
-          return 'status-completed';
-        case 'cancelled':
-          return 'status-cancelled';
-        default:
-          return '';
-      }
-    }
-
-    // IMPROVED: Load menu items with error handling
-    async function loadMenuItems() {
-      try {
-        // Check if collection exists first
-        const menuCollection = await db.collection('menuItems').get();
-        
-        if (menuCollection.empty) {
-          // Add sample menu items if collection is empty
-          await seedMenuItems();
-          await loadMenuItems(); // Retry loading
-          return;
-        }
-        
-        menuItems = menuCollection.docs.map(doc => {
-          return {
-            id: doc.id,
-            ...doc.data()
-          };
-        });
-        
-        // Sort menu items by category
-        menuItems.sort((a, b) => a.category.localeCompare(b.category));
-        
-        if (menuItems.length > 0) {
-          displayMenuItem(0);
-        }
-      } catch (error) {
-        console.error("Error loading menu items:", error);
-        // Fallback to sample data
-        menuItems = getSampleMenuItems();
-        displayMenuItem(0);
-      }
-    }
-
-    // Seed sample menu items
-    async function seedMenuItems() {
-      const sampleMenuItems = [
-        {
-          name: "Classic Margherita Pizza",
-          description: "Fresh mozzarella, tomato sauce, basil, and extra virgin olive oil",
-          price: 1495,
-          category: "Pizza",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/pizza.glb",
-          imageUrl: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=500&q=80",
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: "Pepperoni Pizza",
-          description: "Tomato sauce, mozzarella, and pepperoni",
-          price: 1695,
-          category: "Pizza",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/pizza.glb",
-          imageUrl: "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=80",
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: "Fettuccine Alfredo",
-          description: "Fettuccine pasta in a creamy Parmesan sauce",
-          price: 1895,
-          category: "Pasta",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/pasta.glb",
-          imageUrl: "https://images.unsplash.com/photo-1645112411341-6c4fd023882c?auto=format&fit=crop&w=500&q=80",
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          name: "Tiramisu",
-          description: "Classic Italian dessert with coffee-soaked ladyfingers and mascarpone cream",
-          price: 895,
-          category: "Dessert",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/Tiramisu.glb",
-          imageUrl: "https://images.unsplash.com/photo-1571877899936-e7d5757114b9?auto=format&fit=crop&w=500&q=80",
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: "Caprese Salad",
-          description: "Fresh mozzarella, tomatoes, and basil with balsamic glaze",
-          price: 1295,
-          category: "Appetizer",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/salad.glb",
-          imageUrl: "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?auto=format&fit=crop&w=500&q=80",
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          name: "Chocolate Lava Cake",
-          description: "Warm chocolate cake with a molten center, served with vanilla ice cream",
-          price: 995,
-          category: "Dessert",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/cake.glb",
-          imageUrl: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=500&q=80",
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          name: "Garlic Bread",
-          description: "Toasted bread with garlic butter and herbs",
-          price: 595,
-          category: "Appetizer",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/bread.glb",
-          imageUrl: "https://images.unsplash.com/photo-1573140401453-cbada022b4c9?auto=format&fit=crop&w=500&q=80",
-          isPopular: false,
-          isAvailable: true
-        },
-        {
-          name: "Red Wine (Glass)",
-          description: "House selection of Italian red wine",
-          price: 995,
-          category: "Drink",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/wine.glb",
-          imageUrl: "https://images.unsplash.com/photo-1553361371-9fe91b8da0cd?auto=format&fit=crop&w=500&q=80",
-          isPopular: false,
-          isAvailable: true
-        }
-      ];
-
-      try {
-        const batch = db.batch();
-        
-        sampleMenuItems.forEach(item => {
-          const docRef = db.collection('menuItems').doc();
-          batch.set(docRef, item);
-        });
-        
-        await batch.commit();
-        console.log("Sample menu items added successfully");
-      } catch (error) {
-        console.error("Error adding sample menu items:", error);
-      }
+      // Check for expired table number
+      checkTableNumberExpiry();
+      
+      // Check auth state
+      userType = localStorage.getItem(USER_TYPE_KEY) || "guest";
+      currentStaff = localStorage.getItem(STAFF_TOKEN);
+      checkAuthState();
+      
+      setupRealTimeListener();
+      setupRatingsListener();
+      updateModel();
+      updateCart();
+      updateEstimatedTime();
+      
+      // Show table number modal if needed
+      checkTableNumber();
+      
+      // Set language
+      setLanguage(currentLanguage);
+      
+      analytics.logEvent('page_view');
     }
 
-    // Sample menu items for fallback
-    function getSampleMenuItems() {
-      return [
-        {
-          id: "sample1",
-          name: "Classic Margherita Pizza",
-          description: "Fresh mozzarella, tomato sauce, basil, and extra virgin olive oil",
-          price: 1495,
-          category: "Pizza",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/pizza.glb",
-          imageUrl: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=500&q=80",
-          isPopular: true,
-          isAvailable: true
-        },
-        {
-          id: "sample2",
-          name: "Pepperoni Pizza",
-          description: "Tomato sauce, mozzarella, and pepperoni",
-          price: 1695,
-          category: "Pizza",
-          modelUrl: "https://modelviewer.dev/shared-assets/models/pizza.glb",
-          imageUrl: "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=80",
-          isPopular: true,
-          isAvailable: true
-        }
-      ];
+    // ==================== LANGUAGE FUNCTIONS ====================
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem(LANGUAGE_KEY, lang);
+      
+      // Update UI language
+      updateLanguageUI();
+      
+      // Update active language button
+      langEnBtn.classList.toggle('active', lang === 'en');
+      langArBtn.classList.toggle('active', lang === 'ar');
+      
+      // Update text direction
+      document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      
+      // Update input placeholders
+      updateInputPlaceholders();
     }
 
-    // Display the current menu item
-    function displayMenuItem(index) {
-      if (menuItems.length === 0) return;
+    function updateInputPlaceholders() {
+      const t = translations[currentLanguage];
       
-      currentIndex = index;
-      const item = menuItems[currentIndex];
+      // Update login modal placeholders
+      usernameInput.placeholder = t.usernamePlaceholder;
+      passwordInput.placeholder = t.passwordPlaceholder;
       
-      // Set the 3D model or fallback to basic one if not available
-      if (item.modelUrl) {
-        foodModel.src = item.modelUrl;
-        foodModel.alt = item.name;
-      } else {
-        foodModel.src = "https://modelviewer.dev/shared-assets/models/pizza.glb";
-        foodModel.alt = item.name;
-      }
+      // Update table number modal placeholder
+      tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم الطاولة' : 'Enter table number';
       
-      // Set item information
-      document.querySelector('.food-container').dataset.itemId = item.id;
+      // Update notes placeholder
+      itemNotes.placeholder = currentLanguage === 'ar' ? 
+        'مثال: بدون بصل، حار جداً، إلخ.' : 'E.g. No onions, extra spicy, etc.';
       
-      // Update the header to show category, name, and price
-      const header = document.querySelector('h1');
-      header.innerHTML = `${item.name} <span style="font-size: 0.8em;">$${formatPrice(item.price)}</span>`;
+      // Update discount code placeholder
+      discountCodeInput.placeholder = currentLanguage === 'ar' ? 
+        'كود الخصم (اختياري)' : 'Discount code (optional)';
       
-      const tagline = document.querySelector('.tagline');
-      tagline.textContent = item.description;
-      
-      // Update add to cart button to show name
-      addToCartBtn.textContent = `Add ${item.name} to Cart`;
+      // Update search placeholder
+      adminSearchInput.placeholder = t.searchOrders;
     }
-    
-    // Navigation Functions
-    function showPreviousItem() {
-      if (currentIndex > 0) {
-        displayMenuItem(currentIndex - 1);
-      } else {
-        displayMenuItem(menuItems.length - 1);
-      }
-    }
-    
-    function showNextItem() {
-      if (currentIndex < menuItems.length - 1) {
-        displayMenuItem(currentIndex + 1);
-      } else {
-        displayMenuItem(0);
-      }
-    }
-    
-    // IMPROVED: Cart Functions with recommendations
-    function addToCart(itemId = null) {
-      if (!currentTableNumber) {
-        showTableNumberModal();
-        return;
-      }
-      
-      // If itemId is not provided, use the currently displayed item
-      if (!itemId) {
-        const currentItem = menuItems[currentIndex];
-        itemId = currentItem.id;
-      }
-      
-      const item = menuItems.find(item => item.id === itemId);
-      if (!item) return;
-      
-      // Check if the item is already in the cart
-      const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
-      
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        cartItems.push({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: 1
-        });
-      }
-      
-      updateCartUI();
-      showRecommendations();
-      
-      // Show the notification
-      const notification = document.createElement('div');
-      notification.className = 'order-status-notification active';
-      notification.style.transition = 'all 0.3s ease';
-      notification.innerHTML = `
-        <div class="status-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="status-content">
-          <div class="status-title">Item Added to Cart</div>
-          <div class="status-message">${item.name} added to your cart</div>
-        </div>
-        <button class="close-status">×</button>
-      `;
-      
-      document.body.appendChild(notification);
-      
-      // Remove the notification after 3 seconds
-      setTimeout(() => {
-        notification.style.transform = 'translateX(-120%)';
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 300);
-      }, 3000);
-      
-      // Add event listener to close button
-      notification.querySelector('.close-status').addEventListener('click', () => {
-        notification.style.transform = 'translateX(-120%)';
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 300);
-      });
 
-      // Show cart when first item is added
-      if (cartItems.length === 1) {
-        showCart();
-      }
-    }
-    
-    // NEW: Show relevant recommendations based on cart items
-    function showRecommendations() {
-      if (cartItems.length === 0) {
-        recommendations.style.display = 'none';
-        return;
-      }
+    function updateLanguageUI() {
+      const t = translations[currentLanguage];
       
-      // Get categories from current cart
-      const cartCategories = new Set();
-      cartItems.forEach(item => {
-        const menuItem = menuItems.find(menuItem => menuItem.id === item.id);
-        if (menuItem) {
-          cartCategories.add(menuItem.category);
-        }
-      });
-      
-      // Get item IDs already in cart to exclude
-      const cartItemIds = cartItems.map(item => item.id);
-      
-      // Find recommendations (items not in cart)
-      const recommendedItems = menuItems.filter(item => 
-        !cartItemIds.includes(item.id) && 
-        (item.isPopular || cartCategories.has(item.category))
-      ).slice(0, 5); // Limit to 5 recommendations
-      
-      if (recommendedItems.length === 0) {
-        recommendations.style.display = 'none';
-        return;
-      }
-      
-      // Display recommendations
-      recommendations.style.display = 'block';
-      recommendationItems.innerHTML = '';
-      
-      recommendedItems.forEach(item => {
-        const recItemEl = document.createElement('div');
-        recItemEl.className = 'recommendation-item';
-        recItemEl.dataset.id = item.id;
-        recItemEl.innerHTML = `
-          <div class="recommendation-name">${item.name}</div>
-          <div class="recommendation-price">$${formatPrice(item.price)}</div>
-        `;
+      // Update guest view
+      if (guestView) {
+        guestBtn.textContent = t.guest;
+        staffBtn.textContent = t.staff;
+        adminBtn.textContent = t.admin;
+        viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? t.hideOrders : t.viewOrders;
+        notesLabel.textContent = t.specialInstructions;
+        extrasTitle.textContent = t.addExtras;
+        yourOrdersTitle.textContent = t.yourOrders;
+        prevBtn.textContent = t.prev;
+        nextBtn.textContent = t.next;
+        arButton.textContent = t.arButton;
         
-        recItemEl.addEventListener('click', () => {
-          addToCart(item.id);
-        });
+        // Update food items
+        const currentFood = foods[currentIndex];
+        foodTitle.textContent = t.foodTitle[currentFood.title] || currentFood.title;
+        foodDesc.textContent = t.foodDesc[currentFood.description] || currentFood.description;
         
-        recommendationItems.appendChild(recItemEl);
-      });
-    }
-    
-    function updateCartUI() {
-      // Update cart count
-      const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-      
-      if (totalItems > 0) {
-        cartCount.textContent = totalItems;
-        cartCount.style.display = 'flex';
-        checkoutBtn.disabled = false;
-      } else {
-        cartCount.style.display = 'none';
-        checkoutBtn.disabled = true;
-      }
-      
-      // Update cart items
-      cartItems_el.innerHTML = '';
-      
-      if (cartItems.length === 0) {
-        cartItems_el.innerHTML = `
-          <div class="cart-empty" style="text-align: center; padding: 20px;">
-            Your cart is empty
-          </div>
-        `;
-        return;
-      }
-      
-      cartItems.forEach(item => {
-        const cartItem = document.createElement('div');
-        cartItem.className = 'cart-item';
-        cartItem.innerHTML = `
-          <div class="item-name">${item.quantity} x ${item.name}</div>
-          <div class="item-price">$${formatPrice(item.price * item.quantity)}</div>
-          <button class="remove-item" data-id="${item.id}">×</button>
-        `;
+        // Update add to cart button
+        addToCartBtn.textContent = t.addToCart.replace('{price}', currentFood.price.toFixed(2));
         
-        cartItems_el.appendChild(cartItem);
+        // Update estimated time
+        estimatedTimeEl.textContent = t.estimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
         
-        // Add event listener to remove button
-        cartItem.querySelector('.remove-item').addEventListener('click', () => {
-          removeFromCart(item.id);
-        });
-      });
-      
-      // Update cart total
-      const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      cartTotal.textContent = `Total: $${formatPrice(total)}`;
-    }
-    
-    function removeFromCart(itemId) {
-      cartItems = cartItems.filter(item => item.id !== itemId);
-      updateCartUI();
-      showRecommendations();
-    }
-    
-    function clearCart() {
-      cartItems = [];
-      updateCartUI();
-      showRecommendations();
-    }
-    
-    function showCart() {
-      cartPanel.classList.add('active');
-      showRecommendations();
-    }
-    
-    function hideCart() {
-      cartPanel.classList.remove('active');
-    }
-    
-    // IMPROVED: Checkout function that automatically shows order status
-    async function checkout() {
-      if (cartItems.length === 0 || !currentTableNumber) return;
-      
-      checkoutBtn.classList.add('checkout-loading');
-      checkoutBtn.disabled = true;
-      
-      const order = {
-        tableNumber: currentTableNumber,
-        items: cartItems,
-        status: 'pending',
-        totalAmount: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      
-      try {
-        const docRef = await db.collection('orders').add(order);
-        console.log("Order created with ID: ", docRef.id);
-        
-        // Clear cart
-        cartItems = [];
-        updateCartUI();
-        hideCart();
-        
-        // Update table status to occupied
-        await db.collection('tables').doc(currentTableNumber.toString()).set({
-          tableNumber: currentTableNumber,
-          status: 'occupied',
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-        
-        // Show order confirmation notification
-        showOrderConfirmation(docRef.id);
-        
-        // NEW: Automatically show the client orders panel
-        showClientOrders();
-        
-        // Start cancellation timer
-        startOrderCancellationTimer(docRef.id);
-        
-        // Log analytics event
-        analytics.logEvent('purchase', {
-          transaction_id: docRef.id,
-          value: order.totalAmount / 100,
-          currency: 'USD'
-        });
-      } catch (error) {
-        console.error("Error creating order: ", error);
-        
-        // Show error notification
-        const notification = document.createElement('div');
-        notification.className = 'order-status-notification active';
-        notification.style.background = '#ffebee';
-        notification.innerHTML = `
-          <div class="status-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </div>
-          <div class="status-content">
-            <div class="status-title" style="color: #d32f2f;">Order Failed</div>
-            <div class="status-message" style="color: #d32f2f;">Please try again later.</div>
-          </div>
-          <button class="close-status">×</button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.style.transform = 'translateX(-120%)';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 300);
-        }, 5000);
-        
-        notification.querySelector('.close-status').addEventListener('click', () => {
-          notification.style.transform = 'translateX(-120%)';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 300);
-        });
-      } finally {
-        checkoutBtn.classList.remove('checkout-loading');
-        checkoutBtn.disabled = false;
-      }
-    }
-    
-    // NEW: Start the cancellation timer for an order (3 minutes)
-    function startOrderCancellationTimer(orderId) {
-      const timerId = setTimeout(async () => {
-        try {
-          // Remove cancel button from UI when timer expires
-          const cancelBtns = document.querySelectorAll(`.cancel-order[data-id="${orderId}"]`);
-          cancelBtns.forEach(btn => btn.remove());
-          
-          delete orderCancellationTimers[orderId];
-        } catch (error) {
-          console.error("Error handling order cancellation timer:", error);
-        }
-      }, 180000); // 3 minutes
-      
-      orderCancellationTimers[orderId] = timerId;
-    }
-    
-    // NEW: Function to cancel an order
-    async function cancelOrder(orderId) {
-      try {
-        await db.collection('orders').doc(orderId).update({
-          status: 'cancelled',
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // Clear the cancellation timer
-        if (orderCancellationTimers[orderId]) {
-          clearTimeout(orderCancellationTimers[orderId]);
-          delete orderCancellationTimers[orderId];
-        }
-        
-        // Show notification
-        const notification = document.createElement('div');
-        notification.className = 'order-status-notification active';
-        notification.style.background = '#ffebee';
-        notification.innerHTML = `
-          <div class="status-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F44336" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="15" y1="9" x2="9" y2="15"></line>
-              <line x1="9" y1="9" x2="15" y2="15"></line>
-            </svg>
-          </div>
-          <div class="status-content">
-            <div class="status-title" style="color: #d32f2f;">Order Cancelled</div>
-            <div class="status-message" style="color: #555;">Your order has been cancelled.</div>
-          </div>
-          <button class="close-status">×</button>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.style.transform = 'translateX(-120%)';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 300);
-        }, 5000);
-        
-        notification.querySelector('.close-status').addEventListener('click', () => {
-          notification.style.transform = 'translateX(-120%)';
-          setTimeout(() => {
-            document.body.removeChild(notification);
-          }, 300);
-        });
-        
-        // Refresh orders display
-        loadOrdersForCustomer();
-      } catch (error) {
-        console.error("Error cancelling order:", error);
-      }
-    }
-    
-    function showOrderConfirmation(orderId) {
-      // Show order confirmation notification
-      const notification = document.createElement('div');
-      notification.className = 'order-status-notification active';
-      notification.innerHTML = `
-        <div class="status-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="status-content">
-          <div class="status-title">Order Placed Successfully!</div>
-          <div class="status-message">Your order #${orderId.slice(0, 6)} is being prepared.</div>
-        </div>
-        <button class="close-status">×</button>
-      `;
-      
-      document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.style.transform = 'translateX(-120%)';
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 300);
-      }, 5000);
-      
-      notification.querySelector('.close-status').addEventListener('click', () => {
-        notification.style.transform = 'translateX(-120%)';
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 300);
-      });
-    }
-    
-    // NEW: Improved table number selection functionality
-    function showTableNumberModal() {
-      tableNumberModal.style.display = 'flex';
-      
-      // Populate table number grid
-      const tableNumberGrid = document.querySelector('.table-number-grid');
-      tableNumberGrid.innerHTML = '';
-      
-      for (let i = 1; i <= 16; i++) {
-        const tableBtn = document.createElement('button');
-        tableBtn.className = 'table-number-btn';
-        tableBtn.textContent = i;
-        tableBtn.addEventListener('click', () => {
-          selectTableNumber(i);
-        });
-        
-        tableNumberGrid.appendChild(tableBtn);
-      }
-    }
-    
-    // NEW: Select table number and save to localStorage
-    function selectTableNumber(number) {
-      currentTableNumber = number;
-      currentTableNumber_el.textContent = number;
-      changeTableBtn.style.display = 'flex';
-      tableNumberModal.style.display = 'none';
-      
-      // Save to localStorage to remember between visits
-      localStorage.setItem('oakCafeTableNumber', number);
-      
-      // Check for existing table in Firestore or create it
-      db.collection('tables').doc(number.toString()).get()
-        .then(doc => {
-          if (!doc.exists) {
-            // Create table document
-            db.collection('tables').doc(number.toString()).set({
-              tableNumber: number,
-              status: 'available',
-              lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            });
+        // Update extras select
+        if (extrasSelect.options.length > 0) {
+          if (extrasSelect.options[0].disabled) {
+            extrasSelect.options[0].textContent = currentFood.extras && currentFood.extras.length > 0 ? 
+              t.selectExtras : t.noExtras;
           }
-        })
-        .catch(error => {
-          console.error("Error checking table:", error);
-        });
-    }
-    
-    // Show Orders for Customer
-    function showClientOrders() {
-      if (!currentTableNumber) return;
+        }
+      }
       
-      clientOrders.classList.add('active');
-      loadOrdersForCustomer();
-    }
-    
-    // Load Customer Orders
-    async function loadOrdersForCustomer() {
-      if (!currentTableNumber) return;
+      // Update staff view
+      if (staffDashboard) {
+        staffDashboardTitle.textContent = t.ordersDashboard;
+        staffEstimatedTimeEl.textContent = t.currentEstimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+        occupiedTablesTitle.textContent = t.occupiedTables;
+      }
       
+      // Update admin view
+      if (adminDashboard) {
+        adminDashboardTitle.textContent = t.adminDashboard;
+        statsTab.textContent = t.statistics;
+        ordersTab.textContent = t.orders;
+        ratingsTab.textContent = t.ratings;
+        totalOrdersTitle.textContent = t.totalOrders;
+        avgRatingTitle.textContent = t.avgRating;
+        lowRatingsTitle.textContent = t.lowRatings;
+        activeStaffTitle.textContent = t.activeStaff;
+        recentOrdersTitle.textContent = t.recentOrders;
+        recentRatingsTitle.textContent = t.recentRatings;
+        filterAll.textContent = t.all;
+        filterPending.textContent = t.pending;
+        filterPreparing.textContent = t.preparing;
+        filterReady.textContent = t.ready;
+        filterCompleted.textContent = t.completed;
+      }
+      
+      // Update modals
+      tableNumberTitle.textContent = t.tableNumber;
+      confirmTableBtn.textContent = t.confirm;
+      cancelTableBtn.textContent = t.cancel;
+      
+      ratingTitle.textContent = t.rateExperience;
+      submitRatingBtn.textContent = t.submit;
+      skipRatingBtn.textContent = t.skip;
+      ratingFeedbackLabel.textContent = t.feedbackLabel;
+      ratingFeedback.placeholder = t.feedbackPlaceholder;
+      
+      tableDetailsTitle.textContent = t.tableDetails;
+      
+      // Update cart
+      cartTitle.textContent = t.cartTitle;
+      checkoutText.textContent = t.confirmOrder;
+      
+      // Update login modal
+      usernameLabel.textContent = t.usernameLabel;
+      passwordLabel.textContent = t.passwordLabel;
+      loginBtn.textContent = t.login;
+      cancelLoginBtn.textContent = t.cancel;
+      
+      // Update footer
+      poweredByText.textContent = t.poweredBy;
+      copyrightText.textContent = t.copyright;
+    }
+
+    function translate(key, params = {}) {
+      let translation = translations[currentLanguage][key] || translations['en'][key] || key;
+      
+      // Replace placeholders
+      for (const [param, value] of Object.entries(params)) {
+        translation = translation.replace(`{${param}}`, value);
+      }
+      
+      return translation;
+    }
+
+    // ==================== AUTHENTICATION ====================
+    function checkLogin() {
+      const username = usernameInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+      
+      // Check admin login
+      if (username === ADMIN_ACCOUNT.username && password === ADMIN_ACCOUNT.password) {
+        userType = "admin";
+        localStorage.setItem(USER_TYPE_KEY, "admin");
+        localStorage.setItem(ADMIN_TOKEN, "true");
+        closeModal();
+        checkAuthState();
+        return;
+      }
+      
+      // Check staff login
+      if (STAFF_ACCOUNTS[username] && STAFF_ACCOUNTS[username].password === password) {
+        userType = "staff";
+        currentStaff = username;
+        localStorage.setItem(USER_TYPE_KEY, "staff");
+        localStorage.setItem(STAFF_TOKEN, username);
+        closeModal();
+        checkAuthState();
+        return;
+      }
+      
+      alert(currentLanguage === 'ar' ? "اسم المستخدم أو كلمة المرور غير صحيحة" : "Invalid username or password");
+      passwordInput.value = "";
+    }
+
+    function checkAuthState() {
+      // Reset all views
+      guestView.style.display = "none";
+      staffDashboard.style.display = "none";
+      adminDashboard.style.display = "none";
+      
+      // Update buttons
+      guestBtn.classList.remove("active");
+      staffBtn.classList.remove("active");
+      adminBtn.classList.remove("active");
+      
+      // Show appropriate view based on user type
+      switch(userType) {
+        case "staff":
+          staffBtn.classList.add("active");
+          staffDashboard.style.display = "block";
+          totalBreakdown.style.display = 'block';
+          updateStaffAssignment();
+          break;
+        case "admin":
+          adminBtn.classList.add("active");
+          adminDashboard.style.display = "block";
+          renderAdminDashboard();
+          break;
+        default: // guest
+          userType = "guest";
+          guestBtn.classList.add("active");
+          guestView.style.display = "block";
+          totalBreakdown.style.display = 'none';
+          checkTableNumber();
+      }
+      
+      // Update language UI
+      updateLanguageUI();
+    }
+
+    function updateStaffAssignment() {
+      if (currentStaff && STAFF_ACCOUNTS[currentStaff]) {
+        const staff = STAFF_ACCOUNTS[currentStaff];
+        staffAssignment.innerHTML = `
+          <span style="color: var(--gold);">${staff.name}</span> - 
+          ${currentLanguage === 'ar' ? 'مسؤول عن الطاولات' : 'Responsible for tables'} ${staff.tables[0]} ${currentLanguage === 'ar' ? 'إلى' : 'to'} ${staff.tables[1]}
+        `;
+      }
+    }
+
+    // ==================== TABLE MANAGEMENT ====================
+    function checkTableNumberExpiry() {
+      const expiry = localStorage.getItem(TABLE_EXPIRY_KEY);
+      if (expiry && new Date(expiry) < new Date()) {
+        // Table number expired
+        localStorage.removeItem(TABLE_NUMBER_KEY);
+        localStorage.removeItem(TABLE_EXPIRY_KEY);
+        tableNumber = null;
+        tableNumberExpiry = null;
+      } else if (expiry) {
+        tableNumberExpiry = new Date(expiry);
+      }
+      
+      // Load table number if valid
+      const savedTable = localStorage.getItem(TABLE_NUMBER_KEY);
+      if (savedTable && tableNumberExpiry) {
+        tableNumber = parseInt(savedTable);
+      }
+    }
+
+    function checkTableNumber() {
+      if (userType === "guest" && !tableNumber) {
+        setTimeout(() => {
+          showTableModal();
+        }, 500);
+      }
+    }
+
+    async function confirmTableNumber() {
+      const tableNum = tableNumberInput.value.trim();
+      
+      if (!tableNum || isNaN(tableNum)) {
+        alert(currentLanguage === 'ar' ? "الرجاء إدخال رقم طاولة صحيح" : "Please enter a valid table number");
+        return;
+      }
+      
+      const tableNumberInt = parseInt(tableNum);
+      
+      // Check if table is available
+      const isAvailable = await checkTableAvailability(tableNumberInt);
+      if (!isAvailable) {
+        showOrderStatus(
+          currentLanguage === 'ar' ? `الطاولة ${tableNumberInt} مشغولة. الرجاء اختيار طاولة أخرى` : 
+          `Table ${tableNumberInt} is occupied. Please choose another.`, 
+          currentLanguage === 'ar' ? "خطأ في الطاولة" : "TABLE ERROR"
+        );
+        return;
+      }
+      
+      // Save table number with 1 hour expiry
+      tableNumber = tableNumberInt;
+      tableNumberExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+      
+      localStorage.setItem(TABLE_NUMBER_KEY, tableNumber);
+      localStorage.setItem(TABLE_EXPIRY_KEY, tableNumberExpiry.toISOString());
+      
+      closeTableModal();
+      showOrderStatus(
+        currentLanguage === 'ar' ? `تم تعيين الطاولة ${tableNumber}` : `Table ${tableNumber} assigned`,
+        currentLanguage === 'ar' ? "تم تعيين الطاولة" : "TABLE SET"
+      );
+    }
+
+    async function checkTableAvailability(tableNum) {
       try {
-        const snapshot = await db.collection('orders')
-          .where('tableNumber', '==', currentTableNumber)
-          .orderBy('createdAt', 'desc')
-          .limit(5)
+        // Check if table is already occupied in memory
+        if (occupiedTables.has(tableNum)) {
+          return false;
+        }
+        
+        // Double check with database
+        const querySnapshot = await db.collection("orders")
+          .where("tableNumber", "==", tableNum)
+          .where("status", "in", ["pending", "preparing", "ready"])
+          .limit(1)
           .get();
         
-        clientOrdersList.innerHTML = '';
-        
-        if (snapshot.empty) {
-          clientOrdersList.innerHTML = '<p style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No orders yet</p>';
-          return;
-        }
-        
-        snapshot.forEach(doc => {
-          const order = {
-            id: doc.id,
-            ...doc.data()
-          };
-          
-          const orderEl = document.createElement('div');
-          orderEl.className = 'client-order';
-          
-          // Calculate if order is within 3-minute cancellation window
-          const createdAt = order.createdAt?.toDate?.() || new Date();
-          const now = new Date();
-          const diffInMs = now - createdAt;
-          const diffInMinutes = diffInMs / 60000;
-          const canCancel = order.status === 'pending' && diffInMinutes < 3;
-          
-          let orderHTML = `
-            <div class="client-order-header">
-              <div class="client-order-id">Order #${order.id.slice(0, 6)}</div>
-              <div class="client-order-status ${getStatusColor(order.status)}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</div>
-            </div>
-            <div class="client-order-items">
-          `;
-          
-          // Add cancel button if within time window
-          if (canCancel) {
-            orderHTML += `<div class="cancel-order" data-id="${order.id}">×</div>`;
-          }
-          
-          // Add order items
-          order.items.forEach(item => {
-            orderHTML += `
-              <div class="client-order-item">
-                <span>${item.quantity} × ${item.name}</span>
-                <span>$${formatPrice(item.price * item.quantity)}</span>
-              </div>
-            `;
+        return querySnapshot.empty;
+      } catch (error) {
+        console.error("Table check error:", error);
+        return false;
+      }
+    }
+
+    async function releaseTable(tableNum) {
+      if (tableNum) {
+        occupiedTables.delete(tableNum);
+      }
+    }
+
+    function showTableModal() {
+      tableNumberInput.value = "";
+      tableNumberModal.style.display = "flex";
+      updateLanguageUI(); // Ensure modal is translated
+    }
+
+    function closeTableModal() {
+      tableNumberModal.style.display = "none";
+    }
+
+    // ==================== RATING SYSTEM ====================
+    function setupRatingsListener() {
+      if (ratingsListener) {
+        ratingsListener();
+      }
+      
+      ratingsListener = db.collection("ratings")
+        .orderBy("timestamp", "desc")
+        .limit(50)
+        .onSnapshot((snapshot) => {
+          const updatedRatings = [];
+          snapshot.forEach((doc) => {
+            updatedRatings.push(doc.data());
           });
           
-          // Add order total
-          orderHTML += `
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-weight: bold; font-size: 0.85rem;">
-              <span>Total</span>
-              <span>$${formatPrice(order.totalAmount)}</span>
-            </div>
-          `;
+          ratings = updatedRatings;
           
-          orderEl.innerHTML = orderHTML;
-          clientOrdersList.appendChild(orderEl);
-          
-          // Add event listener to cancel button
-          const cancelBtn = orderEl.querySelector('.cancel-order');
-          if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
-              cancelOrder(order.id);
-            });
+          if (userType === "admin") {
+            renderAdminDashboard();
           }
         });
-      } catch (error) {
-        console.error("Error loading customer orders:", error);
-        clientOrdersList.innerHTML = '<p style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">Error loading orders</p>';
-      }
     }
-    
-    // Staff Functions
-    
-    function showLoginModal() {
-      loginModal.style.display = 'flex';
-      document.getElementById('username').focus();
-    }
-    
-    function hideLoginModal() {
-      loginModal.style.display = 'none';
-    }
-    
-    function staffLogin() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+
+    function showRatingModal(orderId) {
+      currentOrderForRating = orderId;
+      currentRating = 0;
       
-      // For demo, simple validation
-      if (username === 'staff' && password === 'password') {
-        isStaffLoggedIn = true;
-        hideLoginModal();
-        switchToStaffView();
-        
-        // Start real-time listeners
-        setupOrdersListener();
-        setupTablesListener();
+      // Reset stars
+      ratingStars.forEach(star => {
+        star.classList.remove("active");
+      });
+      
+      // Hide feedback initially
+      ratingFeedback.style.display = "none";
+      ratingFeedbackLabel.style.display = "none";
+      ratingFeedback.value = "";
+      
+      ratingModal.style.display = "flex";
+      updateLanguageUI(); // Ensure modal is translated
+    }
+
+    function closeRatingModal() {
+      ratingModal.style.display = "none";
+      currentOrderForRating = null;
+    }
+
+    function setRating(rating) {
+      currentRating = rating;
+      
+      // Update star display
+      ratingStars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.add("active");
+        } else {
+          star.classList.remove("active");
+        }
+      });
+      
+      // Show feedback if rating is 3 or less
+      if (rating <= 3) {
+        ratingFeedback.style.display = "block";
+        ratingFeedbackLabel.style.display = "block";
+        ratingFeedback.required = true;
       } else {
-        alert('Invalid credentials. Try using "staff" for both username and password.');
+        ratingFeedback.style.display = "none";
+        ratingFeedbackLabel.style.display = "none";
+        ratingFeedback.required = false;
       }
     }
-    
-    // IMPROVED: Switch to Staff View with better UI
-    function switchToStaffView() {
-      customerView.style.display = 'none';
-      staffView.style.display = 'block';
-      customerBtn.classList.remove('active');
-      staffBtn.classList.add('active');
+
+    async function submitRating() {
+      if (currentRating === 0) {
+        alert(currentLanguage === 'ar' ? "الرجاء اختيار تقييم" : "Please select a rating");
+        return;
+      }
       
-      // Load initial data
-      loadStaffDashboardData();
-    }
-    
-    // Switch to Customer View
-    function switchToCustomerView() {
-      staffView.style.display = 'none';
-      customerView.style.display = 'block';
-      staffBtn.classList.remove('active');
-      customerBtn.classList.add('active');
-    }
-    
-    // IMPROVED: Load Staff Dashboard Data
-    async function loadStaffDashboardData() {
+      if (currentRating <= 3 && !ratingFeedback.value.trim()) {
+        alert(currentLanguage === 'ar' ? "الرجاء تقديم ملاحظات للتقييم المنخفض" : "Please provide feedback for your low rating");
+        return;
+      }
+      
       try {
-        // Load orders
-        const ordersSnapshot = await db.collection('orders')
-          .orderBy('createdAt', 'desc')
+        // Find the order to get table number and staff info
+        const orderQuery = await db.collection("orders")
+          .where("id", "==", currentOrderForRating)
+          .limit(1)
           .get();
         
-        orders = ordersSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        // Load tables
-        const tablesSnapshot = await db.collection('tables').get();
-        
-        tables = tablesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        // If no tables, create sample tables
-        if (tables.length === 0) {
-          await createSampleTables();
-          await loadStaffDashboardData();
-          return;
+        if (orderQuery.empty) {
+          throw new Error("Order not found");
         }
         
-        // Update UI
-        updateStaffDashboardUI();
+        const orderData = orderQuery.docs[0].data();
+        const staffMember = getStaffForTable(orderData.tableNumber);
+        
+        // Save rating
+        await db.collection("ratings").add({
+          orderId: currentOrderForRating,
+          tableNumber: orderData.tableNumber,
+          rating: currentRating,
+          feedback: currentRating <= 3 ? ratingFeedback.value.trim() : null,
+          staff: staffMember ? staffMember.name : "Unknown",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        closeRatingModal();
+        showOrderStatus(
+          currentLanguage === 'ar' ? "شكراً لك على ملاحظاتك!" : "Thank you for your feedback!",
+          currentLanguage === 'ar' ? "تم إرسال التقييم" : "RATING SUBMITTED"
+        );
+        
       } catch (error) {
-        console.error("Error loading staff dashboard data:", error);
+        console.error("Error submitting rating:", error);
+        showOrderStatus(
+          currentLanguage === 'ar' ? "فشل إرسال التقييم. الرجاء المحاولة مرة أخرى." : "Failed to submit rating. Please try again.",
+          currentLanguage === 'ar' ? "خطأ" : "ERROR"
+        );
       }
     }
-    
-    // Create sample tables
-    async function createSampleTables() {
-      try {
-        const batch = db.batch();
-        
-        for (let i = 1; i <= 16; i++) {
-          const tableRef = db.collection('tables').doc(i.toString());
-          batch.set(tableRef, {
-            tableNumber: i,
-            status: 'available',
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-          });
+
+    function getStaffForTable(tableNumber) {
+      for (const [username, staff] of Object.entries(STAFF_ACCOUNTS)) {
+        if (tableNumber >= staff.tables[0] && tableNumber <= staff.tables[1]) {
+          return staff;
         }
-        
-        await batch.commit();
-        console.log("Sample tables created");
-      } catch (error) {
-        console.error("Error creating sample tables:", error);
       }
+      return null;
     }
-    
-    // IMPROVED: Update Staff Dashboard UI
-    function updateStaffDashboardUI() {
+
+    function renderAdminDashboard() {
       // Update stats
-      const pendingCount = orders.filter(order => order.status === 'pending').length;
-      const occupiedCount = tables.filter(table => table.status === 'occupied').length;
+      totalOrdersEl.textContent = orders.length;
       
-      // Count today's orders
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayCount = orders.filter(order => {
-        const orderDate = order.createdAt?.toDate?.() || new Date();
-        return orderDate >= today;
-      }).length;
+      // Calculate ratings stats
+      if (ratings.length > 0) {
+        const totalRating = ratings.reduce((sum, r) => sum + r.rating, 0);
+        const avgRating = totalRating / ratings.length;
+        const lowRatings = ratings.filter(r => r.rating <= 3).length;
+        
+        avgRatingEl.textContent = avgRating.toFixed(1);
+        lowRatingsEl.textContent = lowRatings;
+        
+        // Update chart
+        updateRatingsChart();
+      } else {
+        avgRatingEl.textContent = "0.0";
+        lowRatingsEl.textContent = "0";
+      }
       
-      pendingOrdersCount.textContent = pendingCount;
-      occupiedTablesCount.textContent = occupiedCount;
-      todayOrdersCount.textContent = todayCount;
+      // Render recent ratings
+      ratingsList.innerHTML = '';
+      const recentRatings = ratings.slice(0, 10); // Show last 10 ratings
       
-      // Update tables grid
-      updateTablesGrid();
+      if (recentRatings.length === 0) {
+        ratingsList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>`;
+        return;
+      }
       
-      // Update orders list
-      updateOrdersList();
-    }
-    
-    // IMPROVED: Update Tables Grid
-    function updateTablesGrid() {
-      tablesGrid.innerHTML = '';
-      
-      // Sort tables by number
-      tables.sort((a, b) => a.tableNumber - b.tableNumber);
-      
-      tables.forEach(table => {
-        const tableCard = document.createElement('div');
-        tableCard.className = `table-card ${table.status}`;
-        tableCard.dataset.id = table.id;
-        tableCard.innerHTML = `
-          <div class="table-number">${table.tableNumber}</div>
-          <div class="table-status">${table.status.charAt(0).toUpperCase() + table.status.slice(1)}</div>
+      recentRatings.forEach(rating => {
+        const ratingEl = document.createElement('div');
+        ratingEl.className = 'rating-item';
+        
+        // Create star display
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= rating.rating) {
+            starsHtml += '<i class="fas fa-star rating-star-display"></i>';
+          } else {
+            starsHtml += '<i class="fas fa-star rating-star-display empty"></i>';
+          }
+        }
+        
+        ratingEl.innerHTML = `
+          <div class="rating-header">
+            <div class="rating-table">${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${rating.tableNumber}</div>
+            <div class="rating-staff">${rating.staff}</div>
+          </div>
+          <div class="rating-stars-display">
+            ${starsHtml}
+          </div>
+          ${rating.feedback ? `
+            <div class="rating-feedback-text">
+              "${rating.feedback}"
+            </div>
+          ` : ''}
         `;
         
-        // Add click event to toggle table status
-        tableCard.addEventListener('click', () => {
-          toggleTableStatus(table.id, table.status);
-        });
-        
-        tablesGrid.appendChild(tableCard);
+        ratingsList.appendChild(ratingEl);
       });
-    }
-    
-    // Toggle table status
-    async function toggleTableStatus(tableId, currentStatus) {
-      const newStatus = currentStatus === 'available' ? 'occupied' : 'available';
       
-      try {
-        await db.collection('tables').doc(tableId).update({
-          status: newStatus,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        console.log(`Table ${tableId} status updated to ${newStatus}`);
-      } catch (error) {
-        console.error("Error updating table status:", error);
+      // Render admin orders list if on orders tab
+      if (activeAdminTab === 'orders') {
+        renderAdminOrders();
       }
     }
-    
-    // Update Orders List with filtering
-    function updateOrdersList(filterStatus = null) {
-      ordersList.innerHTML = '';
+
+    function renderAdminOrders() {
+      adminOrdersList.innerHTML = '';
       
-      // Filter orders if status is provided
+      if (orders.length === 0) {
+        adminOrdersList.innerHTML = `<p style="color: var(--light-cream); text-align: center;">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
+        return;
+      }
+      
+      // Get active filter
+      const activeFilter = document.querySelector('.admin-filter-btn.active')?.dataset.filter || 'all';
+      
+      // Filter orders
       let filteredOrders = orders;
-      if (filterStatus) {
-        filteredOrders = orders.filter(order => order.status === filterStatus);
+      if (activeFilter !== 'all') {
+        filteredOrders = orders.filter(order => order.status === activeFilter);
       }
       
-      // Sort orders by creation date (newest first)
-      filteredOrders.sort((a, b) => {
-        const dateA = a.createdAt?.toDate?.() || new Date();
-        const dateB = b.createdAt?.toDate?.() || new Date();
-        return dateB - dateA;
-      });
+      // Apply search if any
+      const searchTerm = adminSearchInput.value.toLowerCase();
+      if (searchTerm) {
+        filteredOrders = filteredOrders.filter(order => 
+          order.id.toLowerCase().includes(searchTerm) || 
+          order.tableNumber.toString().includes(searchTerm)
+        );
+      }
+      
+      // Sort by timestamp (newest first)
+      filteredOrders.sort((a, b) => b.timestamp?.toDate() - a.timestamp?.toDate());
+      
+      // Show only recent orders
+      filteredOrders = filteredOrders.slice(0, 20);
       
       if (filteredOrders.length === 0) {
-        ordersList.innerHTML = '<p style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">No orders to display</p>';
+        adminOrdersList.innerHTML = `<p style="color: var(--light-cream); text-align: center;">${currentLanguage === 'ar' ? 'لا توجد طلبات تطابق بحثك' : 'No orders match your search'}</p>`;
         return;
       }
       
       filteredOrders.forEach(order => {
-        const orderCard = document.createElement('div');
-        orderCard.className = 'order-card';
-        orderCard.dataset.id = order.id;
+        const orderEl = document.createElement('div');
+        orderEl.className = 'admin-order-card';
         
-        let orderHTML = `
-          <div class="order-header">
-            <div class="order-id">Order #${order.id.slice(0, 6)}</div>
-            <div class="order-status ${getStatusColor(order.status)}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</div>
+        const timeString = order.timestamp?.toDate().toLocaleTimeString() || '';
+        const dateString = order.timestamp?.toDate().toLocaleDateString() || '';
+        
+        orderEl.innerHTML = `
+          <div class="admin-order-card-header">
+            <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id}</div>
+            <div class="order-status status-${order.status}">${order.status.toUpperCase()}</div>
           </div>
-          <div style="margin-bottom: 8px; font-size: 0.8rem;">
-            <span style="color: var(--gold);">Table ${order.tableNumber}</span> • 
-            <span>${formatTime(order.createdAt)}</span>
+          <div class="admin-order-card-time">
+            ${dateString} ${timeString} | ${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${order.tableNumber}
           </div>
-          <div class="order-items">
+          <div style="margin-top: 8px;">
+            ${order.items.map(item => `
+              <div style="font-size: 0.85rem; margin-bottom: 3px;">
+                ${item.title} - ${item.price.toFixed(2)} JD
+              </div>
+            `).join('')}
+          </div>
+          <div style="text-align: right; font-weight: bold; color: var(--gold); margin-top: 5px;">
+            ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: ${order.total.toFixed(2)} JD
+          </div>
         `;
         
-        // Add order items
-        order.items.forEach(item => {
-          orderHTML += `
-            <div class="order-item">
-              <span>${item.quantity} × ${item.name}</span>
-              <span>$${formatPrice(item.price * item.quantity)}</span>
-            </div>
-          `;
+        adminOrdersList.appendChild(orderEl);
+      });
+    }
+
+    function updateRatingsChart() {
+      // Group ratings by value (1-5)
+      const ratingCounts = [0, 0, 0, 0, 0];
+      ratings.forEach(r => {
+        ratingCounts[r.rating - 1]++;
+      });
+      
+      // Destroy previous chart if exists
+      if (ratingsChart) {
+        ratingsChart.destroy();
+      }
+      
+      // Create new chart
+      ratingsChart = new Chart(ratingsChartCtx, {
+        type: 'bar',
+        data: {
+          labels: [
+            currentLanguage === 'ar' ? 'نجمة واحدة' : '1 Star',
+            currentLanguage === 'ar' ? 'نجمتان' : '2 Stars',
+            currentLanguage === 'ar' ? '3 نجوم' : '3 Stars',
+            currentLanguage === 'ar' ? '4 نجوم' : '4 Stars',
+            currentLanguage === 'ar' ? '5 نجوم' : '5 Stars'
+          ],
+          datasets: [{
+            label: currentLanguage === 'ar' ? 'توزيع التقييمات' : 'Ratings Distribution',
+            data: ratingCounts,
+            backgroundColor: [
+              'rgba(178, 34, 34, 0.7)',
+              'rgba(255, 159, 64, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(54, 162, 235, 0.7)'
+            ],
+            borderColor: [
+              'rgba(178, 34, 34, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(54, 162, 235, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: 'var(--light-cream)'
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              }
+            },
+            x: {
+              ticks: {
+                color: 'var(--light-cream)'
+              },
+              grid: {
+                color: 'rgba(255,255,255,0.1)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
+        }
+      });
+    }
+
+    // ==================== ORDER PROCESSING ====================
+    async function checkout() {
+      if (cart.length === 0) return;
+      
+      // If no table number set, show modal
+      if (!tableNumber) {
+        showTableModal();
+        return;
+      }
+      
+      // Check if table is available
+      const isAvailable = await checkTableAvailability(tableNumber);
+      if (!isAvailable) {
+        showOrderStatus(
+          currentLanguage === 'ar' ? `الطاولة ${tableNumber} مشغولة. الرجاء اختيار طاولة أخرى` : 
+          `Table ${tableNumber} is occupied. Please choose another.`, 
+          currentLanguage === 'ar' ? "خطأ في الطاولة" : "TABLE ERROR"
+        );
+        showTableModal();
+        return;
+      }
+      
+      checkoutBtn.disabled = true;
+      checkoutBtn.classList.add('checkout-loading');
+      
+      try {
+        const order = {
+          id: 'ORD-' + Date.now().toString().substr(-6),
+          items: [...cart],
+          subtotal: cart.reduce((sum, item) => sum + item.price, 0),
+          serviceCharge: 0.05, // 5%
+          taxRate: 0.08, // 8%
+          discount: discountApplied,
+          status: 'pending',
+          clientId: clientId,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          tableNumber: tableNumber,
+          notes: cart.map(item => item.notes).filter(n => n),
+          estimatedTime: estimatedTime
+        };
+
+        // Calculate total with taxes and discount
+        const serviceAmount = order.subtotal * order.serviceCharge;
+        const taxAmount = order.subtotal * order.taxRate;
+        const discountAmount = order.subtotal * order.discount;
+        order.total = order.subtotal + serviceAmount + taxAmount - discountAmount;
+        
+        // Add the order and get the document reference
+        const docRef = await db.collection("orders").add(order);
+        
+        // Store both the order ID and document ID
+        await docRef.update({ 
+          documentId: docRef.id  // Store the Firestore-generated ID
+        });
+
+        // Reserve the table
+        occupiedTables.add(tableNumber);
+        
+        // Update estimated time for next order
+        estimatedTime = Math.min(estimatedTime + 5, 60); // Increase by 5 mins, max 60
+        updateEstimatedTime();
+        
+        cart = [];
+        discountApplied = 0;
+        discountCodeInput.value = "";
+        updateCart();
+        cartPanel.classList.remove('active');
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم تأكيد الطلب #${order.id}!` : `Order #${order.id} confirmed!`,
+          currentLanguage === 'ar' ? "تم تأكيد الطلب" : "ORDER CONFIRMED"
+        );
+        
+        analytics.logEvent('purchase', {
+          transaction_id: order.id,
+          value: order.total,
+          currency: 'JD',
+          items: order.items.length
         });
         
-        // Add order total
-        orderHTML += `
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 8px; margin-bottom: 10px; font-weight: bold; font-size: 0.85rem;">
-            <span>Total</span>
-            <span>$${formatPrice(order.totalAmount)}</span>
-          </div>
-        `;
+      } catch (error) {
+        console.error("Checkout error:", error);
+        showOrderStatus(
+          currentLanguage === 'ar' ? "فشل تقديم الطلب. الرجاء المحاولة مرة أخرى." : "Failed to place order. Please try again.",
+          currentLanguage === 'ar' ? "خطأ في الطلب" : "ORDER ERROR"
+        );
+      } finally {
+        checkoutBtn.disabled = false;
+        checkoutBtn.classList.remove('checkout-loading');
+      }
+    }
+
+    // ==================== DISCOUNT HANDLING ====================
+    function applyDiscount() {
+      const code = discountCodeInput.value.trim().toUpperCase();
+      
+      if (!code) {
+        discountApplied = 0;
+        updateCart();
+        return;
+      }
+      
+      if (DISCOUNT_CODES[code]) {
+        discountApplied = DISCOUNT_CODES[code];
+        updateCart();
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم تطبيق خصم: ${discountApplied * 100}%` : `Discount applied: ${discountApplied * 100}% off`,
+          currentLanguage === 'ar' ? "تم تطبيق الخصم" : "DISCOUNT APPLIED"
+        );
+      } else {
+        discountApplied = 0;
+        updateCart();
+        showOrderStatus(
+          currentLanguage === 'ar' ? "كود خصم غير صالح" : "Invalid discount code",
+          currentLanguage === 'ar' ? "خطأ في الخصم" : "DISCOUNT ERROR"
+        );
+      }
+    }
+
+    // ==================== FIREBASE FUNCTIONS ====================
+    function setupRealTimeListener() {
+      if (firestoreListener) {
+        firestoreListener();
+      }
+      
+      firestoreListener = db.collection("orders")
+        .orderBy("timestamp", "desc")
+        .onSnapshot((snapshot) => {
+          const updatedOrders = [];
+          const newOccupiedTables = new Set();
+          const newTableDetails = {};
+          
+          snapshot.forEach((doc) => {
+            const orderData = doc.data();
+            updatedOrders.push({ 
+              id: orderData.id, // Use our custom ORD-123 ID
+              documentId: doc.id, // Store Firestore document ID
+              ...orderData 
+            });
+            
+            // Track occupied tables for pending/preparing/ready orders
+            if (orderData.tableNumber && typeof orderData.tableNumber === 'number' && 
+                ['pending', 'preparing', 'ready'].includes(orderData.status)) {
+              newOccupiedTables.add(orderData.tableNumber);
+              
+              // Build table details for staff view
+              if (!newTableDetails[orderData.tableNumber]) {
+                newTableDetails[orderData.tableNumber] = {
+                  tableNumber: orderData.tableNumber,
+                  orders: []
+                };
+              }
+              newTableDetails[orderData.tableNumber].orders.push(orderData);
+            }
+            
+            // Check if this order belongs to the current client and was just completed
+            if (orderData.clientId === clientId && orderData.status === 'completed') {
+              // Show rating modal immediately for the guest
+              if (userType === 'guest') {
+                showRatingModal(orderData.id);
+              }
+            }
+          });
+          
+          orders = updatedOrders;
+          occupiedTables = newOccupiedTables;
+          tableDetails = newTableDetails;
+          
+          if (userType === "staff") {
+            renderOrders();
+            renderTablesOverview();
+          }
+          
+          if (userType === "admin") {
+            renderAdminDashboard();
+          }
+          
+          renderClientOrders(orders.filter(o => o.clientId === clientId));
+        }, (error) => {
+          console.error("Firestore listener error:", error);
+          showOrderStatus(
+            currentLanguage === 'ar' ? "مشكلة في الاتصال. جاري إعادة الاتصال..." : "Connection issue. Trying to reconnect...",
+            currentLanguage === 'ar' ? "خطأ في الشبكة" : "NETWORK ERROR"
+          );
+          setTimeout(setupRealTimeListener, 2000);
+        });
+    }
+
+    // ==================== CORE FUNCTIONS ====================
+    function updateModel() {
+      const food = foods[currentIndex];
+      modelViewer.src = food.model;
+      
+      // Use translated text if available
+      const t = translations[currentLanguage];
+      foodTitle.textContent = t.foodTitle[food.title] || food.title;
+      foodDesc.textContent = t.foodDesc[food.description] || food.description;
+      
+      counter.textContent = `${currentIndex + 1}/${foods.length}`;
+      addToCartBtn.textContent = t.addToCart.replace('{price}', food.price.toFixed(2));
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === foods.length - 1;
+      
+      // Update extras options
+      extrasSelect.innerHTML = '';
+      if (food.extras && food.extras.length > 0) {
+        // Add default empty option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = t.selectExtras;
+        defaultOption.selected = true;
+        defaultOption.disabled = true;
+        extrasSelect.appendChild(defaultOption);
         
-        // Add action buttons based on current status
-        orderHTML += '<div class="order-actions">';
+        // Add extras options
+        food.extras.forEach(extra => {
+          const option = document.createElement('option');
+          option.value = JSON.stringify(extra);
+          option.textContent = `${extra.name} (+${extra.price.toFixed(2)} JD)`;
+          extrasSelect.appendChild(option);
+        });
         
-        if (order.status === 'pending') {
-          orderHTML += `
-            <button class="action-btn" style="background: #2196F3; color: white;" data-action="preparing" data-id="${order.id}">Start Preparing</button>
-            <button class="action-btn" style="background: #F44336; color: white;" data-action="cancelled" data-id="${order.id}">Cancel</button>
-          `;
-        } else if (order.status === 'preparing') {
-          orderHTML += `
-            <button class="action-btn" style="background: #4CAF50; color: white;" data-action="ready" data-id="${order.id}">Mark Ready</button>
-          `;
-        } else if (order.status === 'ready') {
-          orderHTML += `
-            <button class="action-btn" style="background: #9E9E9E; color: white;" data-action="completed" data-id="${order.id}">Mark Completed</button>
-          `;
+        // Enable multiple selection
+        extrasSelect.multiple = true;
+        extrasSelect.style.display = 'block';
+      } else {
+        extrasSelect.innerHTML = `<option value="" disabled selected>${t.noExtras}</option>`;
+        extrasSelect.multiple = false;
+      }
+    }
+
+    function addToCart() {
+      const currentFood = foods[currentIndex];
+      const notes = itemNotes.value.trim();
+      const selectedExtras = [];
+      
+      // Get selected extras
+      const selectedOptions = Array.from(extrasSelect.selectedOptions)
+        .filter(option => option.value)
+        .map(option => JSON.parse(option.value));
+      
+      // Calculate total price with extras
+      let totalPrice = currentFood.price;
+      selectedOptions.forEach(extra => {
+        totalPrice += extra.price;
+        selectedExtras.push(extra);
+      });
+      
+      cart.push({
+        ...currentFood,
+        id: Date.now() + Math.random().toString(36).substr(2, 9),
+        price: totalPrice,
+        extras: selectedExtras,
+        notes: notes
+      });
+      
+      updateCart();
+      showOrderStatus(
+        currentLanguage === 'ar' ? `${currentFood.title} تمت إضافته إلى الطلب` : `${currentFood.title} added to order`,
+        currentLanguage === 'ar' ? "تم تحديث الطلب" : "ORDER UPDATED"
+      );
+      cartPanel.classList.add("active");
+      itemNotes.value = ""; // Clear notes after adding
+      
+      // Reset extras selection
+      if (extrasSelect.options.length > 0) {
+        extrasSelect.options[0].selected = true;
+      }
+      
+      analytics.logEvent('add_to_cart', {
+        items: cart.length,
+        item_name: currentFood.title,
+        value: totalPrice
+      });
+    }
+
+    function removeFromCart(itemId) {
+      cart = cart.filter(item => item.id !== itemId);
+      updateCart();
+    }
+
+    function updateCart() {
+      cartItemsEl.innerHTML = '';
+      let subtotal = 0;
+      
+      cart.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'cart-item';
+        
+        let extrasText = '';
+        if (item.extras && item.extras.length > 0) {
+          extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
+            ${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')}
+          </div>`;
         }
         
-        orderHTML += '</div>';
-        orderCard.innerHTML = orderHTML;
-        ordersList.appendChild(orderCard);
+        let notesText = '';
+        if (item.notes) {
+          notesText = `<div style="font-size: 0.7rem; color: var(--light-cream); margin-top: 3px;">
+            ${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes}
+          </div>`;
+        }
         
-        // Add event listeners to action buttons
-        const actionButtons = orderCard.querySelectorAll('.action-btn');
-        actionButtons.forEach(button => {
-          button.addEventListener('click', () => {
-            const action = button.getAttribute('data-action');
-            const orderId = button.getAttribute('data-id');
-            updateOrderStatus(orderId, action);
-          });
-        });
+        itemEl.innerHTML = `
+          <div style="flex: 2; text-align: left;">
+            <div style="font-size: 0.85rem;">${item.title}</div>
+            ${extrasText}
+            ${notesText}
+          </div>
+          <span class="item-price">${item.price.toFixed(2)} JD</span>
+          <button class="remove-item" data-id="${item.id}">×</button>
+        `;
+        cartItemsEl.appendChild(itemEl);
+        subtotal += item.price;
       });
-    }
-    
-    // Update Order Status
-    async function updateOrderStatus(orderId, newStatus) {
-      try {
-        await db.collection('orders').doc(orderId).update({
-          status: newStatus,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+      
+      // For staff/admin, show full breakdown
+      if (userType === "staff" || userType === "admin") {
+        totalBreakdown.style.display = 'block';
+        const serviceAmount = subtotal * 0.05;
+        const taxAmount = subtotal * 0.08;
+        const discountAmount = subtotal * discountApplied;
+        const total = subtotal + serviceAmount + taxAmount - discountAmount;
         
-        console.log(`Order ${orderId} status updated to ${newStatus}`);
-      } catch (error) {
-        console.error("Error updating order status:", error);
-      }
-    }
-    
-    // Set up real-time listeners
-    function setupOrdersListener() {
-      db.collection('orders')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(snapshot => {
-          snapshot.docChanges().forEach(change => {
-            const order = {
-              id: change.doc.id,
-              ...change.doc.data()
-            };
-            
-            if (change.type === 'added') {
-              // Add to orders array if not already exists
-              if (!orders.some(o => o.id === order.id)) {
-                orders.push(order);
-              }
-            } else if (change.type === 'modified') {
-              // Update existing order
-              const index = orders.findIndex(o => o.id === order.id);
-              if (index !== -1) {
-                orders[index] = order;
-              }
-            } else if (change.type === 'removed') {
-              // Remove from orders array
-              const index = orders.findIndex(o => o.id === order.id);
-              if (index !== -1) {
-                orders.splice(index, 1);
-              }
-            }
-          });
-          
-          // Update UI
-          updateStaffDashboardUI();
-          
-          // If customer view showing, update customer orders
-          if (customerView.style.display !== 'none' && currentTableNumber) {
-            loadOrdersForCustomer();
-          }
-        });
-    }
-    
-    function setupTablesListener() {
-      db.collection('tables').onSnapshot(snapshot => {
-        snapshot.docChanges().forEach(change => {
-          const table = {
-            id: change.doc.id,
-            ...change.doc.data()
-          };
-          
-          if (change.type === 'added') {
-            // Add to tables array if not already exists
-            if (!tables.some(t => t.id === table.id)) {
-              tables.push(table);
-            }
-          } else if (change.type === 'modified') {
-            // Update existing table
-            const index = tables.findIndex(t => t.id === table.id);
-            if (index !== -1) {
-              tables[index] = table;
-            }
-          } else if (change.type === 'removed') {
-            // Remove from tables array
-            const index = tables.findIndex(t => t.id === table.id);
-            if (index !== -1) {
-              tables.splice(index, 1);
-            }
-          }
-        });
-        
-        // Update UI
-        updateStaffDashboardUI();
-      });
-    }
-    
-    // Initialization
-    
-    // Load menu items
-    loadMenuItems();
-    
-    // Check if table number is already stored
-    const storedTableNumber = localStorage.getItem('oakCafeTableNumber');
-    if (storedTableNumber) {
-      currentTableNumber = parseInt(storedTableNumber);
-      currentTableNumber_el.textContent = storedTableNumber;
-      changeTableBtn.style.display = 'flex';
-    } else {
-      // Show table selection modal
-      showTableNumberModal();
-    }
-    
-    // Event Listeners
-    
-    // Navigation buttons
-    previousBtn.addEventListener('click', showPreviousItem);
-    nextBtn.addEventListener('click', showNextItem);
-    prevControlBtn.addEventListener('click', showPreviousItem);
-    nextControlBtn.addEventListener('click', showNextItem);
-    
-    // Cart buttons
-    addToCartBtn.addEventListener('click', () => addToCart());
-    cartToggle.addEventListener('click', showCart);
-    closeCart.addEventListener('click', hideCart);
-    checkoutBtn.addEventListener('click', checkout);
-    clearCartBtn.addEventListener('click', clearCart);
-    
-    // User type buttons
-    customerBtn.addEventListener('click', switchToCustomerView);
-    staffBtn.addEventListener('click', () => {
-      if (isStaffLoggedIn) {
-        switchToStaffView();
+        document.getElementById('staff-subtotal').textContent = subtotal.toFixed(2);
+        document.getElementById('service-charge').textContent = serviceAmount.toFixed(2);
+        document.getElementById('tax-amount').textContent = taxAmount.toFixed(2);
+        document.getElementById('discount-amount').textContent = discountAmount.toFixed(2);
+        document.getElementById('staff-total').textContent = total.toFixed(2);
       } else {
-        showLoginModal();
+        totalBreakdown.style.display = 'none';
+      }
+      
+      cartCount.textContent = cart.length;
+      
+      document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          removeFromCart(e.target.dataset.id);
+        });
+      });
+      
+      // Update checkout button text
+      checkoutBtn.querySelector('.checkout-text').textContent = translations[currentLanguage].confirmOrder;
+    }
+
+    function updateEstimatedTime() {
+      const t = translations[currentLanguage];
+      estimatedTimeEl.textContent = t.estimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+      if (staffEstimatedTimeEl) {
+        staffEstimatedTimeEl.textContent = t.currentEstimatedTime.replace('{time}', `${estimatedTime}-${estimatedTime + 5}`);
+      }
+    }
+
+    function renderTablesOverview() {
+      tablesGrid.innerHTML = '';
+      
+      if (occupiedTables.size === 0) {
+        tablesGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 'No occupied tables'}</p>`;
+        return;
+      }
+      
+      // Convert Set to array and sort
+      const sortedTables = Array.from(occupiedTables).sort((a, b) => a - b);
+      
+      sortedTables.forEach(tableNum => {
+        const tableData = tableDetails[tableNum];
+        const tableEl = document.createElement('div');
+        tableEl.className = `table-item ${tableData ? 'occupied' : ''}`;
+        tableEl.onclick = () => showTableDetails(tableNum);
+        
+        let statusText = currentLanguage === 'ar' ? 'متاحة' : 'Available';
+        let statusClass = '';
+        
+        if (tableData) {
+          // Find the most urgent order status for this table
+          const hasPending = tableData.orders.some(o => o.status === 'pending');
+          const hasPreparing = tableData.orders.some(o => o.status === 'preparing');
+          
+          if (hasPending) {
+            statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
+            statusClass = 'status-pending';
+          } else if (hasPreparing) {
+            statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
+            statusClass = 'status-preparing';
+          } else {
+            statusText = currentLanguage === 'ar' ? 'جاهزة' : 'Ready';
+            statusClass = 'status-ready';
+          }
+        }
+        
+        tableEl.innerHTML = `
+          <div class="table-number">${tableNum}</div>
+          <div class="table-status ${statusClass}">${statusText}</div>
+          <div style="font-size: 0.7rem; margin-top: 3px;">
+            ${tableData ? tableData.orders.length + (currentLanguage === 'ar' ? ' طلب' : ' order(s)') : ''}
+          </div>
+        `;
+        
+        tablesGrid.appendChild(tableEl);
+      });
+    }
+
+    function showTableDetails(tableNum) {
+      const tableData = tableDetails[tableNum];
+      if (!tableData) return;
+      
+      const t = translations[currentLanguage];
+      tableDetailsTitle.textContent = t.tableDetails;
+      tableOrdersList.innerHTML = '';
+      
+      // Group orders by status
+      const ordersByStatus = {
+        pending: [],
+        preparing: [],
+        ready: []
+      };
+      
+      tableData.orders.forEach(order => {
+        ordersByStatus[order.status].push(order);
+      });
+      
+      // Render orders by status
+      ['pending', 'preparing', 'ready'].forEach(status => {
+        if (ordersByStatus[status].length > 0) {
+          // Add status header
+          const statusHeader = document.createElement('div');
+          statusHeader.className = 'status-header';
+          statusHeader.style.color = status === 'pending' ? '#FFC107' : 
+                                   status === 'preparing' ? '#2196F3' : '#4CAF50';
+          statusHeader.textContent = `${status.toUpperCase()} (${ordersByStatus[status].length})`;
+          tableOrdersList.appendChild(statusHeader);
+          
+          // Add orders
+          ordersByStatus[status].forEach(order => {
+            const orderEl = document.createElement('div');
+            orderEl.className = 'table-order-item';
+            
+            orderEl.innerHTML = `
+              <div class="table-order-id">
+                ${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id}
+                <span class="table-order-status status-${order.status}">${status.toUpperCase()}</span>
+              </div>
+              <div style="color: var(--light-cream); font-size: 0.8rem; margin: 5px 0;">
+                ${currentLanguage === 'ar' ? 'مقدر:' : 'Estimated:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'mins'}
+              </div>
+              <div class="table-order-items">
+                ${order.items.map(item => {
+                  let extrasText = '';
+                  if (item.extras && item.extras.length > 0) {
+                    extrasText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
+                    </span>`;
+                  }
+                  
+                  let notesText = '';
+                  if (item.notes) {
+                    notesText = `<span style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
+                    </span>`;
+                  }
+                  
+                  return `
+                    <div class="table-order-item-row">
+                      <span>${item.title} ${extrasText} ${notesText}</span>
+                      <span>${item.price.toFixed(2)} JD</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div style="text-align: right; font-weight: bold; color: var(--gold); margin-top: 5px;">
+                ${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${order.total.toFixed(2)} JD
+              </div>
+            `;
+            
+            tableOrdersList.appendChild(orderEl);
+          });
+        }
+      });
+      
+      tableDetailsModal.style.display = 'flex';
+    }
+
+    function renderOrders() {
+      ordersList.innerHTML = '';
+      
+      if (orders.length === 0) {
+        ordersList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
+        return;
+      }
+
+      // Filter orders based on staff's table assignment
+      let filteredOrders = orders;
+      if (currentStaff && STAFF_ACCOUNTS[currentStaff]) {
+        const staffTables = STAFF_ACCOUNTS[currentStaff].tables;
+        filteredOrders = orders.filter(order => 
+          order.tableNumber >= staffTables[0] && order.tableNumber <= staffTables[1]
+        );
+      }
+
+      // Group orders by status
+      const ordersByStatus = {
+        pending: [],
+        preparing: [],
+        ready: [],
+        completed: []
+      };
+
+      filteredOrders.forEach(order => {
+        ordersByStatus[order.status].push(order);
+      });
+
+      // Render each status group with a header
+      ['pending', 'preparing', 'ready', 'completed'].forEach(status => {
+        if (ordersByStatus[status].length > 0) {
+          // Add status header
+          const statusHeader = document.createElement('div');
+          statusHeader.className = 'status-header';
+          statusHeader.style.color = status === 'pending' ? '#FFC107' : 
+                                   status === 'preparing' ? '#2196F3' :
+                                   status === 'ready' ? '#4CAF50' : '#9E9E9E';
+          statusHeader.textContent = `${status.toUpperCase()} (${ordersByStatus[status].length})`;
+          ordersList.appendChild(statusHeader);
+
+          // Add orders for this status
+          ordersByStatus[status].forEach(order => {
+            const orderEl = document.createElement('div');
+            orderEl.className = 'order-card';
+            
+            // Create buttons with proper event handlers
+            const preparingBtn = document.createElement('button');
+            preparingBtn.className = 'action-btn';
+            preparingBtn.style.background = '#2196F3';
+            preparingBtn.style.color = 'white';
+            preparingBtn.textContent = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
+            preparingBtn.onclick = () => updateOrderStatus(order.id, 'preparing');
+            
+            const readyBtn = document.createElement('button');
+            readyBtn.className = 'action-btn';
+            readyBtn.style.background = '#4CAF50';
+            readyBtn.style.color = 'white';
+            readyBtn.textContent = currentLanguage === 'ar' ? 'جاهزة' : 'Ready';
+            readyBtn.onclick = () => updateOrderStatus(order.id, 'ready');
+            
+            const completeBtn = document.createElement('button');
+            completeBtn.className = 'action-btn';
+            completeBtn.style.background = '#9E9E9E';
+            completeBtn.style.color = 'white';
+            completeBtn.textContent = currentLanguage === 'ar' ? 'مكتملة' : 'Complete';
+            completeBtn.onclick = () => updateOrderStatus(order.id, 'completed');
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'action-btn delete-order';
+            deleteBtn.textContent = currentLanguage === 'ar' ? 'حذف الطلب' : 'DELETE ORDER';
+            deleteBtn.onclick = () => deleteOrder(order.id);
+            
+            // Create actions container
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'order-actions';
+            
+            // Only show relevant buttons based on current status
+            if (order.status === 'pending') {
+              actionsDiv.appendChild(preparingBtn);
+              actionsDiv.appendChild(deleteBtn);
+            } else if (order.status === 'preparing') {
+              actionsDiv.appendChild(readyBtn);
+            } else if (order.status === 'ready') {
+              actionsDiv.appendChild(completeBtn);
+            }
+            
+            // Build order card
+            orderEl.innerHTML = `
+              <div class="order-header">
+                <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id} (${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${order.tableNumber})</div>
+                <div class="order-status status-${order.status}">${status.toUpperCase()}</div>
+              </div>
+              <div style="color: var(--light-cream); font-size: 0.8rem; margin-bottom: 5px;">
+                ${currentLanguage === 'ar' ? 'الوقت المقدر:' : 'Estimated time:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'minutes'}
+              </div>
+              <div class="order-items">
+                ${order.items.map(item => {
+                  let extrasText = '';
+                  if (item.extras && item.extras.length > 0) {
+                    extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
+                    </div>`;
+                  }
+                  
+                  let notesText = '';
+                  if (item.notes) {
+                    notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                      (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
+                    </div>`;
+                  }
+                  
+                  return `
+                    <div class="order-item">
+                      <span>${item.title} ${extrasText} ${notesText}</span>
+                      <span>${item.price.toFixed(2)} JD</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+              <div style="text-align: right; font-weight: bold; color: var(--gold);">
+                ${currentLanguage === 'ar' ? 'الإجمالي:' : 'Total:'} ${order.total.toFixed(2)} JD
+              </div>
+            `;
+            
+            // Append dynamically created buttons
+            orderEl.appendChild(actionsDiv);
+            
+            // Show delete button for all statuses except completed
+            if (order.status !== 'completed') {
+              orderEl.appendChild(deleteBtn);
+            }
+            
+            ordersList.appendChild(orderEl);
+          });
+        }
+      });
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        // Find the document that contains this order ID
+        const querySnapshot = await db.collection("orders")
+          .where("id", "==", orderId)
+          .limit(1)
+          .get();
+
+        if (querySnapshot.empty) {
+          throw new Error("Order not found");
+        }
+
+        // Get the actual document reference
+        const docRef = querySnapshot.docs[0].ref;
+        
+        await docRef.update({ 
+          status: status,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+
+        // If order is completed, handle accordingly
+        if (status === 'completed') {
+          const orderData = querySnapshot.docs[0].data();
+          if (orderData.tableNumber) {
+            releaseTable(orderData.tableNumber);
+          }
+          
+          // Schedule deletion after 5 minutes (300000 milliseconds)
+          setTimeout(async () => {
+            try {
+              await docRef.delete();
+              console.log(`Order #${orderId} automatically deleted after completion`);
+            } catch (error) {
+              console.error("Error deleting completed order:", error);
+            }
+          }, 300000); // 5 minutes = 300000 milliseconds
+        }
+        
+        // Update notification
+        const statusMessages = {
+          preparing: currentLanguage === 'ar' ? 
+            `طلبك #${orderId} قيد التحضير` : 
+            `Your order #${orderId} is being prepared`,
+          ready: currentLanguage === 'ar' ?
+            `طلبك #${orderId} جاهز!` :
+            `Your order #${orderId} is ready!`,
+          completed: currentLanguage === 'ar' ?
+            `طلبك #${orderId} تم إكماله` :
+            `Your order #${orderId} has been completed`
+        };
+        
+        if (statusMessages[status]) {
+          showOrderStatus(
+            statusMessages[status],
+            currentLanguage === 'ar' ? 'تحديث الطلب' : 'ORDER UPDATE'
+          );
+        }
+        
+      } catch (error) {
+        console.error("Update error:", error);
+        showOrderStatus(
+          error.message.includes("not found") ? 
+            (currentLanguage === 'ar' ? "الطلب غير موجود" : "Order not found") : 
+            (currentLanguage === 'ar' ? "فشل التحديث. حاول مرة أخرى." : "Update failed. Try again."),
+          currentLanguage === 'ar' ? "خطأ في التحديث" : "UPDATE ERROR"
+        );
+      }
+    }
+
+    async function deleteOrder(orderId) {
+      const t = translations[currentLanguage];
+      if (!confirm(t.deleteConfirm)) return;
+
+      try {
+        // Find the document containing this order ID
+        const querySnapshot = await db.collection("orders")
+          .where("id", "==", orderId)
+          .limit(1)
+          .get();
+
+        if (querySnapshot.empty) {
+          throw new Error("Order not found");
+        }
+
+        const orderData = querySnapshot.docs[0].data();
+        
+        // Delete using the document reference
+        await querySnapshot.docs[0].ref.delete();
+        
+        // Release the table if it was assigned
+        if (orderData.tableNumber) {
+          releaseTable(orderData.tableNumber);
+        }
+        
+        showOrderStatus(
+          currentLanguage === 'ar' ? `تم حذف الطلب #${orderId}` : `Order #${orderId} deleted`,
+          currentLanguage === 'ar' ? "تم حذف الطلب" : "ORDER DELETED"
+        );
+        
+      } catch (error) {
+        console.error("Delete error:", error);
+        showOrderStatus(
+          error.message.includes("not found") ? 
+            (currentLanguage === 'ar' ? "الطلب غير موجود" : "Order not found") : 
+            (currentLanguage === 'ar' ? "فشل الحذف. حاول مرة أخرى." : "Delete failed. Try again."),
+          currentLanguage === 'ar' ? "خطأ في الحذف" : "DELETE ERROR"
+        );
+      }
+    }
+
+    function renderClientOrders(clientOrdersData) {
+      clientOrdersList.innerHTML = '';
+      
+      if (clientOrdersData.length === 0) {
+        clientOrdersList.innerHTML = `<p style="color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات بعد' : 'No orders yet'}</p>`;
+        return;
+      }
+      
+      clientOrdersData.forEach(order => {
+        const orderEl = document.createElement('div');
+        orderEl.className = 'client-order';
+        orderEl.innerHTML = `
+          <div class="client-order-header">
+            <div class="client-order-id">#${order.id}</div>
+            <div class="client-order-status status-${order.status}">${order.status.toUpperCase()}</div>
+          </div>
+          <div style="color: var(--light-cream); font-size: 0.7rem; margin-bottom: 5px;">
+            ${currentLanguage === 'ar' ? 'طاولة:' : 'Table:'} ${order.tableNumber || (currentLanguage === 'ar' ? 'غير محدد' : 'Not specified')} | 
+            ${currentLanguage === 'ar' ? 'مقدر:' : 'Estimated:'} ${order.estimatedTime || 20}-${(order.estimatedTime || 20) + 5} ${currentLanguage === 'ar' ? 'دقيقة' : 'mins'}
+          </div>
+          <div class="client-order-items">
+            ${order.items.map(item => {
+              let extrasText = '';
+              if (item.extras && item.extras.length > 0) {
+                extrasText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (${currentLanguage === 'ar' ? 'إضافات:' : 'Extras:'} ${item.extras.map(e => e.name).join(', ')})
+                </div>`;
+              }
+              
+              let notesText = '';
+              if (item.notes) {
+                notesText = `<div style="font-size: 0.7rem; color: var(--light-cream);">
+                  (${currentLanguage === 'ar' ? 'ملاحظات:' : 'Notes:'} ${item.notes})
+                </div>`;
+              }
+              
+              return `
+                <div class="client-order-item">
+                  <span>${item.title} ${extrasText} ${notesText}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        clientOrdersList.appendChild(orderEl);
+      });
+    }
+
+    function showOrderStatus(message, title = "ORDER RECEIVED") {
+      const t = translations[currentLanguage];
+      statusTitle.textContent = t[title.toLowerCase().replace(' ', '')] || title;
+      statusMessage.textContent = message;
+      orderStatus.classList.add("active");
+      
+      setTimeout(() => {
+        orderStatus.classList.remove("active");
+      }, 5000);
+    }
+
+    function closeModal() {
+      loginModal.style.display = "none";
+      usernameInput.value = "";
+      passwordInput.value = "";
+    }
+
+    function closeDetailsModal() {
+      tableDetailsModal.style.display = "none";
+    }
+
+    // ==================== ADMIN FUNCTIONS ====================
+    function switchAdminTab(tabId) {
+      activeAdminTab = tabId;
+      
+      // Update tabs
+      adminTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabId);
+      });
+      
+      // Update content
+      adminTabContents.forEach(content => {
+        content.classList.toggle('active', content.id === `${tabId}-tab`);
+      });
+      
+      // Render content if needed
+      if (tabId === 'orders') {
+        renderAdminOrders();
+      }
+    }
+
+    function filterAdminOrders(filter) {
+      adminFilterBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
+      
+      renderAdminOrders();
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    document.addEventListener('DOMContentLoaded', initialize);
+
+    // Button event listeners
+    addToCartBtn.addEventListener('click', addToCart);
+    checkoutBtn.addEventListener('click', checkout);
+    closeStatusBtn.addEventListener('click', () => orderStatus.classList.remove('active'));
+    cartToggle.addEventListener('click', () => cartPanel.classList.toggle('active'));
+    closeCartBtn.addEventListener('click', () => cartPanel.classList.remove('active'));
+    viewOrdersBtn.addEventListener('click', () => {
+      clientOrders.classList.toggle('active');
+      const t = translations[currentLanguage];
+      viewOrdersBtn.textContent = clientOrders.classList.contains('active') ? 
+        t.hideOrders : t.viewOrders;
+    });
+    applyDiscountBtn.addEventListener('click', applyDiscount);
+    discountCodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applyDiscount();
+    });
+    closeDetailsBtn.addEventListener('click', closeDetailsModal);
+
+    // Rating star click handlers
+    ratingStars.forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = parseInt(star.dataset.rating);
+        setRating(rating);
+      });
+    });
+
+    // Language switcher
+    langEnBtn.addEventListener('click', () => setLanguage('en'));
+    langArBtn.addEventListener('click', () => setLanguage('ar'));
+
+    // Admin tabs
+    adminTabs.forEach(tab => {
+      tab.addEventListener('click', () => switchAdminTab(tab.dataset.tab));
+    });
+
+    // Admin search and filter
+    adminSearchInput.addEventListener('input', () => renderAdminOrders());
+    adminFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => filterAdminOrders(btn.dataset.filter));
+    });
+
+    // Navigation buttons
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateModel();
       }
     });
-    
-    // Login modal buttons
-    document.getElementById('loginBtn').addEventListener('click', staffLogin);
-    document.getElementById('cancelLoginBtn').addEventListener('click', hideLoginModal);
-    
-    // Table selection
-    changeTableBtn.addEventListener('click', showTableNumberModal);
-    
-    // Staff order filters
-    filterAllOrders.addEventListener('click', () => updateOrdersList());
-    filterPendingOrders.addEventListener('click', () => updateOrdersList('pending'));
-    filterPreparingOrders.addEventListener('click', () => updateOrdersList('preparing'));
-    filterReadyOrders.addEventListener('click', () => updateOrdersList('ready'));
-    
-    // Keyboard Navigation
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') {
-        showPreviousItem();
-      } else if (e.key === 'ArrowRight') {
-        showNextItem();
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < foods.length - 1) {
+        currentIndex++;
+        updateModel();
       }
     });
+
+    // User type switching
+    guestBtn.addEventListener('click', () => {
+      userType = "guest";
+      localStorage.setItem(USER_TYPE_KEY, "guest");
+      localStorage.removeItem(STAFF_TOKEN);
+      localStorage.removeItem(ADMIN_TOKEN);
+      checkAuthState();
+    });
+
+    staffBtn.addEventListener('click', () => {
+      if (userType === "staff") {
+        checkAuthState();
+      } else {
+        loginModalTitle.textContent = currentLanguage === 'ar' ? "تسجيل دخول الموظفين" : "STAFF LOGIN";
+        loginModal.style.display = 'flex';
+      }
+    });
+
+    adminBtn.addEventListener('click', () => {
+      if (userType === "admin") {
+        checkAuthState();
+      } else {
+        loginModalTitle.textContent = currentLanguage === 'ar' ? "تسجيل دخول المدير" : "ADMIN LOGIN";
+        loginModal.style.display = 'flex';
+      }
+    });
+
+    // Initialize cart
+    updateCart();
   </script>
 </body>
 </html>
