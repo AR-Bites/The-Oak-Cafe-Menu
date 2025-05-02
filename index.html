@@ -830,6 +830,27 @@
       border: 1px solid rgba(244, 67, 54, 0.3);
     }
     
+    /* Style for cards when updating */
+    .order-card.updating {
+      position: relative;
+      opacity: 0.8;
+      transform: scale(0.99);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+    
+    .order-card.updating::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.5) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="%23476eff" stop-opacity="0" offset="0%"/><stop stop-color="%23476eff" stop-opacity=".631" offset="63.146%"/><stop stop-color="%23476eff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"><path d="M36 18c0-9.94-8.06-18-18-18" stroke="url(%23a)" stroke-width="2" transform="rotate(319.489 18 18)"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite"/></path></g></g></svg>') center no-repeat;
+      z-index: 2;
+      border-radius: 10px;
+    }
+    
     .order-items {
       margin-bottom: 8px;
     }
@@ -6205,36 +6226,23 @@
         // For staff, check if they're authorized to manage this table
         // Check if this staff member is assigned to this table
         const currentStaffUsername = localStorage.getItem('username');
-        console.log('Current staff username for table release:', currentStaffUsername);
-        
-        // Staff role check
         const staffRole = localStorage.getItem('staffRole');
-        console.log('Current staff role:', staffRole);
         
         let canManageTable = userType === 'admin'; // Admins can manage any table
         
         // Managers can manage any table too
         if (staffRole === 'manager') {
-          console.log('Staff is a manager, can release any table');
           canManageTable = true;
         }
         
         if (userType === 'staff' && currentStaffUsername && !canManageTable) {
-          console.log('Checking staff assignments for', currentStaffUsername);
-          console.log('Available table assignments:', JSON.stringify(tableAssignments));
-          
           const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
-          console.log('Filtered assignments:', JSON.stringify(staffAssignments));
           
           // Check if this table is in any of the assigned ranges
           canManageTable = staffAssignments.some(assignment => {
-            const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
-            console.log(`Table ${tableNumber} in range ${assignment.startTable}-${assignment.endTable}? ${inRange}`);
-            return inRange;
+            return tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
           });
         }
-        
-        console.log(`Can staff release table ${tableNumber}? ${canManageTable}`);
         
         if (!canManageTable) {
           showNotification(
@@ -6249,71 +6257,120 @@
       }
       
       if (occupiedTables.has(tableNumber)) {
-        console.log(`Releasing table ${tableNumber} from occupied set`);
+        // Show loading state in UI first to prevent lag appearance
+        showNotification(
+          currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
+          currentLanguage === 'ar' 
+            ? 'جارٍ تحرير الطاولة...' 
+            : 'Freeing table...',
+          'info',
+          2000 // Auto-close after 2s
+        );
+        
+        // Remove from local tracking immediately for responsive UI
         occupiedTables.delete(tableNumber);
         
         // Remove table details if they exist
         if (tableDetails[tableNumber]) {
-          console.log(`Removing table details for table ${tableNumber}`);
           delete tableDetails[tableNumber];
         }
         
-        // If the app is in Firebase mode, update the table status in Firebase
-        if (db && typeof db.collection === 'function') {
-          console.log(`Updating table ${tableNumber} status in Firebase to free`);
-          
-          // Create a record in tableStatus collection to track table status
-          db.collection('tableStatus').doc(tableNumber.toString()).set({
-            status: 'free',
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedBy: {
-              username: localStorage.getItem('username') || 'system',
-              role: localStorage.getItem('staffRole') || 'system'
-            }
-          })
-          .then(() => {
-            console.log(`Table ${tableNumber} status updated in Firebase successfully`);
-            
-            // Now remove any completed orders for this table
-            return db.collection('orders')
-              .where('tableNumber', '==', tableNumber)
-              .where('status', '==', 'completed')
-              .get();
-          })
-          .then((completedOrders) => {
-            if (!completedOrders || completedOrders.empty) {
-              console.log(`No completed orders to remove for table ${tableNumber}`);
-              return;
-            }
-            
-            console.log(`Found ${completedOrders.docs.length} completed orders to remove for table ${tableNumber}`);
-            
-            // Delete each completed order
-            const batch = db.batch();
-            completedOrders.forEach(doc => {
-              batch.delete(doc.ref);
-            });
-            
-            return batch.commit();
-          })
-          .then(() => {
-            console.log('All completed orders removed successfully');
-          })
-          .catch((error) => {
-            console.error('Error updating table status in Firebase:', error);
-            
-            // Even if Firebase update fails, we continue with the UI update
-            console.log('Continuing with local table release despite Firebase error');
-          });
-        } else {
-          console.log('Firebase not available, skipping database update');
-        }
-        
-        // Update UI if needed
-        console.log('Updating UI displays for table release');
+        // Update UI immediately for responsive experience
         if (userType === 'staff' || userType === 'admin') {
           updateTablesDisplay();
           renderTablesOverview();
+        }
+        
+        // If we have Firebase connection, perform the backend updates in background
+        if (db && typeof db.collection === 'function') {
+          // Use a batch operation for all Firebase updates to improve consistency
+          const batch = db.batch();
+          
+          // First get all orders for this table, regardless of status
+          db.collection('orders')
+            .where('tableNumber', '==', tableNumber)
+            .get()
+            .then((orderDocs) => {
+              if (!orderDocs.empty) {
+                console.log(`Found ${orderDocs.docs.length} orders for table ${tableNumber}`);
+                
+                // Categorize orders by status
+                let pendingOrdersFound = false;
+                
+                orderDocs.forEach(doc => {
+                  const orderData = doc.data();
+                  
+                  if (['pending', 'preparing', 'ready'].includes(orderData.status)) {
+                    // For active orders, mark as cancelled
+                    batch.update(doc.ref, {
+                      status: 'cancelled', 
+                      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                      cancelReason: 'Table released'
+                    });
+                    pendingOrdersFound = true;
+                  } else if (orderData.status === 'completed') {
+                    // Delete completed orders
+                    batch.delete(doc.ref);
+                  }
+                });
+                
+                // Update table status
+                const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
+                batch.set(tableStatusRef, {
+                  status: 'free',
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  updatedBy: {
+                    username: localStorage.getItem('username') || 'system',
+                    role: localStorage.getItem('staffRole') || 'system'
+                  }
+                });
+                
+                // Commit all changes in one batch
+                return batch.commit().then(() => {
+                  console.log('All Firebase updates completed for table release');
+                  
+                  // Only show a success notification if we actually canceled any pending orders
+                  if (pendingOrdersFound) {
+                    showNotification(
+                      currentLanguage === 'ar' ? 'تم تحديث الطلبات' : 'Orders Updated',
+                      currentLanguage === 'ar' 
+                        ? 'تم إلغاء جميع الطلبات النشطة' 
+                        : 'All active orders were cancelled',
+                      'success'
+                    );
+                  }
+                  return true;
+                });
+              } else {
+                // Just update the table status if no orders found
+                const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
+                batch.set(tableStatusRef, {
+                  status: 'free',
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  updatedBy: {
+                    username: localStorage.getItem('username') || 'system',
+                    role: localStorage.getItem('staffRole') || 'system'
+                  }
+                });
+                
+                return batch.commit().then(() => {
+                  console.log('Table status updated in Firebase');
+                  return true;
+                });
+              }
+            })
+            .catch((error) => {
+              console.error('Error during table release:', error);
+              
+              // Show error but don't block UI
+              showNotification(
+                currentLanguage === 'ar' ? 'تحذير' : 'Warning',
+                currentLanguage === 'ar' 
+                  ? 'تم تحرير الطاولة محليًا ولكن قد لا تتم مزامنة التغييرات مع الخادم'
+                  : 'Table freed locally but changes may not sync with server',
+                'warning'
+              );
+            });
         }
         
         return true;
@@ -6324,7 +6381,6 @@
     }
     
     function occupyTable(tableNum) {
-      console.log(`Attempting to occupy table: ${tableNum}`);
       const tableNumber = parseInt(tableNum);
       
       if (!tableNumber || isNaN(tableNumber)) {
@@ -6340,36 +6396,23 @@
       
       // Check if this staff member is assigned to this table
       const currentStaffUsername = localStorage.getItem('username');
-      console.log('Current staff username for table occupation:', currentStaffUsername);
-      
-      // Staff role check
       const staffRole = localStorage.getItem('staffRole');
-      console.log('Current staff role:', staffRole);
       
       let canManageTable = userType === 'admin'; // Admins can manage any table
       
       // Managers can manage any table too
       if (staffRole === 'manager') {
-        console.log('Staff is a manager, can manage any table');
         canManageTable = true;
       }
       
       if (userType === 'staff' && currentStaffUsername && !canManageTable) {
-        console.log('Checking staff assignments for', currentStaffUsername);
-        console.log('Available table assignments:', JSON.stringify(tableAssignments));
-        
         const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
-        console.log('Filtered assignments:', JSON.stringify(staffAssignments));
         
         // Check if this table is in any of the assigned ranges
         canManageTable = staffAssignments.some(assignment => {
-          const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
-          console.log(`Table ${tableNumber} in range ${assignment.startTable}-${assignment.endTable}? ${inRange}`);
-          return inRange;
+          return tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
         });
       }
-      
-      console.log(`Can staff manage table ${tableNumber}? ${canManageTable}`);
       
       if (!canManageTable) {
         showNotification(
@@ -6382,45 +6425,88 @@
         return false;
       }
       
-      // Add table to occupied tables
+      // Show a notification to indicate the action is in progress
+      showNotification(
+        currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
+        currentLanguage === 'ar' 
+          ? `جارٍ تحديث حالة الطاولة ${tableNumber}...` 
+          : `Updating table ${tableNumber} status...`,
+        'info',
+        1500 // Auto-close after 1.5 seconds
+      );
+      
+      // Immediately update the UI for better responsiveness
       occupiedTables.add(tableNumber);
-      console.log(`Added table ${tableNumber} to occupied tables`);
-      console.log('Current occupied tables:', Array.from(occupiedTables));
       
       // Initialize table details if they don't exist
       if (!tableDetails[tableNumber]) {
         tableDetails[tableNumber] = { orders: [] };
       }
       
-      // If the app is in Firebase mode, update the table status in Firebase
-      if (db && typeof db.collection === 'function') {
-        console.log(`Updating table ${tableNumber} status in Firebase to occupied`);
-        
-        // Create a record in tableStatus collection to track table status
-        db.collection('tableStatus').doc(tableNumber.toString()).set({
-          status: 'occupied',
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedBy: {
-            username: currentStaffUsername || 'system',
-            role: localStorage.getItem('staffRole') || 'system'
-          }
-        })
-        .then(() => {
-          console.log(`Table ${tableNumber} status updated in Firebase successfully`);
-        })
-        .catch((error) => {
-          console.error('Error updating table status in Firebase:', error);
-          // Continue with local updates even if Firebase fails
-          console.log('Continuing with local table occupation despite Firebase error');
-        });
-      } else {
-        console.log('Firebase not available, skipping database update');
-      }
-      
-      // Update UI
-      console.log('Updating UI displays for table occupation');
+      // Update UI immediately
       updateTablesDisplay();
       renderTablesOverview();
+      
+      // If the app is in Firebase mode, update the table status in Firebase
+      if (db && typeof db.collection === 'function') {
+        // Check first if the table is already marked as occupied in Firebase
+        db.collection('tableStatus').doc(tableNumber.toString()).get()
+          .then(doc => {
+            // Create a batch for atomic updates
+            const batch = db.batch();
+            
+            // Update the table status
+            const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
+            batch.set(tableStatusRef, {
+              status: 'occupied',
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedBy: {
+                username: currentStaffUsername || 'system',
+                role: localStorage.getItem('staffRole') || 'system'
+              }
+            });
+            
+            // If the table was already occupied, we might want to check for existing orders
+            if (doc.exists && doc.data().status === 'occupied') {
+              // We'll just update the status without modifying any orders
+              console.log(`Table ${tableNumber} was already marked as occupied in Firebase`);
+            }
+            
+            // Commit all changes
+            return batch.commit();
+          })
+          .then(() => {
+            // Show success notification
+            showNotification(
+              currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
+              currentLanguage === 'ar' 
+                ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
+                : `Table ${tableNumber} is now marked as Occupied`,
+              'success'
+            );
+          })
+          .catch(error => {
+            console.error('Error updating table status in Firebase:', error);
+            
+            // Show warning that the local state was updated but the server might be out of sync
+            showNotification(
+              currentLanguage === 'ar' ? 'تحذير' : 'Warning',
+              currentLanguage === 'ar' 
+                ? 'تم تحديث الطاولة محليًا ولكن قد لا تتم مزامنة التغييرات مع الخادم'
+                : 'Table marked as occupied locally but changes may not sync with server',
+              'warning'
+            );
+          });
+      } else {
+        // If no Firebase, just show a success notification
+        showNotification(
+          currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
+          currentLanguage === 'ar' 
+            ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
+            : `Table ${tableNumber} is now marked as Occupied`,
+          'success'
+        );
+      }
       
       return true;
     }
@@ -7111,103 +7197,164 @@
       tableDetailsModal.style.display = 'none';
     }
     
-    async function updateOrderStatus(orderId, newStatus) {
-      try {
-        // Find the order to get table number and staff info
-        const orderDoc = await db.collection('orders').doc(orderId).get();
-        const orderData = orderDoc.data();
-        
-        if (!orderData) {
-          console.error("Order not found");
-          return;
-        }
-        
-        // Get current staff role and username
-        const staffRole = localStorage.getItem('staffRole');
-        const staffUsername = localStorage.getItem('username');
-        const isAdmin = userType === 'admin';
-        
-        // Get staff info for the table
-        const tableStaff = getStaffForTable(orderData.tableNumber);
-        
-        // Only allow order updates if:
-        // 1. Current user is an admin
-        // 2. Current user is the assigned staff for this table
-        // 3. Current user has manager role
-        const isAssignedStaff = tableStaff && staffUsername === tableStaff.username;
-        const isManager = staffRole === 'manager';
-        
-        if (!isAdmin && !isAssignedStaff && !isManager) {
-          showNotification(
-            currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
-            currentLanguage === 'ar' 
-              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
-              : 'Only the assigned staff or manager can change this order status',
-            'error'
-          );
-          return;
-        }
-        
-        // Check if the order already has the new assignedStaff structure
-        const updateData = {
-          status: newStatus,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          staffId: currentStaff
-        };
-        
-        // Add assigned staff info to the update
-        if (tableStaff) {
-          if (orderData.assignedStaff) {
-            // Use the new structure if it exists
-            updateData.assignedStaff = {
-              name: tableStaff.name,
-              username: tableStaff.username,
-              role: tableStaff.role
-            };
-          } else {
-            // Fallback to old structure for compatibility
-            updateData.assignedStaffName = tableStaff.name;
-            updateData.assignedStaffUsername = tableStaff.username;
-            updateData.assignedStaffRole = tableStaff.role;
-          }
-        }
-        
-        // If order is completed, add completion time to calculate deletion time
-        if (newStatus === 'completed') {
-          updateData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
-          // For completed orders, we need to show rating for users
-          if (orderData.tableNumber === tableNumber) {
-            // If this is the user's table, show rating dialog after status update
-            setTimeout(() => {
-              showRatingDialog(orderId);
-            }, 1000);
-          }
-        }
-        
-        // Update order status with staff assignment info
-        await db.collection('orders').doc(orderId).update(updateData);
-        
-        // If order is completed or cancelled, release the table
-        if (newStatus === 'completed' || newStatus === 'cancelled') {
-          releaseTable(orderData.tableNumber);
-        }
-        
-        // Show notification for staff
+    function updateOrderStatus(orderId, newStatus) {
+      // Immediately show "updating" notification to give feedback
+      const targetCardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
+      if (targetCardElement) {
+        targetCardElement.classList.add('updating');
+      }
+      
+      // Get temporary status label for immediate feedback
+      let tempStatusText = currentLanguage === 'ar' ? 
+        getStatusTranslation(newStatus) : newStatus;
+      
+      // Show immediate notification of status change
+      if (newStatus === 'cancelled') {
         showNotification(
-          currentLanguage === 'ar' ? 'تم تحديث الطلب' : 'Order Updated',
+          currentLanguage === 'ar' ? 'جارٍ الإلغاء' : 'Cancelling',
           currentLanguage === 'ar' 
-            ? `تم تحديث حالة الطلب ${orderId} إلى ${getStatusTranslation(newStatus)}` 
-            : `Order ${orderId} updated to ${newStatus}`,
-          'success'
+            ? `جارٍ إلغاء الطلب...` 
+            : `Cancelling order...`,
+          'info',
+          1500 // Auto-hide after 1.5 seconds
         );
-      } catch (error) {
-        console.error("Error updating order:", error);
+      } else {
         showNotification(
-          currentLanguage === 'ar' ? 'خطأ في تحديث الطلب' : 'Order Update Failed',
-          currentLanguage === 'ar' ? "حدث خطأ أثناء تحديث الطلب" : "There was an error while updating the order",
-          'error'
+          currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
+          currentLanguage === 'ar' 
+            ? `جارٍ تحديث حالة الطلب إلى ${tempStatusText}...` 
+            : `Updating order to ${tempStatusText}...`,
+          'info',
+          1500 // Auto-hide after 1.5 seconds
         );
       }
+      
+      // Begin the actual database update in background
+      (async () => {
+        try {
+          // Find the order to get table number and staff info
+          const orderDoc = await db.collection('orders').doc(orderId).get();
+          const orderData = orderDoc.data();
+          
+          if (!orderData) {
+            console.error("Order not found");
+            return;
+          }
+          
+          // Get current staff role and username
+          const staffRole = localStorage.getItem('staffRole');
+          const staffUsername = localStorage.getItem('username');
+          const isAdmin = userType === 'admin';
+          
+          // Get staff info for the table
+          const tableStaff = getStaffForTable(orderData.tableNumber);
+          
+          // Only allow order updates if:
+          // 1. Current user is an admin
+          // 2. Current user is the assigned staff for this table
+          // 3. Current user has manager role
+          const isAssignedStaff = tableStaff && staffUsername === tableStaff.username;
+          const isManager = staffRole === 'manager';
+          
+          if (!isAdmin && !isAssignedStaff && !isManager) {
+            showNotification(
+              currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
+              currentLanguage === 'ar' 
+                ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
+                : 'Only the assigned staff or manager can change this order status',
+              'error'
+            );
+            return;
+          }
+          
+          // Update local display immediately for better UX
+          if (targetCardElement) {
+            const statusElement = targetCardElement.querySelector('.order-status');
+            if (statusElement) {
+              // Update the class
+              statusElement.className = `order-status status-${newStatus}`;
+              // Update the text
+              statusElement.textContent = tempStatusText;
+            }
+            
+            // Hide actions that don't make sense anymore
+            if (newStatus === 'cancelled' || newStatus === 'completed') {
+              const actionsElement = targetCardElement.querySelector('.order-actions');
+              if (actionsElement) {
+                actionsElement.innerHTML = `<div class="order-status-info">${
+                  currentLanguage === 'ar' ? 
+                    (newStatus === 'cancelled' ? 'تم إلغاء الطلب' : 'تم إكمال الطلب') :
+                    (newStatus === 'cancelled' ? 'Order cancelled' : 'Order completed')
+                }</div>`;
+              }
+            }
+            
+            // Remove the updating style
+            targetCardElement.classList.remove('updating');
+          }
+          
+          // Check if the order already has the new assignedStaff structure
+          const updateData = {
+            status: newStatus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            staffId: currentStaff
+          };
+          
+          // Add assigned staff info to the update
+          if (tableStaff) {
+            if (orderData.assignedStaff) {
+              // Use the new structure if it exists
+              updateData.assignedStaff = {
+                name: tableStaff.name,
+                username: tableStaff.username,
+                role: tableStaff.role
+              };
+            } else {
+              // Fallback to old structure for compatibility
+              updateData.assignedStaffName = tableStaff.name;
+              updateData.assignedStaffUsername = tableStaff.username;
+              updateData.assignedStaffRole = tableStaff.role;
+            }
+          }
+          
+          // If order is completed, add completion time to calculate deletion time
+          if (newStatus === 'completed') {
+            updateData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
+            // For completed orders, we need to show rating for users
+            if (orderData.tableNumber === tableNumber) {
+              // If this is the user's table, show rating dialog after status update
+              setTimeout(() => {
+                showRatingDialog(orderId);
+              }, 1000);
+            }
+          }
+          
+          // Update order status with staff assignment info
+          await db.collection('orders').doc(orderId).update(updateData);
+          
+          // If order is completed or cancelled, release the table
+          if (newStatus === 'completed' || newStatus === 'cancelled') {
+            // No need to wait for this, let it happen in background
+            releaseTable(orderData.tableNumber);
+          }
+          
+          // Show success notification
+          showNotification(
+            currentLanguage === 'ar' ? 'تم تحديث الطلب' : 'Order Updated',
+            currentLanguage === 'ar' 
+              ? `تم تحديث حالة الطلب ${orderId} إلى ${getStatusTranslation(newStatus)}` 
+              : `Order ${orderId} updated to ${newStatus}`,
+            'success'
+          );
+        } catch (error) {
+          console.error("Error updating order:", error);
+          showNotification(
+            currentLanguage === 'ar' ? 'خطأ في تحديث الطلب' : 'Order Update Failed',
+            currentLanguage === 'ar' ? "حدث خطأ أثناء تحديث الطلب" : "There was an error while updating the order",
+            'error'
+          );
+        }
+      })();
     }
     
     function getStatusTranslation(status) {
