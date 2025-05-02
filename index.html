@@ -377,7 +377,8 @@
       border-radius: 50px;
       font-weight: bold;
       transition: all 0.3s ease;
-      min-width: 100px;
+      min-width: 120px;
+      min-height: 50px;
       font-size: 0.95rem;
       letter-spacing: 0.5px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -404,6 +405,13 @@
     .nav-arrow-btn:active {
       transform: translateY(1px);
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    
+    .nav-arrow-container {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      gap: 15px;
     }
     
     .nav-arrow-btn i {
@@ -2163,15 +2171,12 @@
       
       /* Improved navigation for mobile with larger tap targets */
       .nav-buttons {
-        gap: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
         padding: 15px;
         width: 100%;
         max-width: none;
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto;
-        grid-template-areas:
-          "add"
-          "arrows";
       }
       
       .nav-buttons button {
@@ -2184,7 +2189,6 @@
       
       /* Better layout for mobile navigation */
       .add-to-cart {
-        grid-area: add;
         width: 100%;
         padding: 16px;
         font-size: 1.1rem;
@@ -2193,34 +2197,31 @@
         background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
         box-shadow: 0 4px 12px rgba(0,0,0,0.25);
         order: -1;
+        min-height: 56px;
       }
       
-      /* Create a container for prev/next buttons */
-      .nav-buttons::after {
-        content: "";
-        display: block;
-        grid-area: arrows;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+      /* Style for the navigation arrow container */
+      .nav-arrow-container {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
         gap: 10px;
       }
       
       /* Position prev/next buttons in the container */
       #prev-btn, #next-btn {
-        grid-row: 2;
-        margin-top: 10px;
+        flex: 1;
+        margin-top: 5px;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       
-      #prev-btn {
-        grid-column: 1;
-        padding: 15px 10px;
-        justify-self: end;
-      }
-      
-      #next-btn {
-        grid-column: 2;
-        padding: 15px 10px;
-        justify-self: start;
+      /* Add visual feedback for touch */
+      #prev-btn:active, #next-btn:active {
+        transform: scale(0.98);
+        background: rgba(245, 245, 220, 0.2);
       }
       
       /* Make the navigation buttons more visible on mobile */
@@ -2703,13 +2704,15 @@
         <p id="food-price">Price: $14.99</p>
         
         <div class="nav-buttons">
-          <button onclick="showPreviousItem()" id="prev-btn" class="nav-arrow-btn">
-            <i class="fas fa-chevron-left"></i> PREV
-          </button>
           <button onclick="addToCart()" class="add-to-cart" id="add-cart-btn">+ ADD TO CART</button>
-          <button onclick="showNextItem()" id="next-btn" class="nav-arrow-btn">
-            NEXT <i class="fas fa-chevron-right"></i>
-          </button>
+          <div class="nav-arrow-container">
+            <button onclick="showPreviousItem()" id="prev-btn" class="nav-arrow-btn">
+              <i class="fas fa-chevron-left"></i> PREV
+            </button>
+            <button onclick="showNextItem()" id="next-btn" class="nav-arrow-btn">
+              NEXT <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
         
         <div class="extras-section">
@@ -3100,7 +3103,7 @@
           <button onclick="confirmTableNumber()" class="confirm-btn" id="confirm-table-btn">
             <i class="fas fa-check-circle"></i> <span>CONFIRM</span>
           </button>
-          <button onclick="closeTableModal()" class="cancel-btn" id="cancel-table-btn">
+          <button onclick="closeTableModal(true)" class="cancel-btn" id="cancel-table-btn">
             <i class="fas fa-times-circle"></i> <span>CANCEL</span>
           </button>
         </div>
@@ -3753,6 +3756,25 @@
         showTableModal();
       }
       
+      // Set initial category to "All" by default
+      currentCategory = 'all';
+      currentMainCategory = 'all';
+      
+      // Set "All" main category button as active
+      const allMainCategoryBtn = document.getElementById('all-main-category-btn');
+      if (allMainCategoryBtn) {
+        document.querySelectorAll('.main-category-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        allMainCategoryBtn.classList.add('active');
+      }
+      
+      // Hide subcategories when "All" is selected
+      const subCategoriesContainer = document.getElementById('sub-categories');
+      if (subCategoriesContainer) {
+        subCategoriesContainer.style.display = 'none';
+      }
+      
       // Filter food items and display the first one
       filterFoodItems();
       updateFoodDisplay();
@@ -4020,6 +4042,12 @@
           followInstagram: "تابعنا على إنستغرام",
           copyright: "© 2023 ذا أوك كافيه. جميع الحقوق محفوظة.",
           loadingText: "جاري تحميل تجربة الواقع المعزز...",
+          // Category buttons
+          allItems: "جميع العناصر",
+          hotFood: "طعام ساخن",
+          coldFood: "طعام بارد",
+          drinks: "مشروبات",
+          desserts: "حلويات",
           // Advanced Analytics translations
           advancedAnalytics: "تحليلات متقدمة",
           analyticsTitle: "لوحة التحليلات المتقدمة",
@@ -4215,10 +4243,22 @@
       const drinksMainCategoryBtn = document.getElementById('drinks-main-category-btn');
       const dessertsMainCategoryBtn = document.getElementById('desserts-main-category-btn');
       
-      if (allMainCategoryBtn) allMainCategoryBtn.textContent = currentLanguage === 'ar' ? 'الكل' : 'All';
-      if (foodMainCategoryBtn) foodMainCategoryBtn.textContent = currentLanguage === 'ar' ? 'طعام' : 'Food';
-      if (drinksMainCategoryBtn) drinksMainCategoryBtn.textContent = currentLanguage === 'ar' ? 'مشروبات' : 'Drinks';
-      if (dessertsMainCategoryBtn) dessertsMainCategoryBtn.textContent = currentLanguage === 'ar' ? 'حلويات' : 'Desserts';
+      if (allMainCategoryBtn) {
+        const allBtn = allMainCategoryBtn.querySelector('span');
+        if (allBtn) allBtn.textContent = currentLanguage === 'ar' ? 'الكل' : 'All';
+      }
+      if (foodMainCategoryBtn) {
+        const foodBtn = foodMainCategoryBtn.querySelector('span');
+        if (foodBtn) foodBtn.textContent = currentLanguage === 'ar' ? 'طعام' : 'Food';
+      }
+      if (drinksMainCategoryBtn) {
+        const drinksBtn = drinksMainCategoryBtn.querySelector('span');
+        if (drinksBtn) drinksBtn.textContent = currentLanguage === 'ar' ? 'مشروبات' : 'Drinks';
+      }
+      if (dessertsMainCategoryBtn) {
+        const dessertsBtn = dessertsMainCategoryBtn.querySelector('span');
+        if (dessertsBtn) dessertsBtn.textContent = currentLanguage === 'ar' ? 'حلويات' : 'Desserts';
+      }
       
       // Update food subcategory buttons
       const allFoodBtn = document.getElementById('all-food-btn');
@@ -4258,6 +4298,9 @@
       
       // Update table input placeholder
       tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم الطاولة' : 'Enter table number';
+      
+      // Update special instructions placeholder
+      itemNotes.placeholder = currentLanguage === 'ar' ? 'أي طلبات خاصة...' : 'Any special requests...';
     }
     
     // Food catalog display
@@ -4535,9 +4578,20 @@
     
     // Cart System
     function addToCart() {
-      // If no table number set, show modal
+      // If no table number set, show modal with a clear message
       if (userType === "guest" && !tableNumber) {
-        showTableModal();
+        // Show notification to explain the user needs to enter a table number
+        showNotification(
+          currentLanguage === 'ar' 
+            ? 'يرجى إدخال رقم الطاولة لإضافة عناصر إلى سلة التسوق' 
+            : 'Please enter your table number to add items to cart', 
+          'warning'
+        );
+        
+        setTimeout(() => {
+          // Show table modal with a flag to show extended message
+          showTableModal(true);
+        }, 500);
         return;
       }
       
@@ -4838,11 +4892,48 @@
     }
     
     // Load table number if valid
-    function showTableModal() {
+    function showTableModal(fromCartAction = false) {
       tableNumberModal.style.display = 'flex';
       
-      // Reset the input container (hidden initially)
-      tableNumberInputContainer.style.display = 'none';
+      // Enhanced message if coming from cart action
+      if (fromCartAction) {
+        const tableNumberTitle = document.getElementById('table-number-title');
+        if (tableNumberTitle) {
+          tableNumberTitle.innerHTML = currentLanguage === 'ar' 
+            ? '<strong>أدخل رقم الطاولة لإتمام الطلب</strong>' 
+            : '<strong>Enter Table Number to Complete Order</strong>';
+        }
+        
+        // Show input field immediately when called from cart
+        document.querySelector('.user-option-buttons').style.display = 'none';
+        tableNumberInputContainer.style.display = 'block';
+        
+        // Add a back button to cancel table input and return to order
+        const tableActionButtons = document.querySelector('.table-action-buttons');
+        
+        // Update button text to make it clearer
+        if (tableActionButtons) {
+          const confirmButton = document.getElementById('confirm-table-btn');
+          const cancelButton = document.getElementById('cancel-table-btn');
+          
+          if (confirmButton) {
+            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد وإتمام الطلب' : 'CONFIRM & PLACE ORDER';
+          }
+          
+          if (cancelButton) {
+            cancelButton.textContent = currentLanguage === 'ar' ? 'إلغاء وعودة' : 'CANCEL & GO BACK';
+            cancelButton.style.display = 'inline-block';
+          }
+        }
+        
+        // Focus the input field
+        setTimeout(() => {
+          tableNumberInput.focus();
+        }, 100);
+      } else {
+        // Reset the input container (hidden initially)
+        tableNumberInputContainer.style.display = 'none';
+      }
       
       // Check if staff login is active
       const staffBypassSection = document.getElementById('staff-bypass-section');
@@ -5129,8 +5220,35 @@
       }
     }
     
-    function closeTableModal() {
-      tableNumberModal.style.display = 'none';
+    function closeTableModal(fromCancel = false) {
+      // Fade out effect for smoother transition
+      tableNumberModal.style.opacity = '0';
+      
+      // Reset UI elements after a short delay
+      setTimeout(() => {
+        tableNumberModal.style.display = 'none';
+        tableNumberModal.style.opacity = '1'; // Reset opacity for next time
+        
+        // Reset input field and buttons
+        tableNumberInput.value = '';
+        
+        // If this was called from cancel button in checkout flow, show feedback
+        if (fromCancel) {
+          showNotification(
+            currentLanguage === 'ar' ? 'تم الإلغاء' : 'Cancelled',
+            currentLanguage === 'ar' ? 'تم إلغاء عملية إدخال رقم الطاولة' : 'Table number entry cancelled',
+            'info'
+          );
+        }
+        
+        // Reset button states
+        const confirmButton = document.getElementById('confirm-table-btn');
+        if (confirmButton) {
+          confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد' : 'CONFIRM';
+          confirmButton.disabled = false;
+          confirmButton.style.background = '';
+        }
+      }, 300);
     }
     
     // Checkout
@@ -5154,7 +5272,7 @@
           
           // Slight delay before showing table modal for better UX
           setTimeout(() => {
-            showTableModal();
+            showTableModal(true);
           }, 500);
           return;
         }
