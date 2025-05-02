@@ -5679,6 +5679,7 @@
         localStorage.setItem(STAFF_TOKEN, "true");
         localStorage.setItem("staffName", account.name);
         localStorage.setItem("staffRole", account.role);
+        localStorage.setItem("username", account.username);  // Store username for table assignment lookups
         closeModal();
         checkAuthState();
         showNotification(
@@ -6144,19 +6145,84 @@
     
     // Release a table (used when order is completed or cancelled)
     function releaseTable(tableNum) {
-      if (occupiedTables.has(tableNum)) {
-        occupiedTables.delete(tableNum);
+      const tableNumber = parseInt(tableNum);
+      console.log(`Attempting to release table ${tableNumber}`);
+      
+      if (isNaN(tableNumber)) {
+        console.error('Invalid table number for release');
+        return false;
+      }
+      
+      // For non-staff/admin users, we need to verify they're authorized to release tables
+      if (userType !== 'staff' && userType !== 'admin') {
+        // Only allow guest to release a table if it's their table
+        if (userType === 'guest' && tableNumber !== parseInt(tableNumber)) {
+          console.error('Guests can only release their own table');
+          return false;
+        }
+      } else {
+        // For staff, check if they're authorized to manage this table
+        // Check if this staff member is assigned to this table
+        const currentStaffUsername = localStorage.getItem('username');
+        console.log('Current staff username for table release:', currentStaffUsername);
+        
+        // Staff role check
+        const staffRole = localStorage.getItem('staffRole');
+        console.log('Current staff role:', staffRole);
+        
+        let canManageTable = userType === 'admin'; // Admins can manage any table
+        
+        // Managers can manage any table too
+        if (staffRole === 'manager') {
+          console.log('Staff is a manager, can release any table');
+          canManageTable = true;
+        }
+        
+        if (userType === 'staff' && currentStaffUsername && !canManageTable) {
+          console.log('Checking staff assignments for', currentStaffUsername);
+          console.log('Available table assignments:', JSON.stringify(tableAssignments));
+          
+          const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+          console.log('Filtered assignments:', JSON.stringify(staffAssignments));
+          
+          // Check if this table is in any of the assigned ranges
+          canManageTable = staffAssignments.some(assignment => {
+            const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+            console.log(`Table ${tableNumber} in range ${assignment.startTable}-${assignment.endTable}? ${inRange}`);
+            return inRange;
+          });
+        }
+        
+        console.log(`Can staff release table ${tableNumber}? ${canManageTable}`);
+        
+        if (!canManageTable) {
+          showNotification(
+            currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
+            currentLanguage === 'ar' 
+              ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
+              : 'You cannot manage this table as it is not assigned to you',
+            'error'
+          );
+          return false;
+        }
+      }
+      
+      if (occupiedTables.has(tableNumber)) {
+        console.log(`Releasing table ${tableNumber} from occupied set`);
+        occupiedTables.delete(tableNumber);
         
         // Remove table details if they exist
-        if (tableDetails[tableNum]) {
-          delete tableDetails[tableNum];
+        if (tableDetails[tableNumber]) {
+          console.log(`Removing table details for table ${tableNumber}`);
+          delete tableDetails[tableNumber];
         }
         
         // If the app is in Firebase mode, update the table status in Firebase
-        if (db) {
+        if (db && typeof db.collection === 'function') {
           try {
+            console.log(`Updating table ${tableNumber} status in Firebase to free`);
             // Create a record in tableStatus collection to track table status
-            db.collection('tableStatus').doc(tableNum.toString()).set({
+            db.collection('tableStatus').doc(tableNumber.toString()).set({
               status: 'free',
               updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
               updatedBy: {
@@ -6167,19 +6233,26 @@
           } catch (error) {
             console.error('Error updating table status in Firebase:', error);
           }
+        } else {
+          console.log('Firebase not available, skipping database update');
         }
         
         // Update UI if needed
+        console.log('Updating UI displays for table release');
         if (userType === 'staff' || userType === 'admin') {
           updateTablesDisplay();
+          renderTablesOverview();
         }
         
         return true;
+      } else {
+        console.log(`Table ${tableNumber} not found in occupied tables`);
+        return false;
       }
-      return false;
     }
     
     function occupyTable(tableNum) {
+      console.log(`Attempting to occupy table: ${tableNum}`);
       const tableNumber = parseInt(tableNum);
       
       if (!tableNumber || isNaN(tableNumber)) {
@@ -6195,16 +6268,36 @@
       
       // Check if this staff member is assigned to this table
       const currentStaffUsername = localStorage.getItem('username');
+      console.log('Current staff username for table occupation:', currentStaffUsername);
+      
+      // Staff role check
+      const staffRole = localStorage.getItem('staffRole');
+      console.log('Current staff role:', staffRole);
+      
       let canManageTable = userType === 'admin'; // Admins can manage any table
       
-      if (userType === 'staff' && currentStaffUsername) {
+      // Managers can manage any table too
+      if (staffRole === 'manager') {
+        console.log('Staff is a manager, can manage any table');
+        canManageTable = true;
+      }
+      
+      if (userType === 'staff' && currentStaffUsername && !canManageTable) {
+        console.log('Checking staff assignments for', currentStaffUsername);
+        console.log('Available table assignments:', JSON.stringify(tableAssignments));
+        
         const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        console.log('Filtered assignments:', JSON.stringify(staffAssignments));
         
         // Check if this table is in any of the assigned ranges
-        canManageTable = staffAssignments.some(assignment => 
-          tableNumber >= assignment.startTable && tableNumber <= assignment.endTable
-        );
+        canManageTable = staffAssignments.some(assignment => {
+          const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+          console.log(`Table ${tableNumber} in range ${assignment.startTable}-${assignment.endTable}? ${inRange}`);
+          return inRange;
+        });
       }
+      
+      console.log(`Can staff manage table ${tableNumber}? ${canManageTable}`);
       
       if (!canManageTable) {
         showNotification(
@@ -6219,6 +6312,8 @@
       
       // Add table to occupied tables
       occupiedTables.add(tableNumber);
+      console.log(`Added table ${tableNumber} to occupied tables`);
+      console.log('Current occupied tables:', Array.from(occupiedTables));
       
       // Initialize table details if they don't exist
       if (!tableDetails[tableNumber]) {
@@ -6226,8 +6321,9 @@
       }
       
       // If the app is in Firebase mode, update the table status in Firebase
-      if (db) {
+      if (db && typeof db.collection === 'function') {
         try {
+          console.log(`Updating table ${tableNumber} status in Firebase to occupied`);
           // Create a record in tableStatus collection to track table status
           db.collection('tableStatus').doc(tableNumber.toString()).set({
             status: 'occupied',
@@ -6240,12 +6336,14 @@
         } catch (error) {
           console.error('Error updating table status in Firebase:', error);
         }
+      } else {
+        console.log('Firebase not available, skipping database update');
       }
       
       // Update UI
-      if (userType === 'staff' || userType === 'admin') {
-        updateTablesDisplay();
-      }
+      console.log('Updating UI displays for table occupation');
+      updateTablesDisplay();
+      renderTablesOverview();
       
       return true;
     }
@@ -6648,7 +6746,8 @@
       tablesGrid.innerHTML = '';
       
       // Get current staff username if we're in staff view
-      const currentStaffUsername = userType === 'staff' ? localStorage.getItem('staffUsername') : null;
+      const currentStaffUsername = userType === 'staff' ? localStorage.getItem('username') : null;
+      console.log("Current staff username for tables:", currentStaffUsername);
       
       // Filter for tables assigned to current staff member if we're in staff view
       let tablesToShow = [];
@@ -6960,18 +7059,28 @@
         return;
       }
       
+      console.log(`Attempting to mark table ${tableNumber} as ${status}`);
+      
       // Check if the current staff is assigned to this table
       const currentStaffUsername = localStorage.getItem('username');
+      console.log('Current staff username:', currentStaffUsername);
+      
       let canManageTable = userType === 'admin'; // Admins can manage any table
       
       if (userType === 'staff' && currentStaffUsername) {
+        console.log('Table assignments:', tableAssignments);
         const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        console.log('Staff assignments for current user:', staffAssignments);
         
         // Check if this table is in any of the assigned ranges
-        canManageTable = staffAssignments.some(assignment => 
-          tableNumber >= assignment.startTable && tableNumber <= assignment.endTable
-        );
+        canManageTable = staffAssignments.some(assignment => {
+          const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+          console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
+          return inRange;
+        });
       }
+      
+      console.log(`Can manage table: ${canManageTable}`);
       
       if (!canManageTable) {
         showNotification(
@@ -6986,6 +7095,7 @@
       
       // Update table status based on the requested action
       if (status === 'free') {
+        console.log(`Releasing table ${tableNumber}`);
         if (releaseTable(tableNumber)) {
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
@@ -6994,8 +7104,11 @@
               : `Table ${tableNumber} is now marked as Free`,
             'success'
           );
+        } else {
+          console.log(`Failed to release table ${tableNumber}`);
         }
       } else if (status === 'occupied') {
+        console.log(`Occupying table ${tableNumber}`);
         if (occupyTable(tableNumber)) {
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
@@ -7004,6 +7117,8 @@
               : `Table ${tableNumber} is now marked as Occupied`,
             'success'
           );
+        } else {
+          console.log(`Failed to occupy table ${tableNumber}`);
         }
       }
       
@@ -7012,6 +7127,7 @@
       
       // Update displays
       updateTablesDisplay();
+      renderTablesOverview();
     }
     
     // Rating system functions
