@@ -659,6 +659,39 @@
       align-items: flex-end;
     }
     
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    
+    .logout-btn {
+      background: #d32f2f;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .logout-btn:hover {
+      background: #b71c1c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    
+    .logout-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
     #staff-name-display {
       font-weight: bold;
       font-size: 0.9rem;
@@ -704,6 +737,28 @@
     
     .orders-list {
       margin-top: 15px;
+    }
+    
+    /* Assigned staff info styling */
+    .assigned-staff-info {
+      margin: 5px 0;
+      padding: 5px 8px;
+      background-color: rgba(33, 33, 33, 0.6);
+      border-radius: 4px;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .staff-role-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      color: white;
+      margin-left: 5px;
+      text-transform: uppercase;
     }
     
     .order-card {
@@ -1018,6 +1073,18 @@
       visibility: hidden;
     }
     
+    /* Loading button styles */
+    .checkout-loading {
+      position: relative;
+      pointer-events: none; /* Prevent any interactions during loading */
+    }
+    
+    /* Hide the text content */
+    .checkout-loading .checkout-text {
+      visibility: hidden;
+    }
+    
+    /* Clean loading spinner without overriding conflicts */
     .checkout-loading::after {
       content: "";
       position: absolute;
@@ -1030,6 +1097,8 @@
       border-top-color: var(--dark-green);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      background: none;
+      z-index: 1;
     }
     
     @keyframes spin {
@@ -1982,6 +2051,164 @@
       line-height: 1.4;
     }
     
+    /* Staff Management Styles */
+    .staff-management-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .staff-accounts-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .staff-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    
+    .staff-account-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .staff-account-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .staff-account-info {
+      flex: 1;
+    }
+    
+    .staff-account-name {
+      font-weight: bold;
+      font-size: 0.95rem;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    
+    .staff-account-username {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+    
+    .staff-account-role {
+      font-size: 0.8rem;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 4px 8px;
+      border-radius: 12px;
+      margin-top: 5px;
+      display: inline-block;
+    }
+    
+    .staff-account-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .staff-action-btn {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    
+    .edit-staff-btn:hover {
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.1);
+    }
+    
+    .delete-staff-btn:hover {
+      color: var(--bright-red);
+      background: rgba(255, 59, 48, 0.1);
+    }
+    
+    .add-staff-form, .new-assignment-form {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    
+    .add-staff-form h4, .new-assignment-form h4 {
+      color: var(--gold);
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+    
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .staff-table-assignments {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    
+    .table-assignment-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .table-assignment-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .table-assignment-staff {
+      font-weight: bold;
+      color: var(--gold);
+    }
+    
+    .table-assignment-range {
+      font-size: 0.9rem;
+    }
+    
+    .delete-assignment-btn {
+      background: transparent;
+      border: none;
+      color: var(--bright-red);
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    
+    .delete-assignment-btn:hover {
+      background: rgba(255, 59, 48, 0.1);
+    }
+    
     /* Analytics Action Buttons */
     .action-btn {
       background: rgba(26, 58, 47, 0.7);
@@ -2631,8 +2858,7 @@
       </div>
       <div class="user-type">
         <button class="user-btn active" id="guest-btn" onclick="switchUserType('guest')">GUEST</button>
-        <button class="user-btn" id="staff-btn" onclick="switchUserType('staff')">STAFF</button>
-        <button class="user-btn" id="admin-btn" onclick="switchUserType('admin')">ADMIN</button>
+        <button class="user-btn" id="staff-login-btn" onclick="showLoginModal()">LOGIN</button>
       </div>
     </div>
     
@@ -2745,6 +2971,9 @@
     <div class="staff-dashboard" id="staff-dashboard">
       <div class="staff-header">
         <h2 id="staff-dashboard-title">STAFF DASHBOARD</h2>
+        <button onclick="logoutStaff()" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> <span id="staff-logout-btn-text">LOGOUT</span>
+        </button>
         <div class="staff-info">
           <span id="staff-name-display">Staff Member</span>
           <span id="staff-role-badge">Role</span>
@@ -2770,7 +2999,12 @@
     
     <!-- Admin Dashboard -->
     <div class="admin-dashboard" id="admin-dashboard">
-      <h2 id="admin-dashboard-title">ADMIN DASHBOARD</h2>
+      <div class="admin-header">
+        <h2 id="admin-dashboard-title">ADMIN DASHBOARD</h2>
+        <button onclick="logoutStaff()" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> <span id="admin-logout-btn-text">LOGOUT</span>
+        </button>
+      </div>
       
       <!-- Admin Navigation Tabs -->
       <div class="admin-tabs">
@@ -2956,19 +3190,69 @@
       <!-- Management Tab Content -->
       <div class="admin-tab-content" id="management-content">
         <div class="admin-panels">
-          <div class="admin-panel">
-            <h3 id="staff-assignment-title">STAFF ASSIGNMENT</h3>
-            <div class="input-group">
-              <label for="staff-assignment" id="staff-assignment-label">ASSIGN STAFF</label>
-              <select id="staff-assignment">
-                <option value="">Select staff member</option>
-                <option value="staff1">Staff 1 (Tables 1-20)</option>
-                <option value="staff2">Staff 2 (Tables 21-40)</option>
-                <option value="staff3">Staff 3 (Tables 41-60)</option>
-                <option value="staff4">Staff 4 (Tables 61-80)</option>
-              </select>
+          <div class="admin-panel staff-management-panel">
+            <h3 id="staff-management-title" class="admin-panel-title">STAFF MANAGEMENT</h3>
+            
+            <div class="staff-accounts-container">
+              <h4 id="staff-accounts-title">STAFF ACCOUNTS</h4>
+              <div class="staff-list" id="staff-accounts-list">
+                <!-- Staff accounts will appear here -->
+              </div>
+              
+              <div class="add-staff-form">
+                <h4 id="add-staff-title">ADD NEW STAFF</h4>
+                <div class="input-group">
+                  <label for="new-staff-username">USERNAME</label>
+                  <input type="text" id="new-staff-username" placeholder="Enter username">
+                </div>
+                <div class="input-group">
+                  <label for="new-staff-name">FULL NAME</label>
+                  <input type="text" id="new-staff-name" placeholder="Enter staff name">
+                </div>
+                <div class="input-group">
+                  <label for="new-staff-password">PASSWORD</label>
+                  <input type="password" id="new-staff-password" placeholder="Enter password">
+                </div>
+                <div class="input-group">
+                  <label for="new-staff-role">ROLE</label>
+                  <select id="new-staff-role">
+                    <option value="server">Server</option>
+                    <option value="chef">Chef</option>
+                    <option value="manager">Manager</option>
+                    <option value="staff">General Staff</option>
+                  </select>
+                </div>
+                <button onclick="addStaffAccount()" id="add-staff-btn" class="confirm-btn">ADD STAFF</button>
+              </div>
             </div>
-            <button onclick="assignStaff()" id="assign-staff-btn" class="confirm-btn">ASSIGN</button>
+          </div>
+
+          <div class="admin-panel">
+            <h3 id="staff-assignment-title">TABLE ASSIGNMENTS</h3>
+            <div class="staff-table-assignments" id="staff-table-assignments">
+              <!-- Table assignments will appear here -->
+            </div>
+            
+            <div class="new-assignment-form">
+              <h4 id="new-assignment-title">NEW TABLE ASSIGNMENT</h4>
+              <div class="input-grid">
+                <div class="input-group">
+                  <label for="staff-assignment" id="staff-assignment-label">SELECT STAFF</label>
+                  <select id="staff-assignment">
+                    <option value="">Select staff member</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <label for="table-range-start">TABLE RANGE START</label>
+                  <input type="number" id="table-range-start" min="1" value="1">
+                </div>
+                <div class="input-group">
+                  <label for="table-range-end">TABLE RANGE END</label>
+                  <input type="number" id="table-range-end" min="1" value="20">
+                </div>
+              </div>
+              <button onclick="assignTableRange()" id="assign-staff-btn" class="confirm-btn">ASSIGN TABLES</button>
+            </div>
           </div>
           
           <div class="admin-panel">
@@ -3057,7 +3341,7 @@
   <!-- Login Modal -->
   <div class="modal" id="login-modal">
     <div class="modal-content">
-      <h2 class="modal-title" id="login-title">STAFF LOGIN</h2>
+      <h2 class="modal-title" id="login-title">ACCOUNT LOGIN</h2>
       <div class="input-group">
         <label for="username" id="username-label">USERNAME</label>
         <input type="text" id="username" placeholder="Enter username">
@@ -3161,6 +3445,12 @@
         <h2 class="modal-title" id="table-details-title">TABLE 1</h2>
         <button onclick="closeTableDetails()" style="background: none; color: white; border: none;">&times;</button>
       </div>
+      
+      <!-- Staff assignment information -->
+      <div id="table-staff-info">
+        <!-- Assigned staff info will appear here -->
+      </div>
+      
       <div id="table-orders-list">
         <!-- Table orders will appear here -->
       </div>
@@ -3182,8 +3472,9 @@
     // Firebase Configuration
     
     // Firebase configuration with better error handling
+    const firebaseApiKey = "{{FIREBASE_API_KEY}}";
     const firebaseConfig = {
-      apiKey: "demo-mode-no-api-key", // Using demo mode as fallback
+      apiKey: firebaseApiKey, 
       authDomain: "ar-dining-demo.firebaseapp.com", 
       projectId: "ar-dining-demo",
       storageBucket: "ar-dining-demo.appspot.com",
@@ -3238,31 +3529,15 @@
         console.log("Network connection error:", err);
         isOfflineMode = true;
         
-        // Show a more informative notification about demo mode
-        if (err.code && (err.code.includes('auth') || err.code.includes('api-key'))) {
-          showNotification(
-            currentLanguage === 'ar' ? 'وضع العرض التوضيحي' : 'Demo Mode Active',
-            currentLanguage === 'ar' 
-              ? 'تم تنشيط وضع العرض التوضيحي. سيتم استخدام بيانات عينة للعرض.'
-              : 'Firebase API key not provided. Using sample data in demo mode.',
-            'info'
-          );
-        } else {
-          showConnectionToast('Running in offline mode. Some features may be limited.', 'info');
-        }
+        // Removed notifications during loading as requested
+        console.log("Firebase connection error:", err.code);
       });
     } catch (firebaseError) {
       console.log("Firebase initialization error:", firebaseError);
       isOfflineMode = true;
       
-      // Show a clearer notification about demo mode
-      showNotification(
-        currentLanguage === 'ar' ? 'وضع العرض التوضيحي نشط' : 'Demo Mode Active',
-        currentLanguage === 'ar' 
-          ? 'جاري استخدام بيانات العرض التوضيحي. يمكنك إضافة مفتاح API صالح لـ Firebase للاستخدام الكامل.'
-          : 'Using sample data in demo mode. Add a valid Firebase API key for full functionality.',
-        'info'
-      );
+      // Removed notifications during loading as requested
+      console.log("Firebase initialization failed, using demo mode");
       
       // Create a mock database for demo purposes when Firebase is unavailable
       db = {
@@ -3340,16 +3615,8 @@
         }
       };
       
-      // Show demo mode message immediately to inform users with improved information
-      setTimeout(() => {
-        showNotification(
-          currentLanguage === 'ar' ? 'وضع العرض التوضيحي نشط' : 'Demo Mode Active',
-          currentLanguage === 'ar' 
-            ? 'جميع الميزات متاحة مع بيانات العينة. يمكنك استكشاف قائمة الطعام، وإضافة العناصر إلى سلة التسوق، وتسجيل الدخول باسم "staff" / "admin" وكلمة المرور "123456".'
-            : 'All features available with sample data. You can browse the menu, add items to cart, and log in as "staff" / "admin" with password "123456".',
-          'info'
-        );
-      }, 2000);
+      // Removed notifications during loading as requested
+      console.log("Demo mode active with sample data");
       
       // Pre-populate some demo data for tables
       window.setTimeout(() => {
@@ -3739,9 +4006,17 @@
         });
       }
       
-      // Check for expired table number
+      // FORCE CLEAR any existing table number for testing
+      localStorage.removeItem(TABLE_NUMBER_KEY);
+      localStorage.removeItem(TABLE_EXPIRY_KEY);
+      tableNumber = null;
+      tableNumberExpiry = null;
+      
+      // Check for expired table number - should always be null now for testing
       const savedTableNumber = localStorage.getItem(TABLE_NUMBER_KEY);
       const expiry = localStorage.getItem(TABLE_EXPIRY_KEY);
+      
+      console.log("Table number in storage:", savedTableNumber);
       
       if (savedTableNumber && expiry && new Date(expiry) > new Date()) {
         tableNumber = parseInt(savedTableNumber, 10);
@@ -3751,10 +4026,12 @@
       // Set client ID for tracking orders
       localStorage.setItem(CLIENT_ID_KEY, clientId);
       
-      // Show table number modal if needed - only for guests, not staff or admin
-      if (!tableNumber && userType === "guest") {
+      // Force showing the table number modal on initialization
+      console.log("Initialization: Forcing table modal display");
+      // Delay slightly to ensure it's fully visible
+      setTimeout(() => {
         showTableModal();
-      }
+      }, 500);
       
       // Set initial category to "All" by default
       currentCategory = 'all';
@@ -3895,6 +4172,12 @@
                 // Make sure all components are visible
                 document.querySelector('.overlay').style.visibility = 'visible';
                 if (modelViewer) modelViewer.style.visibility = 'visible';
+                
+                // Show table number modal immediately after loading
+                // Always show on first load, regardless of user type
+                console.log("Checking tableNumber value:", tableNumber);
+                // Force showing the table modal every time
+                showTableModal();
               }, 300);
             }, 200);
           } else {
@@ -3924,6 +4207,11 @@
               // Ensure visibility of components
               document.querySelector('.overlay').style.visibility = 'visible';
               if (modelViewer) modelViewer.style.visibility = 'visible';
+              
+              // Show table number modal immediately after loading
+              // Force showing the table modal every time in failsafe
+              console.log("Failsafe: Showing table modal");
+              showTableModal();
             }, 300);
           }, 200);
         }
@@ -3935,6 +4223,31 @@
       currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
       localStorage.setItem(LANGUAGE_KEY, currentLanguage);
       updateLanguage();
+    }
+    
+    // Logout staff or admin user
+    function logoutStaff() {
+      // Clear auth tokens
+      localStorage.removeItem(STAFF_TOKEN);
+      localStorage.removeItem(ADMIN_TOKEN);
+      localStorage.removeItem("staffName");
+      localStorage.removeItem("staffRole");
+      
+      // Set user type back to guest
+      userType = "guest";
+      localStorage.setItem(USER_TYPE_KEY, "guest");
+      
+      // Check auth state to update UI
+      checkAuthState();
+      
+      // Show success notification
+      showNotification(
+        currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Successfully Logged Out',
+        currentLanguage === 'ar' 
+          ? 'تم تسجيل الخروج من الحساب بنجاح'
+          : 'You have been successfully logged out',
+        'success'
+      );
     }
     
     function updateLanguage() {
@@ -3954,7 +4267,8 @@
           guestOption: "I'm a Guest",
           staffOption: "I'm Staff",
           login: "LOGIN",
-          staffLogin: "STAFF LOGIN",
+          accountLogin: "ACCOUNT LOGIN",
+        staffLogin: "STAFF LOGIN",
           username: "USERNAME",
           password: "PASSWORD",
           addToCart: "+ ADD TO CART",
@@ -3978,8 +4292,24 @@
           avgRating: "AVG RATING",
           lowRatings: "LOW RATINGS",
           activeStaff: "ACTIVE STAFF",
-          staffAssignment: "STAFF ASSIGNMENT",
-          assignStaff: "ASSIGN STAFF",
+          staffManagement: "STAFF MANAGEMENT",
+          staffAccounts: "STAFF ACCOUNTS", 
+          addNewStaff: "ADD NEW STAFF",
+          staffAssignment: "TABLE ASSIGNMENTS",
+          assignStaff: "ASSIGN TABLES",
+          editStaff: "EDIT STAFF",
+          deleteStaff: "DELETE STAFF",
+          confirmDelete: "CONFIRM DELETE",
+          cancel: "CANCEL",
+          username: "USERNAME",
+          password: "PASSWORD",
+          fullName: "FULL NAME",
+          role: "ROLE",
+          tableRange: "TABLE RANGE",
+          tableRangeStart: "START TABLE",
+          tableRangeEnd: "END TABLE",
+          noAssignments: "NO ASSIGNMENTS",
+          logout: "LOGOUT",
           rateYourExperience: "RATE YOUR EXPERIENCE",
           feedback: "FEEDBACK (OPTIONAL)",
           submit: "SUBMIT",
@@ -4009,6 +4339,7 @@
           guestOption: "أنا ضيف",
           staffOption: "أنا موظف",
           login: "تسجيل الدخول",
+          accountLogin: "تسجيل الدخول للحساب",
           staffLogin: "تسجيل دخول الموظفين",
           username: "اسم المستخدم",
           password: "كلمة المرور",
@@ -4033,8 +4364,24 @@
           avgRating: "متوسط التقييم",
           lowRatings: "التقييمات المنخفضة",
           activeStaff: "الموظفين النشطين",
-          staffAssignment: "تعيين الموظفين",
-          assignStaff: "تعيين موظف",
+          staffManagement: "إدارة الموظفين",
+          staffAccounts: "حسابات الموظفين", 
+          addNewStaff: "إضافة موظف جديد",
+          staffAssignment: "تعيين الطاولات",
+          assignStaff: "تعيين الطاولات",
+          editStaff: "تعديل الموظف",
+          deleteStaff: "حذف الموظف",
+          confirmDelete: "تأكيد الحذف",
+          cancel: "إلغاء",
+          username: "اسم المستخدم",
+          password: "كلمة المرور",
+          fullName: "الاسم الكامل",
+          role: "المنصب",
+          tableRange: "نطاق الطاولات",
+          tableRangeStart: "بداية النطاق",
+          tableRangeEnd: "نهاية النطاق",
+          noAssignments: "لا يوجد تعيينات",
+          logout: "تسجيل الخروج",
           rateYourExperience: "قيم تجربتك",
           feedback: "تعليقات (اختياري)",
           submit: "إرسال",
@@ -4101,7 +4448,7 @@
       tableNumberSubtitle.textContent = t.tableNumberSubtitle;
       guestOptionText.textContent = t.guestOption;
       staffOptionText.textContent = t.staffOption;
-      loginTitle.textContent = t.staffLogin;
+      loginTitle.textContent = t.accountLogin;
       usernameLabel.textContent = t.username;
       passwordLabel.textContent = t.password;
       loginBtn.textContent = t.login;
@@ -4142,7 +4489,26 @@
       }
       
       // Update admin view
+      // Update logout buttons
+      const staffLogoutBtnText = document.getElementById('staff-logout-btn-text');
+      const adminLogoutBtnText = document.getElementById('admin-logout-btn-text');
+      
+      if (staffLogoutBtnText) {
+        staffLogoutBtnText.textContent = t.logout;
+      }
+      
+      if (adminLogoutBtnText) {
+        adminLogoutBtnText.textContent = t.logout;
+      }
+      
       if (adminDashboard) {
+        // Make sure all text is in English in English mode
+        if (currentLanguage === 'en') {
+          document.querySelectorAll('#admin-dashboard h3, #admin-dashboard h4, #admin-dashboard button, #admin-dashboard label').forEach(el => {
+            el.style.fontFamily = '"Poppins", sans-serif';
+          });
+        }
+        
         adminDashboardTitle.textContent = t.adminDashboard;
         statisticsTitle.textContent = t.statistics;
         ordersTitle.textContent = t.orders;
@@ -4151,9 +4517,25 @@
         avgRatingTitle.textContent = t.avgRating;
         lowRatingsTitle.textContent = t.lowRatings;
         activeStaffTitle.textContent = t.activeStaff;
-        staffAssignmentTitle.textContent = t.staffAssignment;
-        staffAssignmentLabel.textContent = t.assignStaff;
-        assignStaffBtn.textContent = t.assignStaff;
+        
+        // Update staff management section titles
+        const staffManagementTitle = document.getElementById('staff-management-title');
+        const staffAccountsTitle = document.getElementById('staff-accounts-title');
+        const addStaffTitle = document.getElementById('add-staff-title');
+        const staffAssignmentTitle = document.getElementById('staff-assignment-title');
+        const newAssignmentTitle = document.getElementById('new-assignment-title');
+        const addStaffBtn = document.getElementById('add-staff-btn');
+        const staffAssignmentLabel = document.getElementById('staff-assignment-label');
+        const assignStaffBtn = document.getElementById('assign-staff-btn');
+        
+        if (staffManagementTitle) staffManagementTitle.textContent = t.staffManagement;
+        if (staffAccountsTitle) staffAccountsTitle.textContent = t.staffAccounts;
+        if (addStaffTitle) addStaffTitle.textContent = t.addNewStaff;
+        if (staffAssignmentTitle) staffAssignmentTitle.textContent = t.staffAssignment;
+        if (newAssignmentTitle) newAssignmentTitle.textContent = t.addNewStaff;
+        if (addStaffBtn) addStaffBtn.textContent = t.addNewStaff;
+        if (staffAssignmentLabel) staffAssignmentLabel.textContent = t.assignStaff;
+        if (assignStaffBtn) assignStaffBtn.textContent = t.assignStaff;
         
         // Update Advanced Analytics tab
         const analyticsTab = document.getElementById('analytics-tab');
@@ -4249,17 +4631,26 @@
       }
       if (foodMainCategoryBtn) {
         const foodBtn = foodMainCategoryBtn.querySelector('span');
-        if (foodBtn) foodBtn.textContent = currentLanguage === 'ar' ? 'طعام' : 'Food';
+        if (foodBtn) foodBtn.textContent = currentLanguage === 'ar' ? 'الطعام' : 'Food';
       }
       if (drinksMainCategoryBtn) {
         const drinksBtn = drinksMainCategoryBtn.querySelector('span');
-        if (drinksBtn) drinksBtn.textContent = currentLanguage === 'ar' ? 'مشروبات' : 'Drinks';
+        if (drinksBtn) drinksBtn.textContent = currentLanguage === 'ar' ? 'المشروبات' : 'Drinks';
       }
       if (dessertsMainCategoryBtn) {
         const dessertsBtn = dessertsMainCategoryBtn.querySelector('span');
-        if (dessertsBtn) dessertsBtn.textContent = currentLanguage === 'ar' ? 'حلويات' : 'Desserts';
+        if (dessertsBtn) dessertsBtn.textContent = currentLanguage === 'ar' ? 'الحلويات' : 'Desserts';
       }
       
+      // Update subcategory labels
+      const foodSubcategoryLabel = document.querySelector('#food-subcategories .subcategory-label');
+      const drinksSubcategoryLabel = document.querySelector('#drinks-subcategories .subcategory-label');
+      const dessertsSubcategoryLabel = document.querySelector('#desserts-subcategories .subcategory-label');
+      
+      if (foodSubcategoryLabel) foodSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الطعام' : 'Food Types';
+      if (drinksSubcategoryLabel) drinksSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع المشروبات' : 'Beverage Types';
+      if (dessertsSubcategoryLabel) dessertsSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الحلويات' : 'Dessert Types';
+
       // Update food subcategory buttons
       const allFoodBtn = document.getElementById('all-food-btn');
       const pizzaCategoryBtn = document.getElementById('pizza-category-btn');
@@ -4309,7 +4700,7 @@
     
     // Preload all 3D models
     function preloadModels() {
-      showNotification(currentLanguage === 'ar' ? 'جاري تحميل النماذج ثلاثية الأبعاد...' : 'Preloading 3D models...', 'info');
+      // Removed notification popups during loading as they were confusing users
       
       foodItems.forEach(item => {
         const modelSrc = item.modelSrc;
@@ -4341,10 +4732,6 @@
           });
         }
       });
-      
-      setTimeout(() => {
-        showNotification(currentLanguage === 'ar' ? 'تم تحميل النماذج ثلاثية الأبعاد!' : '3D models loaded!', 'success');
-      }, 2000);
     }
     
     // Main category selection
@@ -4755,48 +5142,68 @@
       }, 300);
     }
     
+    // Initialize staff and admin accounts
+    const accounts = [
+      { username: 'admin', name: 'Restaurant Administrator', password: '123456', role: 'admin' },
+      { username: 'ahmad', name: 'Ahmad Mohammed', password: '123456', role: 'manager' },
+      { username: 'john', name: 'John Smith', password: '123456', role: 'chef' },
+      { username: 'sarah', name: 'Sarah Johnson', password: '123456', role: 'server' },
+      { username: 'staff', name: 'General Staff', password: '123456', role: 'staff' }
+    ];
+    
+    // Initialize table assignments
+    const tableAssignments = [
+      { staffUsername: 'sarah', startTable: 1, endTable: 20 },
+      { staffUsername: 'john', startTable: 21, endTable: 40 },
+      { staffUsername: 'staff', startTable: 41, endTable: 60 }
+    ];
+    
+    // Helper function to get staff assigned to a specific table
+    function getStaffForTable(tableNum) {
+      const tableNumber = parseInt(tableNum);
+      const assignment = tableAssignments.find(a => 
+        tableNumber >= a.startTable && tableNumber <= a.endTable
+      );
+      
+      if (!assignment) return null;
+      
+      // Get staff details from accounts
+      const staffMember = accounts.find(acc => acc.username === assignment.staffUsername);
+      if (!staffMember) return null;
+      
+      return {
+        name: staffMember.name || staffMember.username,
+        role: staffMember.role || 'staff',
+        username: staffMember.username
+      };
+    }
+    
     function loginUser() {
       const user = username.value;
       const pass = password.value;
       
       console.log("Login attempt:", user);
       
-      // Staff accounts
-      const staffAccounts = {
-        "sarah": { name: "Sarah Johnson", password: "123456", role: "server" },
-        "john": { name: "John Smith", password: "123456", role: "chef" },
-        "ahmad": { name: "Ahmad Hassan", password: "123456", role: "manager" },
-        "staff": { name: "General Staff", password: "123456", role: "staff" }
-      };
+      // Find user in accounts array
+      const account = accounts.find(acc => acc.username === user && acc.password === pass);
       
-      // Admin account
-      const adminAccount = {
-        "admin": { name: "Restaurant Administrator", password: "123456" }
-      };
-      
-      // Check staff accounts
-      if (staffAccounts[user] && staffAccounts[user].password === pass) {
-        userType = "staff";
-        localStorage.setItem(USER_TYPE_KEY, "staff");
-        localStorage.setItem(STAFF_TOKEN, "true");
-        localStorage.setItem("staffName", staffAccounts[user].name);
-        localStorage.setItem("staffRole", staffAccounts[user].role);
-        closeModal();
-        checkAuthState();
+      if (!account) {
         showNotification(
-          currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Successfully Logged In',
+          currentLanguage === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login Error',
           currentLanguage === 'ar' 
-            ? `تم تسجيل الدخول كـ ${staffAccounts[user].name}`
-            : `Logged in as ${staffAccounts[user].name} (${staffAccounts[user].role})`,
-          'success'
+            ? "اسم المستخدم أو كلمة المرور غير صحيحة" 
+            : "Invalid username or password",
+          'error'
         );
-      } 
-      // Check admin account
-      else if (adminAccount[user] && adminAccount[user].password === pass) {
+        return;
+      }
+      
+      // Handle different account types (admin vs staff)
+      if (account.role === 'admin') {
         userType = "admin";
         localStorage.setItem(USER_TYPE_KEY, "admin");
         localStorage.setItem(ADMIN_TOKEN, "true");
-        localStorage.setItem("adminName", adminAccount[user].name);
+        localStorage.setItem("adminName", account.name);
         closeModal();
         checkAuthState();
         showNotification(
@@ -4807,12 +5214,19 @@
           'success'
         );
       } else {
+        userType = "staff";
+        localStorage.setItem(USER_TYPE_KEY, "staff");
+        localStorage.setItem(STAFF_TOKEN, "true");
+        localStorage.setItem("staffName", account.name);
+        localStorage.setItem("staffRole", account.role);
+        closeModal();
+        checkAuthState();
         showNotification(
-          currentLanguage === 'ar' ? 'خطأ في تسجيل الدخول' : 'Login Error',
+          currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Successfully Logged In',
           currentLanguage === 'ar' 
-            ? "اسم المستخدم أو كلمة المرور غير صحيحة" 
-            : "Invalid username or password",
-          'error'
+            ? `تم تسجيل الدخول كـ ${account.name}`
+            : `Logged in as ${account.name} (${account.role})`,
+          'success'
         );
       }
     }
@@ -4824,20 +5238,31 @@
       
       // Reset UI
       guestBtn.classList.remove('active');
-      staffBtn.classList.remove('active');
-      adminBtn.classList.remove('active');
+      const staffLoginBtn = document.getElementById('staff-login-btn');
+      if (staffLoginBtn) staffLoginBtn.classList.remove('active');
       
       // Hide all views
       guestView.style.display = 'none';
       staffDashboard.style.display = 'none';
       adminDashboard.style.display = 'none';
       
+      // Update login button text based on auth state
+      if (staffLoginBtn) {
+        if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+          // If logged in, show the user type
+          staffLoginBtn.textContent = localStorage.getItem(ADMIN_TOKEN) ? 'ADMIN' : 'STAFF';
+        } else {
+          // If not logged in, show "LOGIN"
+          staffLoginBtn.textContent = currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN';
+        }
+      }
+      
       // Show appropriate view
       if (userType === "guest") {
         guestBtn.classList.add('active');
         guestView.style.display = 'block';
       } else if (userType === "staff") {
-        staffBtn.classList.add('active');
+        if (staffLoginBtn) staffLoginBtn.classList.add('active');
         staffDashboard.style.display = 'block';
         
         // Display staff name and role from localStorage
@@ -4859,7 +5284,7 @@
         renderOrders();
         renderTablesOverview();
       } else if (userType === "admin") {
-        adminBtn.classList.add('active');
+        if (staffLoginBtn) staffLoginBtn.classList.add('active');
         adminDashboard.style.display = 'block';
         
         // Display admin name if available
@@ -4876,19 +5301,31 @@
     }
     
     function switchUserType(type) {
-      if (type === "staff" && !localStorage.getItem(STAFF_TOKEN)) {
-        showLoginModal();
+      // If user already authenticated as staff or admin, switch to that view
+      if (type === "staff" && localStorage.getItem(STAFF_TOKEN)) {
+        userType = "staff";
+        localStorage.setItem(USER_TYPE_KEY, "staff");
+        checkAuthState();
         return;
       }
       
-      if (type === "admin" && !localStorage.getItem(ADMIN_TOKEN)) {
-        showLoginModal();
+      if (type === "admin" && localStorage.getItem(ADMIN_TOKEN)) {
+        userType = "admin";
+        localStorage.setItem(USER_TYPE_KEY, "admin");
+        checkAuthState();
         return;
       }
       
-      userType = type;
-      localStorage.setItem(USER_TYPE_KEY, type);
-      checkAuthState();
+      // For guest view
+      if (type === "guest") {
+        userType = "guest";
+        localStorage.setItem(USER_TYPE_KEY, "guest");
+        checkAuthState();
+        return;
+      }
+      
+      // If clicked on login button, show the unified login modal
+      showLoginModal();
     }
     
     // Load table number if valid
@@ -5162,6 +5599,22 @@
         localStorage.setItem(TABLE_NUMBER_KEY, tableNumber.toString());
         localStorage.setItem(TABLE_EXPIRY_KEY, tableNumberExpiry.toString());
         
+        // Check which staff member is assigned to this table
+        const assignedStaff = getStaffForTable(tableNumberInt);
+        
+        // Store assigned staff information
+        if (assignedStaff) {
+          localStorage.setItem('assignedStaffName', assignedStaff.name);
+          localStorage.setItem('assignedStaffUsername', assignedStaff.username);
+          localStorage.setItem('assignedStaffRole', assignedStaff.role);
+          console.log(`Table ${tableNumberInt} is assigned to ${assignedStaff.name} (${assignedStaff.role})`);
+        } else {
+          localStorage.removeItem('assignedStaffName');
+          localStorage.removeItem('assignedStaffUsername');
+          localStorage.removeItem('assignedStaffRole');
+          console.log(`No staff assigned to table ${tableNumberInt}`);
+        }
+        
         // Close modal after a short delay to show success state
         setTimeout(() => {
           closeTableModal();
@@ -5295,6 +5748,21 @@
         // Create order
         const orderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
         
+        // Get assigned staff information for the table
+        let assignedStaffName = localStorage.getItem('assignedStaffName');
+        let assignedStaffUsername = localStorage.getItem('assignedStaffUsername');
+        let assignedStaffRole = localStorage.getItem('assignedStaffRole');
+        
+        // If staff info is not already set, try to get it from table assignments
+        if ((!assignedStaffName || !assignedStaffRole) && tableNumber) {
+          const tableStaff = getStaffForTable(tableNumber);
+          if (tableStaff) {
+            assignedStaffName = tableStaff.name;
+            assignedStaffUsername = tableStaff.username;
+            assignedStaffRole = tableStaff.role;
+          }
+        }
+        
         const order = {
           id: orderId,
           clientId: clientId,
@@ -5305,7 +5773,10 @@
           status: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           tableNumber: tableNumber,
-          estimatedTime: estimatedTime
+          estimatedTime: estimatedTime,
+          assignedStaffName: assignedStaffName || null,
+          assignedStaffUsername: assignedStaffUsername || null,
+          assignedStaffRole: assignedStaffRole || null
         };
         
         await db.collection('orders').doc(orderId).set(order);
@@ -5532,6 +6003,32 @@
               `;
             });
             
+            // Check for assigned staff - first check if order has staff info
+            // If not, check table assignments
+            let assignedStaffName = order.assignedStaffName;
+            let assignedStaffRole = order.assignedStaffRole;
+            
+            // If order doesn't have staff info, check table assignments
+            if (!assignedStaffName) {
+              const tableStaff = getStaffForTable(order.tableNumber);
+              if (tableStaff) {
+                assignedStaffName = tableStaff.name;
+                assignedStaffRole = tableStaff.role;
+              }
+            }
+            
+            // Create assigned staff info HTML if available
+            const assignedStaffHtml = assignedStaffName ? `
+              <div class="assigned-staff-info">
+                <span style="color: #ffc107;">
+                  <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤول' : 'Assigned Staff'}:
+                </span>
+                <span>${assignedStaffName} 
+                  ${assignedStaffRole ? `<span class="staff-role-badge role-${assignedStaffRole}">${assignedStaffRole}</span>` : ''}
+                </span>
+              </div>
+            ` : '';
+            
             // Create HTML for the order card
             orderCard.innerHTML = `
               <div class="order-header">
@@ -5539,6 +6036,7 @@
                 <div class="order-status ${statusClass}">${statusText}</div>
               </div>
               <div class="order-time">${timestampStr}</div>
+              ${assignedStaffHtml}
               <div class="order-items">
                 ${itemsHtml}
               </div>
@@ -5610,6 +6108,30 @@
     
     function showTableDetails(tableNum) {
       tableDetailsTitle.textContent = `${currentLanguage === 'ar' ? 'الطاولة' : 'TABLE'} ${tableNum}`;
+      
+      // Check if this table has an assigned staff member
+      const assignedStaff = getStaffForTable(tableNum);
+      let staffInfoHtml = '';
+      
+      if (assignedStaff) {
+        staffInfoHtml = `
+          <div style="margin-bottom: 10px; text-align: center; padding: 8px; background: rgba(33, 33, 33, 0.5); border-radius: 8px;">
+            <div style="font-size: 0.85rem; color: #ffc107;">
+              <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤول' : 'Assigned Staff'}:
+            </div>
+            <div style="font-weight: bold;">
+              ${assignedStaff.name} 
+              <span class="staff-role-badge role-${assignedStaff.role}">${assignedStaff.role}</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Add staff info to the modal
+      const tableStaffInfo = document.getElementById('table-staff-info');
+      if (tableStaffInfo) {
+        tableStaffInfo.innerHTML = staffInfoHtml;
+      }
       
       const orders = tableDetails[tableNum] || [];
       
@@ -5687,11 +6209,16 @@
           return;
         }
         
-        // Update order status
+        // Get staff info from table assignment
+        const tableStaff = getStaffForTable(orderData.tableNumber);
+        
+        // Update order status with staff assignment info
         await db.collection('orders').doc(orderId).update({
           status: newStatus,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          staffId: currentStaff
+          staffId: currentStaff,
+          assignedStaffName: tableStaff ? tableStaff.name : null,
+          assignedStaffRole: tableStaff ? tableStaff.role : null
         });
         
         // If order is completed or cancelled, release the table
@@ -6007,6 +6534,10 @@
     
     // Admin Dashboard
     function renderAdminDashboard() {
+      // Load staff accounts and table assignments
+      loadStaffAccounts();
+      loadTableAssignments();
+      
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
         const totalOrders = snapshot.size;
@@ -6160,44 +6691,221 @@
       }
     }
     
-    // Staff Assignment with table ranges
-    function assignStaff() {
-      const staffValue = staffAssignment.value;
+    // Load staff accounts into the UI
+    function loadStaffAccounts() {
+      const staffListElement = document.getElementById('staff-accounts-list');
+      const staffDropdown = document.getElementById('staff-assignment');
       
-      if (!staffValue) {
-        showNotification(
-          currentLanguage === 'ar' ? 'اختيار مطلوب' : 'Selection Required',
-          currentLanguage === 'ar' ? "الرجاء اختيار موظف قبل المتابعة" : "Please select a staff member before proceeding",
-          'error'
-        );
+      if (staffListElement) {
+        staffListElement.innerHTML = '';
         
-        // Add focus animation on the select element
-        staffAssignment.classList.add('input-error');
-        setTimeout(() => staffAssignment.classList.remove('input-error'), 600);
-        staffAssignment.focus();
+        accounts.forEach(staff => {
+          if (staff.role !== 'admin') { // Don't show admin in the list
+            const staffItem = document.createElement('div');
+            staffItem.className = 'staff-account-item';
+            staffItem.innerHTML = `
+              <div class="staff-account-info">
+                <div class="staff-account-name">${staff.name}</div>
+                <div class="staff-account-username">@${staff.username}</div>
+                <div class="staff-account-role">${staff.role.toUpperCase()}</div>
+              </div>
+              <div class="staff-account-actions">
+                <button class="staff-action-btn edit-staff-btn" onclick="editStaffAccount('${staff.username}')">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="staff-action-btn delete-staff-btn" onclick="deleteStaffAccount('${staff.username}')">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            `;
+            staffListElement.appendChild(staffItem);
+          }
+        });
+      }
+      
+      if (staffDropdown) {
+        // Clear all options except the first one
+        while (staffDropdown.options.length > 1) {
+          staffDropdown.remove(1);
+        }
+        
+        // Add staff options to dropdown
+        accounts.forEach(staff => {
+          if (staff.role !== 'admin') { // Don't include admin in assignments
+            const option = document.createElement('option');
+            option.value = staff.username;
+            option.textContent = `${staff.name} (${staff.role})`;
+            staffDropdown.appendChild(option);
+          }
+        });
+      }
+    }
+    
+    // Function to load table assignments into the UI
+    function loadTableAssignments() {
+      const tableAssignmentsElement = document.getElementById('staff-table-assignments');
+      
+      if (tableAssignmentsElement) {
+        tableAssignmentsElement.innerHTML = '';
+        
+        if (tableAssignments.length === 0) {
+          tableAssignmentsElement.innerHTML = '<div class="no-assignments">No table assignments found</div>';
+          return;
+        }
+        
+        tableAssignments.forEach((assignment, index) => {
+          const staffInfo = accounts.find(staff => staff.username === assignment.staffUsername);
+          if (!staffInfo) return;
+          
+          const assignmentItem = document.createElement('div');
+          assignmentItem.className = 'table-assignment-item';
+          assignmentItem.innerHTML = `
+            <div>
+              <span class="table-assignment-staff">${staffInfo.name}</span>
+              <span class="table-assignment-range">Tables ${assignment.startTable}-${assignment.endTable}</span>
+            </div>
+            <button class="delete-assignment-btn" onclick="deleteTableAssignment(${index})">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          tableAssignmentsElement.appendChild(assignmentItem);
+        });
+      }
+    }
+    
+    // Function to add a new staff account
+    function addStaffAccount() {
+      const username = document.getElementById('new-staff-username').value.trim();
+      const name = document.getElementById('new-staff-name').value.trim();
+      const password = document.getElementById('new-staff-password').value.trim();
+      const role = document.getElementById('new-staff-role').value;
+      
+      if (!username || !name || !password) {
+        showNotification('Please fill in all fields', 'error');
         return;
       }
       
-      // Determine table range based on staff selection
-      let tableRange = "";
-      if (staffValue === "staff1") {
-        tableRange = "1-20";
-      } else if (staffValue === "staff2") {
-        tableRange = "21-40";
-      } else if (staffValue === "staff3") {
-        tableRange = "41-60";
-      } else if (staffValue === "staff4") {
-        tableRange = "61-80";
+      // Check if username already exists
+      if (accounts.some(staff => staff.username === username)) {
+        showNotification('Username already exists', 'error');
+        return;
       }
       
-      // In a real application, this would assign staff to tables/orders
-      showNotification(
-        currentLanguage === 'ar' ? 'تم تعيين الموظف' : 'Staff Assigned',
-        currentLanguage === 'ar' 
-          ? `تم تعيين الموظف بنجاح للطاولات ${tableRange}` 
-          : `Staff member has been successfully assigned to tables ${tableRange}`,
-        'success'
+      // Add new staff account
+      accounts.push({ username, name, password, role });
+      
+      // Update UI
+      loadStaffAccounts();
+      
+      // Clear form
+      document.getElementById('new-staff-username').value = '';
+      document.getElementById('new-staff-name').value = '';
+      document.getElementById('new-staff-password').value = '';
+      
+      showNotification('Staff account added successfully', 'success');
+    }
+    
+    // Function to edit a staff account
+    function editStaffAccount(username) {
+      const staff = accounts.find(staff => staff.username === username);
+      if (!staff) return;
+      
+      // Currently just show a notification - could be replaced with proper modal edit functionality
+      showNotification('Edit staff feature coming soon', 'info');
+    }
+    
+    // Function to delete a staff account
+    function deleteStaffAccount(username) {
+      const confirmDelete = confirm(`Are you sure you want to delete the staff account for ${username}?`);
+      if (!confirmDelete) return;
+      
+      // Remove from accounts array
+      const index = accounts.findIndex(staff => staff.username === username);
+      if (index !== -1) {
+        accounts.splice(index, 1);
+      }
+      
+      // Remove any table assignments for this staff
+      for (let i = tableAssignments.length - 1; i >= 0; i--) {
+        if (tableAssignments[i].staffUsername === username) {
+          tableAssignments.splice(i, 1);
+        }
+      }
+      
+      // Update UI
+      loadStaffAccounts();
+      loadTableAssignments();
+      
+      showNotification('Staff account deleted successfully', 'success');
+    }
+    
+    // Function to assign a table range to a staff member
+    function assignTableRange() {
+      const staffUsername = document.getElementById('staff-assignment').value;
+      const startTable = parseInt(document.getElementById('table-range-start').value);
+      const endTable = parseInt(document.getElementById('table-range-end').value);
+      
+      if (!staffUsername) {
+        showNotification('Please select a staff member', 'error');
+        return;
+      }
+      
+      if (isNaN(startTable) || isNaN(endTable) || startTable < 1 || endTable < startTable) {
+        showNotification('Please enter a valid table range', 'error');
+        return;
+      }
+      
+      // Check for overlapping table ranges
+      const hasOverlap = tableAssignments.some(assignment => {
+        return (
+          (startTable >= assignment.startTable && startTable <= assignment.endTable) ||
+          (endTable >= assignment.startTable && endTable <= assignment.endTable) ||
+          (startTable <= assignment.startTable && endTable >= assignment.endTable)
+        );
+      });
+      
+      if (hasOverlap) {
+        showNotification('Table range overlaps with an existing assignment', 'error');
+        return;
+      }
+      
+      // Add new assignment
+      tableAssignments.push({ staffUsername, startTable, endTable });
+      
+      // Update UI
+      loadTableAssignments();
+      
+      showNotification('Table range assigned successfully', 'success');
+    }
+    
+    // Function to delete a table assignment
+    function deleteTableAssignment(index) {
+      const assignment = tableAssignments[index];
+      if (!assignment) return;
+      
+      const staffInfo = accounts.find(staff => staff.username === assignment.staffUsername);
+      const confirmDelete = confirm(`Are you sure you want to remove table assignment (Tables ${assignment.startTable}-${assignment.endTable}) from ${staffInfo ? staffInfo.name : assignment.staffUsername}?`);
+      
+      if (!confirmDelete) return;
+      
+      tableAssignments.splice(index, 1);
+      loadTableAssignments();
+      
+      showNotification('Table assignment removed successfully', 'success');
+    }
+    
+    // Function to check which staff member is assigned to a table
+    function getStaffForTable(tableNumber) {
+      const assignment = tableAssignments.find(a => 
+        tableNumber >= a.startTable && tableNumber <= a.endTable
       );
+      
+      if (assignment) {
+        const staffInfo = accounts.find(staff => staff.username === assignment.staffUsername);
+        return staffInfo;
+      }
+      
+      return null;
     }
     
     // Apply discount
