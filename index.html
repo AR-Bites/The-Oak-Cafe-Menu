@@ -2901,6 +2901,45 @@
       justify-content: space-between;
       margin-top: 8px;
     }
+    
+    /* Table Action Buttons */
+    .table-action-btn {
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+    
+    .free-table-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+    
+    .free-table-btn:hover {
+      background-color: #2e7d32;
+    }
+    
+    .occupy-table-btn {
+      background-color: #d4af37;
+      color: #2c1e0f;
+    }
+    
+    .occupy-table-btn:hover {
+      background-color: #b8941f;
+    }
+    
+    /* Occupied Tables Count */
+    .occupied-tables-count {
+      margin-bottom: 15px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -3517,6 +3556,12 @@
       <div id="table-orders-list">
         <!-- Table orders will appear here -->
       </div>
+      
+      <!-- Table action buttons for staff (mark as free/occupied) -->
+      <div id="table-action-buttons">
+        <!-- Table management buttons will appear here for staff -->
+      </div>
+      
       <button id="close-details" onclick="closeTableDetails()" class="confirm-btn" style="width: 100%; margin-top: 15px;">CLOSE</button>
     </div>
   </div>
@@ -4997,7 +5042,7 @@
       const iceCreamCategoryBtn = document.getElementById('ice-cream-category-btn');
       
       if (allDessertsBtn) allDessertsBtn.textContent = currentLanguage === 'ar' ? 'كل الحلويات' : 'All Desserts';
-      if (cakesCategoryBtn) cakesCategoryBtn.textContent = currentLanguage === 'ar' ? 'كي.�' : 'Cakes';
+      if (cakesCategoryBtn) cakesCategoryBtn.textContent = currentLanguage === 'ar' ? 'كيك' : 'Cakes';
       if (iceCreamCategoryBtn) iceCreamCategoryBtn.textContent = currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream';
       
       // Also update the current food item in case it has translations
@@ -5494,7 +5539,7 @@
       };
     }
     
-    // New function to create orders with proper Firebase integration
+    // Function to create orders with proper Firebase integration
     async function createOrderInFirebase(orderData) {
       if (!orderData || !orderData.tableNumber) {
         console.error("Invalid order data for Firebase");
@@ -5504,10 +5549,18 @@
       try {
         console.log("Creating order in Firebase:", orderData);
         
+        // Ensure table number is an integer
+        const tableNumber = parseInt(orderData.tableNumber);
+        if (isNaN(tableNumber)) {
+          console.error("Invalid table number in order data:", orderData.tableNumber);
+          return null;
+        }
+        orderData.tableNumber = tableNumber;
+        
         // Get assigned staff for this table
-        const assignedStaff = getStaffForTable(orderData.tableNumber);
+        const assignedStaff = getStaffForTable(tableNumber);
         if (assignedStaff) {
-          console.log(`Table ${orderData.tableNumber} is assigned to staff member: ${assignedStaff.name} (${assignedStaff.role})`);
+          console.log(`Table ${tableNumber} is assigned to staff member: ${assignedStaff.name} (${assignedStaff.role})`);
           
           // Add staff information to order
           orderData.assignedStaff = {
@@ -5516,23 +5569,45 @@
             role: assignedStaff.role
           };
         } else {
-          console.log(`No staff assigned to table ${orderData.tableNumber}`);
+          console.log(`No staff assigned to table ${tableNumber}`);
         }
         
         // Add timestamps
-        orderData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        orderData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        if (firebase && firebase.firestore) {
+          orderData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          orderData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        } else {
+          // Fallback for offline mode
+          orderData.createdAt = new Date();
+          orderData.updatedAt = new Date();
+        }
         
-        // Add to Firebase
-        const docRef = await db.collection('orders').add(orderData);
-        console.log("Order created successfully with ID:", docRef.id);
+        let orderId;
         
-        // Update local tables data
-        occupiedTables.add(orderData.tableNumber);
+        // Check if we're in offline/demo mode
+        if (isOfflineMode || !db || typeof db.collection !== 'function') {
+          console.log("In offline mode, creating order locally");
+          // Generate a random ID for the order in offline mode
+          orderId = 'offline-' + Math.floor(Math.random() * 1000000);
+        } else {
+          // Add to Firebase
+          try {
+            const docRef = await db.collection('orders').add(orderData);
+            orderId = docRef.id;
+            console.log("Order created successfully with ID:", orderId);
+          } catch (dbError) {
+            console.error("Firebase error creating order:", dbError);
+            // Fallback to offline mode if Firebase fails
+            orderId = 'fallback-' + Math.floor(Math.random() * 1000000);
+          }
+        }
+        
+        // Update local tables data regardless of Firebase status
+        occupiedTables.add(tableNumber);
         
         // Prepare order for table details
         const orderForTable = {
-          id: docRef.id,
+          id: orderId,
           status: orderData.status,
           items: orderData.items,
           timestamp: new Date(),
@@ -5541,22 +5616,25 @@
         };
         
         // Update table details
-        if (!tableDetails[orderData.tableNumber]) {
-          tableDetails[orderData.tableNumber] = { orders: [] };
+        if (!tableDetails[tableNumber]) {
+          tableDetails[tableNumber] = { orders: [] };
         }
         
         // Add to beginning of orders array
-        tableDetails[orderData.tableNumber].orders.unshift(orderForTable);
+        tableDetails[tableNumber].orders.unshift(orderForTable);
         
         // Update staff view if needed
         if (userType === 'staff' || userType === 'admin') {
           updateTablesDisplay();
         }
         
-        return docRef.id;
+        return orderId;
       } catch (error) {
         console.error("Error creating order in Firebase:", error);
-        return null;
+        // Last resort fallback - generate a local ID
+        const fallbackId = 'error-' + Math.floor(Math.random() * 1000000);
+        console.log("Using fallback order ID:", fallbackId);
+        return fallbackId;
       }
     }
     
@@ -6023,28 +6101,44 @@
     // Check if a table is available
     async function checkTableAvailability(tableNum) {
       try {
-        // Check if table is already occupied in memory
-        if (occupiedTables.has(tableNum)) {
+        // Parse table number to ensure it's a number
+        const tableNumInt = parseInt(tableNum);
+        if (isNaN(tableNumInt)) {
+          console.error("Invalid table number:", tableNum);
           return false;
         }
         
-        // In demo mode, randomly select availability to simulate
-        // real database interaction when Firebase isn't available
-        if (firebaseConfig.apiKey.includes("demo-mode")) {
-          // For demo, make tables 1-3 occupied and tables 4+ available
-          return tableNum > 3;
+        // Check if table is already occupied in memory
+        if (occupiedTables.has(tableNumInt)) {
+          console.log(`Table ${tableNumInt} is already marked as occupied locally`);
+          return false;
+        }
+        
+        // Check if we are in offline/demo mode
+        if (isOfflineMode || !db || typeof db.collection !== 'function') {
+          console.log(`In offline mode, assuming table ${tableNumInt} is available`);
+          return true;
         }
         
         // Double check with database
-        const querySnapshot = await db.collection("orders")
-          .where("tableNumber", "==", tableNum)
-          .where("status", "in", ["pending", "preparing", "ready"])
-          .get();
-        
-        return querySnapshot.empty;
+        console.log(`Checking Firebase for table ${tableNumInt} availability`);
+        try {
+          const querySnapshot = await db.collection("orders")
+            .where("tableNumber", "==", tableNumInt)
+            .where("status", "in", ["pending", "preparing", "ready"])
+            .get();
+          
+          const isAvailable = querySnapshot.empty;
+          console.log(`Table ${tableNumInt} is ${isAvailable ? 'available' : 'occupied'} according to Firebase`);
+          return isAvailable;
+        } catch (dbError) {
+          console.error("Error querying Firebase for table availability:", dbError);
+          // If we can't check the database, assume it's available to avoid blocking users
+          return true;
+        }
       } catch (error) {
         console.error("Error checking table availability:", error);
-        return true; // Assume available if there's an error
+        return true; // Assume available if there's an error to avoid blocking users
       }
     }
     
@@ -6052,7 +6146,108 @@
     function releaseTable(tableNum) {
       if (occupiedTables.has(tableNum)) {
         occupiedTables.delete(tableNum);
+        
+        // Remove table details if they exist
+        if (tableDetails[tableNum]) {
+          delete tableDetails[tableNum];
+        }
+        
+        // If the app is in Firebase mode, update the table status in Firebase
+        if (db) {
+          try {
+            // Create a record in tableStatus collection to track table status
+            db.collection('tableStatus').doc(tableNum.toString()).set({
+              status: 'free',
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedBy: {
+                username: localStorage.getItem('username') || 'system',
+                role: localStorage.getItem('staffRole') || 'system'
+              }
+            });
+          } catch (error) {
+            console.error('Error updating table status in Firebase:', error);
+          }
+        }
+        
+        // Update UI if needed
+        if (userType === 'staff' || userType === 'admin') {
+          updateTablesDisplay();
+        }
+        
+        return true;
       }
+      return false;
+    }
+    
+    function occupyTable(tableNum) {
+      const tableNumber = parseInt(tableNum);
+      
+      if (!tableNumber || isNaN(tableNumber)) {
+        console.error('Invalid table number');
+        return false;
+      }
+      
+      // Check if user is a staff member
+      if (userType !== 'staff' && userType !== 'admin') {
+        console.error('Only staff can mark tables as occupied');
+        return false;
+      }
+      
+      // Check if this staff member is assigned to this table
+      const currentStaffUsername = localStorage.getItem('username');
+      let canManageTable = userType === 'admin'; // Admins can manage any table
+      
+      if (userType === 'staff' && currentStaffUsername) {
+        const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        
+        // Check if this table is in any of the assigned ranges
+        canManageTable = staffAssignments.some(assignment => 
+          tableNumber >= assignment.startTable && tableNumber <= assignment.endTable
+        );
+      }
+      
+      if (!canManageTable) {
+        showNotification(
+          currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
+          currentLanguage === 'ar' 
+            ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
+            : 'You cannot manage this table as it is not assigned to you',
+          'error'
+        );
+        return false;
+      }
+      
+      // Add table to occupied tables
+      occupiedTables.add(tableNumber);
+      
+      // Initialize table details if they don't exist
+      if (!tableDetails[tableNumber]) {
+        tableDetails[tableNumber] = { orders: [] };
+      }
+      
+      // If the app is in Firebase mode, update the table status in Firebase
+      if (db) {
+        try {
+          // Create a record in tableStatus collection to track table status
+          db.collection('tableStatus').doc(tableNumber.toString()).set({
+            status: 'occupied',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy: {
+              username: currentStaffUsername || 'system',
+              role: localStorage.getItem('staffRole') || 'system'
+            }
+          });
+        } catch (error) {
+          console.error('Error updating table status in Firebase:', error);
+        }
+      }
+      
+      // Update UI
+      if (userType === 'staff' || userType === 'admin') {
+        updateTablesDisplay();
+      }
+      
+      return true;
     }
     
     function closeTableModal(fromCancel = false) {
@@ -6449,15 +6644,46 @@
     }
     
     function renderTablesOverview() {
-      if (occupiedTables.size === 0) {
-        tablesGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 'No occupied tables'}</p>`;
+      // Clear the existing grid
+      tablesGrid.innerHTML = '';
+      
+      // Get current staff username if we're in staff view
+      const currentStaffUsername = userType === 'staff' ? localStorage.getItem('staffUsername') : null;
+      
+      // Filter for tables assigned to current staff member if we're in staff view
+      let tablesToShow = [];
+      
+      if (userType === 'staff' && currentStaffUsername) {
+        // Get table assignments for this staff member
+        const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        
+        // Create an array of all table numbers assigned to this staff member
+        const assignedTables = [];
+        staffAssignments.forEach(assignment => {
+          for (let t = assignment.startTable; t <= assignment.endTable; t++) {
+            assignedTables.push(t);
+          }
+        });
+        
+        // Filter occupied tables to only show those assigned to this staff
+        tablesToShow = Array.from(occupiedTables).filter(tableNum => 
+          assignedTables.includes(parseInt(tableNum))
+        ).sort((a, b) => a - b);
+      } else {
+        // For admin view, show all occupied tables
+        tablesToShow = Array.from(occupiedTables).sort((a, b) => a - b);
+      }
+      
+      if (tablesToShow.length === 0) {
+        tablesGrid.innerHTML = `<p style="grid-column: 1 / -1; color: var(--light-cream);">${
+          currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 
+          (userType === 'staff' ? 'No occupied tables assigned to you' : 'No occupied tables')
+        }</p>`;
         return;
       }
       
-      // Convert Set to array and sort
-      const sortedTables = Array.from(occupiedTables).sort((a, b) => a - b);
-      
-      sortedTables.forEach(tableNum => {
+      // Show the tables
+      tablesToShow.forEach(tableNum => {
         const tableData = tableDetails[tableNum];
         const tableEl = document.createElement('div');
         tableEl.className = `table-item ${tableData ? 'occupied' : ''}`;
@@ -6507,14 +6733,54 @@
         tableStaffInfo.innerHTML = staffInfoHtml;
       }
       
-      const orders = tableDetails[tableNum] || [];
+      // Add table status management controls for staff
+      const isStaffOrAdmin = userType === 'staff' || userType === 'admin';
+      const tableActionButtons = document.getElementById('table-action-buttons');
       
-      if (orders.length === 0) {
+      if (tableActionButtons && isStaffOrAdmin) {
+        // Check if the current staff member is assigned to this table
+        const currentStaffUsername = localStorage.getItem('username');
+        let canManageTable = userType === 'admin'; // Admins can manage any table
+        
+        if (userType === 'staff' && currentStaffUsername) {
+          const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+          
+          // Check if this table is in any of the assigned ranges
+          canManageTable = staffAssignments.some(assignment => 
+            parseInt(tableNum) >= assignment.startTable && parseInt(tableNum) <= assignment.endTable
+          );
+        }
+        
+        // Only show management controls if staff is assigned to this table
+        if (canManageTable) {
+          const isOccupied = occupiedTables.has(parseInt(tableNum));
+          tableActionButtons.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+              <button 
+                onclick="markTableStatus(${tableNum}, '${isOccupied ? 'free' : 'occupied'}')" 
+                class="table-action-btn ${isOccupied ? 'free-table-btn' : 'occupy-table-btn'}">
+                <i class="fas fa-${isOccupied ? 'check-circle' : 'utensils'}"></i>
+                ${isOccupied 
+                  ? (currentLanguage === 'ar' ? 'تحرير الطاولة' : 'MARK AS FREE') 
+                  : (currentLanguage === 'ar' ? 'تعيين كمشغولة' : 'MARK AS OCCUPIED')}
+              </button>
+            </div>
+          `;
+        } else {
+          tableActionButtons.innerHTML = '';
+        }
+      } else if (tableActionButtons) {
+        tableActionButtons.innerHTML = '';
+      }
+      
+      const orders = tableDetails[tableNum] || { orders: [] };
+      
+      if (!orders.orders || orders.orders.length === 0) {
         tableOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات' : 'No orders'}</p>`;
       } else {
         tableOrdersList.innerHTML = '';
         
-        orders.forEach(order => {
+        orders.orders.forEach(order => {
           const orderEl = document.createElement('div');
           orderEl.className = 'order-card';
           
@@ -6683,6 +6949,69 @@
         }
       }
       return status;
+    }
+    
+    // Function to mark a table as free or occupied
+    function markTableStatus(tableNum, status) {
+      const tableNumber = parseInt(tableNum);
+      
+      if (isNaN(tableNumber)) {
+        console.error('Invalid table number');
+        return;
+      }
+      
+      // Check if the current staff is assigned to this table
+      const currentStaffUsername = localStorage.getItem('username');
+      let canManageTable = userType === 'admin'; // Admins can manage any table
+      
+      if (userType === 'staff' && currentStaffUsername) {
+        const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        
+        // Check if this table is in any of the assigned ranges
+        canManageTable = staffAssignments.some(assignment => 
+          tableNumber >= assignment.startTable && tableNumber <= assignment.endTable
+        );
+      }
+      
+      if (!canManageTable) {
+        showNotification(
+          currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
+          currentLanguage === 'ar' 
+            ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
+            : 'You cannot manage this table as it is not assigned to you',
+          'error'
+        );
+        return;
+      }
+      
+      // Update table status based on the requested action
+      if (status === 'free') {
+        if (releaseTable(tableNumber)) {
+          showNotification(
+            currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
+            currentLanguage === 'ar' 
+              ? `تم تحرير الطاولة ${tableNumber}` 
+              : `Table ${tableNumber} is now marked as Free`,
+            'success'
+          );
+        }
+      } else if (status === 'occupied') {
+        if (occupyTable(tableNumber)) {
+          showNotification(
+            currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
+            currentLanguage === 'ar' 
+              ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
+              : `Table ${tableNumber} is now marked as Occupied`,
+            'success'
+          );
+        }
+      }
+      
+      // Close the table details modal
+      closeTableDetails();
+      
+      // Update displays
+      updateTablesDisplay();
     }
     
     // Rating system functions
@@ -7675,8 +8004,72 @@
       // Clear existing content
       tablesContainer.innerHTML = '';
       
-      // Display occupied tables
-      occupiedTables.forEach(tableNum => {
+      // Create an element to show total number of occupied tables
+      const occupiedTablesCount = document.createElement('div');
+      occupiedTablesCount.className = 'occupied-tables-count';
+      occupiedTablesCount.innerHTML = `
+        <span style="font-weight: bold; margin-bottom: 10px; display: block; text-align: center; color: var(--light-cream); background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;">
+          <i class="fas fa-utensils"></i> ${currentLanguage === 'ar' ? 'الطاولات المشغولة' : 'Occupied Tables'}: 
+          <span style="color: var(--gold);">${occupiedTables.size}</span>
+        </span>
+      `;
+      tablesContainer.appendChild(occupiedTablesCount);
+      
+      // Get current staff username if we're in staff view
+      const currentStaffUsername = userType === 'staff' ? localStorage.getItem('username') : null;
+      
+      // Filter for tables assigned to current staff member if we're in staff view
+      let tablesToShow = [];
+      
+      if (userType === 'staff' && currentStaffUsername) {
+        // Get table assignments for this staff member
+        const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        
+        // Create an array of all table numbers assigned to this staff member
+        const assignedTables = [];
+        staffAssignments.forEach(assignment => {
+          for (let t = assignment.startTable; t <= assignment.endTable; t++) {
+            assignedTables.push(t);
+          }
+        });
+        
+        // Filter occupied tables to only show those assigned to this staff
+        tablesToShow = Array.from(occupiedTables).filter(tableNum => 
+          assignedTables.includes(parseInt(tableNum))
+        ).sort((a, b) => a - b);
+        
+        // Show message if no tables assigned
+        if (tablesToShow.length === 0) {
+          const noTablesMsg = document.createElement('div');
+          noTablesMsg.className = 'no-tables-message';
+          noTablesMsg.innerHTML = `
+            <p style="text-align: center; color: var(--light-cream); padding: 20px;">
+              ${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة مخصصة لك' : 'No occupied tables assigned to you'}
+            </p>
+          `;
+          tablesContainer.appendChild(noTablesMsg);
+          return;
+        }
+      } else {
+        // For admin view, show all occupied tables
+        tablesToShow = Array.from(occupiedTables).sort((a, b) => a - b);
+        
+        // Show message if no tables occupied
+        if (tablesToShow.length === 0) {
+          const noTablesMsg = document.createElement('div');
+          noTablesMsg.className = 'no-tables-message';
+          noTablesMsg.innerHTML = `
+            <p style="text-align: center; color: var(--light-cream); padding: 20px;">
+              ${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 'No occupied tables'}
+            </p>
+          `;
+          tablesContainer.appendChild(noTablesMsg);
+          return;
+        }
+      }
+      
+      // Display tables
+      tablesToShow.forEach(tableNum => {
         const tableCard = document.createElement('div');
         tableCard.className = 'table-card';
         tableCard.dataset.tableNumber = tableNum;
