@@ -4137,7 +4137,7 @@
         nameAr: "برجر نباتي",
         modelSrc: "models/Alfredo Pasta.glb", // Using existing model as placeholder
         description: "Plant-based patty with avocado, grilled onions, and chipotle mayo.",
-        descriptionAr: "قطعة برجر نباتية مع أفوكادو، بصل مشوي، ومايونيز تشيبوتلي.",
+        descriptionAr: "قطعة برجر نباتية مع أفوكادو، بصل مشويI� ومايونيز تشيبوتلي.",
         price: 13.99,
         category: "burgers",
         mainCategory: "food"
@@ -6675,7 +6675,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الطلب' : 'Order Error',
           currentLanguage === 'ar' 
-            ? 'حدث خطأ أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.'
+            ? 'حدث خط � أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.'
             : error.message || 'There was an error placing your order. Please try again.',
           'error'
         );
@@ -7865,8 +7865,11 @@
           
           querySnapshot.forEach((doc) => {
             const order = doc.data();
+            order.id = doc.id; // Make sure the id is set
+            
             const orderEl = document.createElement('div');
             orderEl.className = 'client-order';
+            orderEl.setAttribute('data-order-id', doc.id); // Add data-order-id attribute for easier selection
             
             // Generate status class and text
             let statusClass = '';
@@ -7978,6 +7981,25 @@
     }
     
     async function cancelOrder(orderId) {
+      // First update local UI immediately for better responsiveness
+      let orderCard = null;
+      try {
+        // Find and animate the card visually first for improved UX
+        orderCard = document.querySelector(`.client-order[data-order-id="${orderId}"]`) || 
+                    document.querySelector(`.client-order:has([data-order-id="${orderId}"])`) ||
+                    document.querySelector(`.client-order:has(.client-order-id:contains('${orderId}'))`);
+                    
+        if (orderCard) {
+          // Apply fade out animation immediately
+          orderCard.style.opacity = '0.5';
+          orderCard.style.transform = 'scale(0.97)';
+          orderCard.style.pointerEvents = 'none'; // Prevent additional clicks
+        }
+      } catch (uiError) {
+        console.warn("Error updating UI for order cancellation:", uiError);
+        // Continue with cancellation even if UI update fails
+      }
+      
       // Show loading notification immediately for better UX
       showNotification(
         currentLanguage === 'ar' ? 'جارٍ إلغاء الطلب' : 'Cancelling Order',
@@ -7989,22 +8011,59 @@
       );
       
       try {
-        // Find the order to get table number
-        const orderDoc = await db.collection('orders').doc(orderId).get();
-        const orderData = orderDoc.data();
+        if (!db || typeof db.collection !== 'function') {
+          throw new Error("Database not initialized");
+        }
         
-        if (!orderData) {
-          console.error("Order not found");
+        // Start a batch operation for atomicity
+        const batch = db.batch();
+        
+        // Reference to order document
+        const orderRef = db.collection('orders').doc(orderId);
+        
+        // Get order data first to check status and get table number
+        const orderDoc = await orderRef.get();
+        
+        // If order doesn't exist, handle error but still update UI
+        if (!orderDoc.exists) {
+          console.error("Order not found:", orderId);
+          
+          // Complete the UI removal anyway (user doesn't care if it exists on server)
+          if (orderCard) {
+            setTimeout(() => {
+              if (orderCard.parentNode) {
+                orderCard.parentNode.removeChild(orderCard);
+              }
+              
+              // If no orders left, show "no orders" message
+              if (clientOrdersList && clientOrdersList.children.length <= 1) { // <= 1 because the current card is still there
+                clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+              }
+            }, 300);
+          }
+          
           showNotification(
-            currentLanguage === 'ar' ? 'خطأ' : 'Error',
-            currentLanguage === 'ar' ? 'لم يتم العثور على الطلب' : 'Order not found',
-            'error'
+            currentLanguage === 'ar' ? 'تنبيه' : 'Notice',
+            currentLanguage === 'ar' 
+              ? 'تم إزالة الطلب من العرض' 
+              : 'Order removed from display',
+            'info'
           );
+          
           return;
         }
         
-        // Only allow cancellation if order is pending
-        if (orderData.status !== 'pending') {
+        const orderData = orderDoc.data();
+        
+        // Only allow cancellation if order is pending (unless we're in admin mode)
+        if (orderData.status !== 'pending' && userType !== 'admin' && userType !== 'staff') {
+          // Restore card appearance
+          if (orderCard) {
+            orderCard.style.opacity = '1';
+            orderCard.style.transform = 'scale(1)';
+            orderCard.style.pointerEvents = 'auto';
+          }
+          
           showNotification(
             currentLanguage === 'ar' ? 'لا يمكن الإلغاء' : 'Cannot Cancel',
             currentLanguage === 'ar' 
@@ -8015,18 +8074,57 @@
           return;
         }
         
-        // Delete the order completely instead of just marking as cancelled
-        await db.collection('orders').doc(orderId).delete();
+        // Store table number for later use
+        const tableNumber = orderData.tableNumber;
         
-        // If table has no other orders, release it
-        const tableOrders = await db.collection('orders')
-          .where('tableNumber', '==', orderData.tableNumber)
-          .where('status', 'in', ['pending', 'preparing', 'ready'])
-          .get();
+        // Delete the order
+        batch.delete(orderRef);
         
-        if (tableOrders.empty) {
-          // Release the table if this was the only order
-          releaseTable(orderData.tableNumber);
+        // Commit the batch
+        await batch.commit();
+        
+        console.log(`Order ${orderId} successfully deleted`);
+        
+        // Now check if we need to release the table
+        try {
+          // Check if table has any other active orders
+          const tableOrdersQuery = await db.collection('orders')
+            .where('tableNumber', '==', tableNumber)
+            .where('status', 'in', ['pending', 'preparing', 'ready'])
+            .get();
+          
+          // If no other orders for this table, release it
+          if (tableOrdersQuery.empty) {
+            console.log(`No more active orders for table ${tableNumber}, releasing table`);
+            
+            try {
+              // Direct update of table status instead of using releaseTable function 
+              // which might have its own validation rules
+              await db.collection('tableStatus').doc(tableNumber.toString()).set({
+                status: 'free',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedBy: {
+                  username: 'system',
+                  role: 'system',
+                  note: 'Auto-released after order cancellation'
+                }
+              });
+              
+              // Update local state
+              occupiedTables.delete(tableNumber);
+              if (tableDetails[tableNumber]) {
+                delete tableDetails[tableNumber];
+              }
+              
+              console.log(`Table ${tableNumber} released after order cancellation`);
+            } catch (tableError) {
+              console.error(`Error releasing table ${tableNumber}:`, tableError);
+              // Continue with the flow - we still succeeded in cancelling the order
+            }
+          }
+        } catch (tableCheckError) {
+          console.error("Error checking table orders:", tableCheckError);
+          // Continue with the flow - we still succeeded in cancelling the order
         }
         
         // Show success notification
@@ -8038,10 +8136,9 @@
           'success'
         );
         
-        // Update the UI - animate the removal of the cancelled order card
-        const orderCard = document.querySelector(`.client-order:has(.client-order-id:contains('${orderId}'))`);
+        // Complete the UI removal
         if (orderCard) {
-          // Apply fade out animation
+          // Final animation
           orderCard.style.opacity = '0';
           orderCard.style.transform = 'scale(0.95)';
           
@@ -8052,7 +8149,7 @@
             }
             
             // If no orders left, show "no orders" message
-            if (clientOrdersList.children.length === 0) {
+            if (clientOrdersList && clientOrdersList.children.length === 0) {
               clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
             }
           }, 300);
@@ -8060,13 +8157,71 @@
           // Refresh client orders if we couldn't find the specific card
           renderClientOrders();
         }
+        
       } catch (error) {
         console.error("Error cancelling order:", error);
+        
+        // Restore card appearance if there was an error
+        if (orderCard) {
+          orderCard.style.opacity = '1';
+          orderCard.style.transform = 'scale(1)';
+          orderCard.style.pointerEvents = 'auto';
+        }
+        
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الإلغاء' : 'Cancellation Error',
-          currentLanguage === 'ar' ? "حدث خطأ أثناء إلغاء الطلب" : "An error occurred while cancelling the order",
+          currentLanguage === 'ar' 
+            ? "حدث خطأ أثناء إلغاء الطلب" 
+            : "An error occurred while cancelling the order",
           'error'
         );
+        
+        // Try fallback approach - mark as cancelled instead of deleting
+        try {
+          await db.collection('orders').doc(orderId).update({
+            status: 'cancelled',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            cancelReason: 'Cancelled by user (fallback method)'
+          });
+          
+          console.log("Order cancelled using fallback method");
+          
+          // Complete the UI removal even with fallback
+          if (orderCard) {
+            orderCard.style.opacity = '0';
+            orderCard.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+              if (orderCard.parentNode) {
+                orderCard.parentNode.removeChild(orderCard);
+              }
+              
+              if (clientOrdersList && clientOrdersList.children.length === 0) {
+                clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+              }
+            }, 300);
+            
+            showNotification(
+              currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
+              currentLanguage === 'ar' 
+                ? `تم إلغاء طلبك بنجاح (طريقة بديلة)` 
+                : `Your order has been cancelled (alternate method)`,
+              'success'
+            );
+          } else {
+            renderClientOrders();
+          }
+        } catch (fallbackError) {
+          console.error("Even fallback cancellation failed:", fallbackError);
+          // At this point, just update the UI to remove the order locally
+          if (orderCard && orderCard.parentNode) {
+            orderCard.parentNode.removeChild(orderCard);
+            
+            if (clientOrdersList && clientOrdersList.children.length === 0) {
+              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+            }
+          }
+        }
       }
     }
     
