@@ -3474,13 +3474,13 @@
     // Firebase configuration with better error handling
     const firebaseApiKey = "{{FIREBASE_API_KEY}}";
     const firebaseConfig = {
-      apiKey: firebaseApiKey, 
-      authDomain: "ar-dining-demo.firebaseapp.com", 
-      projectId: "ar-dining-demo",
-      storageBucket: "ar-dining-demo.appspot.com",
-      messagingSenderId: "617966771945",
-      appId: "1:617966771945:web:3e6c42ecd15ee4c0a7651c",
-      measurementId: "G-CZCP7XBVKG"
+      apiKey: firebaseApiKey || "AIzaSyD5bF7rsIhlJ0-EBdRTHH67quCzjOFCRdQ", 
+      authDomain: "the-oak-cafe.firebaseapp.com", 
+      projectId: "the-oak-cafe",
+      storageBucket: "the-oak-cafe.firebasestorage.app",
+      messagingSenderId: "871343311823",
+      appId: "1:871343311823:web:eb6724643e10cafde9e0ba",
+      measurementId: "G-G83C83HXWR"
     };
     
     // Initialize Firebase with better error handling for demo and production modes
@@ -3523,6 +3523,180 @@
       }
       
       db = firebase.firestore();
+      
+      // Initialize collections and data
+      const initializeFirebase = async () => {
+        try {
+          console.log("Setting up Firebase collections and data...");
+          
+          // Load table assignments from Firebase to sync with local array
+          const loadTableAssignments = async () => {
+            try {
+              const assignmentsRef = db.collection('tableAssignments');
+              const snapshot = await assignmentsRef.get();
+              
+              // Clear existing assignments to be replaced with Firebase data
+              tableAssignments = [];
+              
+              if (!snapshot.empty) {
+                snapshot.forEach(doc => {
+                  const data = doc.data();
+                  tableAssignments.push({
+                    id: doc.id,
+                    staffUsername: data.staffUsername,
+                    startTable: data.startTable,
+                    endTable: data.endTable
+                  });
+                });
+                console.log("Loaded table assignments from Firebase:", tableAssignments);
+              } else {
+                // If no assignments exist, create default ones
+                console.log("No table assignments found, creating defaults");
+                
+                // Create default assignments if needed
+                const defaultAssignments = [
+                  { staffUsername: 'sarah', startTable: 1, endTable: 5 },
+                  { staffUsername: 'john', startTable: 6, endTable: 10 },
+                  { staffUsername: 'ahmad', startTable: 11, endTable: 16 }
+                ];
+                
+                // Save to Firebase and update local array
+                for (const assignment of defaultAssignments) {
+                  const docRef = await assignmentsRef.add({
+                    staffUsername: assignment.staffUsername,
+                    startTable: assignment.startTable,
+                    endTable: assignment.endTable,
+                    created: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+                  
+                  tableAssignments.push({
+                    id: docRef.id,
+                    ...assignment
+                  });
+                }
+                
+                console.log("Created default table assignments");
+              }
+            } catch (err) {
+              console.error("Error loading table assignments:", err);
+              // Keep the default assignments in memory even if Firebase fails
+            }
+          };
+          
+          // Load and create staff accounts if needed
+          const setupStaffAccounts = async () => {
+            try {
+              const staffRef = db.collection('staff');
+              
+              // Check for each staff account
+              for (const acc of accounts) {
+                const staffQuery = await staffRef.where('username', '==', acc.username).limit(1).get();
+                
+                if (staffQuery.empty) {
+                  await staffRef.add({
+                    username: acc.username,
+                    name: acc.name || acc.username,
+                    role: acc.role || 'staff',
+                    password: acc.password, // Note: In a real app, never store plaintext passwords
+                    active: true,
+                    created: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+                  console.log(`Staff account created for ${acc.username}`);
+                } else {
+                  console.log(`Staff account already exists for ${acc.username}`);
+                }
+              }
+            } catch (err) {
+              console.error("Error setting up staff accounts:", err);
+            }
+          };
+          
+          // Setup listeners for orders
+          const setupOrdersCollection = async () => {
+            try {
+              // Ensure the orders collection exists
+              const ordersRef = db.collection('orders');
+              await ordersRef.limit(1).get();
+              
+              // Setup real-time listener for occupied tables based on orders
+              ordersRef.onSnapshot(snapshot => {
+                try {
+                  if (!snapshot.empty) {
+                    // Update occupiedTables based on orders
+                    const tableMap = new Map();
+                    
+                    snapshot.forEach(doc => {
+                      const orderData = doc.data();
+                      const tableNum = orderData.tableNumber;
+                      
+                      if (tableNum) {
+                        // Add to occupied tables
+                        occupiedTables.add(tableNum);
+                        
+                        // Update table details
+                        if (!tableDetails[tableNum]) {
+                          tableDetails[tableNum] = { orders: [] };
+                        }
+                        
+                        // Add order to table details if not already there
+                        const orderExists = tableDetails[tableNum].orders.some(o => o.id === doc.id);
+                        if (!orderExists) {
+                          tableDetails[tableNum].orders.push({
+                            id: doc.id,
+                            status: orderData.status,
+                            items: orderData.items || [],
+                            timestamp: orderData.timestamp?.toDate() || new Date(),
+                            total: orderData.total || 0,
+                            assignedStaff: orderData.assignedStaff
+                          });
+                          
+                          // Sort orders by timestamp (newest first)
+                          tableDetails[tableNum].orders.sort((a, b) => 
+                            b.timestamp.getTime() - a.timestamp.getTime()
+                          );
+                        }
+                        
+                        // Map tables to their assigned staff
+                        if (orderData.assignedStaff) {
+                          tableMap.set(tableNum, orderData.assignedStaff);
+                        }
+                      }
+                    });
+                    
+                    console.log("Updated occupied tables from Firebase:", Array.from(occupiedTables));
+                    
+                    // Update tables display if we're in staff mode
+                    if (userType === 'staff' || userType === 'admin') {
+                      updateTablesDisplay();
+                    }
+                  }
+                } catch (err) {
+                  console.error("Error processing orders snapshot:", err);
+                }
+              }, err => {
+                console.error("Error in orders snapshot listener:", err);
+              });
+              
+            } catch (err) {
+              console.error("Error setting up orders collection:", err);
+            }
+          };
+          
+          // Execute all initialization tasks
+          await Promise.all([
+            loadTableAssignments(),
+            setupStaffAccounts(),
+            setupOrdersCollection()
+          ]);
+          
+          console.log("Firebase initialization completed");
+        } catch (err) {
+          console.error("Error in Firebase initialization:", err);
+        }
+      };
+      
+      // Initialize Firebase collections and data
+      initializeFirebase();
       
       // Monitor online/offline status
       firebase.firestore().enableNetwork().catch(err => {
@@ -3639,6 +3813,49 @@
               }
             ]
           };
+        }
+        
+        // Basic implementation of updateTablesDisplay for demo mode
+        function updateTablesDisplay() {
+          console.log("Updating tables display in demo mode");
+          const tablesContainer = document.getElementById('occupied-tables-container');
+          if (!tablesContainer) return;
+          
+          // Clear existing content
+          tablesContainer.innerHTML = '';
+          
+          // Display occupied tables
+          for (const tableNum of occupiedTables) {
+            const tableCard = document.createElement('div');
+            tableCard.className = 'table-card';
+            tableCard.dataset.tableNumber = tableNum;
+            
+            const statusClass = 'status-occupied'; // Default to occupied
+            
+            tableCard.innerHTML = `
+              <div class="table-card-header">
+                <h3>TABLE ${tableNum}</h3>
+                <span class="table-status ${statusClass}">
+                  ${currentLanguage === 'ar' ? 'مشغولة' : 'OCCUPIED'}
+                </span>
+              </div>
+              <div class="table-card-content">
+                <div class="table-info">
+                  <p>${currentLanguage === 'ar' ? 'الطلبات' : 'Orders'}: 
+                    <span>1</span>
+                  </p>
+                  <p>${currentLanguage === 'ar' ? 'آخر تحديث' : 'Last Updated'}: 
+                    <span>5 ${currentLanguage === 'ar' ? 'دقائق' : 'mins'} ${currentLanguage === 'ar' ? 'مضت' : 'ago'}</span>
+                  </p>
+                </div>
+                <button class="view-table-details-btn" onclick="viewTableDetails(${tableNum})">
+                  ${currentLanguage === 'ar' ? 'عرض التفاصيل' : 'VIEW DETAILS'}
+                </button>
+              </div>
+            `;
+            
+            tablesContainer.appendChild(tableCard);
+          }
         }
         
         // Update tables display for staff view
@@ -5178,6 +5395,72 @@
       };
     }
     
+    // New function to create orders with proper Firebase integration
+    async function createOrderInFirebase(orderData) {
+      if (!orderData || !orderData.tableNumber) {
+        console.error("Invalid order data for Firebase");
+        return null;
+      }
+      
+      try {
+        console.log("Creating order in Firebase:", orderData);
+        
+        // Get assigned staff for this table
+        const assignedStaff = getStaffForTable(orderData.tableNumber);
+        if (assignedStaff) {
+          console.log(`Table ${orderData.tableNumber} is assigned to staff member: ${assignedStaff.name} (${assignedStaff.role})`);
+          
+          // Add staff information to order
+          orderData.assignedStaff = {
+            name: assignedStaff.name,
+            username: assignedStaff.username,
+            role: assignedStaff.role
+          };
+        } else {
+          console.log(`No staff assigned to table ${orderData.tableNumber}`);
+        }
+        
+        // Add timestamps
+        orderData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        orderData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+        
+        // Add to Firebase
+        const docRef = await db.collection('orders').add(orderData);
+        console.log("Order created successfully with ID:", docRef.id);
+        
+        // Update local tables data
+        occupiedTables.add(orderData.tableNumber);
+        
+        // Prepare order for table details
+        const orderForTable = {
+          id: docRef.id,
+          status: orderData.status,
+          items: orderData.items,
+          timestamp: new Date(),
+          total: orderData.total,
+          assignedStaff: orderData.assignedStaff
+        };
+        
+        // Update table details
+        if (!tableDetails[orderData.tableNumber]) {
+          tableDetails[orderData.tableNumber] = { orders: [] };
+        }
+        
+        // Add to beginning of orders array
+        tableDetails[orderData.tableNumber].orders.unshift(orderForTable);
+        
+        // Update staff view if needed
+        if (userType === 'staff' || userType === 'admin') {
+          updateTablesDisplay();
+        }
+        
+        return docRef.id;
+      } catch (error) {
+        console.error("Error creating order in Firebase:", error);
+        return null;
+      }
+    }
+    
     function loginUser() {
       const user = username.value;
       const pass = password.value;
@@ -5832,7 +6115,6 @@
     function setupOrderListeners() {
       // Listen for orders in real-time
       db.collection('orders')
-        .orderBy('createdAt', 'desc')
         .onSnapshot((snapshot) => {
           // Track which tables are occupied
           const newOccupiedTables = new Set();
@@ -6895,17 +7177,75 @@
     }
     
     // Function to check which staff member is assigned to a table
-    function getStaffForTable(tableNumber) {
-      const assignment = tableAssignments.find(a => 
-        tableNumber >= a.startTable && tableNumber <= a.endTable
-      );
+    // This function is a duplicate and has been merged with the earlier implementation
+    
+    // Function to update tables display in staff view
+    function updateTablesDisplay() {
+      console.log("Updating tables display");
+      const tablesContainer = document.getElementById('occupied-tables-container');
+      if (!tablesContainer) return;
       
-      if (assignment) {
-        const staffInfo = accounts.find(staff => staff.username === assignment.staffUsername);
-        return staffInfo;
-      }
+      // Clear existing content
+      tablesContainer.innerHTML = '';
       
-      return null;
+      // Display occupied tables
+      occupiedTables.forEach(tableNum => {
+        const tableCard = document.createElement('div');
+        tableCard.className = 'table-card';
+        tableCard.dataset.tableNumber = tableNum;
+        
+        // Get table details
+        const details = tableDetails[tableNum] || { orders: [] };
+        const hasOrders = details.orders && details.orders.length > 0;
+        
+        // Get staff assigned to this table
+        const assignedStaff = getStaffForTable(tableNum);
+        const staffInfo = assignedStaff ? 
+          `<p class="assigned-staff">
+            <span class="staff-label">${currentLanguage === 'ar' ? 'الموظف:' : 'Staff:'}</span>
+            <span class="staff-name ${assignedStaff.role}">${assignedStaff.name}</span>
+          </p>` : '';
+        
+        // Get status based on orders
+        let statusText = currentLanguage === 'ar' ? 'مشغولة' : 'OCCUPIED';
+        let statusClass = 'status-occupied';
+        
+        if (hasOrders) {
+          const latestOrder = details.orders[0];
+          if (latestOrder.status === 'ready') {
+            statusText = currentLanguage === 'ar' ? 'جاهز للتقديم' : 'READY TO SERVE';
+            statusClass = 'status-ready';
+          } else if (latestOrder.status === 'preparing') {
+            statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'PREPARING';
+            statusClass = 'status-preparing';
+          }
+        }
+        
+        tableCard.innerHTML = `
+          <div class="table-card-header">
+            <h3>TABLE ${tableNum}</h3>
+            <span class="table-status ${statusClass}">
+              ${statusText}
+            </span>
+          </div>
+          <div class="table-card-content">
+            <div class="table-info">
+              <p>${currentLanguage === 'ar' ? 'الطلبات' : 'Orders'}: 
+                <span>${hasOrders ? details.orders.length : 0}</span>
+              </p>
+              ${staffInfo}
+              <p>${currentLanguage === 'ar' ? 'آخر تحديث' : 'Last Updated'}: 
+                <span>${hasOrders ? '5 ' + (currentLanguage === 'ar' ? 'دقائق' : 'mins') + ' ' + (currentLanguage === 'ar' ? 'مضت' : 'ago') : '-'}</span>
+              </p>
+            </div>
+            <button class="view-table-details-btn" onclick="viewTableDetails(${tableNum})">
+              ${currentLanguage === 'ar' ? 'عرض التفاصيل' : 'VIEW DETAILS'}
+            </button>
+          </div>
+        `;
+        
+        tablesContainer.appendChild(tableCard);
+      });
     }
     
     // Apply discount
