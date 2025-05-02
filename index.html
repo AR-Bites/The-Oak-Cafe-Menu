@@ -5590,15 +5590,56 @@
           // Generate a random ID for the order in offline mode
           orderId = 'offline-' + Math.floor(Math.random() * 1000000);
         } else {
-          // Add to Firebase
+          // Add to Firebase with improved error handling
           try {
-            const docRef = await db.collection('orders').add(orderData);
-            orderId = docRef.id;
+            // First, try to check if the table is still available
+            const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
+            const tableStatus = await tableStatusRef.get();
+            
+            // If the table is already marked as occupied in Firebase, we may want to warn the user
+            if (tableStatus.exists && tableStatus.data().status === 'occupied') {
+              console.warn(`Table ${tableNumber} is already marked as occupied in Firebase. Continuing anyway.`);
+            }
+            
+            // Prepare a batched write to update both the order and table status atomically
+            const batch = db.batch();
+            
+            // Create new order document
+            const orderRef = db.collection('orders').doc();
+            batch.set(orderRef, orderData);
+            
+            // Update table status to occupied
+            batch.set(tableStatusRef, {
+              status: 'occupied',
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              orderId: orderRef.id,
+              updatedBy: {
+                username: orderData.assignedStaff?.username || 'system',
+                role: orderData.assignedStaff?.role || 'system'
+              }
+            });
+            
+            // Commit the batch
+            await batch.commit();
+            
+            orderId = orderRef.id;
             console.log("Order created successfully with ID:", orderId);
+            
           } catch (dbError) {
             console.error("Firebase error creating order:", dbError);
-            // Fallback to offline mode if Firebase fails
-            orderId = 'fallback-' + Math.floor(Math.random() * 1000000);
+            
+            // Try a simpler approach - just add the order without the batch
+            try {
+              console.log("Trying fallback approach - adding order without batch");
+              const docRef = await db.collection('orders').add(orderData);
+              orderId = docRef.id;
+              console.log("Order created via fallback with ID:", orderId);
+            } catch (fallbackError) {
+              console.error("Even fallback order creation failed:", fallbackError);
+              // Ultimate fallback - create order ID locally
+              orderId = 'fallback-' + Math.floor(Math.random() * 1000000);
+              console.log("Using local fallback order ID:", orderId);
+            }
           }
         }
         
@@ -6219,20 +6260,51 @@
         
         // If the app is in Firebase mode, update the table status in Firebase
         if (db && typeof db.collection === 'function') {
-          try {
-            console.log(`Updating table ${tableNumber} status in Firebase to free`);
-            // Create a record in tableStatus collection to track table status
-            db.collection('tableStatus').doc(tableNumber.toString()).set({
-              status: 'free',
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-              updatedBy: {
-                username: localStorage.getItem('username') || 'system',
-                role: localStorage.getItem('staffRole') || 'system'
-              }
+          console.log(`Updating table ${tableNumber} status in Firebase to free`);
+          
+          // Create a record in tableStatus collection to track table status
+          db.collection('tableStatus').doc(tableNumber.toString()).set({
+            status: 'free',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy: {
+              username: localStorage.getItem('username') || 'system',
+              role: localStorage.getItem('staffRole') || 'system'
+            }
+          })
+          .then(() => {
+            console.log(`Table ${tableNumber} status updated in Firebase successfully`);
+            
+            // Now remove any completed orders for this table
+            return db.collection('orders')
+              .where('tableNumber', '==', tableNumber)
+              .where('status', '==', 'completed')
+              .get();
+          })
+          .then((completedOrders) => {
+            if (!completedOrders || completedOrders.empty) {
+              console.log(`No completed orders to remove for table ${tableNumber}`);
+              return;
+            }
+            
+            console.log(`Found ${completedOrders.docs.length} completed orders to remove for table ${tableNumber}`);
+            
+            // Delete each completed order
+            const batch = db.batch();
+            completedOrders.forEach(doc => {
+              batch.delete(doc.ref);
             });
-          } catch (error) {
+            
+            return batch.commit();
+          })
+          .then(() => {
+            console.log('All completed orders removed successfully');
+          })
+          .catch((error) => {
             console.error('Error updating table status in Firebase:', error);
-          }
+            
+            // Even if Firebase update fails, we continue with the UI update
+            console.log('Continuing with local table release despite Firebase error');
+          });
         } else {
           console.log('Firebase not available, skipping database update');
         }
@@ -6322,20 +6394,25 @@
       
       // If the app is in Firebase mode, update the table status in Firebase
       if (db && typeof db.collection === 'function') {
-        try {
-          console.log(`Updating table ${tableNumber} status in Firebase to occupied`);
-          // Create a record in tableStatus collection to track table status
-          db.collection('tableStatus').doc(tableNumber.toString()).set({
-            status: 'occupied',
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedBy: {
-              username: currentStaffUsername || 'system',
-              role: localStorage.getItem('staffRole') || 'system'
-            }
-          });
-        } catch (error) {
+        console.log(`Updating table ${tableNumber} status in Firebase to occupied`);
+        
+        // Create a record in tableStatus collection to track table status
+        db.collection('tableStatus').doc(tableNumber.toString()).set({
+          status: 'occupied',
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedBy: {
+            username: currentStaffUsername || 'system',
+            role: localStorage.getItem('staffRole') || 'system'
+          }
+        })
+        .then(() => {
+          console.log(`Table ${tableNumber} status updated in Firebase successfully`);
+        })
+        .catch((error) => {
           console.error('Error updating table status in Firebase:', error);
-        }
+          // Continue with local updates even if Firebase fails
+          console.log('Continuing with local table occupation despite Firebase error');
+        });
       } else {
         console.log('Firebase not available, skipping database update');
       }
@@ -6604,20 +6681,90 @@
       }
     }
     
-    function renderOrders() {
+    function renderOrders(retryAttempt = 0) {
+      console.log(`Rendering orders (retry attempt: ${retryAttempt})`);
       const ordersList = document.getElementById('orders-list');
-      ordersList.innerHTML = '';
       
-      // Fetch all pending, preparing, ready orders
-      db.collection('orders')
-        .where('status', 'in', ['pending', 'preparing', 'ready'])
-        .orderBy('createdAt', 'desc')
-        .get()
-        .then((querySnapshot) => {
-          if (querySnapshot.empty) {
-            ordersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
-            return;
+      // Show loading indicator
+      ordersList.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--light-cream);"></i>
+          <p style="margin-top: 10px; color: var(--light-cream);">${currentLanguage === 'ar' ? 'جاري تحميل الطلبات...' : 'Loading orders...'}</p>
+        </div>
+      `;
+      
+      // Verify Firebase connection before proceeding
+      if (!db || typeof db.collection !== 'function') {
+        console.error("Firebase database not initialized");
+        ordersList.innerHTML = `
+          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>
+          <button onclick="renderOrders(0)" class="retry-btn" style="display: block; margin: 10px auto; padding: 5px 15px; background: var(--gold); color: black; border: none; border-radius: 4px; cursor: pointer;">
+            <i class="fas fa-sync-alt"></i> ${currentLanguage === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+          </button>
+        `;
+        return;
+      }
+      
+      // Maximum retry attempts
+      const MAX_RETRIES = 3;
+      
+      try {
+        // Define a function to fetch orders with fallback for missing index errors
+        const fetchOrders = async () => {
+          try {
+            // Try the optimal query first (requires composite index)
+            return await db.collection('orders')
+              .where('status', 'in', ['pending', 'preparing', 'ready'])
+              .orderBy('createdAt', 'desc')
+              .get();
+          } catch (error) {
+            // Check if it's a missing index error
+            if (error.code === 'failed-precondition') {
+              console.log("Missing composite index for orders. Using fallback method.");
+              
+              // Fallback approach: get all orders and filter in memory
+              const allOrders = await db.collection('orders').get();
+              
+              // Filter the documents manually
+              const filteredDocs = [];
+              
+              allOrders.forEach(doc => {
+                const data = doc.data();
+                if (data.status === 'pending' || data.status === 'preparing' || data.status === 'ready') {
+                  filteredDocs.push(doc);
+                }
+              });
+              
+              // Sort by creation date if available
+              filteredDocs.sort((a, b) => {
+                const aData = a.data();
+                const bData = b.data();
+                
+                if (aData.createdAt && bData.createdAt) {
+                  return bData.createdAt.seconds - aData.createdAt.seconds;
+                }
+                return 0;
+              });
+              
+              // Create a snapshot-like object
+              return {
+                empty: filteredDocs.length === 0,
+                docs: filteredDocs,
+                forEach: callback => filteredDocs.forEach(callback)
+              };
+            }
+            
+            // For other errors, just re-throw
+            throw error;
           }
+        };
+        
+        // Use our fetchOrders function
+        fetchOrders().then((querySnapshot) => {
+            if (querySnapshot.empty) {
+              ordersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+              return;
+            }
           
           querySnapshot.forEach((doc) => {
             const order = doc.data();
@@ -6737,8 +6884,35 @@
         })
         .catch((error) => {
           console.error("Error fetching orders:", error);
-          ordersList.innerHTML = `<p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ في تحميل الطلبات' : 'Error loading orders'}</p>`;
+          
+          // If this is not the final retry attempt, try again
+          if (retryAttempt < MAX_RETRIES) {
+            console.log(`Retrying order fetch (attempt ${retryAttempt + 1} of ${MAX_RETRIES})...`);
+            setTimeout(() => {
+              renderOrders(retryAttempt + 1);
+            }, 1000); // Wait 1 second before retrying
+            return;
+          }
+          
+          // Show error with retry button
+          ordersList.innerHTML = `
+            <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ في تحميل الطلبات' : 'Error loading orders'}</p>
+            <button onclick="renderOrders(0)" class="retry-btn" style="display: block; margin: 10px auto; padding: 5px 15px; background: var(--gold); color: black; border: none; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-sync-alt"></i> ${currentLanguage === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+            </button>
+          `;
         });
+      } catch (error) {
+        console.error("Fatal error in renderOrders:", error);
+        
+        // Show error with retry button
+        ordersList.innerHTML = `
+          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ في تحميل الطلبات' : 'Error loading orders'}</p>
+          <button onclick="renderOrders(0)" class="retry-btn" style="display: block; margin: 10px auto; padding: 5px 15px; background: var(--gold); color: black; border: none; border-radius: 4px; cursor: pointer;">
+            <i class="fas fa-sync-alt"></i> ${currentLanguage === 'ar' ? 'إعادة المحاولة' : 'Retry'}
+          </button>
+        `;
+      }
     }
     
     function renderTablesOverview() {
