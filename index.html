@@ -5568,7 +5568,8 @@
       }
       
       try {
-        console.log("Creating order in Firebase:", orderData);
+        // Minimal logging to improve performance
+        console.log("Creating order for table:", orderData.tableNumber);
         
         // Ensure table number is an integer
         const tableNumber = parseInt(orderData.tableNumber);
@@ -6301,12 +6302,9 @@
                   const orderData = doc.data();
                   
                   if (['pending', 'preparing', 'ready'].includes(orderData.status)) {
-                    // For active orders, mark as cancelled
-                    batch.update(doc.ref, {
-                      status: 'cancelled', 
-                      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                      cancelReason: 'Table released'
-                    });
+                    // For active orders, delete them completely instead of just marking as cancelled
+                    // This helps prevent database clutter and improves performance
+                    batch.delete(doc.ref);
                     pendingOrdersFound = true;
                   } else if (orderData.status === 'completed') {
                     // Delete completed orders
@@ -6332,10 +6330,10 @@
                   // Only show a success notification if we actually canceled any pending orders
                   if (pendingOrdersFound) {
                     showNotification(
-                      currentLanguage === 'ar' ? 'تم تحديث الطلبات' : 'Orders Updated',
+                      currentLanguage === 'ar' ? 'تم تحديث الطلبات' : 'Orders Removed',
                       currentLanguage === 'ar' 
-                        ? 'تم إلغاء جميع الطلبات النشطة' 
-                        : 'All active orders were cancelled',
+                        ? 'تم حذف جميع الطلبات النشطة' 
+                        : 'All active orders were deleted',
                       'success'
                     );
                   }
@@ -6545,14 +6543,38 @@
     // Checkout
     async function checkout() {
       if (cart.length === 0) {
+        showNotification(
+          currentLanguage === 'ar' ? 'سلة فارغة' : 'Empty Cart',
+          currentLanguage === 'ar' 
+            ? 'الرجاء إضافة أصناف إلى سلتك أولاً'
+            : 'Please add items to your cart first',
+          'info'
+        );
+        return;
+      }
+      
+      // Verify table number exists
+      if (!tableNumber) {
+        showNotification(
+          currentLanguage === 'ar' ? 'رقم الطاولة مطلوب' : 'Table Number Required',
+          currentLanguage === 'ar' 
+            ? 'الرجاء إدخال رقم الطاولة الخاص بك أولاً'
+            : 'Please enter your table number first',
+          'warning'
+        );
+        
+        // Show table number input modal
+        setTimeout(() => {
+          showTableModal(true);
+        }, 500);
         return;
       }
       
       // Check if table is still available
-      if (userType === "guest" && tableNumber) {
+      try {
         const isAvailable = await checkTableAvailability(tableNumber);
         if (!isAvailable) {
-          // Use notification instead of alert for better UX
+          // Table is occupied, show error and ask for new table
           showNotification(
             currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
             currentLanguage === 'ar' 
@@ -6561,15 +6583,18 @@
             'error'
           );
           
-          // Slight delay before showing table modal for better UX
+          // Show table modal after a slight delay
           setTimeout(() => {
             showTableModal(true);
           }, 500);
           return;
         }
+      } catch (error) {
+        console.error("Error checking table availability:", error);
+        // Continue with order process - we'll let createOrderInFirebase handle table validation again
       }
       
-      // Set checkout button to loading state
+      // Set checkout button to loading state with visual feedback
       checkoutBtn.classList.add('checkout-loading');
       checkoutBtn.disabled = true;
       
@@ -6583,19 +6608,31 @@
         const tax = subtotal * 0.08;
         const total = subtotal + tax;
         
-        // Create order using our improved Firebase integration
+        // Prepare the order data
         const order = {
           clientId: clientId,
-          items: [...cart],
+          items: JSON.parse(JSON.stringify(cart)), // Create deep copy to prevent mutation issues
           subtotal: subtotal,
           tax: tax,
           total: total,
           status: 'pending',
           tableNumber: tableNumber,
-          estimatedTime: estimatedTime
+          estimatedTime: estimatedTime,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        // Use our new integrated function to create the order with staff assignment
+        // Show processing notification to improve perceived responsiveness
+        showNotification(
+          currentLanguage === 'ar' ? 'جارٍ المعالجة' : 'Processing',
+          currentLanguage === 'ar' 
+            ? 'جارٍ معالجة طلبك...' 
+            : 'Processing your order...',
+          'info',
+          3000
+        );
+        
+        // Create the order in Firebase
         const orderId = await createOrderInFirebase(order);
         
         if (!orderId) {
@@ -6603,10 +6640,10 @@
           throw new Error("Failed to create order in Firebase");
         }
         
-        // Mark table as occupied
+        // Mark table as occupied locally for immediate feedback
         occupiedTables.add(tableNumber);
         
-        // Update estimated time for next order
+        // Update estimated time for next order (kitchen load simulation)
         estimatedTime = Math.min(estimatedTime + 5, 60); // Increase by 5 mins, max 60
         updateEstimatedTime();
         
@@ -6614,8 +6651,8 @@
         showNotification(
           currentLanguage === 'ar' ? 'تم الطلب بنجاح' : 'Order Placed',
           currentLanguage === 'ar' 
-            ? `تم تقديم طلبك بنجاح! رقم الطلب: ${orderId}` 
-            : `Your order has been successfully placed! Order #${orderId}`,
+            ? `تم تقديم طلبك بنجاح!` 
+            : `Your order has been successfully placed!`,
           'success'
         );
         
@@ -6626,16 +6663,20 @@
         // Close cart panel
         toggleCart();
         
-        // Auto show the client orders panel
-        clientOrders.classList.add('active');
-        renderClientOrders();
+        // Auto show the client orders panel with a slight delay for better UX
+        setTimeout(() => {
+          clientOrders.classList.add('active');
+          renderClientOrders();
+        }, 800);
         
       } catch (error) {
         console.error('Error placing order:', error);
-        // Replace alert with notification for better UX
+        // Show detailed error notification
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الطلب' : 'Order Error',
-          currentLanguage === 'ar' ? 'حدث خطأ أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.' : 'There was an error placing your order. Please try again.',
+          currentLanguage === 'ar' 
+            ? 'حدث خطأ أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.'
+            : error.message || 'There was an error placing your order. Please try again.',
           'error'
         );
       } finally {
@@ -7329,13 +7370,38 @@
             }
           }
           
-          // Update order status with staff assignment info
-          await db.collection('orders').doc(orderId).update(updateData);
-          
-          // If order is completed or cancelled, release the table
-          if (newStatus === 'completed' || newStatus === 'cancelled') {
-            // No need to wait for this, let it happen in background
+          // For cancelled orders, actually delete them rather than just updating status
+          if (newStatus === 'cancelled') {
+            // Delete the order completely
+            await db.collection('orders').doc(orderId).delete();
+            
+            console.log(`Order ${orderId} has been deleted from the database`);
+            
+            // Remove from local UI if needed
+            if (targetCardElement && targetCardElement.parentNode) {
+              // Apply fade out animation
+              targetCardElement.style.opacity = '0';
+              targetCardElement.style.transform = 'scale(0.95)';
+              
+              // After animation, remove from DOM
+              setTimeout(() => {
+                if (targetCardElement.parentNode) {
+                  targetCardElement.parentNode.removeChild(targetCardElement);
+                }
+              }, 300);
+            }
+            
+            // Release the table
             releaseTable(orderData.tableNumber);
+          } else {
+            // For other statuses, just update the order
+            await db.collection('orders').doc(orderId).update(updateData);
+            
+            // If order is completed, release the table
+            if (newStatus === 'completed') {
+              // No need to wait for this, let it happen in background
+              releaseTable(orderData.tableNumber);
+            }
           }
           
           // Show success notification
@@ -7597,52 +7663,203 @@
     }
     
     // Function to clean up old completed orders (delete after 6 hours)
-    function cleanupCompletedOrders() {
-      console.log("Running cleanup of completed orders");
+    async function cleanupCompletedOrders() {
+      if (!db || typeof db.collection !== 'function') {
+        console.warn("Database not available, skipping order cleanup");
+        return;
+      }
+
+      console.log("Running cleanup of completed orders and fixing stuck orders");
       
-      // Calculate cutoff time (6 hours ago)
-      const sixHoursAgo = new Date();
-      sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
-      
-      // Query for completed orders with completedAt timestamp older than cutoff
-      db.collection('orders')
-        .where('status', '==', 'completed')
-        .where('completedAt', '<', sixHoursAgo)
-        .get()
-        .then(querySnapshot => {
-          console.log(`Found ${querySnapshot.size} old completed orders to clean up`);
+      try {
+        // Calculate cutoff times
+        const sixHoursAgo = new Date();
+        sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
+        
+        const twoHoursAgo = new Date();
+        twoHoursAgo.setHours(twoHoursAgo.getHours() - 2);
+        
+        // Create a batched write for efficiency
+        const batch = db.batch();
+        let documentCount = 0;
+        const BATCH_LIMIT = 495; // Firestore limit is 500
+        let hasDeletions = false;
+        
+        // CLEANUP TASK 1: Delete completed orders older than 6 hours
+        try {
+          const completedOrdersQuery = await db.collection('orders')
+            .where('status', '==', 'completed')
+            .get();
           
-          // Delete each old completed order
-          const batch = db.batch();
-          querySnapshot.forEach(doc => {
-            batch.delete(doc.ref);
+          completedOrdersQuery.forEach(doc => {
+            const data = doc.data();
+            // Check if completedAt exists and is older than six hours
+            if (data.completedAt && data.completedAt.toDate && data.completedAt.toDate() < sixHoursAgo) {
+              if (documentCount < BATCH_LIMIT) {
+                batch.delete(doc.ref);
+                documentCount++;
+                hasDeletions = true;
+              }
+            }
           });
           
-          return batch.commit();
-        })
-        .then(() => {
-          console.log("Completed orders cleanup successful");
-        })
-        .catch(error => {
-          console.error("Error cleaning up completed orders:", error);
-        });
+          console.log(`Found ${documentCount} old completed orders to delete`);
+        } catch (error) {
+          console.error("Error querying completed orders:", error);
+          // Continue with other tasks
+        }
+        
+        // CLEANUP TASK 2: Mark stale "pending" orders as cancelled after 2 hours
+        try {
+          const stuckPendingOrdersQuery = await db.collection('orders')
+            .where('status', '==', 'pending')
+            .get();
+          
+          let stuckPendingCount = 0;
+          stuckPendingOrdersQuery.forEach(doc => {
+            const data = doc.data();
+            // Check if the pending order is older than 2 hours
+            if (data.createdAt && data.createdAt.toDate && data.createdAt.toDate() < twoHoursAgo) {
+              if (documentCount < BATCH_LIMIT) {
+                batch.update(doc.ref, {
+                  status: 'cancelled',
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  systemCancelled: true,
+                  cancellationReason: 'Automatically cancelled after 2 hours in pending state'
+                });
+                documentCount++;
+                stuckPendingCount++;
+              }
+            }
+          });
+          
+          console.log(`Found ${stuckPendingCount} stuck pending orders to auto-cancel`);
+        } catch (error) {
+          console.error("Error processing stuck pending orders:", error);
+        }
+        
+        // CLEANUP TASK 3: Clean up cancelled orders older than 12 hours
+        try {
+          const twelvehHoursAgo = new Date();
+          twelvehHoursAgo.setHours(twelvehHoursAgo.getHours() - 12);
+          
+          const cancelledOrdersQuery = await db.collection('orders')
+            .where('status', '==', 'cancelled')
+            .get();
+          
+          let cancelledCount = 0;
+          cancelledOrdersQuery.forEach(doc => {
+            const data = doc.data();
+            // Check if the cancelled order is older than 12 hours
+            if (data.updatedAt && data.updatedAt.toDate && data.updatedAt.toDate() < twelvehHoursAgo) {
+              if (documentCount < BATCH_LIMIT) {
+                batch.delete(doc.ref);
+                documentCount++;
+                cancelledCount++;
+                hasDeletions = true;
+              }
+            }
+          });
+          
+          console.log(`Found ${cancelledCount} old cancelled orders to delete`);
+        } catch (error) {
+          console.error("Error cleaning up cancelled orders:", error);
+        }
+        
+        // Commit changes if any documents were processed
+        if (documentCount > 0) {
+          await batch.commit();
+          console.log(`Database cleanup successful: Processed ${documentCount} documents`);
+          
+          // If we deleted orders, check if any tables can be released
+          if (hasDeletions) {
+            checkAndReleaseEmptyTables();
+          }
+        } else {
+          console.log("No documents needed cleanup");
+        }
+        
+      } catch (error) {
+        console.error("Error during orders cleanup process:", error);
+      }
     }
     
-    // Run cleanup every hour
+    // Check for tables that can be released (no active orders)
+    async function checkAndReleaseEmptyTables() {
+      try {
+        // First get all occupied tables
+        const tableStatusQuery = await db.collection('tableStatus')
+          .where('status', '==', 'occupied')
+          .get();
+        
+        // For each occupied table, check if it still has active orders
+        tableStatusQuery.forEach(async (tableDoc) => {
+          const tableNumber = tableDoc.id;
+          
+          try {
+            // Check for any active orders for this table
+            const activeOrdersQuery = await db.collection('orders')
+              .where('tableNumber', '==', parseInt(tableNumber))
+              .where('status', 'in', ['pending', 'preparing', 'ready'])
+              .get();
+            
+            // If no active orders, release the table
+            if (activeOrdersQuery.empty) {
+              await db.collection('tableStatus').doc(tableNumber).update({
+                status: 'free',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedBy: { username: 'system', role: 'system' }
+              });
+              
+              console.log(`Released table ${tableNumber} as it has no active orders`);
+            }
+          } catch (error) {
+            console.error(`Error checking orders for table ${tableNumber}:`, error);
+          }
+        });
+      } catch (error) {
+        console.error("Error in checkAndReleaseEmptyTables:", error);
+      }
+    }
+    
+    // Run cleanup process every hour
     setInterval(cleanupCompletedOrders, 60 * 60 * 1000);
     
     // Client Orders
     function renderClientOrders() {
-      clientOrdersList.innerHTML = '';
+      clientOrdersList.innerHTML = `
+        <div style="text-align: center; padding: 10px;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 1rem; color: var(--light-cream);"></i>
+          <p style="margin-top: 10px; color: var(--light-cream);">${currentLanguage === 'ar' ? 'جارٍ تحميل الطلبات...' : 'Loading orders...'}</p>
+        </div>
+      `;
       
-      db.collection('orders')
-        .where('clientId', '==', clientId)
+      // If we don't have a table number yet, don't show any orders
+      if (!tableNumber) {
+        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'الرجاء تحديد رقم الطاولة أولاً' : 'Please select a table number first'}</p>`;
+        return;
+      }
+      
+      // Create query to get only orders for the current table number and clientId from the current session
+      let ordersQuery = db.collection('orders')
+        .where('clientId', '==', clientId);
+      
+      // Add table number filter
+      if (tableNumber) {
+        ordersQuery = ordersQuery.where('tableNumber', '==', tableNumber);
+      }
+      
+      // Only show active orders (pending, preparing, ready)
+      // - Cancelled orders would have been deleted
+      // - Completed orders should only show for a limited time
+      ordersQuery
+        .where('status', 'in', ['pending', 'preparing', 'ready', 'completed'])
         .orderBy('createdAt', 'desc')
         .limit(5)
         .get()
         .then((querySnapshot) => {
           if (querySnapshot.empty) {
-            clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات' : 'No orders yet'}</p>`;
+            clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
             return;
           }
           
@@ -7761,6 +7978,16 @@
     }
     
     async function cancelOrder(orderId) {
+      // Show loading notification immediately for better UX
+      showNotification(
+        currentLanguage === 'ar' ? 'جارٍ إلغاء الطلب' : 'Cancelling Order',
+        currentLanguage === 'ar' 
+          ? 'جارٍ إلغاء طلبك...' 
+          : 'Cancelling your order...',
+        'info',
+        1500 // Auto-close after 1.5 seconds
+      );
+      
       try {
         // Find the order to get table number
         const orderDoc = await db.collection('orders').doc(orderId).get();
@@ -7768,6 +7995,11 @@
         
         if (!orderData) {
           console.error("Order not found");
+          showNotification(
+            currentLanguage === 'ar' ? 'خطأ' : 'Error',
+            currentLanguage === 'ar' ? 'لم يتم العثور على الطلب' : 'Order not found',
+            'error'
+          );
           return;
         }
         
@@ -7783,26 +8015,51 @@
           return;
         }
         
-        // Update order status
-        await db.collection('orders').doc(orderId).update({
-          status: 'cancelled',
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        // Delete the order completely instead of just marking as cancelled
+        await db.collection('orders').doc(orderId).delete();
         
-        // Release the table
-        releaseTable(orderData.tableNumber);
+        // If table has no other orders, release it
+        const tableOrders = await db.collection('orders')
+          .where('tableNumber', '==', orderData.tableNumber)
+          .where('status', 'in', ['pending', 'preparing', 'ready'])
+          .get();
         
-        // Show notification
+        if (tableOrders.empty) {
+          // Release the table if this was the only order
+          releaseTable(orderData.tableNumber);
+        }
+        
+        // Show success notification
         showNotification(
           currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
           currentLanguage === 'ar' 
-            ? `تم إلغاء طلبك ${orderId} بنجاح` 
-            : `Your order ${orderId} has been successfully cancelled`,
-          'info'
+            ? `تم إلغاء طلبك بنجاح` 
+            : `Your order has been successfully cancelled`,
+          'success'
         );
         
-        // Refresh client orders
-        renderClientOrders();
+        // Update the UI - animate the removal of the cancelled order card
+        const orderCard = document.querySelector(`.client-order:has(.client-order-id:contains('${orderId}'))`);
+        if (orderCard) {
+          // Apply fade out animation
+          orderCard.style.opacity = '0';
+          orderCard.style.transform = 'scale(0.95)';
+          
+          // After animation completes, remove the card
+          setTimeout(() => {
+            if (orderCard.parentNode) {
+              orderCard.parentNode.removeChild(orderCard);
+            }
+            
+            // If no orders left, show "no orders" message
+            if (clientOrdersList.children.length === 0) {
+              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+            }
+          }, 300);
+        } else {
+          // Refresh client orders if we couldn't find the specific card
+          renderClientOrders();
+        }
       } catch (error) {
         console.error("Error cancelling order:", error);
         showNotification(
