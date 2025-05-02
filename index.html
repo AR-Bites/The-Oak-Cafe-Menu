@@ -2843,6 +2843,64 @@
       color: var(--light-cream);
       flex: 1;
     }
+    
+    /* Staff Ratings List */
+    .staff-ratings-list {
+      margin-top: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 10px;
+    }
+    
+    .rating-item {
+      background: rgba(40, 40, 40, 0.5);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-left: 4px solid var(--gold);
+    }
+    
+    .rating-item.low-rating {
+      border-left-color: var(--red);
+    }
+    
+    .rating-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .rating-staff-name {
+      font-weight: bold;
+      color: var(--gold);
+    }
+    
+    .rating-stars-display {
+      color: var(--gold);
+    }
+    
+    .rating-stars-display.low-rating {
+      color: var(--red);
+    }
+    
+    .rating-feedback {
+      font-style: italic;
+      color: var(--light-cream);
+      font-size: 0.9em;
+      margin-top: 5px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 5px;
+    }
+    
+    .rating-meta {
+      font-size: 0.8em;
+      color: var(--light-cream);
+      opacity: 0.7;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -3046,6 +3104,11 @@
           <div class="admin-panel">
             <h3 id="ratings-title">RATINGS</h3>
             <canvas id="ratings-chart" height="200"></canvas>
+            
+            <!-- Staff Ratings List -->
+            <div class="staff-ratings-list" id="staff-ratings-list">
+              <!-- Staff ratings will be displayed here -->
+            </div>
           </div>
         </div>
       </div>
@@ -3523,6 +3586,15 @@
       }
       
       db = firebase.firestore();
+      
+      // Define staff accounts early for initialization
+      const accounts = [
+        { username: 'admin', name: 'Restaurant Administrator', password: '123456', role: 'admin' },
+        { username: 'ahmad', name: 'Ahmad Mohammed', password: '123456', role: 'manager' },
+        { username: 'john', name: 'John Smith', password: '123456', role: 'chef' },
+        { username: 'sarah', name: 'Sarah Johnson', password: '123456', role: 'server' },
+        { username: 'staff', name: 'General Staff', password: '123456', role: 'staff' }
+      ];
       
       // Initialize collections and data
       const initializeFirebase = async () => {
@@ -4243,12 +4315,24 @@
       // Set client ID for tracking orders
       localStorage.setItem(CLIENT_ID_KEY, clientId);
       
-      // Force showing the table number modal on initialization
-      console.log("Initialization: Forcing table modal display");
-      // Delay slightly to ensure it's fully visible
-      setTimeout(() => {
-        showTableModal();
-      }, 500);
+      // Check if the user is already logged in as staff or admin
+      const staffLoggedIn = localStorage.getItem(STAFF_TOKEN);
+      const adminLoggedIn = localStorage.getItem(ADMIN_TOKEN);
+      
+      if (staffLoggedIn || adminLoggedIn) {
+        console.log("Staff/Admin already logged in, bypassing table modal");
+        // Set user type based on existing token
+        userType = adminLoggedIn ? 'admin' : 'staff';
+        localStorage.setItem(USER_TYPE_KEY, userType);
+        checkAuthState();
+      } else {
+        // Force showing the table number modal on initialization for guests
+        console.log("Initialization: Forcing table modal display");
+        // Delay slightly to ensure it's fully visible
+        setTimeout(() => {
+          showTableModal();
+        }, 500);
+      }
       
       // Set initial category to "All" by default
       currentCategory = 'all';
@@ -4391,10 +4475,18 @@
                 if (modelViewer) modelViewer.style.visibility = 'visible';
                 
                 // Show table number modal immediately after loading
-                // Always show on first load, regardless of user type
+                // But skip it for logged in staff/admin
                 console.log("Checking tableNumber value:", tableNumber);
-                // Force showing the table modal every time
-                showTableModal();
+                console.log("User type on completion:", userType);
+                
+                // Check if we have a staff/admin token and skip the modal if we do
+                if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                  console.log("Staff/Admin already logged in, not showing table modal");
+                } else {
+                  // Force showing the table modal for guests
+                  console.log("Showing table modal for guests");
+                  showTableModal();
+                }
               }, 300);
             }, 200);
           } else {
@@ -4425,10 +4517,17 @@
               document.querySelector('.overlay').style.visibility = 'visible';
               if (modelViewer) modelViewer.style.visibility = 'visible';
               
-              // Show table number modal immediately after loading
-              // Force showing the table modal every time in failsafe
-              console.log("Failsafe: Showing table modal");
-              showTableModal();
+              // Check if we need to display the table modal in failsafe
+              console.log("Failsafe: Checking if we need to show table modal");
+              
+              // Skip for logged in staff/admin
+              if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
+              } else {
+                // Force showing the table modal for guests
+                console.log("Failsafe: Showing table modal for guests");
+                showTableModal();
+              }
             }, 300);
           }, 200);
         }
@@ -4898,7 +4997,7 @@
       const iceCreamCategoryBtn = document.getElementById('ice-cream-category-btn');
       
       if (allDessertsBtn) allDessertsBtn.textContent = currentLanguage === 'ar' ? 'كل الحلويات' : 'All Desserts';
-      if (cakesCategoryBtn) cakesCategoryBtn.textContent = currentLanguage === 'ar' ? 'كيك' : 'Cakes';
+      if (cakesCategoryBtn) cakesCategoryBtn.textContent = currentLanguage === 'ar' ? 'كي.�' : 'Cakes';
       if (iceCreamCategoryBtn) iceCreamCategoryBtn.textContent = currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream';
       
       // Also update the current food item in case it has translations
@@ -6028,41 +6127,25 @@
         const tax = subtotal * 0.08;
         const total = subtotal + tax;
         
-        // Create order
-        const orderId = 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-        
-        // Get assigned staff information for the table
-        let assignedStaffName = localStorage.getItem('assignedStaffName');
-        let assignedStaffUsername = localStorage.getItem('assignedStaffUsername');
-        let assignedStaffRole = localStorage.getItem('assignedStaffRole');
-        
-        // If staff info is not already set, try to get it from table assignments
-        if ((!assignedStaffName || !assignedStaffRole) && tableNumber) {
-          const tableStaff = getStaffForTable(tableNumber);
-          if (tableStaff) {
-            assignedStaffName = tableStaff.name;
-            assignedStaffUsername = tableStaff.username;
-            assignedStaffRole = tableStaff.role;
-          }
-        }
-        
+        // Create order using our improved Firebase integration
         const order = {
-          id: orderId,
           clientId: clientId,
           items: [...cart],
           subtotal: subtotal,
           tax: tax,
           total: total,
           status: 'pending',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           tableNumber: tableNumber,
-          estimatedTime: estimatedTime,
-          assignedStaffName: assignedStaffName || null,
-          assignedStaffUsername: assignedStaffUsername || null,
-          assignedStaffRole: assignedStaffRole || null
+          estimatedTime: estimatedTime
         };
         
-        await db.collection('orders').doc(orderId).set(order);
+        // Use our new integrated function to create the order with staff assignment
+        const orderId = await createOrderInFirebase(order);
+        
+        if (!orderId) {
+          // If order creation failed
+          throw new Error("Failed to create order in Firebase");
+        }
         
         // Mark table as occupied
         occupiedTables.add(tableNumber);
@@ -6285,13 +6368,22 @@
               `;
             });
             
-            // Check for assigned staff - first check if order has staff info
-            // If not, check table assignments
-            let assignedStaffName = order.assignedStaffName;
-            let assignedStaffRole = order.assignedStaffRole;
+            // Check for assigned staff - first check if order has assignedStaff object
+            // Then check for direct properties, then check table assignments
+            let assignedStaffName = null;
+            let assignedStaffRole = null;
             
-            // If order doesn't have staff info, check table assignments
-            if (!assignedStaffName) {
+            // Check different ways staff might be assigned to the order
+            if (order.assignedStaff) {
+              // Get from new assignedStaff object
+              assignedStaffName = order.assignedStaff.name;
+              assignedStaffRole = order.assignedStaff.role;
+            } else if (order.assignedStaffName) {
+              // Get from older direct properties
+              assignedStaffName = order.assignedStaffName;
+              assignedStaffRole = order.assignedStaffRole;
+            } else if (order.tableNumber) {
+              // As a fallback, check table assignments
               const tableStaff = getStaffForTable(order.tableNumber);
               if (tableStaff) {
                 assignedStaffName = tableStaff.name;
@@ -6491,17 +6583,70 @@
           return;
         }
         
-        // Get staff info from table assignment
+        // Get current staff role and username
+        const staffRole = localStorage.getItem('staffRole');
+        const staffUsername = localStorage.getItem('username');
+        const isAdmin = userType === 'admin';
+        
+        // Get staff info for the table
         const tableStaff = getStaffForTable(orderData.tableNumber);
         
-        // Update order status with staff assignment info
-        await db.collection('orders').doc(orderId).update({
+        // Only allow order updates if:
+        // 1. Current user is an admin
+        // 2. Current user is the assigned staff for this table
+        // 3. Current user has manager role
+        const isAssignedStaff = tableStaff && staffUsername === tableStaff.username;
+        const isManager = staffRole === 'manager';
+        
+        if (!isAdmin && !isAssignedStaff && !isManager) {
+          showNotification(
+            currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
+            currentLanguage === 'ar' 
+              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
+              : 'Only the assigned staff or manager can change this order status',
+            'error'
+          );
+          return;
+        }
+        
+        // Check if the order already has the new assignedStaff structure
+        const updateData = {
           status: newStatus,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          staffId: currentStaff,
-          assignedStaffName: tableStaff ? tableStaff.name : null,
-          assignedStaffRole: tableStaff ? tableStaff.role : null
-        });
+          staffId: currentStaff
+        };
+        
+        // Add assigned staff info to the update
+        if (tableStaff) {
+          if (orderData.assignedStaff) {
+            // Use the new structure if it exists
+            updateData.assignedStaff = {
+              name: tableStaff.name,
+              username: tableStaff.username,
+              role: tableStaff.role
+            };
+          } else {
+            // Fallback to old structure for compatibility
+            updateData.assignedStaffName = tableStaff.name;
+            updateData.assignedStaffUsername = tableStaff.username;
+            updateData.assignedStaffRole = tableStaff.role;
+          }
+        }
+        
+        // If order is completed, add completion time to calculate deletion time
+        if (newStatus === 'completed') {
+          updateData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
+          // For completed orders, we need to show rating for users
+          if (orderData.tableNumber === tableNumber) {
+            // If this is the user's table, show rating dialog after status update
+            setTimeout(() => {
+              showRatingDialog(orderId);
+            }, 1000);
+          }
+        }
+        
+        // Update order status with staff assignment info
+        await db.collection('orders').doc(orderId).update(updateData);
         
         // If order is completed or cancelled, release the table
         if (newStatus === 'completed' || newStatus === 'cancelled') {
@@ -6539,6 +6684,186 @@
       }
       return status;
     }
+    
+    // Rating system functions
+    // currentRating is already declared above, so we're not redeclaring it
+    
+    function showRatingDialog(orderId) {
+      // Get order details to fetch staff name
+      db.collection('orders').doc(orderId).get()
+        .then(doc => {
+          if (!doc.exists) {
+            console.error("Order not found for rating");
+            return;
+          }
+          
+          const orderData = doc.data();
+          let staffName = '';
+          
+          // Check different ways staff might be assigned
+          if (orderData.assignedStaff) {
+            staffName = orderData.assignedStaff.name;
+          } else if (orderData.assignedStaffName) {
+            staffName = orderData.assignedStaffName;
+          }
+          
+          // Reset any previous rating
+          currentRating = 0;
+          
+          // Reset rating stars
+          const ratingStars = document.querySelectorAll(".rating-star");
+          ratingStars.forEach(star => star.classList.remove('active'));
+          
+          // Hide feedback container initially
+          document.getElementById('feedback-container').style.display = 'none';
+          
+          // Store order ID and staff name in hidden fields
+          document.getElementById('rating-order-id').value = orderId;
+          document.getElementById('rating-staff-name').value = staffName;
+          
+          // Update text labels based on language
+          document.getElementById('rating-title').textContent = 
+            currentLanguage === 'ar' ? 'قيم تجربتك' : 'RATE YOUR EXPERIENCE';
+          
+          document.getElementById('feedback-label').textContent = 
+            currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
+          
+          document.getElementById('submit-rating-btn').textContent = 
+            currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
+          
+          document.getElementById('cancel-rating-btn').textContent = 
+            currentLanguage === 'ar' ? 'إلغاء' : 'CANCEL';
+          
+          // Setup rating star event handlers
+          ratingStars.forEach(star => {
+            star.addEventListener('click', () => {
+              const rating = parseInt(star.getAttribute('data-rating'));
+              currentRating = rating;
+              
+              // Update stars visually
+              ratingStars.forEach(s => {
+                if (parseInt(s.getAttribute('data-rating')) <= rating) {
+                  s.classList.add('active');
+                } else {
+                  s.classList.remove('active');
+                }
+              });
+              
+              // If rating is 3 or less, show feedback container
+              const feedbackContainer = document.getElementById('feedback-container');
+              if (rating <= 3) {
+                feedbackContainer.style.display = 'block';
+                // Clear previous feedback
+                document.getElementById('feedback-text').value = '';
+              } else {
+                feedbackContainer.style.display = 'none';
+              }
+            });
+          });
+          
+          // Show the rating modal
+          const ratingModal = document.getElementById('rating-modal');
+          ratingModal.style.display = 'flex';
+        })
+        .catch(error => {
+          console.error("Error getting order for rating:", error);
+        });
+    }
+    
+    function closeRatingDialog() {
+      document.getElementById('rating-modal').style.display = 'none';
+    }
+    
+    function submitRating() {
+      if (currentRating === 0) {
+        showNotification(
+          currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
+          currentLanguage === 'ar' ? 'يرجى تحديد تقييم قبل الإرسال' : 'Please select a rating before submitting',
+          'warning'
+        );
+        return;
+      }
+      
+      const orderId = document.getElementById('rating-order-id').value;
+      const staffName = document.getElementById('rating-staff-name').value;
+      const feedback = document.getElementById('feedback-text').value;
+      
+      // Create rating object
+      const ratingData = {
+        orderId: orderId,
+        rating: currentRating,
+        staffName: staffName,
+        feedback: feedback || '', // Send empty string if no feedback
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        tableNumber: tableNumber,
+        fromLanguage: currentLanguage
+      };
+      
+      // Save to ratings collection in Firebase
+      db.collection('ratings').add(ratingData)
+        .then(() => {
+          // Update order with rating info
+          return db.collection('orders').doc(orderId).update({
+            rated: true,
+            rating: currentRating
+          });
+        })
+        .then(() => {
+          // Close the rating dialog
+          closeRatingDialog();
+          
+          // Show success notification
+          showNotification(
+            currentLanguage === 'ar' ? 'شكراً على تقييمك' : 'Thank You for Your Rating',
+            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
+            'success'
+          );
+        })
+        .catch(error => {
+          console.error("Error saving rating:", error);
+          
+          showNotification(
+            currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
+            currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ تقييمك' : 'There was an error saving your rating',
+            'error'
+          );
+        });
+    }
+    
+    // Function to clean up old completed orders (delete after 6 hours)
+    function cleanupCompletedOrders() {
+      console.log("Running cleanup of completed orders");
+      
+      // Calculate cutoff time (6 hours ago)
+      const sixHoursAgo = new Date();
+      sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
+      
+      // Query for completed orders with completedAt timestamp older than cutoff
+      db.collection('orders')
+        .where('status', '==', 'completed')
+        .where('completedAt', '<', sixHoursAgo)
+        .get()
+        .then(querySnapshot => {
+          console.log(`Found ${querySnapshot.size} old completed orders to clean up`);
+          
+          // Delete each old completed order
+          const batch = db.batch();
+          querySnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+          });
+          
+          return batch.commit();
+        })
+        .then(() => {
+          console.log("Completed orders cleanup successful");
+        })
+        .catch(error => {
+          console.error("Error cleaning up completed orders:", error);
+        });
+    }
+    
+    // Run cleanup every hour
+    setInterval(cleanupCompletedOrders, 60 * 60 * 1000);
     
     // Client Orders
     function renderClientOrders() {
@@ -6605,6 +6930,33 @@
               `;
             });
             
+            // Check for assigned staff - handle both new and old format
+            let assignedStaffName = null;
+            let assignedStaffRole = null;
+            
+            // Check different ways staff might be assigned to the order
+            if (order.assignedStaff) {
+              // Get from new assignedStaff object
+              assignedStaffName = order.assignedStaff.name;
+              assignedStaffRole = order.assignedStaff.role;
+            } else if (order.assignedStaffName) {
+              // Get from older direct properties
+              assignedStaffName = order.assignedStaffName;
+              assignedStaffRole = order.assignedStaffRole;
+            }
+            
+            // Create staff info HTML if available
+            const assignedStaffHtml = assignedStaffName ? `
+              <div style="margin: 8px 0; padding: 5px; background: rgba(50, 50, 50, 0.3); border-radius: 4px; font-size: 0.8rem;">
+                <span style="color: #ffc107;">
+                  <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤول' : 'Your Server'}:
+                </span>
+                <span>${assignedStaffName} 
+                  ${assignedStaffRole ? `<span class="staff-role-badge role-${assignedStaffRole}" style="font-size: 0.6rem;">${assignedStaffRole}</span>` : ''}
+                </span>
+              </div>
+            ` : '';
+            
             // Create HTML for the order
             orderEl.innerHTML = `
               <div class="client-order-header">
@@ -6612,6 +6964,7 @@
                 <div class="client-order-status ${statusClass}">${statusText}</div>
               </div>
               <div style="font-size: 0.8rem; margin-bottom: 8px; color: var(--light-cream);">${timestampStr}</div>
+              ${assignedStaffHtml}
               <div class="client-order-items">
                 ${itemsHtml}
               </div>
@@ -6971,6 +7324,140 @@
         window.ratingsChart.data.datasets[0].data = data;
         window.ratingsChart.update();
       }
+    }
+    
+    // Load and display staff ratings feedback in the admin dashboard
+    function loadStaffRatings() {
+      const staffRatingsList = document.getElementById('staff-ratings-list');
+      if (!staffRatingsList) return;
+      
+      // Clear existing content
+      staffRatingsList.innerHTML = '';
+      
+      // Fetch ratings from Firebase, order by timestamp (newest first)
+      db.collection('ratings')
+        .orderBy('timestamp', 'desc')
+        .limit(20) // Limit to most recent 20 ratings
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            staffRatingsList.innerHTML = '<div class="no-ratings">No customer ratings available yet.</div>';
+            return;
+          }
+          
+          snapshot.forEach(doc => {
+            const rating = doc.data();
+            const isLowRating = rating.rating <= 3;
+            
+            // Format timestamp
+            let timeStr = '';
+            if (rating.timestamp) {
+              const timestamp = rating.timestamp.toDate();
+              timeStr = timestamp.toLocaleDateString() + ' ' + timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            // Generate star icons based on rating
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+              const starClass = i <= rating.rating ? 'fas fa-star' : 'far fa-star';
+              starsHtml += `<i class="${starClass}"></i>`;
+            }
+            
+            // Create the rating item HTML
+            const ratingEl = document.createElement('div');
+            ratingEl.className = `rating-item ${isLowRating ? 'low-rating' : ''}`;
+            
+            ratingEl.innerHTML = `
+              <div class="rating-header">
+                <span class="rating-staff-name">${rating.staffName || 'N/A'}</span>
+                <span class="rating-stars-display ${isLowRating ? 'low-rating' : ''}">${starsHtml}</span>
+              </div>
+              ${rating.feedback ? `<div class="rating-feedback">"${rating.feedback}"</div>` : ''}
+              <div class="rating-meta">
+                <span>Table #${rating.tableNumber || 'N/A'}</span>
+                <span>${timeStr}</span>
+              </div>
+            `;
+            
+            staffRatingsList.appendChild(ratingEl);
+          });
+        })
+        .catch(error => {
+          console.error("Error loading staff ratings:", error);
+          staffRatingsList.innerHTML = '<div class="no-ratings">Error loading ratings. Please try again.</div>';
+        });
+    }
+    
+    // Add call to loadStaffRatings in renderAdminDashboard function
+    function renderAdminDashboard() {
+      // Load staff accounts and table assignments
+      loadStaffAccounts();
+      loadTableAssignments();
+      loadStaffRatings(); // Load staff ratings
+      
+      // Fetch stats and render charts
+      db.collection('orders').get().then(snapshot => {
+        const totalOrders = snapshot.size;
+        let totalRating = 0;
+        let ratedOrders = 0;
+        let lowRatings = 0;
+        
+        // Prepare data for charts
+        const orderStatusData = {
+          pending: 0,
+          preparing: 0,
+          ready: 0,
+          completed: 0,
+          cancelled: 0
+        };
+        
+        const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
+        
+        snapshot.forEach(doc => {
+          const order = doc.data();
+          
+          // Count by status
+          if (orderStatusData.hasOwnProperty(order.status)) {
+            orderStatusData[order.status]++;
+          }
+          
+          // Track ratings
+          if (order.rating) {
+            totalRating += order.rating;
+            ratedOrders++;
+            
+            // Count low ratings (1-2 stars)
+            if (order.rating <= 2) {
+              lowRatings++;
+            }
+            
+            // Update rating distribution
+            if (order.rating >= 1 && order.rating <= 5) {
+              ratingDistribution[order.rating - 1]++;
+            }
+          }
+        });
+        
+        // Calculate average rating
+        const avgRating = ratedOrders > 0 ? (totalRating / ratedOrders).toFixed(1) : '0.0';
+        
+        // Update stats display
+        document.getElementById('total-orders').textContent = totalOrders;
+        document.getElementById('avg-rating').textContent = avgRating;
+        document.getElementById('low-ratings').textContent = lowRatings;
+        
+        // Count active staff
+        db.collection('staff')
+          .where('active', '==', true)
+          .get()
+          .then(staffSnapshot => {
+            document.getElementById('active-staff').textContent = staffSnapshot.size;
+          });
+        
+        // Update charts
+        updateOrdersChart(orderStatusData);
+        updateRatingsChart(ratingDistribution);
+      });
     }
     
     // Load staff accounts into the UI
@@ -8011,5 +8498,33 @@
       }
     }
   </script>
+  
+  <!-- Rating Dialog Modal -->
+  <div class="rating-modal" id="rating-modal">
+    <div class="rating-content">
+      <h3 class="rating-title" id="rating-title">RATE YOUR EXPERIENCE</h3>
+      
+      <div class="rating-stars">
+        <span class="rating-star" data-rating="1">★</span>
+        <span class="rating-star" data-rating="2">★</span>
+        <span class="rating-star" data-rating="3">★</span>
+        <span class="rating-star" data-rating="4">★</span>
+        <span class="rating-star" data-rating="5">★</span>
+      </div>
+      
+      <div class="feedback-container" id="feedback-container" style="display: none;">
+        <label for="feedback-text" id="feedback-label">FEEDBACK (OPTIONAL)</label>
+        <textarea id="feedback-text" rows="3" placeholder="Please let us know how we can improve"></textarea>
+      </div>
+      
+      <input type="hidden" id="rating-order-id">
+      <input type="hidden" id="rating-staff-name">
+      
+      <div class="modal-buttons">
+        <button id="submit-rating-btn" onclick="submitRating()">SUBMIT</button>
+        <button id="cancel-rating-btn" onclick="closeRatingDialog()">CANCEL</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
