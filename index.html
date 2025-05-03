@@ -6298,7 +6298,7 @@
           const batch = db.batch();
           
           // First get all orders for this table, regardless of status
-          db.collection('orders')
+          return db.collection('orders')
             .where('tableNumber', '==', tableNumber)
             .get()
             .then((orderDocs) => {
@@ -6310,15 +6310,18 @@
                 
                 orderDocs.forEach(doc => {
                   const orderData = doc.data();
+                  console.log(`Processing order ${doc.id} with status: ${orderData.status}`);
                   
                   if (['pending', 'preparing', 'ready'].includes(orderData.status)) {
                     // For active orders, delete them completely instead of just marking as cancelled
                     // This helps prevent database clutter and improves performance
                     batch.delete(doc.ref);
                     pendingOrdersFound = true;
+                    console.log(`Marked order ${doc.id} for deletion (active order)`);
                   } else if (orderData.status === 'completed') {
                     // Delete completed orders
                     batch.delete(doc.ref);
+                    console.log(`Marked order ${doc.id} for deletion (completed order)`);
                   }
                 });
                 
@@ -6874,11 +6877,32 @@
             
             console.log("Staff assigned tables:", assignedTables);
             
-            // Get all orders for tables assigned to current staff
+            // Get orders that are active, then we'll filter for staff's tables
             // This works without a composite index
-            return await db.collection('orders')
+            const allActiveOrders = await db.collection('orders')
               .where('status', 'in', ['pending', 'preparing', 'ready'])
               .get();
+              
+            // We need to manually filter for the staff's assigned tables
+            if (assignedTables.length > 0) {
+              // Create a filtered snapshot like object
+              const filteredDocs = [];
+              
+              allActiveOrders.forEach(doc => {
+                const data = doc.data();
+                if (assignedTables.includes(data.tableNumber)) {
+                  filteredDocs.push(doc);
+                }
+              });
+              
+              return {
+                empty: filteredDocs.length === 0,
+                docs: filteredDocs,
+                forEach: callback => filteredDocs.forEach(callback)
+              };
+            }
+            
+            return allActiveOrders;
           } catch (error) {
             // Check if it's a missing index error
             if (error.code === 'failed-precondition') {
@@ -6930,8 +6954,11 @@
           
           querySnapshot.forEach((doc) => {
             const order = doc.data();
+            // Make sure order has an ID from the document
+            order.id = doc.id;
             const orderCard = document.createElement('div');
             orderCard.className = 'order-card';
+            orderCard.dataset.orderId = doc.id; // Add data attribute for order ID
             
             // Format timestamp
             let timestampStr = '';
@@ -7035,7 +7062,7 @@
                     ${currentLanguage === 'ar' ? 'إكمال' : 'Complete'}
                   </button>
                 ` : ''}
-                <button class="action-btn" style="background: #FF5722; color: white;" onclick="updateOrderStatus('${order.id}', 'cancelled')">
+                <button class="action-btn" style="background: #FF5722; color: white;" onclick="cancelOrder('${order.id}')">
                   ${currentLanguage === 'ar' ? 'إلغاء' : 'Cancel'}
                 </button>
               </div>
@@ -7273,7 +7300,106 @@
       tableDetailsModal.style.display = 'none';
     }
     
-    function updateOrderStatus(orderId, newStatus) {
+    // Special function just for cancelling orders to make it more direct and reliable
+    async function cancelOrder(orderId) {
+      console.log(`Explicitly cancelling order ${orderId}`);
+      
+      // Get UI elements
+      const targetCardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
+      if (targetCardElement) {
+        targetCardElement.classList.add('updating');
+      }
+      
+      // Show immediate notification
+      showNotification(
+        currentLanguage === 'ar' ? 'جارٍ الإلغاء' : 'Cancelling',
+        currentLanguage === 'ar' 
+          ? `جارٍ إلغاء الطلب...` 
+          : `Cancelling order...`,
+        'info',
+        1500
+      );
+      
+      try {
+        // Verify Firebase connection
+        if (!db || typeof db.collection !== 'function') {
+          throw new Error("Firebase database not connected");
+        }
+        
+        // Get the order document
+        const orderRef = db.collection('orders').doc(orderId);
+        const orderDoc = await orderRef.get();
+        
+        if (!orderDoc.exists) {
+          throw new Error(`Order ${orderId} not found in database`);
+        }
+        
+        const orderData = orderDoc.data();
+        const tableNum = orderData.tableNumber;
+        
+        // No need for auth check for now - just cancel it
+        
+        // Delete the order directly
+        await orderRef.delete();
+        console.log(`Order ${orderId} has been deleted from the database`);
+        
+        // Remove from UI
+        if (targetCardElement && targetCardElement.parentNode) {
+          // Apply fade out animation
+          targetCardElement.style.opacity = '0';
+          targetCardElement.style.transform = 'scale(0.95)';
+          
+          // After animation, remove from DOM
+          setTimeout(() => {
+            if (targetCardElement.parentNode) {
+              targetCardElement.parentNode.removeChild(targetCardElement);
+            }
+          }, 300);
+        }
+        
+        // Check if we need to release the table
+        releaseTable(tableNum);
+        
+        // Show success message
+        showNotification(
+          currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
+          currentLanguage === 'ar' 
+            ? `تم إلغاء الطلب ${orderId} بنجاح` 
+            : `Order ${orderId} has been cancelled successfully`,
+          'success'
+        );
+        
+        // Refresh orders
+        setTimeout(() => {
+          if (userType === 'staff' || userType === 'admin') {
+            renderOrders();
+          } else {
+            renderClientOrders();
+          }
+        }, 800);
+        
+      } catch (error) {
+        console.error("Error cancelling order:", error);
+        
+        // Show error message
+        showNotification(
+          currentLanguage === 'ar' ? 'خطأ في إلغاء الطلب' : 'Cancellation Failed',
+          currentLanguage === 'ar' 
+            ? `حدث خطأ أثناء إلغاء الطلب: ${error.message}` 
+            : `Error cancelling order: ${error.message}`,
+          'error'
+        );
+        
+        // Reset card UI
+        if (targetCardElement) {
+          targetCardElement.classList.remove('updating');
+        }
+      }
+    }
+    
+    async function updateOrderStatus(orderId, newStatus) {
+      console.log(`Updating order ${orderId} to status: ${newStatus}`);
+      
       // Immediately show "updating" notification to give feedback
       const targetCardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
       if (targetCardElement) {
@@ -7305,12 +7431,21 @@
         );
       }
       
-      // Begin the actual database update in background
-      (async () => {
-        try {
-          // Find the order to get table number and staff info
-          const orderDoc = await db.collection('orders').doc(orderId).get();
-          const orderData = orderDoc.data();
+      try {
+        // Verify Firebase connection
+        if (!db || typeof db.collection !== 'function') {
+          throw new Error("Firebase database not connected");
+        }
+        
+        // Find the order to get table number and staff info
+        const orderRef = db.collection('orders').doc(orderId);
+        const orderDoc = await orderRef.get();
+        
+        if (!orderDoc.exists) {
+          throw new Error(`Order ${orderId} not found in database`);
+        }
+        
+        const orderData = orderDoc.data();
           
           if (!orderData) {
             console.error("Order not found");
@@ -7451,11 +7586,24 @@
           console.error("Error updating order:", error);
           showNotification(
             currentLanguage === 'ar' ? 'خطأ في تحديث الطلب' : 'Order Update Failed',
-            currentLanguage === 'ar' ? "حدث خطأ أثناء تحديث الطلب" : "There was an error while updating the order",
+            currentLanguage === 'ar' ? "حدث خطأ أثناء تحديث الطلب" : "There was an error while updating the order: " + error.message,
             'error'
           );
+          
+          // Reset the card if there was an error
+          if (targetCardElement) {
+            targetCardElement.classList.remove('updating');
+          }
+        } finally {
+          // Refresh the orders display after update regardless of success/failure
+          setTimeout(() => {
+            if (userType === 'staff' || userType === 'admin') {
+              renderOrders();
+            } else {
+              renderClientOrders();
+            }
+          }, 800);
         }
-      })();
     }
     
     function getStatusTranslation(status) {
@@ -7904,8 +8052,9 @@
             order.id = doc.id; // Make sure the id is set
             
             const orderEl = document.createElement('div');
-            orderEl.className = 'client-order';
+            orderEl.className = 'client-order order-card'; // Add order-card class for unified styling
             orderEl.setAttribute('data-order-id', doc.id); // Add data-order-id attribute for easier selection
+            orderEl.dataset.orderId = doc.id; // Also set as dataset for consistency
             
             // Generate status class and text
             let statusClass = '';
@@ -8016,250 +8165,8 @@
       }
     }
     
-    async function cancelOrder(orderId) {
-      // First update local UI immediately for better responsiveness
-      let orderCard = null;
-      try {
-        // Find and animate the card visually first for improved UX
-        orderCard = document.querySelector(`.client-order[data-order-id="${orderId}"]`) || 
-                    document.querySelector(`.client-order:has([data-order-id="${orderId}"])`) ||
-                    document.querySelector(`.client-order:has(.client-order-id:contains('${orderId}'))`);
-                    
-        if (orderCard) {
-          // Apply fade out animation immediately
-          orderCard.style.opacity = '0.5';
-          orderCard.style.transform = 'scale(0.97)';
-          orderCard.style.pointerEvents = 'none'; // Prevent additional clicks
-        }
-      } catch (uiError) {
-        console.warn("Error updating UI for order cancellation:", uiError);
-        // Continue with cancellation even if UI update fails
-      }
-      
-      // Show loading notification immediately for better UX
-      showNotification(
-        currentLanguage === 'ar' ? 'جارٍ إلغاء الطلب' : 'Cancelling Order',
-        currentLanguage === 'ar' 
-          ? 'جارٍ إلغاء طلبك...' 
-          : 'Cancelling your order...',
-        'info',
-        1500 // Auto-close after 1.5 seconds
-      );
-      
-      try {
-        if (!db || typeof db.collection !== 'function') {
-          throw new Error("Database not initialized");
-        }
-        
-        // Start a batch operation for atomicity
-        const batch = db.batch();
-        
-        // Reference to order document
-        const orderRef = db.collection('orders').doc(orderId);
-        
-        // Get order data first to check status and get table number
-        const orderDoc = await orderRef.get();
-        
-        // If order doesn't exist, handle error but still update UI
-        if (!orderDoc.exists) {
-          console.error("Order not found:", orderId);
-          
-          // Complete the UI removal anyway (user doesn't care if it exists on server)
-          if (orderCard) {
-            setTimeout(() => {
-              if (orderCard.parentNode) {
-                orderCard.parentNode.removeChild(orderCard);
-              }
-              
-              // If no orders left, show "no orders" message
-              if (clientOrdersList && clientOrdersList.children.length <= 1) { // <= 1 because the current card is still there
-                clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
-              }
-            }, 300);
-          }
-          
-          showNotification(
-            currentLanguage === 'ar' ? 'تنبيه' : 'Notice',
-            currentLanguage === 'ar' 
-              ? 'تم إزالة الطلب من العرض' 
-              : 'Order removed from display',
-            'info'
-          );
-          
-          return;
-        }
-        
-        const orderData = orderDoc.data();
-        
-        // Only allow cancellation if order is pending (unless we're in admin mode)
-        if (orderData.status !== 'pending' && userType !== 'admin' && userType !== 'staff') {
-          // Restore card appearance
-          if (orderCard) {
-            orderCard.style.opacity = '1';
-            orderCard.style.transform = 'scale(1)';
-            orderCard.style.pointerEvents = 'auto';
-          }
-          
-          showNotification(
-            currentLanguage === 'ar' ? 'لا يمكن الإلغاء' : 'Cannot Cancel',
-            currentLanguage === 'ar' 
-              ? "لا يمكن إلغاء الطلب لأنه قيد المعالجة بالفعل" 
-              : "Cannot cancel order as it is already being processed",
-            'error'
-          );
-          return;
-        }
-        
-        // Store table number for later use
-        const tableNumber = orderData.tableNumber;
-        
-        // Delete the order
-        batch.delete(orderRef);
-        
-        // Commit the batch
-        await batch.commit();
-        
-        console.log(`Order ${orderId} successfully deleted`);
-        
-        // Now check if we need to release the table
-        try {
-          // Check if table has any other active orders
-          const tableOrdersQuery = await db.collection('orders')
-            .where('tableNumber', '==', tableNumber)
-            .where('status', 'in', ['pending', 'preparing', 'ready'])
-            .get();
-          
-          // If no other orders for this table, release it
-          if (tableOrdersQuery.empty) {
-            console.log(`No more active orders for table ${tableNumber}, releasing table`);
-            
-            try {
-              // Direct update of table status instead of using releaseTable function 
-              // which might have its own validation rules
-              await db.collection('tableStatus').doc(tableNumber.toString()).set({
-                status: 'free',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedBy: {
-                  username: 'system',
-                  role: 'system',
-                  note: 'Auto-released after order cancellation'
-                }
-              });
-              
-              // Update local state
-              occupiedTables.delete(tableNumber);
-              if (tableDetails[tableNumber]) {
-                delete tableDetails[tableNumber];
-              }
-              
-              console.log(`Table ${tableNumber} released after order cancellation`);
-            } catch (tableError) {
-              console.error(`Error releasing table ${tableNumber}:`, tableError);
-              // Continue with the flow - we still succeeded in cancelling the order
-            }
-          }
-        } catch (tableCheckError) {
-          console.error("Error checking table orders:", tableCheckError);
-          // Continue with the flow - we still succeeded in cancelling the order
-        }
-        
-        // Show success notification
-        showNotification(
-          currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
-          currentLanguage === 'ar' 
-            ? `تم إلغاء طلبك بنجاح` 
-            : `Your order has been successfully cancelled`,
-          'success'
-        );
-        
-        // Complete the UI removal
-        if (orderCard) {
-          // Final animation
-          orderCard.style.opacity = '0';
-          orderCard.style.transform = 'scale(0.95)';
-          
-          // After animation completes, remove the card
-          setTimeout(() => {
-            if (orderCard.parentNode) {
-              orderCard.parentNode.removeChild(orderCard);
-            }
-            
-            // If no orders left, show "no orders" message
-            if (clientOrdersList && clientOrdersList.children.length === 0) {
-              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
-            }
-          }, 300);
-        } else {
-          // Refresh client orders if we couldn't find the specific card
-          renderClientOrders();
-        }
-        
-      } catch (error) {
-        console.error("Error cancelling order:", error);
-        
-        // Restore card appearance if there was an error
-        if (orderCard) {
-          orderCard.style.opacity = '1';
-          orderCard.style.transform = 'scale(1)';
-          orderCard.style.pointerEvents = 'auto';
-        }
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'خطأ في الإلغاء' : 'Cancellation Error',
-          currentLanguage === 'ar' 
-            ? "حدث خطأ أثناء إلغاء الطلب" 
-            : "An error occurred while cancelling the order",
-          'error'
-        );
-        
-        // Try fallback approach - mark as cancelled instead of deleting
-        try {
-          await db.collection('orders').doc(orderId).update({
-            status: 'cancelled',
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            cancelReason: 'Cancelled by user (fallback method)'
-          });
-          
-          console.log("Order cancelled using fallback method");
-          
-          // Complete the UI removal even with fallback
-          if (orderCard) {
-            orderCard.style.opacity = '0';
-            orderCard.style.transform = 'scale(0.95)';
-            
-            setTimeout(() => {
-              if (orderCard.parentNode) {
-                orderCard.parentNode.removeChild(orderCard);
-              }
-              
-              if (clientOrdersList && clientOrdersList.children.length === 0) {
-                clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
-              }
-            }, 300);
-            
-            showNotification(
-              currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
-              currentLanguage === 'ar' 
-                ? `تم إلغاء طلبك بنجاح (طريقة بديلة)` 
-                : `Your order has been cancelled (alternate method)`,
-              'success'
-            );
-          } else {
-            renderClientOrders();
-          }
-        } catch (fallbackError) {
-          console.error("Even fallback cancellation failed:", fallbackError);
-          // At this point, just update the UI to remove the order locally
-          if (orderCard && orderCard.parentNode) {
-            orderCard.parentNode.removeChild(orderCard);
-            
-            if (clientOrdersList && clientOrdersList.children.length === 0) {
-              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
-            }
-          }
-        }
-      }
-    }
+    // This client-side cancelOrder function now uses the main cancelOrder function
+    // defined earlier in the code
     
     // Enhanced Notifications with better visibility and handling
     function showNotification(title, message, type = 'info') {
