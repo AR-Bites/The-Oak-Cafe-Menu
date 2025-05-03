@@ -7035,7 +7035,7 @@
             // Create HTML for the order card
             orderCard.innerHTML = `
               <div class="order-header">
-                <div class="order-id">${order.id} - ${currentLanguage === 'ar' ? 'الطاولة' : 'Table'} ${order.tableNumber}</div>
+                <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id.slice(-4).toUpperCase()} - ${currentLanguage === 'ar' ? 'طاولة' : 'Table'} ${order.tableNumber}</div>
                 <div class="order-status ${statusClass}">${statusText}</div>
               </div>
               <div class="order-time">${timestampStr}</div>
@@ -7278,7 +7278,7 @@
           
           orderEl.innerHTML = `
             <div class="order-header">
-              <div class="order-id">${order.id}</div>
+              <div class="order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${order.id.slice(-4).toUpperCase()}</div>
               <div class="order-status ${statusClass}">${statusText}</div>
             </div>
             <div class="order-items">
@@ -7364,8 +7364,8 @@
         showNotification(
           currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
           currentLanguage === 'ar' 
-            ? `تم إلغاء الطلب ${orderId} بنجاح` 
-            : `Order ${orderId} has been cancelled successfully`,
+            ? `تم إلغاء الطلب #${orderId.slice(-4).toUpperCase()} بنجاح` 
+            : `Order #${orderId.slice(-4).toUpperCase()} has been cancelled successfully`,
           'success'
         );
         
@@ -7578,8 +7578,8 @@
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث الطلب' : 'Order Updated',
             currentLanguage === 'ar' 
-              ? `تم تحديث حالة الطلب ${orderId} إلى ${getStatusTranslation(newStatus)}` 
-              : `Order ${orderId} updated to ${newStatus}`,
+              ? `تم تحديث حالة الطلب #${orderId.slice(-4).toUpperCase()} إلى ${getStatusTranslation(newStatus)}` 
+              : `Order #${orderId.slice(-4).toUpperCase()} updated to ${newStatus}`,
             'success'
           );
         } catch (error) {
@@ -8010,12 +8010,15 @@
     
     // Client Orders
     function renderClientOrders() {
-      clientOrdersList.innerHTML = `
-        <div style="text-align: center; padding: 10px;">
-          <i class="fas fa-spinner fa-spin" style="font-size: 1rem; color: var(--light-cream);"></i>
-          <p style="margin-top: 10px; color: var(--light-cream);">${currentLanguage === 'ar' ? 'جارٍ تحميل الطلبات...' : 'Loading orders...'}</p>
-        </div>
-      `;
+      // Initial loading state - but only if there's no content already
+      if (!clientOrdersList.querySelector('.client-order')) {
+        clientOrdersList.innerHTML = `
+          <div style="text-align: center; padding: 10px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 1rem; color: var(--light-cream);"></i>
+            <p style="margin-top: 10px; color: var(--light-cream);">${currentLanguage === 'ar' ? 'جارٍ تحميل الطلبات...' : 'Loading orders...'}</p>
+          </div>
+        `;
+      }
       
       // If we don't have a table number yet, don't show any orders
       if (!tableNumber) {
@@ -8026,17 +8029,22 @@
       // Verify Firebase connection
       if (!db || typeof db.collection !== 'function') {
         console.error("Firebase database not initialized");
-        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>`;
+        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>`;
         return;
       }
       
       console.log(`Fetching orders for client ${clientId} at table ${tableNumber}`);
       
-      // Use a simpler query to get all orders for this client and table
-      // First debug
-      console.log(`Getting orders for clientId=${clientId} and tableNumber=${tableNumber}`);
+      // Track existing order elements to update them instead of recreating
+      const existingOrderElements = {};
+      document.querySelectorAll('.client-order').forEach(el => {
+        const orderId = el.dataset.orderId;
+        if (orderId) {
+          existingOrderElements[orderId] = el;
+        }
+      });
       
-      // Use a simpler query that works without complex indexes
+      // Use a simpler query to get all orders for this client and table
       db.collection('orders')
         .where('tableNumber', '==', tableNumber)
         .where('clientId', '==', clientId)
@@ -8047,14 +8055,32 @@
             return;
           }
           
+          // Clear all existing messages first if we have orders
+          const loadingMessage = clientOrdersList.querySelector('p');
+          if (loadingMessage) {
+            loadingMessage.remove();
+          }
+          
+          // Keep track of order IDs we find and process to avoid duplicates
+          const foundOrderIds = new Set();
+          
+          // First update existing order elements or create new ones as needed
           querySnapshot.forEach((doc) => {
             const order = doc.data();
             order.id = doc.id; // Make sure the id is set
+            foundOrderIds.add(doc.id);
             
-            const orderEl = document.createElement('div');
-            orderEl.className = 'client-order order-card'; // Add order-card class for unified styling
-            orderEl.setAttribute('data-order-id', doc.id); // Add data-order-id attribute for easier selection
-            orderEl.dataset.orderId = doc.id; // Also set as dataset for consistency
+            // Check if we already have this order in the UI
+            let orderEl = existingOrderElements[doc.id];
+            let isNewOrder = false;
+            
+            if (!orderEl) {
+              // If not, create a new element
+              isNewOrder = true;
+              orderEl = document.createElement('div');
+              orderEl.className = 'client-order order-card'; // Add order-card class for unified styling
+              orderEl.dataset.orderId = doc.id; // Set dataset for easier selection
+            }
             
             // Generate status class and text
             let statusClass = '';
@@ -8078,7 +8104,7 @@
                 statusText = currentLanguage === 'ar' ? 'مكتمل' : 'Completed';
                 break;
               case 'cancelled':
-                statusClass = 'status-completed';
+                statusClass = 'status-cancelled';
                 statusText = currentLanguage === 'ar' ? 'ملغي' : 'Cancelled';
                 break;
             }
@@ -8122,16 +8148,17 @@
                 <span style="color: #ffc107;">
                   <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤول' : 'Your Server'}:
                 </span>
-                <span>${assignedStaffName} 
-                  ${assignedStaffRole ? `<span class="staff-role-badge role-${assignedStaffRole}" style="font-size: 0.6rem;">${assignedStaffRole}</span>` : ''}
-                </span>
+                <span>${assignedStaffName}</span>
               </div>
             ` : '';
             
-            // Create HTML for the order
+            // Create simplified display of order number (just use last 4 chars and format nicely)
+            const orderNumber = order.id.slice(-4).toUpperCase();
+            
+            // Create HTML for the order - simpler and more user-friendly display
             orderEl.innerHTML = `
               <div class="client-order-header">
-                <div class="client-order-id">${order.id}</div>
+                <div class="client-order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${orderNumber}</div>
                 <div class="client-order-status ${statusClass}">${statusText}</div>
               </div>
               <div style="font-size: 0.8rem; margin-bottom: 8px; color: var(--light-cream);">${timestampStr}</div>
@@ -8149,8 +8176,38 @@
               ` : ''}
             `;
             
-            clientOrdersList.appendChild(orderEl);
+            // If it's a new order, add it to the DOM
+            if (isNewOrder) {
+              clientOrdersList.appendChild(orderEl);
+            }
           });
+          
+          // Now remove any elements that are not in the current data
+          Object.keys(existingOrderElements).forEach(id => {
+            if (!foundOrderIds.has(id)) {
+              // This order is no longer in the database, remove the element
+              const elementToRemove = existingOrderElements[id];
+              if (elementToRemove && elementToRemove.parentNode) {
+                // Animate the removal
+                elementToRemove.style.opacity = '0';
+                elementToRemove.style.transform = 'scale(0.95)';
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                  if (elementToRemove.parentNode) {
+                    elementToRemove.parentNode.removeChild(elementToRemove);
+                  }
+                }, 300);
+              }
+            }
+          });
+          
+          // If after processing there are no orders, show "no orders" message
+          setTimeout(() => {
+            if (clientOrdersList.children.length === 0) {
+              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+            }
+          }, 350); // Wait a bit longer than the animation to make sure all removals have completed
         })
         .catch((error) => {
           console.error("Error fetching client orders:", error);
