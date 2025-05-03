@@ -3614,7 +3614,7 @@
     
     // Initialize Firebase with better error handling for demo and production modes
     let db;
-    let isOfflineMode = true; // Start in offline mode by default to ensure app works without Firebase
+    let isOfflineMode = false; // Use Firebase by default
     
     // Show a temporary toast notification
     function showConnectionToast(message, type = 'info') {
@@ -3837,13 +3837,16 @@
       initializeFirebase();
       
       // Monitor online/offline status
-      firebase.firestore().enableNetwork().catch(err => {
-        console.log("Network connection error:", err);
-        isOfflineMode = true;
-        
-        // Removed notifications during loading as requested
-        console.log("Firebase connection error:", err.code);
-      });
+      firebase.firestore().enableNetwork()
+        .then(() => {
+          console.log("Firebase connection successful");
+          isOfflineMode = false;
+        })
+        .catch(err => {
+          console.error("Network connection error:", err);
+          // Only set offline mode on actual network errors
+          console.error("Firebase connection error:", err.code);
+        });
     } catch (firebaseError) {
       console.log("Firebase initialization error:", firebaseError);
       isOfflineMode = true;
@@ -4001,7 +4004,8 @@
         
         // Add some mock orders for guest mode
         if (clientOrdersList) {
-          if (isOfflineMode && clientOrdersList.childElementCount === 0) {
+          // Add this without the offline mode check
+      if (clientOrdersList.childElementCount === 0) {
             addDemoOrderToClientList({
               id: 'demo-order-1',
               status: 'preparing',
@@ -4137,7 +4141,7 @@
         nameAr: "برجر نباتي",
         modelSrc: "models/Alfredo Pasta.glb", // Using existing model as placeholder
         description: "Plant-based patty with avocado, grilled onions, and chipotle mayo.",
-        descriptionAr: "قطعة برجر نباتية مع أفوكادو، بصل مشويI� ومايونيز تشيبوتلي.",
+        descriptionAr: "قطعة برجر نباتية مع أفوكادو، بصل مشوي، ومايونيز تشيبوتلي.",
         price: 13.99,
         category: "burgers",
         mainCategory: "food"
@@ -6255,7 +6259,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
             currentLanguage === 'ar' 
-              ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست h�خصصة لك' 
+              ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
               : 'You cannot manage this table as it is not assigned to you',
             'error'
           );
@@ -6845,10 +6849,35 @@
         // Define a function to fetch orders with fallback for missing index errors
         const fetchOrders = async () => {
           try {
-            // Try the optimal query first (requires composite index)
+            // Get the current staff username
+            const staffUsername = localStorage.getItem('username');
+            console.log("Current staff username for tables:", staffUsername);
+            
+            // For manager role - show all orders
+            if (localStorage.getItem('staffRole') === 'manager' || userType === 'admin') {
+              // Manager sees all orders
+              return await db.collection('orders')
+                .where('status', 'in', ['pending', 'preparing', 'ready'])
+                .get();
+            } 
+            
+            // For other staff - get their assigned tables
+            const assignedTables = [];
+            tableAssignments.forEach(assignment => {
+              if (assignment.staffUsername === staffUsername) {
+                // Add all tables in their range
+                for (let i = assignment.startTable; i <= assignment.endTable; i++) {
+                  assignedTables.push(i);
+                }
+              }
+            });
+            
+            console.log("Staff assigned tables:", assignedTables);
+            
+            // Get all orders for tables assigned to current staff
+            // This works without a composite index
             return await db.collection('orders')
               .where('status', 'in', ['pending', 'preparing', 'ready'])
-              .orderBy('createdAt', 'desc')
               .get();
           } catch (error) {
             // Check if it's a missing index error
@@ -7855,10 +7884,14 @@
       
       console.log(`Fetching orders for client ${clientId} at table ${tableNumber}`);
       
-      // Use a simpler query that doesn't require a composite index
-      // First get all active orders for this table - this works without complex indexes
+      // Use a simpler query to get all orders for this client and table
+      // First debug
+      console.log(`Getting orders for clientId=${clientId} and tableNumber=${tableNumber}`);
+      
+      // Use a simpler query that works without complex indexes
       db.collection('orders')
         .where('tableNumber', '==', tableNumber)
+        .where('clientId', '==', clientId)
         .get()
         .then((querySnapshot) => {
           if (querySnapshot.empty) {
