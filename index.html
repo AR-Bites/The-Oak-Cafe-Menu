@@ -6554,7 +6554,15 @@
     }
     
     // Checkout
+    // Track if an order is being processed to prevent duplicates
+    let isOrderBeingProcessed = false;
+    
     async function checkout() {
+      // Prevent duplicate order submissions
+      if (isOrderBeingProcessed) {
+        console.log("Order submission already in progress, preventing duplicate");
+        return;
+      }
       if (cart.length === 0) {
         showNotification(
           currentLanguage === 'ar' ? 'سلة فارغة' : 'Empty Cart',
@@ -6611,6 +6619,9 @@
       checkoutBtn.classList.add('checkout-loading');
       checkoutBtn.disabled = true;
       
+      // Set flag to prevent duplicate submissions
+      isOrderBeingProcessed = true;
+      
       try {
         // Calculate total
         let subtotal = 0;
@@ -6620,6 +6631,9 @@
         
         const tax = subtotal * 0.08;
         const total = subtotal + tax;
+        
+        // Generate unique order identifier to help prevent duplicates
+        const uniqueOrderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
         
         // Prepare the order data
         const order = {
@@ -6632,7 +6646,9 @@
           tableNumber: tableNumber,
           estimatedTime: estimatedTime,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          uniqueId: uniqueOrderId, // Add unique identifier
+          orderedTime: new Date().toISOString() // Add ISO string date for additional uniqueness
         };
         
         // Show processing notification to improve perceived responsiveness
@@ -6693,9 +6709,10 @@
           'error'
         );
       } finally {
-        // Reset checkout button state
+        // Reset checkout button state and order processing flag
         checkoutBtn.classList.remove('checkout-loading');
         checkoutBtn.disabled = false;
+        isOrderBeingProcessed = false;
       }
     }
     
@@ -8009,7 +8026,19 @@
     setInterval(cleanupCompletedOrders, 60 * 60 * 1000);
     
     // Client Orders
+    // Flag to track if we're currently rendering client orders to prevent duplicate calls
+    let isRenderingClientOrders = false;
+    
     function renderClientOrders() {
+      // Prevent multiple simultaneous renders
+      if (isRenderingClientOrders) {
+        console.log("Client orders already being rendered, skipping duplicate render");
+        return;
+      }
+      
+      // Set the flag to prevent duplicate renders
+      isRenderingClientOrders = true;
+      
       // Initial loading state - but only if there's no content already
       if (!clientOrdersList.querySelector('.client-order')) {
         clientOrdersList.innerHTML = `
@@ -8023,6 +8052,7 @@
       // If we don't have a table number yet, don't show any orders
       if (!tableNumber) {
         clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'الرجاء تحديد رقم الطاولة أولاً' : 'Please select a table number first'}</p>`;
+        isRenderingClientOrders = false;
         return;
       }
       
@@ -8030,6 +8060,7 @@
       if (!db || typeof db.collection !== 'function') {
         console.error("Firebase database not initialized");
         clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>`;
+        isRenderingClientOrders = false;
         return;
       }
       
@@ -8052,6 +8083,7 @@
         .then((querySnapshot) => {
           if (querySnapshot.empty) {
             clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+            isRenderingClientOrders = false;
             return;
           }
           
@@ -8212,6 +8244,12 @@
         .catch((error) => {
           console.error("Error fetching client orders:", error);
           clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ في تحميل الطلبات' : 'Error loading orders'}</p>`;
+        })
+        .finally(() => {
+          // Reset the rendering flag when done, regardless of success or failure
+          setTimeout(() => {
+            isRenderingClientOrders = false;
+          }, 500); // Short delay to prevent too frequent re-renders
         });
     }
     
