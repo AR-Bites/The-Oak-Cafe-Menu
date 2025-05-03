@@ -5571,11 +5571,17 @@
         // Minimal logging to improve performance
         console.log("Creating order for table:", orderData.tableNumber);
         
+        // Check database connection first
+        if (!db || typeof db.collection !== 'function') {
+          console.error("Firebase database not initialized");
+          throw new Error("Database not connected");
+        }
+        
         // Ensure table number is an integer
         const tableNumber = parseInt(orderData.tableNumber);
         if (isNaN(tableNumber)) {
           console.error("Invalid table number in order data:", orderData.tableNumber);
-          return null;
+          throw new Error("Invalid table number");
         }
         orderData.tableNumber = tableNumber;
         
@@ -6249,7 +6255,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
             currentLanguage === 'ar' 
-              ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
+              ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست h�خصصة لك' 
               : 'You cannot manage this table as it is not assigned to you',
             'error'
           );
@@ -6675,7 +6681,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الطلب' : 'Order Error',
           currentLanguage === 'ar' 
-            ? 'حدث خط � أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.'
+            ? 'حدث خطأ أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.'
             : error.message || 'There was an error placing your order. Please try again.',
           'error'
         );
@@ -7840,22 +7846,19 @@
         return;
       }
       
-      // Create query to get only orders for the current table number and clientId from the current session
-      let ordersQuery = db.collection('orders')
-        .where('clientId', '==', clientId);
-      
-      // Add table number filter
-      if (tableNumber) {
-        ordersQuery = ordersQuery.where('tableNumber', '==', tableNumber);
+      // Verify Firebase connection
+      if (!db || typeof db.collection !== 'function') {
+        console.error("Firebase database not initialized");
+        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>`;
+        return;
       }
       
-      // Only show active orders (pending, preparing, ready)
-      // - Cancelled orders would have been deleted
-      // - Completed orders should only show for a limited time
-      ordersQuery
-        .where('status', 'in', ['pending', 'preparing', 'ready', 'completed'])
-        .orderBy('createdAt', 'desc')
-        .limit(5)
+      console.log(`Fetching orders for client ${clientId} at table ${tableNumber}`);
+      
+      // Use a simpler query that doesn't require a composite index
+      // First get all active orders for this table - this works without complex indexes
+      db.collection('orders')
+        .where('tableNumber', '==', tableNumber)
         .get()
         .then((querySnapshot) => {
           if (querySnapshot.empty) {
