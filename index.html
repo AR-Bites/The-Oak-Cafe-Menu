@@ -1106,6 +1106,42 @@
       --poster-color: transparent;
       --progress-bar-color: var(--gold);
       --progress-mask: transparent;
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 1;
+    }
+    
+    .model-controls {
+      position: absolute;
+      bottom: -8px;
+      right: -8px;
+      display: flex;
+      gap: 5px;
+      z-index: 2;
+    }
+    
+    .model-control {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--dark-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      transition: transform 0.15s ease;
+    }
+    
+    .model-control:hover {
+      transform: scale(1.15);
+    }
+    
+    .model-control:active {
+      transform: scale(0.95);
     }
     
     .item-name {
@@ -5588,7 +5624,7 @@
           staffLogin: "تسجيل دخول الموظفين",
           username: "اسم المستخدم",
           password: "كلمة المرور",
-          addToCart: "+ إضافة إلى السلة",
+          addToCart: "+ إضافة إs�ى السلة",
           prev: "← السابق",
           next: "التالي →",
           viewInAr: "عرض بالواقع المعزز",
@@ -6573,9 +6609,9 @@
         
         // Find if this item has a 3D model
         const foodItem = filteredFoodItems.find(f => f.name === item.name);
-        if (foodItem && foodItem.model) {
+        if (foodItem && foodItem.modelSrc) {
           const modelViewer = document.createElement('model-viewer');
-          modelViewer.setAttribute('src', foodItem.model);
+          modelViewer.setAttribute('src', foodItem.modelSrc);
           modelViewer.setAttribute('ar', '');
           modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           modelViewer.setAttribute('camera-controls', '');
@@ -6585,7 +6621,51 @@
           modelViewer.setAttribute('camera-orbit', '0deg 75deg 2m');
           modelViewer.setAttribute('alt', item.name);
           modelViewer.setAttribute('style', 'width: 100%; height: 100%;');
+          
+          // Make sure the model is visible with proper size
+          modelContainer.style.width = '60px';
+          modelContainer.style.height = '60px';
+          modelContainer.style.minWidth = '60px';
+          modelContainer.style.minHeight = '60px';
+          modelContainer.style.position = 'relative';
+          modelContainer.style.background = 'rgba(0, 0, 0, 0.2)';
+          modelContainer.style.borderRadius = '8px';
+          modelContainer.style.overflow = 'visible'; // Allow model to overflow container
+          
           modelContainer.appendChild(modelViewer);
+          
+          // Add interactive controls
+          const modelControls = document.createElement('div');
+          modelControls.className = 'model-controls';
+          modelControls.innerHTML = `
+            <div class="model-control zoom-in" title="Zoom In"><i class="fas fa-search-plus"></i></div>
+            <div class="model-control zoom-out" title="Zoom Out"><i class="fas fa-search-minus"></i></div>
+          `;
+          modelContainer.appendChild(modelControls);
+          
+          // Add event handlers for model controls
+          setTimeout(() => {
+            const zoomIn = modelControls.querySelector('.zoom-in');
+            const zoomOut = modelControls.querySelector('.zoom-out');
+            
+            if (zoomIn && zoomOut) {
+              zoomIn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent item click
+                const currentOrbit = modelViewer.cameraOrbit.split(' ');
+                const currentDistance = parseFloat(currentOrbit[2]);
+                const newDistance = Math.max(1, currentDistance * 0.8); // Zoom in by reducing distance
+                modelViewer.cameraOrbit = `${currentOrbit[0]} ${currentOrbit[1]} ${newDistance}m`;
+              });
+              
+              zoomOut.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent item click
+                const currentOrbit = modelViewer.cameraOrbit.split(' ');
+                const currentDistance = parseFloat(currentOrbit[2]);
+                const newDistance = Math.min(4, currentDistance * 1.2); // Zoom out by increasing distance
+                modelViewer.cameraOrbit = `${currentOrbit[0]} ${currentOrbit[1]} ${newDistance}m`;
+              });
+            }
+          }, 200); // Short delay to ensure model-viewer is initialized
         } else {
           // Fallback for items without 3D models
           modelContainer.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils" style="color:var(--gold);opacity:0.5;font-size:20px;"></i></div>';
@@ -7048,7 +7128,7 @@
           staffLoginBtn.textContent = localStorage.getItem(ADMIN_TOKEN) ? 'ADMIN' : 'STAFF';
         } else {
           // If not logged in, show "LOGIN"
-          staffLoginBtn.textContent = currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN';
+          staffLoginBtn.textContent = currentLanguage === 'ar' ? 'ت �جيل الدخول' : 'LOGIN';
         }
       }
       
@@ -11151,7 +11231,7 @@
           table: {
             day: 'اليوم الطاولات 9-12 لديها أعلى معدل دوران عند 4.1 ساعات',
             week: 'الطاولات 5-8 لديها أعلى معدل دوران بمتوسط 3.2 ساعة هذا الأسبوع',
-            month: 'تُظهر البيانات الشهرية أن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيام الأسبوع',
+            month: 'تُظهر البيانات الشهرية s�ن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيام الأسبوع',
             year: 'تُظهر البيانات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
           },
           staff: {
