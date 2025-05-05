@@ -667,29 +667,54 @@
     }
     
     .logout-btn {
-      background: #d32f2f;
+      background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
       color: white;
-      padding: 6px 12px;
+      padding: 8px 16px;
       border: none;
-      border-radius: 6px;
+      border-radius: 24px;
       cursor: pointer;
       font-size: 0.85rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 5px;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+      transform: translateZ(0);
+    }
+    
+    .logout-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 50%);
+      border-radius: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
     
     .logout-btn:hover {
-      background: #b71c1c;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, #ff7070 0%, #c62828 100%);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4), 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .logout-btn:hover::before {
+      opacity: 1;
     }
     
     .logout-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    
+    .logout-btn i {
+      font-size: 1rem;
     }
     
     #staff-name-display {
@@ -1487,6 +1512,8 @@
       z-index: 1100;
       justify-content: center;
       align-items: center;
+      opacity: 1;
+      transition: opacity 0.3s ease;
       padding: 15px;
       overflow-y: auto;
     }
@@ -3701,20 +3728,18 @@
           </div>
         </div>
         
-        <div class="extras-section">
+        <!-- Old extras section removed in favor of the new customize modal -->
+        <div class="extras-section" style="display: none;">
           <div class="input-group">
             <label for="extras-select" id="extras-label">ADD EXTRAS</label>
-            <select id="extras-select">
+            <select id="extras-select" disabled>
               <option value="">No extras</option>
-              <option value="extra_cheese">Extra Cheese (+$2.00)</option>
-              <option value="extra_toppings">Extra Toppings (+$3.00)</option>
-              <option value="garlic_bread">Garlic Bread Side (+$4.00)</option>
             </select>
           </div>
           
           <div class="input-group">
             <label for="item-notes" id="notes-label">SPECIAL INSTRUCTIONS</label>
-            <textarea id="item-notes" rows="2" placeholder="Any special requests..."></textarea>
+            <textarea id="item-notes" disabled rows="2" placeholder="Please use the customize modal instead"></textarea>
           </div>
         </div>
       </div>
@@ -5295,27 +5320,105 @@
     
     // Logout staff or admin user
     function logoutStaff() {
-      // Clear auth tokens
-      localStorage.removeItem(STAFF_TOKEN);
-      localStorage.removeItem(ADMIN_TOKEN);
-      localStorage.removeItem("staffName");
-      localStorage.removeItem("staffRole");
+      // Add a smooth animation effect for logout
+      const dashboardElement = userType === 'admin' 
+        ? document.getElementById('admin-dashboard')
+        : document.getElementById('staff-dashboard');
       
-      // Set user type back to guest
-      userType = "guest";
-      localStorage.setItem(USER_TYPE_KEY, "guest");
+      // Add fade-out effect
+      dashboardElement.style.transition = 'opacity 0.3s ease';
+      dashboardElement.style.opacity = '0';
       
-      // Check auth state to update UI
-      checkAuthState();
-      
-      // Show success notification
-      showNotification(
-        currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Successfully Logged Out',
-        currentLanguage === 'ar' 
-          ? 'تم تسجيل الخروج من الحساب بنجاح'
-          : 'You have been successfully logged out',
-        'success'
-      );
+      // Wait for animation before clearing everything
+      setTimeout(() => {
+        // Clear auth tokens
+        localStorage.removeItem(STAFF_TOKEN);
+        localStorage.removeItem(ADMIN_TOKEN);
+        localStorage.removeItem("staffName");
+        localStorage.removeItem("staffRole");
+        localStorage.removeItem(TABLE_NUMBER_KEY);
+        
+        // Set user type back to initial state
+        userType = null;
+        localStorage.removeItem(USER_TYPE_KEY);
+        
+        // Hide all user interfaces
+        document.getElementById('guest-interface').style.display = 'none';
+        document.getElementById('staff-dashboard').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'none';
+        
+        // Reset table number modal to show the initial selection UI
+        const tableNumberModal = document.getElementById('table-number-modal');
+        const tableTitle = document.getElementById('table-number-title');
+        const tableSubtitle = document.getElementById('table-number-subtitle');
+        const optionButtons = document.querySelector('.user-option-buttons');
+        const tableNumberInputContainer = document.getElementById('table-number-input-container');
+        
+        // Get option elements
+        const guestOption = document.querySelector('.guest-option');
+        const staffOption = document.querySelector('.staff-option');
+        
+        // Reset option selections and styles
+        guestOption.classList.remove('option-selected');
+        staffOption.classList.remove('option-selected');
+        staffOption.classList.remove('staff-option-active');
+        
+        // Reset style properties that may have been added
+        [guestOption, staffOption].forEach(el => {
+          if (el) {
+            el.style.opacity = '1';
+            el.style.pointerEvents = 'auto';
+            el.style.width = '';
+            el.style.maxWidth = '';
+            el.style.margin = '';
+            el.style.display = 'block';
+          }
+        });
+        
+        // Reset any embedded login form
+        const embeddedLoginForm = document.getElementById('embedded-login-form');
+        if (embeddedLoginForm) {
+          embeddedLoginForm.remove();
+        }
+        
+        // Reset any back button
+        const backButton = document.getElementById('back-to-options-btn');
+        if (backButton) {
+          backButton.remove();
+        }
+        
+        // Set title and subtitle back to initial
+        tableTitle.textContent = currentLanguage === 'ar' ? 'اختر دورك' : 'YOUR ROLE';
+        tableSubtitle.textContent = currentLanguage === 'ar' 
+          ? 'يرجى تحديد دورك للمتابعة' 
+          : 'Please select your role to continue';
+        
+        // Reset UI elements
+        optionButtons.style.display = 'flex';
+        optionButtons.style.opacity = '1';
+        tableNumberInputContainer.style.display = 'none';
+        
+        // Display the role selection modal with a nice fade-in effect
+        tableNumberModal.style.opacity = '0';
+        tableNumberModal.style.display = 'flex';
+        
+        // Clean up any remaining cart items or session data
+        clearCart();
+        
+        // Fade in the modal
+        setTimeout(() => {
+          tableNumberModal.style.opacity = '1';
+        }, 50);
+        
+        // Show success notification
+        showNotification(
+          currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Successfully Logged Out',
+          currentLanguage === 'ar' 
+            ? 'يمكنك الآن اختيار دور آخر أو إدخال رقم طاولة'
+            : 'You can now choose another role or enter a table number',
+          'success'
+        );
+      }, 300);
     }
     
     function updateLanguage() {
@@ -6966,19 +7069,25 @@
     function showGuestOption() {
       // Add visual feedback for the selection
       const guestOption = document.querySelector('.guest-option');
-      guestOption.classList.add('option-selected');
+      const staffOption = document.querySelector('.staff-option');
       
-      // Hide option buttons with a smooth fade-out transition
-      const optionButtons = document.querySelector('.user-option-buttons');
-      optionButtons.style.opacity = '0';
+      // Highlight selected option and fade out the other one
+      guestOption.classList.add('option-selected');
+      staffOption.style.opacity = '0.3';
+      staffOption.style.pointerEvents = 'none'; // Disable staff option interaction
       
       // Change modal title to reflect guest mode
       const tableTitle = document.getElementById('table-number-title');
       tableTitle.textContent = currentLanguage === 'ar' ? 'إدخال رقم الطاولة' : 'ENTER TABLE NUMBER';
       
       setTimeout(() => {
-        // Hide options completely
-        optionButtons.style.display = 'none';
+        // Hide staff option completely
+        staffOption.style.display = 'none';
+        
+        // Reposition guest option to center and make it prominent
+        guestOption.style.width = '100%';
+        guestOption.style.maxWidth = '300px';
+        guestOption.style.margin = '0 auto 20px auto';
         
         // Show the table number input with a nice fade-in
         tableNumberInputContainer.style.display = 'block';
@@ -7083,11 +7192,12 @@
     function handleStaffBypass() {
       // Add visual feedback for the selection
       const staffOption = document.querySelector('.staff-option');
-      staffOption.classList.add('option-selected');
+      const guestOption = document.querySelector('.guest-option');
       
-      // Hide option buttons with a smooth fade-out transition
-      const optionButtons = document.querySelector('.user-option-buttons');
-      optionButtons.style.opacity = '0';
+      // Highlight selected option and fade out the other one
+      staffOption.classList.add('option-selected');
+      guestOption.style.opacity = '0.3';
+      guestOption.style.pointerEvents = 'none'; // Disable guest option interaction
       
       // Change modal title to reflect staff mode
       const tableTitle = document.getElementById('table-number-title');
@@ -7121,8 +7231,13 @@
       } else {
         // Need to authenticate first - prepare login form
         setTimeout(() => {
-          // Hide options completely
-          optionButtons.style.display = 'none';
+          // Hide guest option completely
+          guestOption.style.display = 'none';
+          
+          // Reposition staff option to center and make it prominent
+          staffOption.style.width = '100%';
+          staffOption.style.maxWidth = '300px';
+          staffOption.style.margin = '0 auto 20px auto';
           
           // Create a lightweight login form directly in the table modal
           const modalContent = document.querySelector('.table-number-content');
@@ -7165,7 +7280,7 @@
             const passwordInput = document.createElement('input');
             passwordInput.type = 'password';
             passwordInput.id = 'embedded-password';
-            passwordInput.placeholder = currentLanguage === 'ar' ? 'أدخل كلمة المرور' : 'Enter password';
+            passwordInput.placeholder = currentLanguage === 'ar' ? 'أدخo� كلمة المرور' : 'Enter password';
             passwordInput.className = 'input-field';
             
             passwordGroup.appendChild(passwordLabel);
@@ -8648,7 +8763,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'جارٍ الإلغاء' : 'Cancelling',
           currentLanguage === 'ar' 
-            ? `جارٍ إلغاء ال �لب...` 
+            ? `جارٍ إلغاء الطلب...` 
             : `Cancelling order...`,
           'info',
           1500 // Auto-hide after 1.5 seconds
