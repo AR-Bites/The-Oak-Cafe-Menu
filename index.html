@@ -308,108 +308,6 @@
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    /* Food grid layout */
-    .food-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-      width: 100%;
-    }
-    
-    .food-card {
-      background: var(--dark-bg);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      padding: 12px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    
-    .food-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-      border-color: var(--gold);
-    }
-    
-    .food-card h3 {
-      font-size: 1.2rem;
-      margin: 0 0 8px 0;
-      color: var(--gold);
-      font-weight: 600;
-    }
-    
-    .food-card-model {
-      width: 100%;
-      height: 120px;
-      margin: 0 0 10px 0;
-      border-radius: 8px;
-      overflow: hidden;
-      background: rgba(0, 0, 0, 0.2);
-    }
-    
-    .food-card model-viewer {
-      width: 100%;
-      height: 100%;
-      --poster-color: transparent;
-      --progress-bar-color: var(--gold);
-      --progress-mask: transparent;
-    }
-    
-    .food-card p {
-      margin: 5px 0;
-      font-size: 0.9rem;
-      line-height: 1.3;
-      color: rgba(255, 255, 255, 0.8);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-    
-    .food-card .food-card-price {
-      margin-top: 8px;
-      font-weight: 600;
-      color: var(--gold);
-    }
-    
-    .food-card.selected {
-      border: 2px solid var(--gold);
-      box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-      transform: translateY(-5px);
-      position: relative;
-    }
-    
-    .food-card.selected::after {
-      content: '';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      width: 30px;
-      height: 30px;
-      background-color: var(--gold);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231A3A2F' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 16px;
-      z-index: 10;
-    }
-    
-    .main-item-view {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
       background-color: rgba(26, 58, 47, 0.1);
       --poster-color: transparent;
       transition: opacity 0.3s ease;
@@ -3259,24 +3157,6 @@
       
       .tagline {
         font-size: 0.8rem;
-      }
-      
-      .food-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 10px;
-      }
-      
-      .food-card-model {
-        height: 100px;
-      }
-      
-      .food-card h3 {
-        font-size: 1rem;
-      }
-      
-      .food-card p {
-        font-size: 0.8rem;
-        -webkit-line-clamp: 1;
         margin-bottom: 10px;
       }
       
@@ -3507,15 +3387,6 @@
         gap: 10px;
       }
       
-      .food-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 12px;
-      }
-      
-      .food-card-model {
-        height: 130px;
-      }
-      
       /* Better spacing for medium-sized devices */
       .food-container {
         padding: 15px;
@@ -3553,26 +3424,8 @@
       }
       
       .food-container {
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-      
-      .food-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 20px;
-      }
-      
-      .food-card-model {
-        height: 150px;
-      }
-      
-      .main-item-view {
         max-width: 600px;
-        margin: 0 auto 30px auto;
-        padding: 20px;
-        background: rgba(26, 58, 47, 0.4);
-        border-radius: 15px;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        margin: 0 auto;
       }
       
       .cart-panel {
@@ -3925,33 +3778,27 @@
         </div>
       </div>
       <div class="food-container">
-        <!-- Food grid for browsing all items -->
-        <div class="food-grid" id="food-grid"></div>
-        
-        <!-- Main item view for selected item details -->
-        <div class="main-item-view">
-          <h2 id="food-name">Margherita Pizza</h2>
-          <div class="model-container">
-            <model-viewer id="food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
-              <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
-              <div class="model-loading-indicator" id="model-loading-indicator">
-                <div class="loading-spinner model-spinner"></div>
-              </div>
-            </model-viewer>
-          </div>
-          <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
-          <p id="food-price">Price: $14.99</p>
-          
-          <div class="nav-buttons">
-            <button onclick="addToCart()" class="add-to-cart" id="add-cart-btn">+ ADD TO CART</button>
-            <div class="nav-arrow-container">
-              <button onclick="showPreviousItem()" id="prev-btn" class="nav-arrow-btn">
-                <i class="fas fa-chevron-left"></i> PREV
-              </button>
-              <button onclick="showNextItem()" id="next-btn" class="nav-arrow-btn">
-                NEXT <i class="fas fa-chevron-right"></i>
-              </button>
+        <h2 id="food-name">Margherita Pizza</h2>
+        <div class="model-container">
+          <model-viewer id="food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
+            <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
+            <div class="model-loading-indicator" id="model-loading-indicator">
+              <div class="loading-spinner model-spinner"></div>
             </div>
+          </model-viewer>
+        </div>
+        <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
+        <p id="food-price">Price: $14.99</p>
+        
+        <div class="nav-buttons">
+          <button onclick="addToCart()" class="add-to-cart" id="add-cart-btn">+ ADD TO CART</button>
+          <div class="nav-arrow-container">
+            <button onclick="showPreviousItem()" id="prev-btn" class="nav-arrow-btn">
+              <i class="fas fa-chevron-left"></i> PREV
+            </button>
+            <button onclick="showNextItem()" id="next-btn" class="nav-arrow-btn">
+              NEXT <i class="fas fa-chevron-right"></i>
+            </button>
           </div>
         </div>
         
@@ -5248,10 +5095,6 @@
       currentStaff = localStorage.getItem(STAFF_TOKEN);
       checkAuthState();
       
-      // Initialize the food grid display
-      filterFoodItems();
-      updateFoodDisplay();
-      
       // Set up enter key for password field
       const passwordField = document.getElementById('password');
       if (passwordField) {
@@ -6082,7 +5925,7 @@
       const cakesCategoryBtn = document.getElementById('cakes-category-btn');
       const iceCreamCategoryBtn = document.getElementById('ice-cream-category-btn');
       
-      if (allDessertsBtn) allDessertsBtn.textContent = currentLanguage === 'ar' ? 'كل الحلويات' : 'All Desserts';
+      if (allDessertsBtn) allDessertsBtn.textContent = currentLanguage === 'ar' ? 'كل  �لحلويات' : 'All Desserts';
       if (cakesCategoryBtn) cakesCategoryBtn.textContent = currentLanguage === 'ar' ? 'كيك' : 'Cakes';
       if (iceCreamCategoryBtn) iceCreamCategoryBtn.textContent = currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream';
       
@@ -6257,121 +6100,12 @@
       return filteredFoodItems;
     }
     
-    // Populate the food grid with all filtered food items
-    function populateFoodGrid() {
-      const foodGrid = document.getElementById('food-grid');
-      
-      // Clear existing items
-      foodGrid.innerHTML = '';
-      
-      // Make sure we have filtered items
-      if (filteredFoodItems.length === 0) {
-        filterFoodItems();
-      }
-      
-      // Create a card for each filtered food item
-      filteredFoodItems.forEach((item, index) => {
-        // Create food card
-        const card = document.createElement('div');
-        card.className = 'food-card';
-        card.setAttribute('data-index', index);
-        card.onclick = () => {
-          currentFoodIndex = index;
-          updateFoodDisplay();
-          // Scroll the main view into view if needed
-          document.querySelector('.main-item-view').scrollIntoView({ behavior: 'smooth' });
-        };
-        
-        // Create card title (food name)
-        const name = document.createElement('h3');
-        name.textContent = (currentLanguage === 'ar' && item.nameAr) ? item.nameAr : item.name;
-        card.appendChild(name);
-        
-        // Create model container
-        const modelContainer = document.createElement('div');
-        modelContainer.className = 'food-card-model';
-        
-        // Create model viewer
-        const cardModelViewer = document.createElement('model-viewer');
-        cardModelViewer.src = item.modelSrc;
-        cardModelViewer.setAttribute('alt', '3D Food Model');
-        cardModelViewer.setAttribute('auto-rotate', '');
-        cardModelViewer.setAttribute('camera-controls', '');
-        cardModelViewer.setAttribute('camera-orbit', '-20deg 75deg 2.5m');
-        cardModelViewer.setAttribute('shadow-intensity', '1');
-        cardModelViewer.setAttribute('loading', 'lazy');
-        cardModelViewer.setAttribute('reveal', 'interaction');
-        
-        // Add loading indicator
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.className = 'model-loading-indicator';
-        const spinner = document.createElement('div');
-        spinner.className = 'loading-spinner model-spinner';
-        loadingIndicator.appendChild(spinner);
-        cardModelViewer.appendChild(loadingIndicator);
-        
-        // Handle model loading
-        cardModelViewer.addEventListener('load', () => {
-          loadingIndicator.style.display = 'none';
-          
-          // Add to cache if not already there
-          if (!modelCache[item.modelSrc]) {
-            modelCache[item.modelSrc] = {
-              loaded: true,
-              element: cardModelViewer
-            };
-          } else {
-            modelCache[item.modelSrc].loaded = true;
-          }
-        });
-        
-        // Use cached model if available
-        if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
-          loadingIndicator.style.display = 'none';
-        }
-        
-        modelContainer.appendChild(cardModelViewer);
-        card.appendChild(modelContainer);
-        
-        // Add description (limited to 2 lines)
-        const description = document.createElement('p');
-        description.textContent = (currentLanguage === 'ar' && item.descriptionAr) ? item.descriptionAr : item.description;
-        card.appendChild(description);
-        
-        // Add price
-        const price = document.createElement('p');
-        price.className = 'food-card-price';
-        if (currentLanguage === 'ar') {
-          price.textContent = `السعر: ${item.price.toFixed(2)} $`;
-        } else {
-          price.textContent = `$${item.price.toFixed(2)}`;
-        }
-        card.appendChild(price);
-        
-        // Add card to grid
-        foodGrid.appendChild(card);
-      });
-    }
-    
     function updateFoodDisplay() {
       // Make sure we have filtered items
       if (filteredFoodItems.length === 0) {
         filterFoodItems();
       }
       
-      // Update the food grid with all filtered items
-      populateFoodGrid();
-      
-      // Highlight the currently selected card
-      const foodCards = document.querySelectorAll('.food-card');
-      foodCards.forEach(card => {
-        card.classList.remove('selected');
-        if (parseInt(card.getAttribute('data-index')) === currentFoodIndex) {
-          card.classList.add('selected');
-        }
-      });
-      
-      // Update the main item view with the current selected item
       const item = filteredFoodItems[currentFoodIndex];
       const modelLoadingIndicator = document.getElementById('model-loading-indicator');
       
@@ -6421,8 +6155,6 @@
         
         modelViewer.addEventListener('load', onLoad);
       }
-      
-      // Note: Card highlighting is already handled at the beginning of this function
       
       // Clear existing extras
       extrasSelect.innerHTML = '';
