@@ -1065,12 +1065,13 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 12px 10px;
+      padding: 15px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
       border-radius: 8px;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       transition: all 0.2s ease;
       cursor: pointer;
+      position: relative;
     }
     
     .cart-item:hover {
@@ -1080,6 +1081,31 @@
     .cart-item:active {
       background: rgba(255, 255, 255, 0.08);
       transform: scale(0.99);
+    }
+    
+    .cart-item-content {
+      display: flex;
+      width: 100%;
+      gap: 12px;
+    }
+    
+    .cart-item-model {
+      width: 55px;
+      height: 55px;
+      position: relative;
+      flex-shrink: 0;
+      margin-right: 5px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .cart-item model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+      --progress-bar-color: var(--gold);
+      --progress-mask: transparent;
     }
     
     .item-name {
@@ -1854,6 +1880,42 @@
     
     .embedded-login-form .input-field::placeholder {
       color: rgba(255,255,255,0.5);
+    }
+    
+    /* Staff icon standalone for login screen */
+    .staff-icon-standalone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      animation: fadeInDown 0.5s ease;
+    }
+    
+    .staff-icon-standalone i {
+      font-size: 42px;
+      color: var(--gold);
+      margin-bottom: 10px;
+      animation: subtle-float 2s infinite alternate;
+    }
+    
+    .staff-icon-standalone .staff-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--light-cream);
+    }
+    
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     
     /* Table Grid */
@@ -4786,7 +4848,7 @@
         nameAr: "سلطة يونانية",
         modelSrc: "models/Margherita Pizza.glb", // Using existing model as placeholder
         description: "Fresh cucumbers, tomatoes, olives, feta cheese, and red onions with olive oil dressing.",
-        descriptionAr: "خيار طازج، طماطم، زيتون، جبنة فيتا، وبصل أحمر مع صلصة زيت الزيتون.",
+        descriptionAr: "خيار طازج، طماطم، زيتون، جبنة فيتا، وبصل أحمر مع y�لصة زيت الزيتون.",
         price: 10.99,
         category: "salads",
         mainCategory: "food"
@@ -5534,7 +5596,7 @@
           totalOrders: "إجمالي الطلبات",
           avgRating: "متوسط التقييم",
           lowRatings: "التقييمات المنخفضة",
-          activeStaff: "الموظفين النشطين",
+          activeStaff: "الموظفين النشطي(�",
           staffManagement: "إدارة الموظفين",
           staffAccounts: "حسابات الموظفين", 
           addNewStaff: "إضافة موظف جديد",
@@ -6489,6 +6551,34 @@
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
         
+        // Create content wrapper for better layout control
+        const cartItemContent = document.createElement('div');
+        cartItemContent.className = 'cart-item-content';
+        
+        // Add 3D model viewer for menu items that have models
+        const modelContainer = document.createElement('div');
+        modelContainer.className = 'cart-item-model';
+        
+        // Find if this item has a 3D model
+        const foodItem = filteredFoodItems.find(f => f.name === item.name);
+        if (foodItem && foodItem.model) {
+          const modelViewer = document.createElement('model-viewer');
+          modelViewer.setAttribute('src', foodItem.model);
+          modelViewer.setAttribute('ar', '');
+          modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+          modelViewer.setAttribute('camera-controls', '');
+          modelViewer.setAttribute('auto-rotate', '');
+          modelViewer.setAttribute('rotation-per-second', '30deg');
+          modelViewer.setAttribute('shadow-intensity', '1');
+          modelViewer.setAttribute('camera-orbit', '0deg 75deg 2m');
+          modelViewer.setAttribute('alt', item.name);
+          modelViewer.setAttribute('style', 'width: 100%; height: 100%;');
+          modelContainer.appendChild(modelViewer);
+        } else {
+          // Fallback for items without 3D models
+          modelContainer.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils" style="color:var(--gold);opacity:0.5;font-size:20px;"></i></div>';
+        }
+        
         const itemName = document.createElement('div');
         itemName.className = 'item-name';
         
@@ -6527,8 +6617,11 @@
           removeCartItem(index);
         };
         
-        // Build cart item
-        cartItem.appendChild(itemName);
+        // Build cart item with improved layout
+        cartItemContent.appendChild(modelContainer);
+        cartItemContent.appendChild(itemName);
+        
+        cartItem.appendChild(cartItemContent);
         cartItem.appendChild(itemPrice);
         cartItem.appendChild(removeBtn);
         
@@ -7070,8 +7163,9 @@
       // Add visual feedback for the selection
       const guestOption = document.querySelector('.guest-option');
       const staffOption = document.querySelector('.staff-option');
+      const optionButtons = document.querySelector('.user-option-buttons');
       
-      // Highlight selected option and fade out the other one
+      // Highlight selected option with temporary animation
       guestOption.classList.add('option-selected');
       staffOption.style.opacity = '0.3';
       staffOption.style.pointerEvents = 'none'; // Disable staff option interaction
@@ -7080,14 +7174,12 @@
       const tableTitle = document.getElementById('table-number-title');
       tableTitle.textContent = currentLanguage === 'ar' ? 'إدخال رقم الطاولة' : 'ENTER TABLE NUMBER';
       
+      // Fade out entire options container for a clean transition
+      optionButtons.style.opacity = '0';
+      
       setTimeout(() => {
-        // Hide staff option completely
-        staffOption.style.display = 'none';
-        
-        // Reposition guest option to center and make it prominent
-        guestOption.style.width = '100%';
-        guestOption.style.maxWidth = '300px';
-        guestOption.style.margin = '0 auto 20px auto';
+        // Hide entire options section completely
+        optionButtons.style.display = 'none';
         
         // Show the table number input with a nice fade-in
         tableNumberInputContainer.style.display = 'block';
@@ -7193,6 +7285,7 @@
       // Add visual feedback for the selection
       const staffOption = document.querySelector('.staff-option');
       const guestOption = document.querySelector('.guest-option');
+      const optionButtons = document.querySelector('.user-option-buttons');
       
       // Highlight selected option and fade out the other one
       staffOption.classList.add('option-selected');
@@ -7202,6 +7295,9 @@
       // Change modal title to reflect staff mode
       const tableTitle = document.getElementById('table-number-title');
       tableTitle.textContent = currentLanguage === 'ar' ? 'تسجيل دخول الموظفين' : 'STAFF LOGIN';
+      
+      // Fade out entire options container for a clean transition
+      optionButtons.style.opacity = '0';
       
       // Switch to staff view without entering table number
       if (localStorage.getItem(STAFF_TOKEN) === "true" || localStorage.getItem(ADMIN_TOKEN) === "true") {
@@ -7231,16 +7327,22 @@
       } else {
         // Need to authenticate first - prepare login form
         setTimeout(() => {
-          // Hide guest option completely
-          guestOption.style.display = 'none';
+          // Hide options container completely
+          optionButtons.style.display = 'none';
           
-          // Reposition staff option to center and make it prominent
-          staffOption.style.width = '100%';
-          staffOption.style.maxWidth = '300px';
-          staffOption.style.margin = '0 auto 20px auto';
-          
-          // Create a lightweight login form directly in the table modal
+          // Show staff option as a standalone element above the login form
           const modalContent = document.querySelector('.table-number-content');
+          
+          // Create a standalone staff icon
+          const staffIcon = document.createElement('div');
+          staffIcon.className = 'staff-icon-standalone';
+          staffIcon.innerHTML = `<i class="fas fa-user-tie"></i>
+                                <div class="staff-title">${currentLanguage === 'ar' ? 'تسجيل دخول الموظفين' : 'STAFF LOGIN'}</div>`;
+          
+          // Add the icon if it doesn't already exist
+          if (!document.querySelector('.staff-icon-standalone')) {
+            modalContent.insertBefore(staffIcon, modalContent.firstChild);
+          }
           
           // Check if we already have an embedded login form
           if (!document.getElementById('embedded-login-form')) {
@@ -7280,7 +7382,7 @@
             const passwordInput = document.createElement('input');
             passwordInput.type = 'password';
             passwordInput.id = 'embedded-password';
-            passwordInput.placeholder = currentLanguage === 'ar' ? 'أدخo� كلمة المرور' : 'Enter password';
+            passwordInput.placeholder = currentLanguage === 'ar' ? 'أدخل كلمة المرور' : 'Enter password';
             passwordInput.className = 'input-field';
             
             passwordGroup.appendChild(passwordLabel);
@@ -7771,7 +7873,7 @@
       showNotification(
         currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
         currentLanguage === 'ar' 
-          ? `جارٍ تحديث حالة الطاولة ${tableNumber}...` 
+          ? `جا}�ٍ تحديث حالة الطاولة ${tableNumber}...` 
           : `Updating table ${tableNumber} status...`,
         'info',
         1500 // Auto-close after 1.5 seconds
@@ -10227,7 +10329,7 @@
       occupiedTablesCount.className = 'occupied-tables-count';
       occupiedTablesCount.innerHTML = `
         <span style="font-weight: bold; margin-bottom: 10px; display: block; text-align: center; color: var(--light-cream); background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;">
-          <i class="fas fa-utensils"></i> ${currentLanguage === 'ar' ? 'الطاولات المشغولة' : 'Occupied Tables'}: 
+          <i class="fas fa-utensils"></i> ${currentLanguage === 'ar' ? 'الطاولات الم �غولة' : 'Occupied Tables'}: 
           <span style="color: var(--gold);">${occupiedTables.size}</span>
         </span>
       `;
