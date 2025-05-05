@@ -6763,6 +6763,41 @@
       { username: 'staff', name: 'General Staff', password: '123456', role: 'staff' }
     ];
     
+    // Authentication function for staff login
+    async function authenticateStaff(username, password) {
+      console.log("Authenticating staff with username:", username);
+      
+      // Find matching account
+      const account = accounts.find(acc => acc.username === username && acc.password === password);
+      
+      if (account) {
+        console.log("Staff authentication successful for:", account.name);
+        
+        // Set localStorage values
+        if (account.role === 'admin') {
+          localStorage.setItem(ADMIN_TOKEN, 'true');
+          localStorage.setItem('adminName', account.name);
+          userType = 'admin';
+          localStorage.setItem(USER_TYPE_KEY, 'admin');
+        } else {
+          localStorage.setItem(STAFF_TOKEN, 'true');
+          localStorage.setItem('staffName', account.name);
+          localStorage.setItem('staffRole', account.role);
+          userType = 'staff';
+          localStorage.setItem(USER_TYPE_KEY, 'staff');
+        }
+        
+        return { 
+          success: true, 
+          name: account.name, 
+          role: account.role 
+        };
+      } else {
+        console.log("Staff authentication failed");
+        return { success: false };
+      }
+    }
+    
     // Initialize table assignments
     const tableAssignments = [
       { staffUsername: 'sarah', startTable: 1, endTable: 20 },
@@ -7015,6 +7050,12 @@
           // If not logged in, show "LOGIN"
           staffLoginBtn.textContent = currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN';
         }
+      }
+      
+      // Hide role selection buttons if user has selected a role
+      const userTypeContainer = document.querySelector('.user-type');
+      if (userTypeContainer && userType) {
+        userTypeContainer.style.display = 'none';
       }
       
       // Show appropriate view
