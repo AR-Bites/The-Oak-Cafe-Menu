@@ -291,6 +291,123 @@
       z-index: 1;
     }
     
+    /* Food Grid View Styles */
+    .food-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 15px 0;
+      width: 100%;
+    }
+    
+    .food-item-card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(173, 132, 36, 0.3);
+    }
+    
+    .food-item-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .food-item-card.active {
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 15px rgba(173, 132, 36, 0.5);
+    }
+    
+    .food-item-model {
+      width: 100%;
+      height: 100px;
+      position: relative;
+      background: rgba(247, 242, 230, 0.5);
+    }
+    
+    .card-model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+    }
+    
+    .food-item-info {
+      padding: 10px;
+      text-align: center;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .food-item-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: var(--dark-brown);
+    }
+    
+    .food-item-price {
+      color: var(--gold);
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    
+    .food-item-btn {
+      margin-top: 5px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .food-item-btn:hover {
+      background: linear-gradient(135deg, var(--gold-dark) 0%, var(--dark-brown) 100%);
+    }
+    
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+      gap: 5px;
+    }
+    
+    .view-toggle-btn {
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      padding: 5px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .view-toggle-btn:first-child {
+      border-radius: 5px 0 0 5px;
+    }
+    
+    .view-toggle-btn:last-child {
+      border-radius: 0 5px 5px 0;
+    }
+    
+    .view-toggle-btn.active {
+      background-color: var(--gold);
+      color: white;
+      border-color: var(--gold);
+    }
+    
     /* 3D Model Viewer Enhancements */
     .model-container {
       position: relative;
@@ -311,6 +428,11 @@
       background-color: rgba(26, 58, 47, 0.1);
       --poster-color: transparent;
       transition: opacity 0.3s ease;
+    }
+    
+    /* Food Detail View */
+    .food-detail-view {
+      width: 100%;
     }
     
     .model-loading-indicator {
@@ -3778,27 +3900,43 @@
         </div>
       </div>
       <div class="food-container">
-        <h2 id="food-name">Margherita Pizza</h2>
-        <div class="model-container">
-          <model-viewer id="food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
-            <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
-            <div class="model-loading-indicator" id="model-loading-indicator">
-              <div class="loading-spinner model-spinner"></div>
-            </div>
-          </model-viewer>
+        <!-- View Toggle Buttons -->
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" id="grid-view-btn" onclick="toggleView('grid')">
+            <i class="fas fa-th"></i> <span id="grid-view-text">GRID</span>
+          </button>
+          <button class="view-toggle-btn" id="detail-view-btn" onclick="toggleView('detail')">
+            <i class="fas fa-list"></i> <span id="detail-view-text">DETAIL</span>
+          </button>
         </div>
-        <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
-        <p id="food-price">Price: $14.99</p>
         
-        <div class="nav-buttons">
-          <button onclick="addToCart()" class="add-to-cart" id="add-cart-btn">+ ADD TO CART</button>
-          <div class="nav-arrow-container">
-            <button onclick="showPreviousItem()" id="prev-btn" class="nav-arrow-btn">
-              <i class="fas fa-chevron-left"></i> PREV
-            </button>
-            <button onclick="showNextItem()" id="next-btn" class="nav-arrow-btn">
-              NEXT <i class="fas fa-chevron-right"></i>
-            </button>
+        <!-- Grid View -->
+        <div id="food-grid" class="food-grid"></div>
+        
+        <!-- Detail View -->
+        <div id="food-detail-view" class="food-detail-view" style="display: none;">
+          <h2 id="food-name">Margherita Pizza</h2>
+          <div class="model-container">
+            <model-viewer id="food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
+              <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
+              <div class="model-loading-indicator" id="model-loading-indicator">
+                <div class="loading-spinner model-spinner"></div>
+              </div>
+            </model-viewer>
+          </div>
+          <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
+          <p id="food-price">Price: $14.99</p>
+          
+          <div class="nav-buttons">
+            <button onclick="addToCart()" class="add-to-cart" id="add-cart-btn">+ ADD TO CART</button>
+            <div class="nav-arrow-container">
+              <button onclick="showPreviousItem()" id="prev-btn" class="nav-arrow-btn">
+                <i class="fas fa-chevron-left"></i> <span id="prev-btn-text">PREV</span>
+              </button>
+              <button onclick="showNextItem()" id="next-btn" class="nav-arrow-btn">
+                <span id="next-btn-text">NEXT</span> <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </div>
         
@@ -5090,6 +5228,11 @@
       currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'en';
       updateLanguage();
       
+      // Initialize food display with grid view by default
+      changeCategory('all');  // Default to showing all items
+      toggleView('grid');     // Start with grid view
+      renderFoodGrid();       // Render the grid immediately
+      
       // Retrieve authentication status
       userType = localStorage.getItem(USER_TYPE_KEY) || "guest";
       currentStaff = localStorage.getItem(STAFF_TOKEN);
@@ -5394,6 +5537,9 @@
     
     // Logout staff or admin user
     function logoutStaff() {
+      // Store current user type for notification
+      const currentUserDisplay = userType === 'admin' ? 'Admin' : 'Staff';
+      
       // Add a smooth animation effect for logout
       const dashboardElement = userType === 'admin' 
         ? document.getElementById('admin-dashboard')
@@ -5402,6 +5548,15 @@
       // Add fade-out effect
       dashboardElement.style.transition = 'opacity 0.3s ease';
       dashboardElement.style.opacity = '0';
+      
+      // Show notification about logout
+      showNotification(
+        currentLanguage === 'ar' ? 'تم تسجيل الخروج' : 'Logged Out Successfully',
+        currentLanguage === 'ar' 
+          ? 'تم تسجيل الخروج بنجاح، يمكنك تسجيل الدخول مرة أخرى' 
+          : `${currentUserDisplay} logged out successfully`,
+        'success'
+      );
       
       // Wait for animation before clearing everything
       setTimeout(() => {
@@ -5427,6 +5582,11 @@
         const tableSubtitle = document.getElementById('table-number-subtitle');
         const optionButtons = document.querySelector('.user-option-buttons');
         const tableNumberInputContainer = document.getElementById('table-number-input-container');
+        
+        // Show login modal for users to log back in
+        setTimeout(() => {
+          showLoginModal();
+        }, 1000);
         
         // Get option elements
         const guestOption = document.querySelector('.guest-option');
@@ -5513,7 +5673,7 @@
           staffOption: "I'm Staff",
           login: "LOGIN",
           accountLogin: "ACCOUNT LOGIN",
-        staffLogin: "STAFF LOGIN",
+          staffLogin: "STAFF LOGIN",
           username: "USERNAME",
           password: "PASSWORD",
           addToCart: "+ ADD TO CART",
@@ -5567,7 +5727,11 @@
           hotFood: "Hot Food",
           coldFood: "Cold Food",
           drinks: "Drinks",
-          desserts: "Desserts"
+          desserts: "Desserts",
+          // View toggle
+          gridView: "GRID",
+          detailView: "DETAIL",
+          viewDetails: "VIEW"
         },
         ar: {
           title: "ذا أوك كافيه",
@@ -5640,6 +5804,10 @@
           coldFood: "طعام بارد",
           drinks: "مشروبات",
           desserts: "حلويات",
+          // View toggle
+          gridView: "شبكة",
+          detailView: "تفاصيل",
+          viewDetails: "عرض",
           // Advanced Analytics translations
           advancedAnalytics: "تحليلات متقدمة",
           analyticsTitle: "لوحة التحليلات المتقدمة",
@@ -5925,7 +6093,7 @@
       const cakesCategoryBtn = document.getElementById('cakes-category-btn');
       const iceCreamCategoryBtn = document.getElementById('ice-cream-category-btn');
       
-      if (allDessertsBtn) allDessertsBtn.textContent = currentLanguage === 'ar' ? 'كل  �لحلويات' : 'All Desserts';
+      if (allDessertsBtn) allDessertsBtn.textContent = currentLanguage === 'ar' ? 'كل الحلويات' : 'All Desserts';
       if (cakesCategoryBtn) cakesCategoryBtn.textContent = currentLanguage === 'ar' ? 'كيك' : 'Cakes';
       if (iceCreamCategoryBtn) iceCreamCategoryBtn.textContent = currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream';
       
@@ -5937,6 +6105,24 @@
       
       // Update special instructions placeholder
       itemNotes.placeholder = currentLanguage === 'ar' ? 'أي طلبات خاصة...' : 'Any special requests...';
+      
+      // Update view toggle buttons
+      const gridViewBtn = document.getElementById('grid-view-btn');
+      const detailViewBtn = document.getElementById('detail-view-btn');
+      
+      if (gridViewBtn) {
+        gridViewBtn.textContent = t.gridView;
+      }
+      
+      if (detailViewBtn) {
+        detailViewBtn.textContent = t.detailView;
+      }
+      
+      // Update all "View Details" buttons in the grid
+      const viewDetailsBtns = document.querySelectorAll('.grid-item-details-btn');
+      viewDetailsBtns.forEach(btn => {
+        btn.textContent = t.viewDetails;
+      });
     }
     
     // Food catalog display
@@ -6100,12 +6286,189 @@
       return filteredFoodItems;
     }
     
-    function updateFoodDisplay() {
-      // Make sure we have filtered items
+    // Variable to track current view mode (grid or detail)
+    let currentViewMode = 'grid';
+    
+    // Toggle between grid and detail view
+    function toggleView(viewMode) {
+      if (viewMode === currentViewMode) return;
+      
+      const gridViewBtn = document.getElementById('grid-view-btn');
+      const detailViewBtn = document.getElementById('detail-view-btn');
+      const foodGrid = document.getElementById('food-grid');
+      const foodDetailView = document.getElementById('food-detail-view');
+      
+      if (viewMode === 'grid') {
+        // Switch to grid view
+        gridViewBtn.classList.add('active');
+        detailViewBtn.classList.remove('active');
+        foodGrid.style.display = 'grid';
+        foodDetailView.style.display = 'none';
+        currentViewMode = 'grid';
+        renderFoodGrid();
+      } else {
+        // Switch to detail view
+        gridViewBtn.classList.remove('active');
+        detailViewBtn.classList.add('active');
+        foodGrid.style.display = 'none';
+        foodDetailView.style.display = 'block';
+        currentViewMode = 'detail';
+        updateDetailView();
+      }
+      
+      // Update toggle button text based on language
+      updateToggleButtonsLanguage();
+    }
+    
+    // Update the text in toggle buttons based on current language
+    function updateToggleButtonsLanguage() {
+      const gridViewBtn = document.getElementById('grid-view-btn');
+      const detailViewBtn = document.getElementById('detail-view-btn');
+      
+      // Get translations from our translations object
+      const translations = {
+        en: { gridView: "GRID", detailView: "DETAIL" },
+        ar: { gridView: "شبكة", detailView: "تفاصيل" }
+      };
+      const t = translations[currentLanguage];
+      
+      if (gridViewBtn) {
+        gridViewBtn.textContent = t.gridView;
+      }
+      
+      if (detailViewBtn) {
+        detailViewBtn.textContent = t.detailView;
+      }
+    }
+    
+    // Render the food items in grid view
+    function renderFoodGrid() {
+      const foodGrid = document.getElementById('food-grid');
+      
+      // Clear existing content
+      foodGrid.innerHTML = '';
+      
+      // Get the filtered items
       if (filteredFoodItems.length === 0) {
         filterFoodItems();
       }
       
+      // Create a card for each food item
+      filteredFoodItems.forEach((item, index) => {
+        const card = createFoodItemCard(item, index);
+        foodGrid.appendChild(card);
+      });
+    }
+    
+    // Create a food item card with model-viewer for the grid
+    function createFoodItemCard(item, index) {
+      const card = document.createElement('div');
+      card.className = 'food-item-card';
+      card.dataset.index = index;
+      
+      // Highlight the currently selected item
+      if (index === currentFoodIndex) {
+        card.classList.add('active');
+      }
+      
+      // Create the model container
+      const modelContainer = document.createElement('div');
+      modelContainer.className = 'food-item-model';
+      
+      // Create the model viewer
+      const modelViewer = document.createElement('model-viewer');
+      modelViewer.className = 'card-model-viewer';
+      modelViewer.setAttribute('src', item.modelSrc);
+      modelViewer.setAttribute('auto-rotate', '');
+      modelViewer.setAttribute('camera-controls', '');
+      modelViewer.setAttribute('shadow-intensity', '1');
+      modelViewer.setAttribute('ar', '');
+      modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+      modelViewer.setAttribute('camera-orbit', '0deg 75deg 2m');
+      modelViewer.setAttribute('alt', item.name);
+      
+      // Add a mini loading spinner
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.className = 'model-loading-indicator';
+      loadingIndicator.innerHTML = '<div class="loading-spinner model-spinner"></div>';
+      
+      // Info section
+      const infoSection = document.createElement('div');
+      infoSection.className = 'food-item-info';
+      
+      // Item name
+      const nameElement = document.createElement('div');
+      nameElement.className = 'food-item-name';
+      nameElement.textContent = (currentLanguage === 'ar' && item.nameAr) ? item.nameAr : item.name;
+      
+      // Item price
+      const priceElement = document.createElement('div');
+      priceElement.className = 'food-item-price';
+      if (currentLanguage === 'ar') {
+        priceElement.textContent = `${item.price.toFixed(2)} $`;
+      } else {
+        priceElement.textContent = `$${item.price.toFixed(2)}`;
+      }
+      
+      // View details button
+      const viewButton = document.createElement('button');
+      viewButton.className = 'food-item-btn grid-item-details-btn';
+      
+      // Get translations from our global translations object
+      const translations = {
+        en: { viewDetails: "VIEW" },
+        ar: { viewDetails: "عرض" }
+      };
+      const t = translations[currentLanguage];
+      
+      viewButton.innerHTML = '<i class="fas fa-eye"></i> ' + t.viewDetails;
+      
+      // Add event listener to the view button
+      viewButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent card click
+        currentFoodIndex = index;
+        toggleView('detail');
+      });
+      
+      // Add event listener to the entire card
+      card.addEventListener('click', () => {
+        currentFoodIndex = index;
+        updateActiveCard();
+      });
+      
+      // Assemble the card
+      modelContainer.appendChild(modelViewer);
+      modelContainer.appendChild(loadingIndicator);
+      infoSection.appendChild(nameElement);
+      infoSection.appendChild(priceElement);
+      infoSection.appendChild(viewButton);
+      
+      card.appendChild(modelContainer);
+      card.appendChild(infoSection);
+      
+      return card;
+    }
+    
+    // Update which card is marked as active
+    function updateActiveCard() {
+      const allCards = document.querySelectorAll('.food-item-card');
+      
+      allCards.forEach((card, index) => {
+        if (index === currentFoodIndex) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+      
+      // Also update the detail view if it's visible
+      if (currentViewMode === 'detail') {
+        updateDetailView();
+      }
+    }
+    
+    // Update the detail view with current item
+    function updateDetailView() {
       const item = filteredFoodItems[currentFoodIndex];
       const modelLoadingIndicator = document.getElementById('model-loading-indicator');
       
@@ -6123,79 +6486,108 @@
       } else {
         foodPrice.textContent = `Price: $${item.price.toFixed(2)}`;
       }
+    }
+    
+    // Main function to update all food displays
+    function updateFoodDisplay() {
+      // Make sure we have filtered items
+      if (filteredFoodItems.length === 0) {
+        filterFoodItems();
+      }
       
-      // Use cached model if available, otherwise load directly
-      if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
-        console.log(`Using cached model for ${item.name}`);
-        modelViewer.src = item.modelSrc;
-        
-        // Hide loading indicator after a short delay for smoother transition
-        setTimeout(() => {
-          modelLoadingIndicator.style.display = 'none';
-        }, 300);
+      // Update either grid or detail view based on current mode
+      if (currentViewMode === 'grid') {
+        renderFoodGrid();
       } else {
-        console.log(`Loading model for ${item.name}`);
-        modelViewer.src = item.modelSrc;
+        updateDetailView();
         
-        // Add event listener to hide loading indicator when model is loaded
-        const onLoad = () => {
-          modelLoadingIndicator.style.display = 'none';
-          modelViewer.removeEventListener('load', onLoad);
+        // Get the current item for the detail view
+        const item = filteredFoodItems[currentFoodIndex];
+        const modelViewer = document.getElementById('food-model-viewer');
+        const modelLoadingIndicator = document.getElementById('model-loading-indicator');
+        
+        // Use cached model if available, otherwise load directly
+        if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
+          console.log(`Using cached model for ${item.name}`);
+          modelViewer.src = item.modelSrc;
           
-          // Add to cache if not already there
-          if (!modelCache[item.modelSrc]) {
-            modelCache[item.modelSrc] = {
-              loaded: true,
-              element: modelViewer
-            };
-          } else {
-            modelCache[item.modelSrc].loaded = true;
+          // Hide loading indicator after a short delay for smoother transition
+          setTimeout(() => {
+            modelLoadingIndicator.style.display = 'none';
+          }, 300);
+        } else {
+          console.log(`Loading model for ${item.name}`);
+          modelViewer.src = item.modelSrc;
+          
+          // Add event listener to hide loading indicator when model is loaded
+          const onLoad = () => {
+            modelLoadingIndicator.style.display = 'none';
+            modelViewer.removeEventListener('load', onLoad);
+            
+            // Add to cache if not already there
+            if (!modelCache[item.modelSrc]) {
+              modelCache[item.modelSrc] = {
+                loaded: true,
+                element: modelViewer
+              };
+            } else {
+              modelCache[item.modelSrc].loaded = true;
+            }
+          };
+          
+          modelViewer.addEventListener('load', onLoad);
+        }
+      }
+      
+      // Handling extras
+      if (currentViewMode === 'detail') {
+        const item = filteredFoodItems[currentFoodIndex];
+        const extrasSelect = document.getElementById('extras-select');
+        const itemNotes = document.getElementById('item-notes');
+        
+        if (extrasSelect && itemNotes) {
+          // Clear existing extras
+          extrasSelect.innerHTML = '';
+          
+          // Add default "No extras" option
+          const noExtrasOption = document.createElement('option');
+          noExtrasOption.value = '';
+          noExtrasOption.textContent = currentLanguage === 'ar' ? 'بدون إضافات' : 'No extras';
+          extrasSelect.appendChild(noExtrasOption);
+          
+          // Add dynamic extras based on food category
+          if (item.category === 'pizza') {
+            const extras = [
+              { value: 'extra_cheese', text: currentLanguage === 'ar' ? 'جبنة إضافية (+$2.00)' : 'Extra Cheese (+$2.00)' },
+              { value: 'extra_toppings', text: currentLanguage === 'ar' ? 'إضافات إضافية (+$3.00)' : 'Extra Toppings (+$3.00)' },
+              { value: 'garlic_bread', text: currentLanguage === 'ar' ? 'خبز بالثوم (+$4.00)' : 'Garlic Bread Side (+$4.00)' }
+            ];
+            
+            extras.forEach(extra => {
+              const option = document.createElement('option');
+              option.value = extra.value;
+              option.textContent = extra.text;
+              extrasSelect.appendChild(option);
+            });
+          } else if (item.category === 'pasta') {
+            const extras = [
+              { value: 'extra_sauce', text: currentLanguage === 'ar' ? 'صلصة إضافية (+$1.50)' : 'Extra Sauce (+$1.50)' },
+              { value: 'garlic_bread', text: currentLanguage === 'ar' ? 'خبز بالثوم (+$4.00)' : 'Garlic Bread Side (+$4.00)' },
+              { value: 'parmesan', text: currentLanguage === 'ar' ? 'جبنة بارميزان إضافية (+$2.00)' : 'Extra Parmesan (+$2.00)' }
+            ];
+            
+            extras.forEach(extra => {
+              const option = document.createElement('option');
+              option.value = extra.value;
+              option.textContent = extra.text;
+              extrasSelect.appendChild(option);
+            });
           }
-        };
-        
-        modelViewer.addEventListener('load', onLoad);
+          
+          // Clear any previous notes
+          itemNotes.value = '';
+        }
       }
-      
-      // Clear existing extras
-      extrasSelect.innerHTML = '';
-      
-      // Add default "No extras" option
-      const noExtrasOption = document.createElement('option');
-      noExtrasOption.value = '';
-      noExtrasOption.textContent = currentLanguage === 'ar' ? 'بدون إضافات' : 'No extras';
-      extrasSelect.appendChild(noExtrasOption);
-      
-      // Add dynamic extras based on food category
-      if (item.category === 'pizza') {
-        const extras = [
-          { value: 'extra_cheese', text: currentLanguage === 'ar' ? 'جبنة إضافية (+$2.00)' : 'Extra Cheese (+$2.00)' },
-          { value: 'extra_toppings', text: currentLanguage === 'ar' ? 'إضافات إضافية (+$3.00)' : 'Extra Toppings (+$3.00)' },
-          { value: 'garlic_bread', text: currentLanguage === 'ar' ? 'خبز بالثوم (+$4.00)' : 'Garlic Bread Side (+$4.00)' }
-        ];
-        
-        extras.forEach(extra => {
-          const option = document.createElement('option');
-          option.value = extra.value;
-          option.textContent = extra.text;
-          extrasSelect.appendChild(option);
-        });
-      } else if (item.category === 'pasta') {
-        const extras = [
-          { value: 'extra_sauce', text: currentLanguage === 'ar' ? 'صلصة إضافية (+$1.50)' : 'Extra Sauce (+$1.50)' },
-          { value: 'garlic_bread', text: currentLanguage === 'ar' ? 'خبز بالثوم (+$4.00)' : 'Garlic Bread Side (+$4.00)' },
-          { value: 'parmesan', text: currentLanguage === 'ar' ? 'جبنة بارميزان إضافية (+$2.00)' : 'Extra Parmesan (+$2.00)' }
-        ];
-        
-        extras.forEach(extra => {
-          const option = document.createElement('option');
-          option.value = extra.value;
-          option.textContent = extra.text;
-          extrasSelect.appendChild(option);
-        });
-      }
-      
-      // Clear any previous notes
-      itemNotes.value = '';
     }
     
     function showPreviousItem() {
@@ -6458,18 +6850,33 @@
       
       // Create cart item
       const cartItem = {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 5), // unique ID
         name: currentCustomizeItem.name,
         price: currentCustomizeItem.price,
         extras: extrasLabels.length > 0 ? extrasLabels.join(', ') : null,
         extrasCost: extrasCost,
         notes: specialInstructions,
         quantity: itemQuantity,
-        totalPrice: singleItemPrice * itemQuantity
+        totalPrice: singleItemPrice * itemQuantity,
+        modelSrc: currentCustomizeItem.model || null // Store model source for cart display
       };
       
       // Add to cart
       cart.push(cartItem);
+      
+      // Update cart display with animation
+      const cartIconBadge = document.getElementById('cart-count');
+      if (cartIconBadge) {
+        cartIconBadge.classList.add('cart-badge-pulse');
+        setTimeout(() => cartIconBadge.classList.remove('cart-badge-pulse'), 1000);
+      }
+      
       updateCartDisplay();
+      
+      // Open cart panel to show the added item
+      if (cartPanel && cartPanel.style.transform !== 'translateX(0%)') {
+        toggleCart();
+      }
       
       // Verify the checkout button is enabled
       checkoutBtn.disabled = false;
