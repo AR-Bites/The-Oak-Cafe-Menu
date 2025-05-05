@@ -1882,8 +1882,9 @@
       color: rgba(255,255,255,0.5);
     }
     
-    /* Staff icon standalone for login screen */
-    .staff-icon-standalone {
+    /* Staff/Guest icon standalone for login screen */
+    .staff-icon-standalone,
+    .guest-icon-standalone {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1894,14 +1895,16 @@
       animation: fadeInDown 0.5s ease;
     }
     
-    .staff-icon-standalone i {
+    .staff-icon-standalone i,
+    .guest-icon-standalone i {
       font-size: 42px;
       color: var(--gold);
       margin-bottom: 10px;
       animation: subtle-float 2s infinite alternate;
     }
     
-    .staff-icon-standalone .staff-title {
+    .staff-icon-standalone .staff-title,
+    .guest-icon-standalone .guest-title {
       font-size: 1rem;
       font-weight: 600;
       color: var(--light-cream);
@@ -1915,6 +1918,15 @@
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+    
+    @keyframes subtle-float {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-5px);
       }
     }
     
@@ -4848,7 +4860,7 @@
         nameAr: "سلطة يونانية",
         modelSrc: "models/Margherita Pizza.glb", // Using existing model as placeholder
         description: "Fresh cucumbers, tomatoes, olives, feta cheese, and red onions with olive oil dressing.",
-        descriptionAr: "خيار طازج، طماطم، زيتون، جبنة فيتا، وبصل أحمر مع y�لصة زيت الزيتون.",
+        descriptionAr: "خيار طازج، طماطم، زيتون، جبنة فيتا، وبصل أحمر مع صلصة زيت الزيتون.",
         price: 10.99,
         category: "salads",
         mainCategory: "food"
@@ -5596,7 +5608,7 @@
           totalOrders: "إجمالي الطلبات",
           avgRating: "متوسط التقييم",
           lowRatings: "التقييمات المنخفضة",
-          activeStaff: "الموظفين النشطي(�",
+          activeStaff: "الموظفين النشطين",
           staffManagement: "إدارة الموظفين",
           staffAccounts: "حسابات الموظفين", 
           addNewStaff: "إضافة موظف جديد",
@@ -7160,15 +7172,11 @@
     }
     
     function showGuestOption() {
-      // Add visual feedback for the selection
-      const guestOption = document.querySelector('.guest-option');
-      const staffOption = document.querySelector('.staff-option');
-      const optionButtons = document.querySelector('.user-option-buttons');
+      // Set user type
+      userType = "guest";
+      localStorage.setItem(USER_TYPE_KEY, "guest");
       
-      // Highlight selected option with temporary animation
-      guestOption.classList.add('option-selected');
-      staffOption.style.opacity = '0.3';
-      staffOption.style.pointerEvents = 'none'; // Disable staff option interaction
+      const optionButtons = document.querySelector('.user-option-buttons');
       
       // Change modal title to reflect guest mode
       const tableTitle = document.getElementById('table-number-title');
@@ -7178,8 +7186,20 @@
       optionButtons.style.opacity = '0';
       
       setTimeout(() => {
-        // Hide entire options section completely
-        optionButtons.style.display = 'none';
+        // Completely remove options from DOM
+        optionButtons.parentNode.removeChild(optionButtons);
+        
+        // Create a guest icon indicator
+        const modalContent = document.querySelector('.table-number-content');
+        const guestIcon = document.createElement('div');
+        guestIcon.className = 'guest-icon-standalone';
+        guestIcon.innerHTML = `<i class="fas fa-utensils"></i>
+                            <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف' : 'GUEST MODE'}</div>`;
+        
+        // Add the icon if it doesn't already exist
+        if (!document.querySelector('.guest-icon-standalone')) {
+          modalContent.insertBefore(guestIcon, modalContent.firstChild);
+        }
         
         // Show the table number input with a nice fade-in
         tableNumberInputContainer.style.display = 'block';
@@ -7203,21 +7223,7 @@
       tableNumberInput.removeEventListener('input', checkTableAvailabilityRealtime);
       tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
       
-      // Add a back button to return to role selection
-      const backButton = document.createElement('button');
-      backButton.id = 'back-to-options-btn';
-      backButton.innerHTML = '<i class="fas fa-arrow-left"></i> ' + (currentLanguage === 'ar' ? 'رجوع' : 'BACK');
-      backButton.className = 'secondary-btn back-btn';
-      backButton.onclick = function() {
-        // Reset and show the options again
-        resetTableSelectionModal();
-      };
-      
-      // Add the back button to the modal
-      const modalContent = document.querySelector('.table-number-content');
-      if (!document.getElementById('back-to-options-btn')) {
-        modalContent.insertBefore(backButton, tableNumberInputContainer);
-      }
+      // We no longer add the back button as we want options to be completely gone
     }
     
     function resetTableSelectionModal() {
@@ -7226,27 +7232,80 @@
       const backButton = document.getElementById('back-to-options-btn');
       if (backButton) backButton.style.opacity = '0';
       
+      // Remove any staff/guest standalone icons
+      const staffIcon = document.querySelector('.staff-icon-standalone');
+      if (staffIcon) staffIcon.style.opacity = '0';
+      
+      const guestIcon = document.querySelector('.guest-icon-standalone');
+      if (guestIcon) guestIcon.style.opacity = '0';
+      
+      // Remove any login form
+      const loginForm = document.getElementById('embedded-login-form');
+      if (loginForm) loginForm.style.opacity = '0';
+      
       setTimeout(() => {
+        // Hide/remove elements
         tableNumberInputContainer.style.display = 'none';
         if (backButton) backButton.remove();
-        
-        // Reset any selected option styling
-        const guestOption = document.querySelector('.guest-option');
-        guestOption.classList.remove('option-selected');
-        
-        const staffOption = document.querySelector('.staff-option');
-        staffOption.classList.remove('option-selected');
-        staffOption.classList.remove('staff-option-active');
+        if (staffIcon) staffIcon.remove();
+        if (guestIcon) guestIcon.remove();
+        if (loginForm) loginForm.style.display = 'none';
         
         // Reset modal title
         const tableTitle = document.getElementById('table-number-title');
         tableTitle.textContent = currentLanguage === 'ar' ? 'رقم الطاولة الخاص بك' : 'YOUR TABLE NUMBER';
         
-        // Show option buttons again with fade-in
-        const optionButtons = document.querySelector('.user-option-buttons');
-        optionButtons.style.display = 'flex';
-        optionButtons.style.opacity = '0';
+        // Get the modal content container
+        const modalContent = document.querySelector('.table-number-content');
         
+        // Check if option buttons exist, if not, recreate them
+        let optionButtons = document.querySelector('.user-option-buttons');
+        if (!optionButtons) {
+          // Create new option buttons container
+          optionButtons = document.createElement('div');
+          optionButtons.className = 'user-option-buttons';
+          
+          // Create guest option
+          const guestOption = document.createElement('div');
+          guestOption.className = 'guest-option';
+          guestOption.onclick = function() { showGuestOption(); };
+          guestOption.innerHTML = `
+            <i class="fas fa-utensils option-icon"></i>
+            <span id="guest-option-text">${currentLanguage === 'ar' ? 'أنا ضيف' : 'I\'m a Guest'}</span>
+            <div class="option-description" id="guest-option-desc">
+              ${currentLanguage === 'ar' 
+                ? 'حدد هذا إذا كنت تتناول الطعام وتحتاج إلى طلب من طاولتك' 
+                : 'Select this if you\'re dining in and need to place an order from your table'}
+            </div>
+          `;
+          
+          // Create staff option
+          const staffOption = document.createElement('div');
+          staffOption.className = 'staff-option';
+          staffOption.onclick = function() { handleStaffBypass(); };
+          staffOption.innerHTML = `
+            <i class="fas fa-user-tie option-icon"></i>
+            <span id="staff-option-text">${currentLanguage === 'ar' ? 'أنا موظف' : 'I\'m Staff'}</span>
+            <div class="option-description" id="staff-option-desc">
+              ${currentLanguage === 'ar'
+                ? 'وصول موظفي المطعم - إدارة الطلبات والطاولات وعمليات المطبخ'
+                : 'Restaurant staff access - manage orders, tables, and kitchen operations'}
+            </div>
+          `;
+          
+          // Add options to container
+          optionButtons.appendChild(guestOption);
+          optionButtons.appendChild(staffOption);
+          
+          // Add container to modal
+          modalContent.insertBefore(optionButtons, tableNumberInputContainer);
+        } else {
+          // If they exist, just show them
+          optionButtons.style.display = 'flex';
+        }
+        
+        // Fade in the options
+        optionButtons.style.opacity = '0';
         setTimeout(() => {
           optionButtons.style.opacity = '1';
         }, 50);
@@ -7282,15 +7341,11 @@
     }
     
     function handleStaffBypass() {
-      // Add visual feedback for the selection
-      const staffOption = document.querySelector('.staff-option');
-      const guestOption = document.querySelector('.guest-option');
-      const optionButtons = document.querySelector('.user-option-buttons');
+      // Set user type temporarily - will be updated after authentication
+      userType = "staff";
+      localStorage.setItem(USER_TYPE_KEY, "staff");
       
-      // Highlight selected option and fade out the other one
-      staffOption.classList.add('option-selected');
-      guestOption.style.opacity = '0.3';
-      guestOption.style.pointerEvents = 'none'; // Disable guest option interaction
+      const optionButtons = document.querySelector('.user-option-buttons');
       
       // Change modal title to reflect staff mode
       const tableTitle = document.getElementById('table-number-title');
@@ -7306,11 +7361,10 @@
         userType = role;
         localStorage.setItem(USER_TYPE_KEY, role);
         
-        // Add visual pulse effect to indicate successful recognition
-        staffOption.classList.add('option-success-pulse');
-        
-        // Close modal with a slight delay to show the button animation
+        // Completely remove the options container from DOM
         setTimeout(() => {
+          optionButtons.parentNode.removeChild(optionButtons);
+          
           closeTableModal();
           checkAuthState();
           
@@ -7320,15 +7374,12 @@
             currentLanguage === 'ar' ? 'تم تجاوز حاجز اختيار الطاولة' : 'Welcome back! You are now in staff mode',
             'success'
           );
-          
-          // Remove the pulse effect
-          staffOption.classList.remove('option-success-pulse');
-        }, 800);
+        }, 300);
       } else {
         // Need to authenticate first - prepare login form
         setTimeout(() => {
-          // Hide options container completely
-          optionButtons.style.display = 'none';
+          // Completely remove options container from DOM
+          optionButtons.parentNode.removeChild(optionButtons);
           
           // Show staff option as a standalone element above the login form
           const modalContent = document.querySelector('.table-number-content');
@@ -7873,7 +7924,7 @@
       showNotification(
         currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
         currentLanguage === 'ar' 
-          ? `جا}�ٍ تحديث حالة الطاولة ${tableNumber}...` 
+          ? `جارٍ تحديث حالة الطاولة ${tableNumber}...` 
           : `Updating table ${tableNumber} status...`,
         'info',
         1500 // Auto-close after 1.5 seconds
@@ -10329,7 +10380,7 @@
       occupiedTablesCount.className = 'occupied-tables-count';
       occupiedTablesCount.innerHTML = `
         <span style="font-weight: bold; margin-bottom: 10px; display: block; text-align: center; color: var(--light-cream); background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;">
-          <i class="fas fa-utensils"></i> ${currentLanguage === 'ar' ? 'الطاولات الم �غولة' : 'Occupied Tables'}: 
+          <i class="fas fa-utensils"></i> ${currentLanguage === 'ar' ? 'الطاولات المشغولة' : 'Occupied Tables'}: 
           <span style="color: var(--gold);">${occupiedTables.size}</span>
         </span>
       `;
