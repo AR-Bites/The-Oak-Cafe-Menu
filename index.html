@@ -313,27 +313,6 @@
       transition: opacity 0.3s ease;
     }
     
-    .mini-model-container {
-      width: 100%;
-      height: 90px;
-      margin: 8px 0 12px 0;
-      border-radius: 8px;
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      background-color: rgba(26, 58, 47, 0.05);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-    }
-    
-    .mini-model-viewer {
-      width: 100%;
-      height: 90px;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: transparent;
-      --poster-color: transparent;
-    }
-    
     .model-loading-indicator {
       position: absolute;
       top: 0;
@@ -3259,21 +3238,6 @@
       .add-to-cart {
         order: -1;
         width: 100%;
-      }
-      
-      /* Add to Cart Button Animation */
-      #add-cart-btn.btn-clicked {
-        transform: scale(0.95);
-        background: linear-gradient(135deg, #D4AF37 0%, var(--gold) 100%);
-        box-shadow: 0 1px 4px rgba(212, 175, 55, 0.3);
-        animation: pulse-add-cart 0.4s ease-out;
-      }
-      
-      @keyframes pulse-add-cart {
-        0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
-      }
         margin-bottom: 12px;
         padding: 14px;
         font-size: 1rem;
@@ -3815,13 +3779,6 @@
       </div>
       <div class="food-container">
         <h2 id="food-name">Margherita Pizza</h2>
-        <!-- Mini model viewer preview (between title and description) -->
-        <div class="mini-model-container">
-          <model-viewer id="mini-food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model Preview" auto-rotate camera-orbit="-20deg 75deg 2m" shadow-intensity="1" environment-image="neutral" class="mini-model-viewer" loading="eager" exposure="1" shadow-softness="1">
-          </model-viewer>
-        </div>
-        <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
-        <!-- Main model viewer (full size) -->
         <div class="model-container">
           <model-viewer id="food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
             <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
@@ -3830,6 +3787,7 @@
             </div>
           </model-viewer>
         </div>
+        <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
         <p id="food-price">Price: $14.99</p>
         
         <div class="nav-buttons">
@@ -5030,7 +4988,6 @@
     const foodDescription = document.getElementById("food-description");
     const foodPrice = document.getElementById("food-price");
     const modelViewer = document.getElementById("food-model-viewer");
-    const miniModelViewer = document.getElementById("mini-food-model-viewer");
     const cartToggle = document.getElementById("cart-toggle");
     const cartPanel = document.getElementById("cart-panel");
     const cartItems = document.getElementById("cart-items");
@@ -5435,8 +5392,11 @@
       updateLanguage();
     }
     
-    // Logout staff or admin user
+    // Logout staff or admin user with improved login path
     function logoutStaff() {
+      // Store the current user type for reference after logout
+      const previousUserType = userType;
+      
       // Add a smooth animation effect for logout
       const dashboardElement = userType === 'admin' 
         ? document.getElementById('admin-dashboard')
@@ -5504,18 +5464,45 @@
           backButton.remove();
         }
         
-        // Set title and subtitle back to initial
-        tableTitle.textContent = currentLanguage === 'ar' ? 'اختر دورك' : 'YOUR ROLE';
-        tableSubtitle.textContent = currentLanguage === 'ar' 
-          ? 'يرجى تحديد دورك للمتابعة' 
-          : 'Please select your role to continue';
+        // If the previous user was staff or admin, show login directly
+        if (previousUserType === 'admin' || previousUserType === 'staff') {
+          // Set title and subtitle for staff login
+          tableTitle.textContent = currentLanguage === 'ar' ? 'تسجيل الدخول' : 'STAFF LOGIN';
+          tableSubtitle.textContent = currentLanguage === 'ar' 
+            ? 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم'
+            : 'Please log in to access your dashboard';
+          
+          // Hide role options and display staff login immediately
+          optionButtons.style.display = 'none';
+          tableNumberInputContainer.style.display = 'none';
+          
+          // Create login form directly in the modal to skip role selection
+          createEmbeddedStaffLoginForm(tableNumberModal);
+          
+          // Add a "Back to Role Selection" button
+          const backButton = document.createElement('button');
+          backButton.id = 'back-to-options-btn';
+          backButton.className = 'back-to-options-btn';
+          backButton.innerHTML = `<i class="fas fa-arrow-left"></i> ${currentLanguage === 'ar' ? 'العودة إلى اختيار الدور' : 'Back to Role Selection'}`;
+          backButton.onclick = function() {
+            resetTableNumberModal();
+          };
+          tableNumberModal.appendChild(backButton);
+        } else {
+          // Standard behavior for guest users
+          // Set title and subtitle back to initial
+          tableTitle.textContent = currentLanguage === 'ar' ? 'اختر دورك' : 'YOUR ROLE';
+          tableSubtitle.textContent = currentLanguage === 'ar' 
+            ? 'يرجى تحديد دورك للمتابعة' 
+            : 'Please select your role to continue';
+          
+          // Reset UI elements
+          optionButtons.style.display = 'flex';
+          optionButtons.style.opacity = '1';
+          tableNumberInputContainer.style.display = 'none';
+        }
         
-        // Reset UI elements
-        optionButtons.style.display = 'flex';
-        optionButtons.style.opacity = '1';
-        tableNumberInputContainer.style.display = 'none';
-        
-        // Display the role selection modal with a nice fade-in effect
+        // Display the modal with a nice fade-in effect
         tableNumberModal.style.opacity = '0';
         tableNumberModal.style.display = 'flex';
         
@@ -5527,25 +5514,277 @@
           tableNumberModal.style.opacity = '1';
         }, 50);
         
-        // Show the login page if they were a staff member before
-        const loginPage = document.getElementById('login-page');
-        loginPage.style.opacity = '0';
-        loginPage.style.display = 'block';
-        
-        // Fade in the login page for staff login
-        setTimeout(() => {
-          loginPage.style.opacity = '1';
-        }, 100);
-        
         // Show success notification
         showNotification(
           currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Successfully Logged Out',
           currentLanguage === 'ar' 
-            ? 'يمكنك الآن اختيار دور آخر أو تسجيل الدخول مرة أخرى'
-            : 'You can now choose another role or log in again',
+            ? (previousUserType === 'admin' || previousUserType === 'staff' ? 'يمكنك الآن تسجيل الدخول مرة أخرى' : 'يمكنك الآن اختيار دور آخر')
+            : (previousUserType === 'admin' || previousUserType === 'staff' ? 'You can now log in again' : 'You can now choose another role'),
           'success'
         );
       }, 300);
+    }
+    
+    // Creates an embedded login form directly in the table number modal for staff login
+    function createEmbeddedStaffLoginForm(container) {
+      // Check if form already exists
+      let existingForm = document.getElementById('embedded-login-form');
+      if (existingForm) {
+        existingForm.remove();
+      }
+      
+      // Create the form container
+      const loginFormContainer = document.createElement('div');
+      loginFormContainer.id = 'embedded-login-form';
+      loginFormContainer.className = 'embedded-login-form';
+      
+      // Form HTML with improved styling for direct integration
+      loginFormContainer.innerHTML = `
+        <div class="login-fields">
+          <div class="login-field">
+            <label for="embedded-username">${currentLanguage === 'ar' ? 'اسم المستخدم' : 'USERNAME'}</label>
+            <input type="text" id="embedded-username" placeholder="${currentLanguage === 'ar' ? 'أدخل اسم المستخدم' : 'Enter username'}" autocomplete="username">
+          </div>
+          <div class="login-field">
+            <label for="embedded-password">${currentLanguage === 'ar' ? 'كلمة المرور' : 'PASSWORD'}</label>
+            <input type="password" id="embedded-password" placeholder="${currentLanguage === 'ar' ? 'أدخل كلمة المرور' : 'Enter password'}" autocomplete="current-password">
+          </div>
+        </div>
+        <div class="embedded-login-actions">
+          <button id="embedded-login-btn" class="embedded-login-btn">${currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN'}</button>
+        </div>
+        <div id="embedded-login-error" class="login-error"></div>
+      `;
+      
+      container.appendChild(loginFormContainer);
+      
+      // Focus on username field
+      setTimeout(() => {
+        document.getElementById('embedded-username').focus();
+      }, 100);
+      
+      // Add login handler
+      document.getElementById('embedded-login-btn').addEventListener('click', async () => {
+        const usernameField = document.getElementById('embedded-username');
+        const passwordField = document.getElementById('embedded-password');
+        const errorField = document.getElementById('embedded-login-error');
+        
+        // Validate fields
+        if (!usernameField.value.trim()) {
+          errorField.textContent = currentLanguage === 'ar' ? 'يرجى إدخال اسم المستخدم' : 'Please enter your username';
+          usernameField.focus();
+          return;
+        }
+        
+        if (!passwordField.value.trim()) {
+          errorField.textContent = currentLanguage === 'ar' ? 'يرجى إدخال كلمة المرور' : 'Please enter your password';
+          passwordField.focus();
+          return;
+        }
+        
+        // Show loading state
+        const loginBtn = document.getElementById('embedded-login-btn');
+        const originalBtnText = loginBtn.textContent;
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        try {
+          // Authenticate staff
+          const result = await authenticateStaff(usernameField.value, passwordField.value);
+          
+          if (result.success) {
+            // Hide login form with animation
+            container.style.opacity = '0';
+            
+            // Successful login, show appropriate dashboard
+            setTimeout(() => {
+              // Hide the table number modal
+              document.getElementById('table-number-modal').style.display = 'none';
+              
+              // Reset opacity for next time
+              container.style.opacity = '1';
+              
+              // Show success notification
+              showNotification(
+                currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login Successful',
+                currentLanguage === 'ar' 
+                  ? `مرحبًا، ${result.name}!` 
+                  : `Welcome, ${result.name}!`,
+                'success'
+              );
+              
+              // Initialize appropriate dashboard
+              if (result.role === 'admin') {
+                initAdminDashboard();
+              } else {
+                initStaffDashboard(result.role);
+              }
+            }, 500);
+          } else {
+            // Show error message
+            errorField.textContent = currentLanguage === 'ar' 
+              ? 'اسم المستخدم أو كلمة المرور غير صحيحة' 
+              : 'Invalid username or password';
+            
+            // Reset button
+            loginBtn.disabled = false;
+            loginBtn.textContent = originalBtnText;
+          }
+        } catch (error) {
+          console.error("Login error:", error);
+          errorField.textContent = currentLanguage === 'ar' 
+            ? 'حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.' 
+            : 'An error occurred during login. Please try again.';
+          
+          // Reset button
+          loginBtn.disabled = false;
+          loginBtn.textContent = originalBtnText;
+        }
+      });
+      
+      // Add additional style for embedded login form
+      const style = document.createElement('style');
+      style.textContent = `
+        .embedded-login-form {
+          width: 100%;
+          max-width: 320px;
+          margin: 20px auto;
+          padding: 20px;
+          background: rgba(0,0,0,0.1);
+          border-radius: 12px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .embedded-login-form .login-fields {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          margin-bottom: 20px;
+        }
+        
+        .embedded-login-form .login-field {
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+        
+        .embedded-login-form label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #fff;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .embedded-login-form input {
+          padding: 12px;
+          border: none;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.9);
+          color: #333;
+          font-size: 16px;
+          transition: all 0.3s ease;
+        }
+        
+        .embedded-login-form input:focus {
+          background: #ffffff;
+          box-shadow: 0 0 0 2px var(--gold);
+          outline: none;
+        }
+        
+        .embedded-login-actions {
+          display: flex;
+          justify-content: center;
+        }
+        
+        .embedded-login-btn {
+          width: 100%;
+          padding: 12px;
+          background: linear-gradient(135deg, var(--gold) 0%, #ffd966 100%);
+          color: #333;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          letter-spacing: 1px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+        }
+        
+        .embedded-login-btn:hover {
+          background: linear-gradient(135deg, #ffd966 0%, var(--gold) 100%);
+          transform: translateY(-2px);
+        }
+        
+        .login-error {
+          color: #ff5252;
+          font-size: 14px;
+          margin-top: 10px;
+          text-align: center;
+          min-height: 18px;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Function to reset the table number modal back to the initial role selection state
+    function resetTableNumberModal() {
+      // Get required elements
+      const tableNumberModal = document.getElementById('table-number-modal');
+      const tableTitle = document.getElementById('table-number-title');
+      const tableSubtitle = document.getElementById('table-number-subtitle');
+      const optionButtons = document.querySelector('.user-option-buttons');
+      const tableNumberInputContainer = document.getElementById('table-number-input-container');
+      
+      // Reset title and subtitle
+      tableTitle.textContent = currentLanguage === 'ar' ? 'اختر دورك' : 'YOUR ROLE';
+      tableSubtitle.textContent = currentLanguage === 'ar' 
+        ? 'يرجى تحديد دورك للمتابعة' 
+        : 'Please select your role to continue';
+      
+      // Get option elements and reset them
+      const guestOption = document.querySelector('.guest-option');
+      const staffOption = document.querySelector('.staff-option');
+      
+      // Reset option selections and styles
+      guestOption.classList.remove('option-selected');
+      staffOption.classList.remove('option-selected');
+      staffOption.classList.remove('staff-option-active');
+      
+      // Reset style properties
+      [guestOption, staffOption].forEach(el => {
+        if (el) {
+          el.style.opacity = '1';
+          el.style.pointerEvents = 'auto';
+          el.style.width = '';
+          el.style.maxWidth = '';
+          el.style.margin = '';
+          el.style.display = 'block';
+        }
+      });
+      
+      // Remove any embedded login form
+      const embeddedLoginForm = document.getElementById('embedded-login-form');
+      if (embeddedLoginForm) {
+        embeddedLoginForm.remove();
+      }
+      
+      // Remove any back button
+      const backButton = document.getElementById('back-to-options-btn');
+      if (backButton) {
+        backButton.remove();
+      }
+      
+      // Show role options, hide other containers
+      optionButtons.style.display = 'flex';
+      optionButtons.style.opacity = '1';
+      tableNumberInputContainer.style.display = 'none';
+      
+      // Return to initial state with animation
+      tableNumberModal.style.opacity = '0.95'; 
+      setTimeout(() => {
+        tableNumberModal.style.opacity = '1';
+      }, 50);
     }
     
     function updateLanguage() {
@@ -6177,12 +6416,24 @@
         foodPrice.textContent = `Price: $${item.price.toFixed(2)}`;
       }
       
+      // Ensure model container is visible
+      const modelContainer = document.querySelector('.model-container');
+      if (modelContainer) {
+        modelContainer.style.display = 'block';
+      }
+      
+      // Enable auto-rotate and camera controls for interactive experience
+      modelViewer.setAttribute('auto-rotate', '');
+      modelViewer.setAttribute('camera-controls', '');
+      modelViewer.setAttribute('ar', '');
+      modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+      modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
+      modelViewer.setAttribute('exposure', '1');
+      
       // Use cached model if available, otherwise load directly
       if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
         console.log(`Using cached model for ${item.name}`);
-        // Update both model viewers
         modelViewer.src = item.modelSrc;
-        miniModelViewer.src = item.modelSrc;
         
         // Hide loading indicator after a short delay for smoother transition
         setTimeout(() => {
@@ -6190,9 +6441,7 @@
         }, 300);
       } else {
         console.log(`Loading model for ${item.name}`);
-        // Update both model viewers
         modelViewer.src = item.modelSrc;
-        miniModelViewer.src = item.modelSrc;
         
         // Add event listener to hide loading indicator when model is loaded
         const onLoad = () => {
@@ -6211,6 +6460,11 @@
         };
         
         modelViewer.addEventListener('load', onLoad);
+        
+        // Failsafe: If model doesn't load within 3 seconds, hide the loading indicator anyway
+        setTimeout(() => {
+          modelLoadingIndicator.style.display = 'none';
+        }, 3000);
       }
       
       // Clear existing extras
@@ -6272,15 +6526,6 @@
     let itemQuantity = 1;
     
     function addToCart() {
-      // Add animation to the button when clicked
-      const addCartBtn = document.getElementById('add-cart-btn');
-      addCartBtn.classList.add('btn-clicked');
-      
-      // Reset animation after a short delay
-      setTimeout(() => {
-        addCartBtn.classList.remove('btn-clicked');
-      }, 300);
-      
       // If no table number set, show modal with a clear message
       if (userType === "guest" && !tableNumber) {
         // Show notification to explain the user needs to enter a table number
@@ -6522,7 +6767,7 @@
       // Calculate total price for a single item
       const singleItemPrice = currentCustomizeItem.price + extrasCost;
       
-      // Create cart item
+      // Create cart item with 3D model info
       const cartItem = {
         name: currentCustomizeItem.name,
         price: currentCustomizeItem.price,
@@ -6530,11 +6775,23 @@
         extrasCost: extrasCost,
         notes: specialInstructions,
         quantity: itemQuantity,
-        totalPrice: singleItemPrice * itemQuantity
+        totalPrice: singleItemPrice * itemQuantity,
+        model: currentCustomizeItem.modelSrc // Include the model source for 3D display in cart
       };
+      
+      console.log("Adding item to cart:", cartItem);
       
       // Add to cart
       cart.push(cartItem);
+      
+      // Persist cart to localStorage for recovery
+      try {
+        localStorage.setItem('arBitesCart', JSON.stringify(cart));
+      } catch (e) {
+        console.error("Error saving cart to localStorage:", e);
+      }
+      
+      // Update cart display and UI
       updateCartDisplay();
       
       // Verify the checkout button is enabled
@@ -6637,11 +6894,10 @@
         const modelContainer = document.createElement('div');
         modelContainer.className = 'cart-item-model';
         
-        // Find if this item has a 3D model
-        const foodItem = filteredFoodItems.find(f => f.name === item.name);
-        if (foodItem && foodItem.model) {
+        // Use the model directly from the cart item if available, otherwise find it
+        if (item.model) {
           const modelViewer = document.createElement('model-viewer');
-          modelViewer.setAttribute('src', foodItem.model);
+          modelViewer.setAttribute('src', item.model);
           modelViewer.setAttribute('ar', '');
           modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           modelViewer.setAttribute('camera-controls', '');
@@ -6653,8 +6909,25 @@
           modelViewer.setAttribute('style', 'width: 100%; height: 100%;');
           modelContainer.appendChild(modelViewer);
         } else {
-          // Fallback for items without 3D models
-          modelContainer.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils" style="color:var(--gold);opacity:0.5;font-size:20px;"></i></div>';
+          // If model not directly on cart item, try to find it from food items
+          const foodItem = filteredFoodItems.find(f => f.name === item.name);
+          if (foodItem && foodItem.modelSrc) {
+            const modelViewer = document.createElement('model-viewer');
+            modelViewer.setAttribute('src', foodItem.modelSrc);
+            modelViewer.setAttribute('ar', '');
+            modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+            modelViewer.setAttribute('camera-controls', '');
+            modelViewer.setAttribute('auto-rotate', '');
+            modelViewer.setAttribute('rotation-per-second', '30deg');
+            modelViewer.setAttribute('shadow-intensity', '1');
+            modelViewer.setAttribute('camera-orbit', '0deg 75deg 2m');
+            modelViewer.setAttribute('alt', item.name);
+            modelViewer.setAttribute('style', 'width: 100%; height: 100%;');
+            modelContainer.appendChild(modelViewer);
+          } else {
+            // Fallback for items without 3D models
+            modelContainer.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils" style="color:var(--gold);opacity:0.5;font-size:20px;"></i></div>';
+          }
         }
         
         const itemName = document.createElement('div');
