@@ -313,6 +313,27 @@
       transition: opacity 0.3s ease;
     }
     
+    .mini-model-container {
+      width: 100%;
+      height: 90px;
+      margin: 8px 0 12px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background-color: rgba(26, 58, 47, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    
+    .mini-model-viewer {
+      width: 100%;
+      height: 90px;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: transparent;
+      --poster-color: transparent;
+    }
+    
     .model-loading-indicator {
       position: absolute;
       top: 0;
@@ -3238,6 +3259,21 @@
       .add-to-cart {
         order: -1;
         width: 100%;
+      }
+      
+      /* Add to Cart Button Animation */
+      #add-cart-btn.btn-clicked {
+        transform: scale(0.95);
+        background: linear-gradient(135deg, #D4AF37 0%, var(--gold) 100%);
+        box-shadow: 0 1px 4px rgba(212, 175, 55, 0.3);
+        animation: pulse-add-cart 0.4s ease-out;
+      }
+      
+      @keyframes pulse-add-cart {
+        0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+      }
         margin-bottom: 12px;
         padding: 14px;
         font-size: 1rem;
@@ -3779,6 +3815,13 @@
       </div>
       <div class="food-container">
         <h2 id="food-name">Margherita Pizza</h2>
+        <!-- Mini model viewer preview (between title and description) -->
+        <div class="mini-model-container">
+          <model-viewer id="mini-food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model Preview" auto-rotate camera-orbit="-20deg 75deg 2m" shadow-intensity="1" environment-image="neutral" class="mini-model-viewer" loading="eager" exposure="1" shadow-softness="1">
+          </model-viewer>
+        </div>
+        <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
+        <!-- Main model viewer (full size) -->
         <div class="model-container">
           <model-viewer id="food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
             <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
@@ -3787,7 +3830,6 @@
             </div>
           </model-viewer>
         </div>
-        <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
         <p id="food-price">Price: $14.99</p>
         
         <div class="nav-buttons">
@@ -4988,6 +5030,7 @@
     const foodDescription = document.getElementById("food-description");
     const foodPrice = document.getElementById("food-price");
     const modelViewer = document.getElementById("food-model-viewer");
+    const miniModelViewer = document.getElementById("mini-food-model-viewer");
     const cartToggle = document.getElementById("cart-toggle");
     const cartPanel = document.getElementById("cart-panel");
     const cartItems = document.getElementById("cart-items");
@@ -5421,33 +5464,85 @@
         document.getElementById('staff-dashboard').style.display = 'none';
         document.getElementById('admin-dashboard').style.display = 'none';
         
-        // Make user type container visible again
-        const userTypeContainer = document.querySelector('.user-type');
-        if (userTypeContainer) {
-          userTypeContainer.style.display = 'flex';
+        // Reset table number modal to show the initial selection UI
+        const tableNumberModal = document.getElementById('table-number-modal');
+        const tableTitle = document.getElementById('table-number-title');
+        const tableSubtitle = document.getElementById('table-number-subtitle');
+        const optionButtons = document.querySelector('.user-option-buttons');
+        const tableNumberInputContainer = document.getElementById('table-number-input-container');
+        
+        // Get option elements
+        const guestOption = document.querySelector('.guest-option');
+        const staffOption = document.querySelector('.staff-option');
+        
+        // Reset option selections and styles
+        guestOption.classList.remove('option-selected');
+        staffOption.classList.remove('option-selected');
+        staffOption.classList.remove('staff-option-active');
+        
+        // Reset style properties that may have been added
+        [guestOption, staffOption].forEach(el => {
+          if (el) {
+            el.style.opacity = '1';
+            el.style.pointerEvents = 'auto';
+            el.style.width = '';
+            el.style.maxWidth = '';
+            el.style.margin = '';
+            el.style.display = 'block';
+          }
+        });
+        
+        // Reset any embedded login form
+        const embeddedLoginForm = document.getElementById('embedded-login-form');
+        if (embeddedLoginForm) {
+          embeddedLoginForm.remove();
         }
         
-        // Reset the login button text
-        const staffLoginBtn = document.getElementById('staff-login-btn');
-        if (staffLoginBtn) {
-          staffLoginBtn.textContent = currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN';
-          staffLoginBtn.classList.remove('active');
+        // Reset any back button
+        const backButton = document.getElementById('back-to-options-btn');
+        if (backButton) {
+          backButton.remove();
         }
         
-        // Immediately show the login modal with animation
-        setTimeout(() => {
-          showLoginModal();
-        }, 100);
+        // Set title and subtitle back to initial
+        tableTitle.textContent = currentLanguage === 'ar' ? 'اختر دورك' : 'YOUR ROLE';
+        tableSubtitle.textContent = currentLanguage === 'ar' 
+          ? 'يرجى تحديد دورك للمتابعة' 
+          : 'Please select your role to continue';
+        
+        // Reset UI elements
+        optionButtons.style.display = 'flex';
+        optionButtons.style.opacity = '1';
+        tableNumberInputContainer.style.display = 'none';
+        
+        // Display the role selection modal with a nice fade-in effect
+        tableNumberModal.style.opacity = '0';
+        tableNumberModal.style.display = 'flex';
         
         // Clean up any remaining cart items or session data
         clearCart();
+        
+        // Fade in the modal
+        setTimeout(() => {
+          tableNumberModal.style.opacity = '1';
+        }, 50);
+        
+        // Show the login page if they were a staff member before
+        const loginPage = document.getElementById('login-page');
+        loginPage.style.opacity = '0';
+        loginPage.style.display = 'block';
+        
+        // Fade in the login page for staff login
+        setTimeout(() => {
+          loginPage.style.opacity = '1';
+        }, 100);
         
         // Show success notification
         showNotification(
           currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Successfully Logged Out',
           currentLanguage === 'ar' 
-            ? 'يرجى تسجيل الدخول مرة أخرى للوصول إلى لوحة التحكم'
-            : 'Please log in again to access the dashboard',
+            ? 'يمكنك الآن اختيار دور آخر أو تسجيل الدخول مرة أخرى'
+            : 'You can now choose another role or log in again',
           'success'
         );
       }, 300);
@@ -6085,62 +6180,37 @@
       // Use cached model if available, otherwise load directly
       if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
         console.log(`Using cached model for ${item.name}`);
-        // Ensure model path is relative to web root
-        const modelPath = item.modelSrc.startsWith('/') ? item.modelSrc : `/${item.modelSrc}`;
-        modelViewer.src = modelPath;
+        // Update both model viewers
+        modelViewer.src = item.modelSrc;
+        miniModelViewer.src = item.modelSrc;
         
         // Hide loading indicator after a short delay for smoother transition
         setTimeout(() => {
           modelLoadingIndicator.style.display = 'none';
         }, 300);
       } else {
-        console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
+        console.log(`Loading model for ${item.name}`);
+        // Update both model viewers
+        modelViewer.src = item.modelSrc;
+        miniModelViewer.src = item.modelSrc;
         
-        try {
-          // Ensure model path is relative to web root
-          const modelPath = item.modelSrc.startsWith('/') ? item.modelSrc : `/${item.modelSrc}`;
-          console.log(`Formatted model path: ${modelPath}`);
-          modelViewer.src = modelPath;
+        // Add event listener to hide loading indicator when model is loaded
+        const onLoad = () => {
+          modelLoadingIndicator.style.display = 'none';
+          modelViewer.removeEventListener('load', onLoad);
           
-          // Add event listener to hide loading indicator when model is loaded
-          const onLoad = () => {
-            console.log(`Model loaded successfully: ${item.name}`);
-            modelLoadingIndicator.style.display = 'none';
-            modelViewer.removeEventListener('load', onLoad);
-            
-            // Add to cache if not already there
-            if (!modelCache[item.modelSrc]) {
-              modelCache[item.modelSrc] = {
-                loaded: true,
-                element: modelViewer
-              };
-            } else {
-              modelCache[item.modelSrc].loaded = true;
-            }
-          };
-          
-          const onError = (error) => {
-            console.error(`Error loading model for ${item.name}:`, error);
-            modelLoadingIndicator.innerHTML = `
-              <div style="text-align: center; color: white;">
-                <p>Could not load 3D model</p>
-                <small>${item.modelSrc}</small>
-              </div>
-            `;
-            modelViewer.removeEventListener('error', onError);
-          };
-          
-          modelViewer.addEventListener('load', onLoad);
-          modelViewer.addEventListener('error', onError);
-        } catch (error) {
-          console.error("Error setting model src:", error);
-          modelLoadingIndicator.innerHTML = `
-            <div style="text-align: center; color: white;">
-              <p>Error loading model</p>
-              <small>${error.message}</small>
-            </div>
-          `;
-        }
+          // Add to cache if not already there
+          if (!modelCache[item.modelSrc]) {
+            modelCache[item.modelSrc] = {
+              loaded: true,
+              element: modelViewer
+            };
+          } else {
+            modelCache[item.modelSrc].loaded = true;
+          }
+        };
+        
+        modelViewer.addEventListener('load', onLoad);
       }
       
       // Clear existing extras
@@ -6202,6 +6272,15 @@
     let itemQuantity = 1;
     
     function addToCart() {
+      // Add animation to the button when clicked
+      const addCartBtn = document.getElementById('add-cart-btn');
+      addCartBtn.classList.add('btn-clicked');
+      
+      // Reset animation after a short delay
+      setTimeout(() => {
+        addCartBtn.classList.remove('btn-clicked');
+      }, 300);
+      
       // If no table number set, show modal with a clear message
       if (userType === "guest" && !tableNumber) {
         // Show notification to explain the user needs to enter a table number
@@ -6431,101 +6510,50 @@
     
     // Add the customized item to cart
     function addCustomizedItemToCart() {
-      console.log("Adding customized item to cart");
-      if (!currentCustomizeItem) {
-        console.error("No current item to add to cart");
-        return;
-      }
+      if (!currentCustomizeItem) return;
       
-      try {
-        // Get selected extras
-        const extrasLabels = selectedExtras.map(extra => extra.name);
-        const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
+      // Get selected extras
+      const extrasLabels = selectedExtras.map(extra => extra.name);
+      const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
+      
+      // Get special instructions
+      const specialInstructions = document.getElementById('special-instructions').value.trim();
+      
+      // Calculate total price for a single item
+      const singleItemPrice = currentCustomizeItem.price + extrasCost;
+      
+      // Create cart item
+      const cartItem = {
+        name: currentCustomizeItem.name,
+        price: currentCustomizeItem.price,
+        extras: extrasLabels.length > 0 ? extrasLabels.join(', ') : null,
+        extrasCost: extrasCost,
+        notes: specialInstructions,
+        quantity: itemQuantity,
+        totalPrice: singleItemPrice * itemQuantity
+      };
+      
+      // Add to cart
+      cart.push(cartItem);
+      updateCartDisplay();
+      
+      // Verify the checkout button is enabled
+      checkoutBtn.disabled = false;
+      
+      // Show success animation in the button
+      const addButton = document.getElementById('add-to-cart-btn');
+      addButton.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLanguage === 'ar' ? 'تمت الإضافة' : 'ADDED!') + '</span>';
+      addButton.style.background = 'linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%)';
+      
+      setTimeout(() => {
+        // Close modal
+        closeCustomizeModal();
         
-        // Get special instructions
-        const specialInstructionsElem = document.getElementById('special-instructions');
-        const specialInstructions = specialInstructionsElem ? specialInstructionsElem.value.trim() : '';
+        // Reset button
+        addButton.innerHTML = '<i class="fas fa-shopping-cart"></i> <span id="add-to-cart-text">' + 
+          (currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART') + '</span>';
+        addButton.style.background = '';
         
-        // Calculate total price for a single item
-        const singleItemPrice = currentCustomizeItem.price + extrasCost;
-        
-        // Create cart item with unique ID
-        const cartItem = {
-          id: 'item_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-          name: currentCustomizeItem.name,
-          price: currentCustomizeItem.price,
-          extras: extrasLabels.length > 0 ? extrasLabels.join(', ') : null,
-          extrasCost: extrasCost,
-          notes: specialInstructions,
-          quantity: itemQuantity,
-          totalPrice: singleItemPrice * itemQuantity,
-          modelPath: currentCustomizeItem.modelPath || null
-        };
-        
-        console.log("Adding to cart:", cartItem);
-        
-        // Add to cart
-        cart.push(cartItem);
-        updateCartDisplay();
-        
-        // Add a visual animation to the cart icon
-        const cartIcon = document.querySelector('.cart-icon');
-        if (cartIcon) {
-          cartIcon.classList.add('cart-pulse');
-          setTimeout(() => {
-            cartIcon.classList.remove('cart-pulse');
-          }, 1000);
-        }
-        
-        // Verify the checkout button is enabled
-        if (checkoutBtn) {
-          checkoutBtn.disabled = false;
-        }
-        
-        // Show success animation in the button
-        const addButton = document.getElementById('add-to-cart-btn');
-        if (addButton) {
-          addButton.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLanguage === 'ar' ? 'تمت الإضافة' : 'ADDED!') + '</span>';
-          addButton.style.background = 'linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%)';
-          
-          // Play a subtle sound effect if supported
-          try {
-            const audio = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA/+M4wAAAAAAAAAAAAEluZm8AAAAPAAAAAwAAAbAAkJCQkJCQkJCQkJCQkJCQwMDAwMDAwMDAwMDAwMDA4ODg4ODg4ODg4ODg4ODg4P//////////////////////////AAAAAExhdmM1OC4xMwAAAAAAAAAAAAAAACQCkAAAAAAAAAGwoMmFPjQAAAAAAAAAAAAAAAAAAAD/4zLAAAAAAAAAAAAASW5mbwAAAA8AAAADAAACsADh4eHh4eHh4eHh4eHh4eHw8PDw8PDw8PDw8PDw8PD////////////////8AAAAATGF2YzU4LjE5AAAAAAAAAAAAAAAAJAMgAAAAAAAAAbDYgFYdAAAAAAAAAAAAAAABAAD/+xBkAA7mFUVa0wlrkAAANIAAAAQJkJGfHPEACAAAgw4AAATA/AABAD/8vMzmcznM5uZTFGKMUYoxRijCCCCCqqqqqqqqqAAAAAJABm4vJ5zxBxBw8HnEHEHDweIRjTnPk5znOc5znOc0AAAD/+xBkEQ7mO8ld+a4AIAAA0gAAABAkUSMTOXgCAAAgw4AAASA8AAUD//////////////////EEQRA8DwPRBEE0TRNEwAAAAKoCg3Bjc3Nzc3Nz1xLi4uLjgXF5cXFxccC453333BwcHBwM7Ozs7f/7EGQYjuZ2KlZR6TugAADSAAAAECdCRnxzyAAgAADDgAAEAD9vb29vb2962p7aazEzODXxsWfj9Zk+fkVmZmZmZmbyK3Nzc3NzIrZ2dnZ2dMzMzMzMxFbfX19fX11BERERERH/+xBkGY7mX0FX0eY7oAAANIAAAAQKUNHP3NEACAAAMMAAAASAAAA8AZAAAIh4Pb29vb29mZmZvZlZW9vb2Zi8avIrciteRWVlZWVlciteRW312IrczMzMzMyd2Zm9mZm92ZmZkAA');
-            audio.volume = 0.3; // Subtle volume
-            audio.play();
-          } catch (e) {
-            console.log("Audio not supported");
-          }
-          
-          setTimeout(() => {
-            // Close modal
-            closeCustomizeModal();
-            
-            // Reset button
-            addButton.innerHTML = '<i class="fas fa-shopping-cart"></i> <span id="add-to-cart-text">' + 
-              (currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART') + '</span>';
-            addButton.style.background = '';
-            
-            // Show a success notification
-            showNotification(
-              currentLanguage === 'ar' ? 'تمت الإضافة إلى السلة' : 'Added to Cart',
-              currentLanguage === 'ar' 
-                ? `تمت إضافة ${cartItem.name} إلى سلة التسوق`
-                : `${cartItem.name} has been added to your cart`,
-              'success'
-            );
-          }, 800);
-        }
-      } catch (error) {
-        console.error("Error adding item to cart:", error);
-        showNotification(
-          currentLanguage === 'ar' ? 'خطأ' : 'Error',
-          currentLanguage === 'ar' 
-            ? 'حدث خطأ أثناء إضافة العنصر إلى سلة التسوق'
-            : 'There was an error adding the item to your cart',
-          'error'
-        );
-      }
         // Show confirmation notification
         showNotification(
           currentLanguage === 'ar' ? 'تمت الإضافة' : 'Added to Cart',
