@@ -3780,7 +3780,7 @@
       <div class="food-container">
         <h2 id="food-name">Margherita Pizza</h2>
         <div class="model-container">
-          <model-viewer id="food-model-viewer" src="models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
+          <model-viewer id="food-model-viewer" src="./models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
             <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
             <div class="model-loading-indicator" id="model-loading-indicator">
               <div class="loading-spinner model-spinner"></div>
@@ -4784,7 +4784,7 @@
       {
         name: "Margherita Pizza",
         nameAr: "بيتزا مارجريتا",
-        modelSrc: "models/Margherita Pizza.glb",
+        modelSrc: "./models/Margherita Pizza.glb",
         description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
         descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
         price: 14.99,
@@ -5094,6 +5094,14 @@
       userType = localStorage.getItem(USER_TYPE_KEY) || "guest";
       currentStaff = localStorage.getItem(STAFF_TOKEN);
       checkAuthState();
+      
+      // Manually add event listener for the Add to Cart button in customization modal
+      // This ensures the event is properly captured regardless of event bubbling
+      document.getElementById('add-to-cart-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        addCustomizedItemToCart();
+      });
       
       // Set up enter key for password field
       const passwordField = document.getElementById('password');
@@ -6249,7 +6257,8 @@
           tempModelViewer.style.pointerEvents = 'none';
           tempModelViewer.style.width = '1px';
           tempModelViewer.style.height = '1px';
-          tempModelViewer.src = modelSrc;
+          // Ensure correct path to model (absolute path)
+          tempModelViewer.src = modelSrc.replace('models/', '/models/');
           tempModelViewer.loading = 'eager';
           tempModelViewer.reveal = 'interaction';
           tempModelViewer.preload = true;
@@ -6433,7 +6442,8 @@
       // Use cached model if available, otherwise load directly
       if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
         console.log(`Using cached model for ${item.name}`);
-        modelViewer.src = item.modelSrc;
+        // Ensure correct path to model (local path instead of relative path)
+        modelViewer.src = item.modelSrc.replace('models/', '/models/');
         
         // Hide loading indicator after a short delay for smoother transition
         setTimeout(() => {
@@ -6441,7 +6451,8 @@
         }, 300);
       } else {
         console.log(`Loading model for ${item.name}`);
-        modelViewer.src = item.modelSrc;
+        // Ensure correct path to model (local path instead of relative path)
+        modelViewer.src = item.modelSrc.replace('models/', '/models/');
         
         // Add event listener to hide loading indicator when model is loaded
         const onLoad = () => {
@@ -6897,7 +6908,8 @@
         // Use the model directly from the cart item if available, otherwise find it
         if (item.model) {
           const modelViewer = document.createElement('model-viewer');
-          modelViewer.setAttribute('src', item.model);
+          // Ensure correct path to model (absolute path)
+          modelViewer.setAttribute('src', item.model.replace('models/', '/models/'));
           modelViewer.setAttribute('ar', '');
           modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           modelViewer.setAttribute('camera-controls', '');
@@ -6913,7 +6925,8 @@
           const foodItem = filteredFoodItems.find(f => f.name === item.name);
           if (foodItem && foodItem.modelSrc) {
             const modelViewer = document.createElement('model-viewer');
-            modelViewer.setAttribute('src', foodItem.modelSrc);
+            // Ensure correct path to model (absolute path)
+            modelViewer.setAttribute('src', foodItem.modelSrc.replace('models/', '/models/'));
             modelViewer.setAttribute('ar', '');
             modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
             modelViewer.setAttribute('camera-controls', '');
@@ -11730,7 +11743,7 @@
       </div>
       
       <div class="customize-actions">
-        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart()">
+        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart(); return false;">
           <i class="fas fa-shopping-cart"></i>
           <span id="add-to-cart-text">ADD TO CART</span>
         </button>
