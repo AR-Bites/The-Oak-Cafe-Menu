@@ -1039,36 +1039,123 @@
     .cart-item {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
+      align-items: flex-start;
+      padding: 12px 10px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .cart-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .cart-item:active {
+      background: rgba(255, 255, 255, 0.08);
+      transform: scale(0.99);
     }
     
     .item-name {
       flex: 2;
       text-align: left;
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+    
+    .item-quantity {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    
+    .item-extras {
       font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 3px;
+      font-style: italic;
+    }
+    
+    .item-notes {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      padding: 4px 6px;
     }
     
     .item-price {
       flex: 1;
       text-align: right;
+      font-weight: bold;
+      color: var(--gold);
+      white-space: nowrap;
       color: var(--gold);
       font-size: 0.85rem;
     }
     
     .remove-item {
-      background: none;
+      background: transparent;
       border: none;
-      color: #ff6b6b;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1.2rem;
       cursor: pointer;
-      margin-left: 6px;
-      font-size: 1rem;
-      width: 22px;
-      height: 22px;
+      padding: 5px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.2s ease;
+      border-radius: 50%;
+      margin-left: 6px;
+    }
+    
+    .remove-item:hover {
+      color: var(--bright-red);
+      background: rgba(255, 59, 48, 0.2);
+    }
+    
+    .empty-cart-message {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: center;
+    }
+    
+    .empty-cart-message i {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+    
+    .empty-cart-message p {
+      margin: 0 0 5px 0;
+    }
+    
+    .empty-cart-subtext {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+    
+    .cart-edit-hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 6px;
+      margin-bottom: 10px;
+      background: rgba(212, 175, 55, 0.1);
+      border-radius: 4px;
     }
     
     .checkout-btn {
@@ -1133,8 +1220,8 @@
       right: 15px;
       background: var(--gold);
       color: var(--dark-green);
-      width: 45px;
-      height: 45px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -1142,23 +1229,52 @@
       cursor: pointer;
       box-shadow: 0 3px 10px rgba(0,0,0,0.2);
       z-index: 800;
-      transition: var(--transition);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform-origin: center;
+    }
+    
+    .cart-toggle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    .cart-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    .cart-toggle.has-items {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+      animation: cart-pulse 2s infinite alternate;
+    }
+    
+    @keyframes cart-pulse {
+      0% {
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+      }
+      100% {
+        box-shadow: 0 4px 20px rgba(212, 175, 55, 0.6);
+      }
     }
     
     .cart-count {
       position: absolute;
       top: -5px;
       right: -5px;
-      background: var(--red);
+      background: var(--bright-red);
       color: white;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: bold;
+      padding: 0 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      border: 2px solid var(--dark-green);
+      transition: all 0.3s ease;
     }
     
     /* Order Status Notification - Enhanced for better visibility and experience */
@@ -1615,6 +1731,104 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
     
+    /* Selected state for options */
+    .guest-option.option-selected, .staff-option.option-selected {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.03);
+      border-color: var(--gold);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    
+    .guest-option.option-selected .option-icon,
+    .staff-option.option-selected .option-icon {
+      color: white;
+      text-shadow: 0 0 10px rgba(255,223,112,0.7);
+    }
+    
+    /* Success pulse animation for staff recognition */
+    .option-success-pulse {
+      animation: success-pulse 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    
+    @keyframes success-pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+        background: rgba(76, 175, 80, 0.3);
+      }
+      50% {
+        background: rgba(76, 175, 80, 0.5);
+      }
+      70% {
+        box-shadow: 0 0 0 15px rgba(76, 175, 80, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+        background: rgba(255,255,255,0.25);
+      }
+    }
+    
+    /* Back button styling */
+    .back-btn {
+      margin-bottom: 15px;
+      background: rgba(0,0,0,0.2);
+      border: none;
+      color: rgba(255,255,255,0.8);
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    
+    .back-btn:hover {
+      background: rgba(0,0,0,0.3);
+      color: white;
+    }
+    
+    /* Embedded login form */
+    .embedded-login-form {
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .embedded-login-form .input-group {
+      margin-bottom: 15px;
+    }
+    
+    .embedded-login-form .input-label {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    
+    .embedded-login-form .input-field {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    
+    .embedded-login-form .input-field:focus {
+      background: rgba(255,255,255,0.2);
+      border-color: var(--gold);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(255,223,112,0.3);
+    }
+    
+    .embedded-login-form .input-field::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+    
     /* Table Grid */
     .tables-section {
       margin-top: 15px;
@@ -1737,7 +1951,7 @@
       padding-bottom: 10px;
     }
 
-    /* Loading Animation */
+    /* Enhanced Loading Animation */
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -1754,27 +1968,89 @@
     }
     
     .loading-logo {
-      width: 120px;
+      width: 150px;
       height: auto;
-      margin-bottom: 25px;
-      animation: pulse-logo 2s infinite;
+      margin-bottom: 30px;
+      animation: glow-pulse 3s infinite;
+      filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.8));
+      transform-origin: center center;
+      z-index: 2;
+      position: relative;
     }
     
-    @keyframes pulse-logo {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    /* Enhanced logo animation with glow effect */
+    @keyframes glow-pulse {
+      0% { 
+        transform: scale(1); 
+        filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.7));
+      }
+      50% { 
+        transform: scale(1.08); 
+        filter: drop-shadow(0 0 22px rgba(212, 175, 55, 0.9));
+      }
+      100% { 
+        transform: scale(1); 
+        filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.7));
+      }
     }
     
+    /* Dynamic background animation */
+    .loading-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(26, 58, 47, 0.85) 0%, rgba(26, 58, 47, 0.98) 70%);
+      opacity: 0.8;
+      animation: bg-pulse 4s ease-in-out infinite;
+      z-index: 1;
+    }
+    
+    @keyframes bg-pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    
+    /* Improved spinner with gold accents */
     .loading-spinner {
-      width: 45px;
-      height: 45px;
+      width: 60px;
+      height: 60px;
+      position: relative;
+      margin-bottom: 25px;
+      z-index: 2;
+    }
+    
+    .loading-spinner::before,
+    .loading-spinner::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .loading-spinner::before {
       border: 3px solid rgba(212, 175, 55, 0.2);
       border-top: 3px solid var(--gold);
       border-right: 3px solid var(--gold);
-      border-radius: 50%;
       animation: spin 0.8s linear infinite;
-      margin-bottom: 20px;
+    }
+    
+    .loading-spinner::after {
+      border: 3px solid transparent;
+      border-bottom: 3px solid rgba(212, 175, 55, 0.5);
+      border-left: 3px solid rgba(212, 175, 55, 0.5);
+      animation: spin-reverse 1.2s ease-in-out infinite;
+    }
+    
+    @keyframes spin-reverse {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(-360deg); }
     }
     
     .loading-text {
@@ -1783,24 +2059,43 @@
       font-weight: 500;
       text-align: center;
       letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      z-index: 2;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      animation: text-fade 2s infinite alternate;
+    }
+    
+    @keyframes text-fade {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
     }
     
     .loading-progress {
-      width: 180px;
-      height: 3px;
-      background: rgba(212, 175, 55, 0.1);
-      border-radius: 3px;
-      margin-top: 15px;
+      width: 220px;
+      height: 6px;
+      background: rgba(26, 58, 47, 0.5);
+      border-radius: 8px;
+      margin-top: 5px;
       overflow: hidden;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2), inset 0 0 5px rgba(0, 0, 0, 0.2);
+      z-index: 2;
+      position: relative;
+      border: 1px solid rgba(212, 175, 55, 0.3);
     }
     
     .loading-bar {
       height: 100%;
-      background: linear-gradient(90deg, var(--gold) 0%, #E8C547 100%);
+      background: linear-gradient(90deg, var(--gold) 0%, #E8C547 70%, #FFDF70 100%);
       width: 0%;
       transition: width 0.3s ease-out;
-      box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.7);
+      position: relative;
+      animation: bar-glow 2s infinite alternate;
+    }
+    
+    @keyframes bar-glow {
+      0% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.5); }
+      100% { box-shadow: 0 0 16px rgba(212, 175, 55, 0.9); }
     }
     
     /* Rating Modal */
@@ -1861,6 +2156,353 @@
     
     .rating-stars.pulse-attention {
       animation: pulse-attention 0.5s ease-in-out 2;
+    }
+    
+    /* Item Customization Modal (Talabat-style) */
+    .customize-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1200;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .customize-content {
+      background: var(--dark-green);
+      margin: 0 auto;
+      width: 100%;
+      max-width: 500px;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      animation: slide-up 0.4s ease;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    @keyframes slide-up {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .customize-header {
+      background: var(--gold);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .customize-title {
+      color: var(--dark-green);
+      font-size: 1.2rem;
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .close-customize-btn {
+      background: none;
+      border: none;
+      color: var(--dark-green);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .close-customize-btn:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    
+    .food-customize-image {
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a2a20;
+    }
+    
+    .food-customize-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .customize-price-container {
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+    
+    .base-price {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: line-through;
+    }
+    
+    .total-price {
+      font-size: 1.3rem;
+      color: var(--gold);
+      font-weight: bold;
+    }
+    
+    .customize-sections {
+      padding: 15px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .customize-section {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 20px;
+    }
+    
+    .section-header {
+      margin-bottom: 15px;
+    }
+    
+    .section-header h3 {
+      color: var(--gold);
+      font-size: 1rem;
+      margin: 0 0 5px 0;
+    }
+    
+    .section-subtitle {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.8rem;
+    }
+    
+    .extras-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    
+    .extra-option {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .extra-option::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0) 100%);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    
+    .extra-option:hover::before {
+      transform: translateX(100%);
+    }
+    
+    .extra-option:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+    
+    .extra-option.selected {
+      background: rgba(212, 175, 55, 0.25);
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+    
+    .extra-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .extra-option.selected .extra-checkbox {
+      border-color: var(--gold);
+      background: var(--gold);
+      color: var(--dark-green);
+    }
+    
+    .extra-option.selected .extra-checkbox::after {
+      content: '✓';
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .extra-details {
+      flex: 1;
+    }
+    
+    .extra-name {
+      color: white;
+      font-size: 0.9rem;
+      margin-bottom: 3px;
+    }
+    
+    .extra-price {
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .special-instructions-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: white;
+      padding: 12px;
+      min-height: 80px;
+      resize: vertical;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    
+    .special-instructions-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+    }
+    
+    .special-instructions-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .quantity-selector {
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    
+    #quantity-label {
+      color: white;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .quantity-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .quantity-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .quantity-btn:active {
+      transform: scale(0.95);
+    }
+    
+    #quantity-value {
+      font-size: 1.1rem;
+      color: white;
+      font-weight: 600;
+      min-width: 30px;
+      text-align: center;
+    }
+    
+    .customize-actions {
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.3);
+      position: sticky;
+      bottom: 0;
+    }
+    
+    .add-to-cart-customize-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%);
+      color: var(--dark-green);
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      text-transform: uppercase;
+    }
+    
+    .add-to-cart-customize-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+    
+    .add-to-cart-customize-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Responsive styles for customize modal */
+    @media screen and (max-width: 768px) {
+      .customize-content {
+        max-width: 100%;
+      }
+      
+      .extras-grid {
+        grid-template-columns: 1fr;
+      }
     }
     
     /* Admin Dashboard */
@@ -4465,7 +5107,7 @@
       setupCharts();
     });
     
-    // Simulate loading progress - faster and with failsafe
+    // Enhanced loading animation with faster load time and silently preloading 3D models
     function simulateLoading() {
       // Make sure overlay is visible first
       loadingOverlay.style.display = 'flex';
@@ -4474,52 +5116,74 @@
       // Initialize progress and track loaded assets
       let progress = 0;
       let modelLoaded = false;
+      let initialModelsPreloaded = false;
       
       // Start with initial loading text
-      loadingText.textContent = currentLanguage === 'ar' ? 'تحميل التطبيق...' : 'Initializing application...';
+      loadingText.textContent = currentLanguage === 'ar' ? 'تحميل التجربة...' : 'Loading AR Experience...';
       
-      // Update loading text based on progress
+      // Start silently preloading 3D models in the background
+      setTimeout(() => {
+        preloadModels();
+      }, 500);
+      
+      // Update loading text based on progress with animated transitions
       function updateLoadingText(progress) {
-        if (progress <= 30) {
-          loadingText.textContent = currentLanguage === 'ar' ? 'تحميل التطبيق...' : 'Initializing application...';
-        } else if (progress <= 60) {
-          loadingText.textContent = currentLanguage === 'ar' ? 'تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
-        } else if (progress <= 85) {
-          loadingText.textContent = currentLanguage === 'ar' ? 'تجهيز الواجهة...' : 'Preparing Interface...';
+        let newText = '';
+        
+        if (progress <= 35) {
+          newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
+        } else if (progress <= 65) {
+          newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
+        } else if (progress <= 90) {
+          newText = currentLanguage === 'ar' ? 'الاتصال بقاعدة البيانات...' : 'Connecting to Database...';
         } else {
-          loadingText.textContent = currentLanguage === 'ar' ? 'جاهز تقريبًا...' : 'Almost Ready...';
+          newText = currentLanguage === 'ar' ? 'جاهز تقريبًا...' : 'Almost Ready...';
+        }
+        
+        // Only update if text has changed (reduces unnecessary DOM operations)
+        if (loadingText.textContent !== newText) {
+          // Animate text change
+          loadingText.style.opacity = '0';
+          setTimeout(() => {
+            loadingText.textContent = newText;
+            loadingText.style.opacity = '1';
+          }, 200);
         }
       }
       
-      // Add event listener to detect when 3D model is loaded
+      // Enhanced model loading detection
       if (modelViewer) {
         modelViewer.addEventListener('load', () => {
           modelLoaded = true;
           console.log("Model loaded successfully");
+          // Accelerate loading once model is ready
+          progress = Math.max(progress, 80);
         });
         
-        // Also handle error case
         modelViewer.addEventListener('error', () => {
           console.log("Model failed to load, continuing anyway");
           modelLoaded = true; // Treat as loaded so we can continue
         });
+      } else {
+        // If no model viewer, assume models are loaded
+        modelLoaded = true;
       }
       
-      // Controlled progress increments with varying speeds
+      // Faster, more dynamic progress increments
       const interval = setInterval(() => {
-        // Dynamic progress increment - faster at start, slower as we approach 100%
+        // Dynamic progress increment - faster overall
         let increment;
         
-        if (progress < 30) {
-          increment = 5 + Math.random() * 3; // Fast initial loading
-        } else if (progress < 70) {
-          increment = 3 + Math.random() * 2; // Medium speed for middle portion
+        if (progress < 35) {
+          increment = 6 + Math.random() * 4; // Very fast initial loading
+        } else if (progress < 75) {
+          increment = 4 + Math.random() * 3; // Fast middle loading
         } else {
-          // Final portion moves slower and waits for model
+          // Final portion still waits for model but moves faster
           if (modelLoaded) {
-            increment = 4 + Math.random() * 2; // Final push once model loaded
+            increment = 6 + Math.random() * 4; // Very fast final push
           } else {
-            increment = 0.5 + Math.random() * 0.5; // Very slow if waiting for model
+            increment = 1 + Math.random() * 1; // Slow if waiting for model
           }
         }
         
@@ -4531,10 +5195,20 @@
             progress = 100;
             clearInterval(interval);
             
-            // Complete the loading
+            // Complete the loading with animated progress bar
             loadingBar.style.width = '100%';
+            loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
             
-            // Hide loading overlay with a nice transition
+            // Show success message
+            loadingText.style.opacity = '0';
+            setTimeout(() => {
+              loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+              loadingText.style.opacity = '1';
+              loadingText.style.fontSize = '1.3rem';
+              loadingText.style.color = '#FFDF70';
+            }, 200);
+            
+            // Hide loading overlay with a slightly faster transition
             setTimeout(() => {
               loadingOverlay.style.opacity = '0';
               setTimeout(() => {
@@ -4557,8 +5231,8 @@
                   console.log("Showing table modal for guests");
                   showTableModal();
                 }
-              }, 300);
-            }, 200);
+              }, 200); // Faster transition out
+            }, 150); // Show success message briefly
           } else {
             progress = 99; // Stay at 99% until model loads
           }
@@ -4568,15 +5242,23 @@
         loadingBar.style.width = `${progress}%`;
         updateLoadingText(progress);
         
-      }, 150); // Update at 150ms intervals for smooth animation
+      }, 100); // Update at faster 100ms intervals
       
-      // Ultimate failsafe: Ensure loading screen closes even if there are errors
+      // Shorter failsafe: Ensure loading screen closes even if there are errors
       setTimeout(() => {
         if (loadingOverlay.style.display !== 'none') {
           console.log("Loading timeout reached, forcing completion");
           clearInterval(interval);
           loadingBar.style.width = '100%';
-          loadingText.textContent = currentLanguage === 'ar' ? 'جاهز!' : 'Ready!';
+          
+          // Animated text update
+          loadingText.style.opacity = '0';
+          setTimeout(() => {
+            loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+            loadingText.style.opacity = '1';
+            loadingText.style.fontSize = '1.3rem';
+            loadingText.style.color = '#FFDF70';
+          }, 200);
           
           setTimeout(() => {
             loadingOverlay.style.opacity = '0';
@@ -4598,10 +5280,10 @@
                 console.log("Failsafe: Showing table modal for guests");
                 showTableModal();
               }
-            }, 300);
-          }, 200);
+            }, 200);
+          }, 150);
         }
-      }, 5000); // Max 5 seconds before forcing completion
+      }, 3500); // Reduced to 3.5 seconds max load time
     }
     
     // Language support
@@ -5350,6 +6032,11 @@
     }
     
     // Cart System
+    // Global variables for customization
+    let currentCustomizeItem = null;
+    let selectedExtras = [];
+    let itemQuantity = 1;
+    
     function addToCart() {
       // If no table number set, show modal with a clear message
       if (userType === "guest" && !tableNumber) {
@@ -5368,62 +6055,329 @@
         return;
       }
       
+      // Get the current item and show customization modal
       const item = filteredFoodItems[currentFoodIndex];
+      showCustomizeModal(item);
+    }
+    
+    // Show the customization modal for the current item
+    function showCustomizeModal(item) {
+      // Reset customization state
+      currentCustomizeItem = item;
+      selectedExtras = [];
+      itemQuantity = 1;
       
-      // Get selected extras
-      const extraOption = extrasSelect.value;
-      let extrasCost = 0;
-      let extrasLabel = '';
+      // Update modal content
+      document.getElementById('customize-item-name').textContent = item.name;
       
-      if (extraOption === 'extra_cheese' || extraOption === 'parmesan') {
-        extrasCost = 2.00;
-        extrasLabel = currentLanguage === 'ar' ? 'جبنة إضافية' : 'Extra Cheese';
-      } else if (extraOption === 'extra_toppings') {
-        extrasCost = 3.00;
-        extrasLabel = currentLanguage === 'ar' ? 'إضافات إضافية' : 'Extra Toppings';
-      } else if (extraOption === 'garlic_bread') {
-        extrasCost = 4.00;
-        extrasLabel = currentLanguage === 'ar' ? 'خبز بالثوم' : 'Garlic Bread Side';
-      } else if (extraOption === 'extra_sauce') {
-        extrasCost = 1.50;
-        extrasLabel = currentLanguage === 'ar' ? 'صلصة إضافية' : 'Extra Sauce';
+      // Set item image - for demo we'll use a placeholder or the model viewer image
+      const itemImage = document.getElementById('customize-item-image');
+      
+      // Try to get a screenshot from the model viewer if available
+      try {
+        if (modelViewer && modelViewer.toDataURL) {
+          itemImage.src = modelViewer.toDataURL('image/png');
+        } else {
+          // Use a category-based placeholder
+          if (item.category === 'hot_food') {
+            itemImage.src = 'https://i.ibb.co/k6v5sfh/hot-food-placeholder.jpg';
+          } else if (item.category === 'cold_food') {
+            itemImage.src = 'https://i.ibb.co/0j2C7Vq/cold-food-placeholder.jpg';
+          } else if (item.category === 'drinks') {
+            itemImage.src = 'https://i.ibb.co/YZNt0Y4/drinks-placeholder.jpg';
+          } else if (item.category === 'desserts') {
+            itemImage.src = 'https://i.ibb.co/RYst42D/desserts-placeholder.jpg';
+          } else {
+            itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
+          }
+        }
+      } catch (e) {
+        console.error("Error setting image:", e);
+        itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
       }
       
-      // Get notes
-      const notes = itemNotes.value.trim();
+      // Set price
+      document.getElementById('customize-base-price').textContent = `$${item.price.toFixed(2)}`;
+      document.getElementById('customize-total-price').textContent = `$${item.price.toFixed(2)}`;
       
+      // Reset quantity
+      document.getElementById('quantity-value').textContent = '1';
+      
+      // Clear special instructions
+      document.getElementById('special-instructions').value = '';
+      
+      // Generate extras options based on item category
+      const extrasGrid = document.getElementById('extras-options');
+      extrasGrid.innerHTML = '';
+      
+      // Define extras based on item category
+      let availableExtras = [];
+      
+      if (item.category === 'hot_food' && item.name.toLowerCase().includes('pizza')) {
+        availableExtras = [
+          { id: 'extra_cheese', name: currentLanguage === 'ar' ? 'جبنة إضافية' : 'Extra Cheese', price: 2.00 },
+          { id: 'pepperoni', name: currentLanguage === 'ar' ? 'بيبروني' : 'Pepperoni', price: 2.50 },
+          { id: 'mushrooms', name: currentLanguage === 'ar' ? 'فطر' : 'Mushrooms', price: 1.50 },
+          { id: 'olives', name: currentLanguage === 'ar' ? 'زيتون' : 'Olives', price: 1.00 },
+          { id: 'garlic_bread', name: currentLanguage === 'ar' ? 'خبز بالثوم' : 'Garlic Bread Side', price: 4.00 }
+        ];
+      } else if (item.category === 'hot_food' && item.name.toLowerCase().includes('pasta')) {
+        availableExtras = [
+          { id: 'parmesan', name: currentLanguage === 'ar' ? 'جبنة بارميزان' : 'Parmesan Cheese', price: 2.00 },
+          { id: 'garlic_bread', name: currentLanguage === 'ar' ? 'خبز بالثوم' : 'Garlic Bread Side', price: 4.00 },
+          { id: 'extra_sauce', name: currentLanguage === 'ar' ? 'صلصة إضافية' : 'Extra Sauce', price: 1.50 },
+          { id: 'chicken', name: currentLanguage === 'ar' ? 'دجاج إضافي' : 'Extra Chicken', price: 3.00 }
+        ];
+      } else if (item.category === 'drinks') {
+        availableExtras = [
+          { id: 'ice', name: currentLanguage === 'ar' ? 'ثلج إضافي' : 'Extra Ice', price: 0.00 },
+          { id: 'lemon', name: currentLanguage === 'ar' ? 'ليمون' : 'Lemon Slice', price: 0.50 },
+          { id: 'mint', name: currentLanguage === 'ar' ? 'نعناع' : 'Fresh Mint', price: 1.00 },
+          { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 }
+        ];
+      } else if (item.category === 'desserts') {
+        availableExtras = [
+          { id: 'ice_cream', name: currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream Scoop', price: 2.00 },
+          { id: 'chocolate_sauce', name: currentLanguage === 'ar' ? 'صوص شوكولاتة' : 'Chocolate Sauce', price: 1.00 },
+          { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 },
+          { id: 'berries', name: currentLanguage === 'ar' ? 'توت طازج' : 'Fresh Berries', price: 2.50 }
+        ];
+      } else {
+        availableExtras = [
+          { id: 'extra_sauce', name: currentLanguage === 'ar' ? 'صلصة إضافية' : 'Extra Sauce', price: 1.50 },
+          { id: 'side_salad', name: currentLanguage === 'ar' ? 'سلطة جانبية' : 'Side Salad', price: 3.00 }
+        ];
+      }
+      
+      // Create extra options in the grid
+      availableExtras.forEach(extra => {
+        const extraElement = document.createElement('div');
+        extraElement.className = 'extra-option';
+        extraElement.dataset.id = extra.id;
+        extraElement.dataset.price = extra.price;
+        
+        extraElement.innerHTML = `
+          <div class="extra-checkbox"></div>
+          <div class="extra-details">
+            <div class="extra-name">${extra.name}</div>
+            <div class="extra-price">${extra.price > 0 ? '+$' + extra.price.toFixed(2) : currentLanguage === 'ar' ? 'مجاني' : 'Free'}</div>
+          </div>
+        `;
+        
+        extraElement.addEventListener('click', () => toggleExtra(extraElement, extra));
+        extrasGrid.appendChild(extraElement);
+      });
+      
+      // Localize UI elements based on current language
+      updateCustomizeModalLanguage();
+      
+      // Show the modal
+      const customizeModal = document.getElementById('customize-modal');
+      customizeModal.style.display = 'block';
+      
+      // Focus on instructions field for better UX
+      setTimeout(() => {
+        document.getElementById('special-instructions').focus();
+      }, 500);
+    }
+    
+    // Toggle extra selection and update total price
+    function toggleExtra(element, extra) {
+      element.classList.toggle('selected');
+      
+      if (element.classList.contains('selected')) {
+        // Add to selected extras
+        selectedExtras.push(extra);
+      } else {
+        // Remove from selected extras
+        selectedExtras = selectedExtras.filter(e => e.id !== extra.id);
+      }
+      
+      // Update total price
+      updateTotalPrice();
+    }
+    
+    // Update total price based on selected extras and quantity
+    function updateTotalPrice() {
+      if (!currentCustomizeItem) return;
+      
+      // Calculate extras cost
+      const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
+      
+      // Calculate total price with quantity
+      const totalPrice = (currentCustomizeItem.price + extrasCost) * itemQuantity;
+      
+      // Update display
+      document.getElementById('customize-total-price').textContent = `$${totalPrice.toFixed(2)}`;
+      
+      // If there are extras or quantity > 1, show the base price as well
+      const basePrice = document.getElementById('customize-base-price');
+      if (extrasCost > 0 || itemQuantity > 1) {
+        basePrice.textContent = `$${currentCustomizeItem.price.toFixed(2)}`;
+        basePrice.style.display = 'block';
+      } else {
+        basePrice.style.display = 'none';
+      }
+    }
+    
+    // Change item quantity
+    function changeQuantity(change) {
+      const quantityDisplay = document.getElementById('quantity-value');
+      let newQuantity = parseInt(quantityDisplay.textContent) + change;
+      
+      // Ensure quantity is between 1 and 10
+      newQuantity = Math.max(1, Math.min(10, newQuantity));
+      
+      // Update display
+      quantityDisplay.textContent = newQuantity;
+      itemQuantity = newQuantity;
+      
+      // Update total price
+      updateTotalPrice();
+      
+      // Disable decrease button if at minimum
+      document.getElementById('decrease-quantity').disabled = newQuantity <= 1;
+      
+      // Add a visual indication that we've reached min/max
+      if (newQuantity === 1 || newQuantity === 10) {
+        quantityDisplay.classList.add('quantity-limit');
+        setTimeout(() => {
+          quantityDisplay.classList.remove('quantity-limit');
+        }, 300);
+      }
+    }
+    
+    // Close the customization modal
+    function closeCustomizeModal() {
+      const customizeModal = document.getElementById('customize-modal');
+      
+      // Add fade-out animation
+      customizeModal.style.opacity = '0';
+      
+      setTimeout(() => {
+        customizeModal.style.display = 'none';
+        customizeModal.style.opacity = '1';
+        
+        // Reset state
+        currentCustomizeItem = null;
+        selectedExtras = [];
+        itemQuantity = 1;
+      }, 300);
+    }
+    
+    // Add the customized item to cart
+    function addCustomizedItemToCart() {
+      if (!currentCustomizeItem) return;
+      
+      // Get selected extras
+      const extrasLabels = selectedExtras.map(extra => extra.name);
+      const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
+      
+      // Get special instructions
+      const specialInstructions = document.getElementById('special-instructions').value.trim();
+      
+      // Calculate total price for a single item
+      const singleItemPrice = currentCustomizeItem.price + extrasCost;
+      
+      // Create cart item
       const cartItem = {
-        name: item.name,
-        price: item.price,
-        extras: extraOption ? extrasLabel : null,
+        name: currentCustomizeItem.name,
+        price: currentCustomizeItem.price,
+        extras: extrasLabels.length > 0 ? extrasLabels.join(', ') : null,
         extrasCost: extrasCost,
-        notes: notes,
-        totalPrice: item.price + extrasCost
+        notes: specialInstructions,
+        quantity: itemQuantity,
+        totalPrice: singleItemPrice * itemQuantity
       };
       
+      // Add to cart
       cart.push(cartItem);
       updateCartDisplay();
       
       // Verify the checkout button is enabled
       checkoutBtn.disabled = false;
       
-      // Show confirmation notification
-      showNotification(
-        currentLanguage === 'ar' ? 'تمت الإضافة' : 'Added to Cart',
-        currentLanguage === 'ar' ? `تم إضافة ${item.name} إلى سلة التسوق` : `${item.name} has been added to your cart`,
-        'success'
-      );
+      // Show success animation in the button
+      const addButton = document.getElementById('add-to-cart-btn');
+      addButton.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLanguage === 'ar' ? 'تمت الإضافة' : 'ADDED!') + '</span>';
+      addButton.style.background = 'linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%)';
+      
+      setTimeout(() => {
+        // Close modal
+        closeCustomizeModal();
+        
+        // Reset button
+        addButton.innerHTML = '<i class="fas fa-shopping-cart"></i> <span id="add-to-cart-text">' + 
+          (currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART') + '</span>';
+        addButton.style.background = '';
+        
+        // Show confirmation notification
+        showNotification(
+          currentLanguage === 'ar' ? 'تمت الإضافة' : 'Added to Cart',
+          currentLanguage === 'ar' 
+            ? `تم إضافة ${itemQuantity > 1 ? itemQuantity + 'x ' : ''}${currentCustomizeItem.name} إلى سلة التسوق` 
+            : `${itemQuantity > 1 ? itemQuantity + 'x ' : ''}${currentCustomizeItem.name} has been added to your cart`,
+          'success'
+        );
+      }, 800);
+    }
+    
+    // Update customization modal text based on current language
+    function updateCustomizeModalLanguage() {
+      if (currentLanguage === 'ar') {
+        document.getElementById('extras-section-title').textContent = 'إضافات';
+        document.getElementById('extras-subtitle').textContent = 'اختر الإضافات أو المكونات الجانبية';
+        document.getElementById('instructions-section-title').textContent = 'تعليمات خاصة';
+        document.getElementById('instructions-subtitle').textContent = 'أي طلبات خاصة لطلبك؟';
+        document.getElementById('quantity-label').textContent = 'الكمية';
+        document.getElementById('add-to-cart-text').textContent = 'إضافة إلى السلة';
+        document.getElementById('special-instructions').placeholder = 'مثال: مقرمش إضافي، بدون بصل، معلومات الحساسية، إلخ.';
+      } else {
+        document.getElementById('extras-section-title').textContent = 'ADD EXTRAS';
+        document.getElementById('extras-subtitle').textContent = 'Select additional toppings or sides';
+        document.getElementById('instructions-section-title').textContent = 'SPECIAL INSTRUCTIONS';
+        document.getElementById('instructions-subtitle').textContent = 'Any special requests for your order?';
+        document.getElementById('quantity-label').textContent = 'QUANTITY';
+        document.getElementById('add-to-cart-text').textContent = 'ADD TO CART';
+        document.getElementById('special-instructions').placeholder = 'Ex: Extra crispy, No onions, Allergy information, etc.';
+      }
     }
     
     function updateCartDisplay() {
-      // Update cart count
-      cartCount.textContent = cart.length;
+      // Count total items including quantities
+      const totalItems = cart.reduce((count, item) => count + (item.quantity || 1), 0);
+      cartCount.textContent = totalItems;
       
       // Clear cart items
       cartItems.innerHTML = '';
       
       // Calculate total
       let subtotal = 0;
+      
+      // Empty cart message
+      if (cart.length === 0) {
+        const emptyCart = document.createElement('div');
+        emptyCart.className = 'empty-cart-message';
+        emptyCart.innerHTML = `
+          <i class="fas fa-shopping-cart"></i>
+          <p>${currentLanguage === 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty'}</p>
+          <p class="empty-cart-subtext">${currentLanguage === 'ar' 
+            ? 'أضف بعض العناصر اللذيذة!' 
+            : 'Add some delicious items!'}</p>
+        `;
+        cartItems.appendChild(emptyCart);
+      } else {
+        // Add a hint that cart items are clickable for editing
+        if (!document.getElementById('cart-edit-hint')) {
+          const hintText = document.createElement('div');
+          hintText.id = 'cart-edit-hint';
+          hintText.className = 'cart-edit-hint';
+          hintText.textContent = currentLanguage === 'ar' 
+            ? 'انقر على عنصر لتعديله' 
+            : 'Tap an item to edit';
+          cartItems.appendChild(hintText);
+        }
+      }
       
       // Generate cart item elements
       cart.forEach((item, index) => {
@@ -5435,28 +6389,85 @@
         const itemName = document.createElement('div');
         itemName.className = 'item-name';
         
-        let nameText = item.name;
-        if (item.extras) {
-          nameText += ` (${item.extras})`;
+        // Create item name with quantity if more than 1
+        let nameText = '';
+        if (item.quantity && item.quantity > 1) {
+          nameText = `<span class="item-quantity">${item.quantity}×</span> ${item.name}`;
+        } else {
+          nameText = item.name;
         }
+        
+        // Add extras if present
+        if (item.extras) {
+          nameText += `<div class="item-extras">${item.extras}</div>`;
+        }
+        
+        // Add notes if present
         if (item.notes) {
-          nameText += `<br><small>${item.notes}</small>`;
+          nameText += `<div class="item-notes">${item.notes}</div>`;
         }
         
         itemName.innerHTML = nameText;
         
+        // Price display
         const itemPrice = document.createElement('div');
         itemPrice.className = 'item-price';
         itemPrice.textContent = `$${item.totalPrice.toFixed(2)}`;
         
+        // Remove button
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-item';
         removeBtn.innerHTML = '&times;';
-        removeBtn.onclick = () => removeCartItem(index);
+        removeBtn.setAttribute('aria-label', currentLanguage === 'ar' ? 'إزالة العنصر' : 'Remove item');
+        removeBtn.onclick = function(e) {
+          e.stopPropagation(); // Prevent item click when removing
+          removeCartItem(index);
+        };
         
+        // Build cart item
         cartItem.appendChild(itemName);
         cartItem.appendChild(itemPrice);
         cartItem.appendChild(removeBtn);
+        
+        // Add edit functionality - clicking on item opens customization
+        cartItem.addEventListener('click', () => {
+          // Find the original food item to customize
+          const foodItem = filteredFoodItems.find(f => f.name === item.name);
+          if (foodItem) {
+            // Store current index to replace item later
+            cartItem.dataset.editIndex = index;
+            showCustomizeModal(foodItem);
+            
+            // Pre-fill with existing customizations if possible
+            setTimeout(() => {
+              // Pre-fill quantity
+              if (item.quantity) {
+                document.getElementById('quantity-value').textContent = item.quantity;
+                itemQuantity = item.quantity;
+                updateTotalPrice();
+              }
+              
+              // Pre-fill notes
+              if (item.notes) {
+                document.getElementById('special-instructions').value = item.notes;
+              }
+              
+              // Try to pre-select extras
+              if (item.extras) {
+                const extraNames = item.extras.split(', ');
+                const extraOptions = document.querySelectorAll('.extra-option');
+                
+                extraOptions.forEach(option => {
+                  const extraName = option.querySelector('.extra-name').textContent;
+                  if (extraNames.includes(extraName)) {
+                    // Simulate a click to select this extra
+                    option.click();
+                  }
+                });
+              }
+            }, 300);
+          }
+        });
         
         cartItems.appendChild(cartItem);
       });
@@ -5482,6 +6493,13 @@
           <span>$${total.toFixed(2)}</span>
         </p>
       `;
+      
+      // Update cart icon based on whether there are items
+      if (cart.length > 0) {
+        cartIcon.classList.add('has-items');
+      } else {
+        cartIcon.classList.remove('has-items');
+      }
       
       // Disable checkout if cart is empty
       checkoutBtn.disabled = cart.length === 0;
@@ -5946,25 +6964,92 @@
     }
     
     function showGuestOption() {
-      // Show the table number input when guest option is selected and hide the option buttons
-      document.querySelector('.user-option-buttons').style.display = 'none';
-      tableNumberInputContainer.style.display = 'block';
+      // Add visual feedback for the selection
+      const guestOption = document.querySelector('.guest-option');
+      guestOption.classList.add('option-selected');
       
-      // Animate the appearance with a slight delay
+      // Hide option buttons with a smooth fade-out transition
+      const optionButtons = document.querySelector('.user-option-buttons');
+      optionButtons.style.opacity = '0';
+      
+      // Change modal title to reflect guest mode
+      const tableTitle = document.getElementById('table-number-title');
+      tableTitle.textContent = currentLanguage === 'ar' ? 'إدخال رقم الطاولة' : 'ENTER TABLE NUMBER';
+      
       setTimeout(() => {
-        tableNumberInput.focus();
+        // Hide options completely
+        optionButtons.style.display = 'none';
         
-        // Clear the availability indicator
-        const availabilityIndicator = document.getElementById('table-availability-indicator');
-        availabilityIndicator.innerHTML = '';
-        availabilityIndicator.className = 'table-availability-indicator';
+        // Show the table number input with a nice fade-in
+        tableNumberInputContainer.style.display = 'block';
+        tableNumberInputContainer.style.opacity = '0';
         
-        // Scroll to the input if needed
-        tableNumberInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+        setTimeout(() => {
+          tableNumberInputContainer.style.opacity = '1';
+          tableNumberInput.focus();
+          
+          // Clear the availability indicator
+          const availabilityIndicator = document.getElementById('table-availability-indicator');
+          availabilityIndicator.innerHTML = '';
+          availabilityIndicator.className = 'table-availability-indicator';
+          
+          // Scroll to the input if needed
+          tableNumberInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 50);
+      }, 300);
       
-      // Add real-time table availability check
+      // Add real-time table availability check if not already added
+      tableNumberInput.removeEventListener('input', checkTableAvailabilityRealtime);
       tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
+      
+      // Add a back button to return to role selection
+      const backButton = document.createElement('button');
+      backButton.id = 'back-to-options-btn';
+      backButton.innerHTML = '<i class="fas fa-arrow-left"></i> ' + (currentLanguage === 'ar' ? 'رجوع' : 'BACK');
+      backButton.className = 'secondary-btn back-btn';
+      backButton.onclick = function() {
+        // Reset and show the options again
+        resetTableSelectionModal();
+      };
+      
+      // Add the back button to the modal
+      const modalContent = document.querySelector('.table-number-content');
+      if (!document.getElementById('back-to-options-btn')) {
+        modalContent.insertBefore(backButton, tableNumberInputContainer);
+      }
+    }
+    
+    function resetTableSelectionModal() {
+      // Hide the table input and back button
+      tableNumberInputContainer.style.opacity = '0';
+      const backButton = document.getElementById('back-to-options-btn');
+      if (backButton) backButton.style.opacity = '0';
+      
+      setTimeout(() => {
+        tableNumberInputContainer.style.display = 'none';
+        if (backButton) backButton.remove();
+        
+        // Reset any selected option styling
+        const guestOption = document.querySelector('.guest-option');
+        guestOption.classList.remove('option-selected');
+        
+        const staffOption = document.querySelector('.staff-option');
+        staffOption.classList.remove('option-selected');
+        staffOption.classList.remove('staff-option-active');
+        
+        // Reset modal title
+        const tableTitle = document.getElementById('table-number-title');
+        tableTitle.textContent = currentLanguage === 'ar' ? 'رقم الطاولة الخاص بك' : 'YOUR TABLE NUMBER';
+        
+        // Show option buttons again with fade-in
+        const optionButtons = document.querySelector('.user-option-buttons');
+        optionButtons.style.display = 'flex';
+        optionButtons.style.opacity = '0';
+        
+        setTimeout(() => {
+          optionButtons.style.opacity = '1';
+        }, 50);
+      }, 200);
     }
     
     // Real-time table availability check as the user types
@@ -5996,13 +7081,17 @@
     }
     
     function handleStaffBypass() {
-      // Add visual feedback for the click
+      // Add visual feedback for the selection
       const staffOption = document.querySelector('.staff-option');
-      staffOption.classList.add('staff-option-active');
+      staffOption.classList.add('option-selected');
       
-      setTimeout(() => {
-        staffOption.classList.remove('staff-option-active');
-      }, 300);
+      // Hide option buttons with a smooth fade-out transition
+      const optionButtons = document.querySelector('.user-option-buttons');
+      optionButtons.style.opacity = '0';
+      
+      // Change modal title to reflect staff mode
+      const tableTitle = document.getElementById('table-number-title');
+      tableTitle.textContent = currentLanguage === 'ar' ? 'تسجيل دخول الموظفين' : 'STAFF LOGIN';
       
       // Switch to staff view without entering table number
       if (localStorage.getItem(STAFF_TOKEN) === "true" || localStorage.getItem(ADMIN_TOKEN) === "true") {
@@ -6010,6 +7099,9 @@
         const role = localStorage.getItem(ADMIN_TOKEN) === "true" ? "admin" : "staff";
         userType = role;
         localStorage.setItem(USER_TYPE_KEY, role);
+        
+        // Add visual pulse effect to indicate successful recognition
+        staffOption.classList.add('option-success-pulse');
         
         // Close modal with a slight delay to show the button animation
         setTimeout(() => {
@@ -6019,57 +7111,181 @@
           // Show feedback to user
           showNotification(
             currentLanguage === 'ar' ? 'تم تجاوز' : 'Staff Access',
-            currentLanguage === 'ar' ? 'تم تجاوز حاجز اختيار الطاولة' : 'Table selection bypassed with staff credentials',
+            currentLanguage === 'ar' ? 'تم تجاوز حاجز اختيار الطاولة' : 'Welcome back! You are now in staff mode',
             'success'
           );
-        }, 200);
+          
+          // Remove the pulse effect
+          staffOption.classList.remove('option-success-pulse');
+        }, 800);
       } else {
-        // Need to authenticate first - show transition animation
-        const tableContent = document.querySelector('.table-number-content');
-        tableContent.style.opacity = '0';
-        tableContent.style.transform = 'scale(0.95)';
-        
+        // Need to authenticate first - prepare login form
         setTimeout(() => {
-          closeTableModal();
-          tableContent.style.opacity = '1';
-          tableContent.style.transform = 'scale(1)';
+          // Hide options completely
+          optionButtons.style.display = 'none';
           
-          // Show login modal with focused username field
-          showLoginModal();
-          if (username) {
-            setTimeout(() => username.focus(), 300);
+          // Create a lightweight login form directly in the table modal
+          const modalContent = document.querySelector('.table-number-content');
+          
+          // Check if we already have an embedded login form
+          if (!document.getElementById('embedded-login-form')) {
+            // Create login form container
+            const loginForm = document.createElement('div');
+            loginForm.id = 'embedded-login-form';
+            loginForm.className = 'embedded-login-form';
+            loginForm.style.opacity = '0';
+            
+            // Add username field
+            const usernameGroup = document.createElement('div');
+            usernameGroup.className = 'input-group';
+            
+            const usernameLabel = document.createElement('label');
+            usernameLabel.htmlFor = 'embedded-username';
+            usernameLabel.textContent = currentLanguage === 'ar' ? 'اسم المستخدم' : 'USERNAME';
+            usernameLabel.className = 'input-label';
+            
+            const usernameInput = document.createElement('input');
+            usernameInput.type = 'text';
+            usernameInput.id = 'embedded-username';
+            usernameInput.placeholder = currentLanguage === 'ar' ? 'أدخل اسم المستخدم' : 'Enter username';
+            usernameInput.className = 'input-field';
+            
+            usernameGroup.appendChild(usernameLabel);
+            usernameGroup.appendChild(usernameInput);
+            
+            // Add password field
+            const passwordGroup = document.createElement('div');
+            passwordGroup.className = 'input-group';
+            
+            const passwordLabel = document.createElement('label');
+            passwordLabel.htmlFor = 'embedded-password';
+            passwordLabel.textContent = currentLanguage === 'ar' ? 'كلمة المرور' : 'PASSWORD';
+            passwordLabel.className = 'input-label';
+            
+            const passwordInput = document.createElement('input');
+            passwordInput.type = 'password';
+            passwordInput.id = 'embedded-password';
+            passwordInput.placeholder = currentLanguage === 'ar' ? 'أدخل كلمة المرور' : 'Enter password';
+            passwordInput.className = 'input-field';
+            
+            passwordGroup.appendChild(passwordLabel);
+            passwordGroup.appendChild(passwordInput);
+            
+            // Add buttons
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'modal-buttons';
+            
+            const loginButton = document.createElement('button');
+            loginButton.className = 'confirm-btn';
+            loginButton.id = 'embedded-login-btn';
+            loginButton.textContent = currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN';
+            
+            const backButton = document.createElement('button');
+            backButton.className = 'cancel-btn';
+            backButton.id = 'embedded-back-btn';
+            backButton.textContent = currentLanguage === 'ar' ? 'رجوع' : 'BACK';
+            
+            // Add login button handler
+            loginButton.onclick = function() {
+              // Show loading state
+              loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+              loginButton.disabled = true;
+              
+              // Get username and password
+              const embUsername = document.getElementById('embedded-username').value;
+              const embPassword = document.getElementById('embedded-password').value;
+              
+              // Authenticate staff
+              authenticateStaff(embUsername, embPassword)
+                .then(result => {
+                  if (result.success) {
+                    // Success animation
+                    loginButton.innerHTML = '<i class="fas fa-check-circle"></i>';
+                    loginButton.style.background = 'linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%)';
+                    
+                    // Close modal after brief delay
+                    setTimeout(() => {
+                      closeTableModal();
+                      
+                      // Show success notification
+                      showNotification(
+                        currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login Successful',
+                        currentLanguage === 'ar' 
+                          ? `مرحبًا ${result.name}! تم تسجيل دخولك بنجاح.`
+                          : `Welcome ${result.name}! You have successfully logged in.`,
+                        'success'
+                      );
+                      
+                      // Update UI to reflect staff mode
+                      checkAuthState();
+                    }, 800);
+                  } else {
+                    // Error animation
+                    loginButton.innerHTML = '<i class="fas fa-times-circle"></i>';
+                    loginButton.style.background = 'linear-gradient(135deg, #c62828 0%, #f44336 100%)';
+                    
+                    // Reset button after delay
+                    setTimeout(() => {
+                      loginButton.innerHTML = currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN';
+                      loginButton.style.background = '';
+                      loginButton.disabled = false;
+                      
+                      // Show error notification
+                      showNotification(
+                        currentLanguage === 'ar' ? 'فشل تسجيل الدخول' : 'Login Failed',
+                        currentLanguage === 'ar'
+                          ? 'اسم المستخدم أو كلمة المرور غير صحيحة'
+                          : 'Invalid username or password',
+                        'error'
+                      );
+                      
+                      // Focus username field
+                      document.getElementById('embedded-username').focus();
+                    }, 1000);
+                  }
+                });
+            };
+            
+            // Add back button handler
+            backButton.onclick = resetTableSelectionModal;
+            
+            // Add keypress handler for password field
+            passwordInput.addEventListener('keypress', function(e) {
+              if (e.key === 'Enter') {
+                loginButton.click();
+              }
+            });
+            
+            buttonGroup.appendChild(loginButton);
+            buttonGroup.appendChild(backButton);
+            
+            // Assemble form
+            loginForm.appendChild(usernameGroup);
+            loginForm.appendChild(passwordGroup);
+            loginForm.appendChild(buttonGroup);
+            
+            // Add to modal
+            modalContent.appendChild(loginForm);
+            
+            // Fade in the form
+            setTimeout(() => {
+              loginForm.style.opacity = '1';
+              // Focus username field
+              usernameInput.focus();
+            }, 50);
+          } else {
+            // Show existing form
+            const loginForm = document.getElementById('embedded-login-form');
+            loginForm.style.display = 'block';
+            loginForm.style.opacity = '0';
+            
+            setTimeout(() => {
+              loginForm.style.opacity = '1';
+              // Focus username field
+              document.getElementById('embedded-username').focus();
+            }, 50);
           }
-          
-          // Show smaller notification that login is required
-          showConnectionToast(
-            currentLanguage === 'ar' 
-              ? 'يرجى تسجيل الدخول كموظف للمتابعة' 
-              : 'Please login with staff credentials to continue',
-            'info'
-          );
-          
-          // Set up a one-time post-login handler
-          const originalLoginUser = loginUser;
-          loginUser = function() {
-            // Call the original function
-            originalLoginUser();
-            
-            // Check if login was successful
-            if (userType === "staff" || userType === "admin") {
-              // Show success message for staff bypass
-              showNotification(
-                currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login Successful',
-                currentLanguage === 'ar' 
-                  ? 'تم تسجيل الدخول بصلاحيات الموظفين بنجاح' 
-                  : 'You have successfully logged in with staff credentials',
-                'success'
-              );
-            }
-            
-            // Restore the original function
-            loginUser = originalLoginUser;
-          };
-        }, 200);
+        }, 300);
       }
     }
     
@@ -7432,7 +8648,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'جارٍ الإلغاء' : 'Cancelling',
           currentLanguage === 'ar' 
-            ? `جارٍ إلغاء الطلب...` 
+            ? `جارٍ إلغاء ال �لب...` 
             : `Cancelling order...`,
           'info',
           1500 // Auto-hide after 1.5 seconds
@@ -9803,6 +11019,73 @@
       <div class="modal-buttons">
         <button id="submit-rating-btn" onclick="submitRating()">SUBMIT</button>
         <button id="cancel-rating-btn" onclick="closeRatingDialog()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Item Customization Modal (Talabat-style) -->
+  <div class="customize-modal" id="customize-modal">
+    <div class="customize-content">
+      <div class="customize-header">
+        <h2 class="customize-title" id="customize-item-name">Customize Your Item</h2>
+        <button class="close-customize-btn" onclick="closeCustomizeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="food-customize-image">
+        <img id="customize-item-image" src="" alt="Food item">
+      </div>
+      
+      <div class="customize-price-container">
+        <span id="customize-base-price" class="base-price"></span>
+        <span id="customize-total-price" class="total-price"></span>
+      </div>
+      
+      <div class="customize-sections">
+        <!-- Extras Section -->
+        <div class="customize-section">
+          <div class="section-header">
+            <h3 id="extras-section-title">ADD EXTRAS</h3>
+            <span class="section-subtitle" id="extras-subtitle">Select additional toppings or sides</span>
+          </div>
+          
+          <div class="extras-grid" id="extras-options">
+            <!-- Extras will be dynamically populated -->
+          </div>
+        </div>
+        
+        <!-- Special Instructions Section -->
+        <div class="customize-section">
+          <div class="section-header">
+            <h3 id="instructions-section-title">SPECIAL INSTRUCTIONS</h3>
+            <span class="section-subtitle" id="instructions-subtitle">Any special requests for your order?</span>
+          </div>
+          
+          <textarea id="special-instructions" class="special-instructions-input" 
+            placeholder="Ex: Extra crispy, No onions, Allergy information, etc."></textarea>
+        </div>
+      </div>
+      
+      <!-- Quantity Selector -->
+      <div class="quantity-selector">
+        <span id="quantity-label">QUANTITY</span>
+        <div class="quantity-controls">
+          <button id="decrease-quantity" class="quantity-btn" onclick="changeQuantity(-1)">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span id="quantity-value">1</span>
+          <button id="increase-quantity" class="quantity-btn" onclick="changeQuantity(1)">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="customize-actions">
+        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart()">
+          <i class="fas fa-shopping-cart"></i>
+          <span id="add-to-cart-text">ADD TO CART</span>
+        </button>
       </div>
     </div>
   </div>
