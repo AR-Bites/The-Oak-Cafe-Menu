@@ -3780,7 +3780,7 @@
       <div class="food-container">
         <h2 id="food-name">Margherita Pizza</h2>
         <div class="model-container">
-          <model-viewer id="food-model-viewer" src="./models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
+          <model-viewer id="food-model-viewer" src="/models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1" onerror="console.error('Initial model viewer error:', event)">
             <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
             <div class="model-loading-indicator" id="model-loading-indicator">
               <div class="loading-spinner model-spinner"></div>
@@ -4816,7 +4816,7 @@
       {
         name: "Alfredo Pasta",
         nameAr: "باستا ألفريدو",
-        modelSrc: "models/Alfredo Pasta.glb",
+        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to match actual file name
         description: "Creamy Alfredo sauce with fettuccine pasta, garnished with parsley.",
         descriptionAr: "صلصة ألفريدو كريمية مع معكرونة فيتوتشيني، مزينة بالبقدونس.",
         price: 13.99,
@@ -4826,7 +4826,7 @@
       {
         name: "Spaghetti Bolognese",
         nameAr: "سباغيتي بولونيز",
-        modelSrc: "models/Spaghetti Bolognese.glb",
+        modelSrc: "models/Rose Pasta.glb", // Updated to match actual file name
         description: "Spaghetti with a rich, slow-cooked meat sauce and parmesan cheese.",
         descriptionAr: "سباغيتي مع صلصة لحم غنية مطبوخة ببطء وجبنة بارميزان.",
         price: 14.99,
@@ -4836,7 +4836,7 @@
       {
         name: "Pesto Pasta",
         nameAr: "باستا بيستو",
-        modelSrc: "models/Alfredo Pasta.glb", // Using existing model as placeholder
+        modelSrc: "models/Pesto Pasta.glb", // Updated to match actual file name
         description: "Linguine pasta with basil pesto, pine nuts, and freshly grated parmesan.",
         descriptionAr: "معكرونة لينجويني مع صلصة البيستو بالريحان والصنوبر وجبنة بارميزان مبشورة طازجة.",
         price: 14.49,
@@ -4880,7 +4880,7 @@
       {
         name: "Veggie Burger",
         nameAr: "برجر نباتي",
-        modelSrc: "models/Alfredo Pasta.glb", // Using existing model as placeholder
+        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to correct model filename
         description: "Plant-based patty with avocado, grilled onions, and chipotle mayo.",
         descriptionAr: "قطعة برجر نباتية مع أفوكادو، بصل مشوي، ومايونيز تشيبوتلي.",
         price: 13.99,
@@ -4891,7 +4891,7 @@
       // DRINKS - Hot Drinks
       {
         name: "Hot Chocolate",
-        modelSrc: "models/Spaghetti Bolognese.glb", // Using existing model as placeholder
+        modelSrc: "models/Rose Pasta.glb", // Updated to correct model filename
         description: "Rich and creamy hot chocolate topped with marshmallows and whipped cream.",
         price: 3.99,
         category: "hot-drinks",
@@ -4927,7 +4927,7 @@
       // DRINKS - Smoothies
       {
         name: "Berry Blast Smoothie",
-        modelSrc: "models/Alfredo Pasta.glb", // Using existing model as placeholder
+        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to correct model filename
         description: "Mixed berries, yogurt, and honey blended with ice for a refreshing treat.",
         price: 5.99,
         category: "smoothies",
@@ -4935,7 +4935,7 @@
       },
       {
         name: "Tropical Paradise Smoothie",
-        modelSrc: "models/Spaghetti Bolognese.glb", // Using existing model as placeholder
+        modelSrc: "models/Rose Pasta.glb", // Updated to correct model filename
         description: "Mango, pineapple, and banana blended with coconut milk and ice.",
         price: 6.49,
         category: "smoothies",
@@ -4963,7 +4963,7 @@
       // DESSERTS - Ice Cream
       {
         name: "Vanilla Bean Ice Cream",
-        modelSrc: "models/Alfredo Pasta.glb", // Using existing model as placeholder
+        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to correct model filename
         description: "Creamy vanilla bean ice cream served with a wafer cookie.",
         price: 4.99,
         category: "ice-cream",
@@ -6243,13 +6243,13 @@
     function preloadModels() {
       // Removed notification popups during loading as they were confusing users
       
-      // Set model paths to use relative ./models/ directory path
+      // Set model paths to use absolute /models/ directory path for consistent resolution
       foodItems.forEach(item => {
-        // Standardize all model paths to use "./models/" format
+        // Standardize all model paths to use "/models/" format (absolute path)
         if (item.modelSrc) {
           const fileName = item.modelSrc.split('/').pop(); // Get just the filename
           if (fileName) {
-            item.modelSrc = `./models/${fileName}`;
+            item.modelSrc = `/models/${fileName}`;
             console.log("Updated model path:", item.name, "->", item.modelSrc);
           }
         }
@@ -6267,13 +6267,20 @@
           tempModelViewer.style.width = '1px';
           tempModelViewer.style.height = '1px';
           
-          // Set src attribute directly
-          tempModelViewer.setAttribute('src', modelSrc);
+          // Set src attribute directly with better error handling
+          tempModelViewer.addEventListener('error', (e) => {
+            console.error(`Error preloading model ${modelSrc}:`, e);
+          });
+          
+          // Apply all attributes
           tempModelViewer.setAttribute('loading', 'eager');
           tempModelViewer.setAttribute('reveal', 'interaction');
           tempModelViewer.setAttribute('preload', 'true');
           
           document.body.appendChild(tempModelViewer);
+          
+          // Set src last to trigger loading after error handler is attached
+          tempModelViewer.setAttribute('src', modelSrc);
           
           // Store in cache
           modelCache[modelSrc] = {
@@ -6423,6 +6430,18 @@
       // Show loading indicator
       modelLoadingIndicator.style.display = 'flex';
       
+      // Clear any previous error handlers to ensure clean model loading
+      const oldModelViewer = document.getElementById('food-model-viewer');
+      if (oldModelViewer) {
+        // For debugging - track model viewer replacement
+        console.log("Refreshing model viewer with clean instance");
+        const newModelViewer = oldModelViewer.cloneNode(true);
+        newModelViewer.addEventListener('error', (e) => {
+          console.error("Error loading model in refreshed viewer:", e);
+        });
+        oldModelViewer.parentNode.replaceChild(newModelViewer, oldModelViewer);
+      }
+      
       // Update text content first (for perceived speed)
       // Use Arabic name and description if available and language is Arabic
       foodName.textContent = (currentLanguage === 'ar' && item.nameAr) ? item.nameAr : item.name;
@@ -6450,43 +6469,56 @@
       modelViewer.setAttribute('exposure', '1');
       
       // Use cached model if available, otherwise load directly
+      const modelPath = item.modelSrc.startsWith('/') ? item.modelSrc : `/models/${item.modelSrc.split('/').pop()}`;
+      console.log("Setting model path for", item.name, "to", modelPath);
+      
+      // Remove any existing event listeners (using the clone technique on lines 6433-6443 above)
+      // and now set up new clean event handlers
+      
+      // Single-use error handler with proper cleanup
+      const onError = (e) => {
+        console.error("Error loading model:", modelPath, e);
+        modelViewer.removeEventListener('error', onError);
+        // Still hide loading indicator on error
+        modelLoadingIndicator.style.display = 'none';
+      };
+      
+      // Single-use load handler with proper cleanup
+      const onLoad = () => {
+        console.log("Model loaded successfully");
+        modelLoadingIndicator.style.display = 'none';
+        modelViewer.removeEventListener('load', onLoad);
+        
+        // Add to cache if not already there
+        if (!modelCache[item.modelSrc]) {
+          modelCache[item.modelSrc] = {
+            loaded: true,
+            element: modelViewer
+          };
+        } else {
+          modelCache[item.modelSrc].loaded = true;
+        }
+      };
+      
+      // Set up event handlers before setting src attribute
+      modelViewer.addEventListener('error', onError);
+      modelViewer.addEventListener('load', onLoad);
+      
+      // Set the source
+      modelViewer.setAttribute('src', modelPath);
+      
+      // If it's already in cache, log that info
       if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
         console.log(`Using cached model for ${item.name} - ${item.modelSrc}`);
-            
-        modelViewer.setAttribute('src', item.modelSrc);
-        
-        // Hide loading indicator after a short delay for smoother transition
-        setTimeout(() => {
-          modelLoadingIndicator.style.display = 'none';
-        }, 300);
-      } else {
-        console.log(`Loading model for ${item.name} - ${item.modelSrc}`);
-            
-        modelViewer.setAttribute('src', item.modelSrc);
-        
-        // Add event listener to hide loading indicator when model is loaded
-        const onLoad = () => {
-          modelLoadingIndicator.style.display = 'none';
-          modelViewer.removeEventListener('load', onLoad);
-          
-          // Add to cache if not already there
-          if (!modelCache[item.modelSrc]) {
-            modelCache[item.modelSrc] = {
-              loaded: true,
-              element: modelViewer
-            };
-          } else {
-            modelCache[item.modelSrc].loaded = true;
-          }
-        };
-        
-        modelViewer.addEventListener('load', onLoad);
-        
-        // Failsafe: If model doesn't load within 3 seconds, hide the loading indicator anyway
-        setTimeout(() => {
-          modelLoadingIndicator.style.display = 'none';
-        }, 3000);
       }
+      
+      // Failsafe: If model doesn't load within 3 seconds, hide the loading indicator anyway
+      setTimeout(() => {
+        if (modelLoadingIndicator.style.display !== 'none') {
+          console.log("Failsafe: Hiding model loading indicator after timeout");
+          modelLoadingIndicator.style.display = 'none';
+        }
+      }, 3000);
       
       // Clear existing extras
       extrasSelect.innerHTML = '';
@@ -6797,7 +6829,7 @@
         notes: specialInstructions,
         quantity: itemQuantity,
         totalPrice: singleItemPrice * itemQuantity,
-        model: currentCustomizeItem.modelSrc.startsWith('./models/') ? currentCustomizeItem.modelSrc : `./models/${currentCustomizeItem.modelSrc.split('/').pop()}` // Ensure consistent model path format
+        model: currentCustomizeItem.modelSrc // Use the standardized model path
       };
       
       console.log("Adding item to cart:", cartItem);
@@ -6907,8 +6939,13 @@
         // Use the model directly from the cart item if available, otherwise find it
         if (item.model) {
           const modelViewer = document.createElement('model-viewer');
-          // Use relative path to model
-          modelViewer.setAttribute('src', item.model.replace('models/', './models/'));
+          // Use absolute path to model with error handling
+          const modelPath = item.model.startsWith('/') ? item.model : `/models/${item.model.split('/').pop()}`;
+          console.log("Setting cart model path to:", modelPath);
+          modelViewer.addEventListener('error', (e) => {
+            console.error("Error loading cart model:", modelPath, e);
+          });
+          modelViewer.setAttribute('src', modelPath);
           modelViewer.setAttribute('ar', '');
           modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           modelViewer.setAttribute('camera-controls', '');
@@ -6924,8 +6961,13 @@
           const foodItem = filteredFoodItems.find(f => f.name === item.name);
           if (foodItem && foodItem.modelSrc) {
             const modelViewer = document.createElement('model-viewer');
-            // Use relative path to model
-            modelViewer.setAttribute('src', foodItem.modelSrc.replace('models/', './models/'));
+            // Use absolute path to model with error handling
+            const modelPath = foodItem.modelSrc.startsWith('/') ? foodItem.modelSrc : `/models/${foodItem.modelSrc.split('/').pop()}`;
+            console.log("Setting cart foodItem model path to:", modelPath);
+            modelViewer.addEventListener('error', (e) => {
+              console.error("Error loading cart foodItem model:", modelPath, e);
+            });
+            modelViewer.setAttribute('src', modelPath);
             modelViewer.setAttribute('ar', '');
             modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
             modelViewer.setAttribute('camera-controls', '');
