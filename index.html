@@ -6253,17 +6253,32 @@
     
     // Preload all 3D models
     function preloadModels() {
-      // Removed notification popups during loading as they were confusing users
+      // List of available models (from the models folder)
+      const availableModels = [
+        'Fettuccine Alfredo.glb',
+        'Margherita Pizza.glb',
+        'Pepperoni Pizza.glb',
+        'Pesto Pasta.glb',
+        'Rose Pasta.glb',
+        'Sea Food Pasta.glb'
+      ];
       
-      // Set model paths to use absolute /models/ directory path for consistent resolution
+      // Map menu items to their models (if available)
       foodItems.forEach(item => {
-        // Standardize all model paths to use "/models/" format (absolute path)
-        if (item.modelSrc) {
-          const fileName = item.modelSrc.split('/').pop(); // Get just the filename
-          if (fileName) {
-            item.modelSrc = `/models/${fileName}`;
-            console.log("Updated model path:", item.name, "->", item.modelSrc);
-          }
+        // Check if there's an exact match with an available model name
+        const itemName = item.name.replace(/\s+/g, ' ').trim();
+        const exactModelMatch = availableModels.find(model => 
+          model === `${itemName}.glb` || model.toLowerCase() === `${itemName.toLowerCase()}.glb`
+        );
+        
+        if (exactModelMatch) {
+          // Set the model path to the exact match
+          item.modelSrc = `/models/${exactModelMatch}`;
+          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
+        } else {
+          // No exact match found, clear model src
+          item.modelSrc = null;
+          console.log(`No model available for: ${item.name}`);
         }
       });
       
@@ -6276,18 +6291,11 @@
       preloadContainer.style.overflow = 'hidden';
       document.body.appendChild(preloadContainer);
       
-      // Now preload the models with updated paths - use simplified approach from original
-      const priorityModels = [
-        '/models/Margherita Pizza.glb',
-        '/models/Pepperoni Pizza.glb',
-        '/models/Fettuccine Alfredo.glb',
-        '/models/Rose Pasta.glb',
-        '/models/Pesto Pasta.glb',
-        '/models/Sea Food Pasta.glb'
-      ];
-      
-      // Preload priority models first
-      priorityModels.forEach(modelPath => {
+      // Preload only available models
+      availableModels.forEach(modelName => {
+        const modelPath = `/models/${modelName}`;
+        console.log(`Preloading model: ${modelPath}`);
+        
         const preloader = document.createElement('model-viewer');
         preloader.setAttribute('src', modelPath);
         preloader.setAttribute('preload', '');
@@ -6297,6 +6305,11 @@
           console.log(`Model ${modelPath} preloaded successfully`);
           // Store in simple lookup for quick reference
           modelCache[modelPath] = true;
+        });
+        
+        // Basic error handling
+        preloader.addEventListener('error', (e) => {
+          console.error(`Error preloading model ${modelPath}:`, e);
         });
         
         preloadContainer.appendChild(preloader);
@@ -6466,28 +6479,40 @@
       modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
       modelViewer.setAttribute('exposure', '1');
       
-      // Simplify model loading to match original approach
-      const modelPath = item.modelSrc.startsWith('/') ? item.modelSrc : `/models/${item.modelSrc.split('/').pop()}`;
-      console.log(`Setting model for ${item.name} to ${modelPath}`);
-      
-      // Simply set the src attribute directly - avoiding complex event handling
-      modelViewer.src = modelPath;
-      
-      // Add basic event handlers
-      modelViewer.addEventListener('load', () => {
-        console.log("Model loaded successfully");
+      // Check if this item has a model assigned during preloading
+      if (item.modelSrc) {
+        // Show the model container
+        modelContainer.style.display = 'block';
+        modelLoadingIndicator.style.display = 'flex';
+        
+        console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
+        
+        // Set the model source
+        modelViewer.src = item.modelSrc;
+        
+        // Add basic event handlers
+        modelViewer.addEventListener('load', () => {
+          console.log("Model loaded successfully");
+          modelLoadingIndicator.style.display = 'none';
+        });
+        
+        modelViewer.addEventListener('error', (e) => {
+          console.error("Error loading model:", item.modelSrc, e);
+          modelLoadingIndicator.style.display = 'none';
+          // Hide the model container if there's an error
+          modelContainer.style.display = 'none';
+        });
+        
+        // Failsafe: Hide loading indicator after 3 seconds
+        setTimeout(() => {
+          modelLoadingIndicator.style.display = 'none';
+        }, 3000);
+      } else {
+        // No matching model found, hide the model container
+        console.log(`No model available for ${item.name}, hiding 3D viewer`);
+        modelContainer.style.display = 'none';
         modelLoadingIndicator.style.display = 'none';
-      });
-      
-      modelViewer.addEventListener('error', (e) => {
-        console.error("Error loading model:", modelPath, e);
-        modelLoadingIndicator.style.display = 'none';
-      });
-      
-      // Failsafe: Hide loading indicator after 3 seconds
-      setTimeout(() => {
-        modelLoadingIndicator.style.display = 'none';
-      }, 3000);
+      }
       
       // Clear existing extras
       extrasSelect.innerHTML = '';
