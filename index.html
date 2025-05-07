@@ -3780,7 +3780,7 @@
       <div class="food-container">
         <h2 id="food-name">Margherita Pizza</h2>
         <div class="model-container">
-          <model-viewer id="food-model-viewer" src="/models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
+          <model-viewer id="food-model-viewer" src="./models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
             <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
             <div class="model-loading-indicator" id="model-loading-indicator">
               <div class="loading-spinner model-spinner"></div>
@@ -5097,11 +5097,7 @@
       
       // Manually add event listener for the Add to Cart button in customization modal
       // This ensures the event is properly captured regardless of event bubbling
-      document.getElementById('add-to-cart-btn').addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        addCustomizedItemToCart();
-      });
+      // We'll handle this through the onclick attribute in the HTML
       
       // Set up enter key for password field
       const passwordField = document.getElementById('password');
@@ -6247,6 +6243,19 @@
     function preloadModels() {
       // Removed notification popups during loading as they were confusing users
       
+      // Set model paths to use relative ./models/ directory path
+      foodItems.forEach(item => {
+        // Standardize all model paths to use "./models/" format
+        if (item.modelSrc) {
+          const fileName = item.modelSrc.split('/').pop(); // Get just the filename
+          if (fileName) {
+            item.modelSrc = `./models/${fileName}`;
+            console.log("Updated model path:", item.name, "->", item.modelSrc);
+          }
+        }
+      });
+      
+      // Now preload the models with updated paths
       foodItems.forEach(item => {
         const modelSrc = item.modelSrc;
         if (!modelCache[modelSrc]) {
@@ -6257,16 +6266,12 @@
           tempModelViewer.style.pointerEvents = 'none';
           tempModelViewer.style.width = '1px';
           tempModelViewer.style.height = '1px';
-          // Use absolute path for model loading
-          const modelPath = modelSrc.startsWith('./') 
-            ? modelSrc.replace('./', '/') 
-            : modelSrc.startsWith('/') 
-              ? modelSrc 
-              : '/' + modelSrc;
-          tempModelViewer.setAttribute('src', modelPath);
-          tempModelViewer.loading = 'eager';
-          tempModelViewer.reveal = 'interaction';
-          tempModelViewer.preload = true;
+          
+          // Set src attribute directly
+          tempModelViewer.setAttribute('src', modelSrc);
+          tempModelViewer.setAttribute('loading', 'eager');
+          tempModelViewer.setAttribute('reveal', 'interaction');
+          tempModelViewer.setAttribute('preload', 'true');
           
           document.body.appendChild(tempModelViewer);
           
@@ -6446,30 +6451,18 @@
       
       // Use cached model if available, otherwise load directly
       if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
-        console.log(`Using cached model for ${item.name}`);
-        // Use absolute path for model loading with leading slash
-        const modelPath = item.modelSrc.startsWith('./') 
-          ? item.modelSrc.replace('./', '/') 
-          : item.modelSrc.startsWith('/') 
-            ? item.modelSrc 
-            : '/' + item.modelSrc;
+        console.log(`Using cached model for ${item.name} - ${item.modelSrc}`);
             
-        modelViewer.setAttribute('src', modelPath);
+        modelViewer.setAttribute('src', item.modelSrc);
         
         // Hide loading indicator after a short delay for smoother transition
         setTimeout(() => {
           modelLoadingIndicator.style.display = 'none';
         }, 300);
       } else {
-        console.log(`Loading model for ${item.name}`);
-        // Use absolute path for model loading with leading slash
-        const modelPath = item.modelSrc.startsWith('./') 
-          ? item.modelSrc.replace('./', '/') 
-          : item.modelSrc.startsWith('/') 
-            ? item.modelSrc 
-            : '/' + item.modelSrc;
+        console.log(`Loading model for ${item.name} - ${item.modelSrc}`);
             
-        modelViewer.setAttribute('src', modelPath);
+        modelViewer.setAttribute('src', item.modelSrc);
         
         // Add event listener to hide loading indicator when model is loaded
         const onLoad = () => {
@@ -6804,7 +6797,7 @@
         notes: specialInstructions,
         quantity: itemQuantity,
         totalPrice: singleItemPrice * itemQuantity,
-        model: currentCustomizeItem.modelSrc // Include the model source for 3D display in cart
+        model: currentCustomizeItem.modelSrc.startsWith('./models/') ? currentCustomizeItem.modelSrc : `./models/${currentCustomizeItem.modelSrc.split('/').pop()}` // Ensure consistent model path format
       };
       
       console.log("Adding item to cart:", cartItem);
@@ -6829,10 +6822,7 @@
       const itemName = currentCustomizeItem.name;
       const itemQty = itemQuantity;
       
-      // Close modal immediately
-      closeCustomizeModal();
-      
-      // Show confirmation notification after the modal is closed
+      // Show confirmation notification
       showNotification(
         currentLanguage === 'ar' ? 'تمت الإضافة' : 'Added to Cart',
         currentLanguage === 'ar' 
@@ -6917,8 +6907,8 @@
         // Use the model directly from the cart item if available, otherwise find it
         if (item.model) {
           const modelViewer = document.createElement('model-viewer');
-          // Ensure correct path to model (absolute path)
-          modelViewer.setAttribute('src', item.model.replace('models/', '/models/'));
+          // Use relative path to model
+          modelViewer.setAttribute('src', item.model.replace('models/', './models/'));
           modelViewer.setAttribute('ar', '');
           modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           modelViewer.setAttribute('camera-controls', '');
@@ -6934,8 +6924,8 @@
           const foodItem = filteredFoodItems.find(f => f.name === item.name);
           if (foodItem && foodItem.modelSrc) {
             const modelViewer = document.createElement('model-viewer');
-            // Ensure correct path to model (absolute path)
-            modelViewer.setAttribute('src', foodItem.modelSrc.replace('models/', '/models/'));
+            // Use relative path to model
+            modelViewer.setAttribute('src', foodItem.modelSrc.replace('models/', './models/'));
             modelViewer.setAttribute('ar', '');
             modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
             modelViewer.setAttribute('camera-controls', '');
@@ -7064,10 +7054,11 @@
       `;
       
       // Update cart icon based on whether there are items
-      if (cart.length > 0) {
-        cartIcon.classList.add('has-items');
-      } else {
-        cartIcon.classList.remove('has-items');
+      const cartIconElement = document.querySelector('.cart-icon');
+      if (cart.length > 0 && cartIconElement) {
+        cartIconElement.classList.add('has-items');
+      } else if (cartIconElement) {
+        cartIconElement.classList.remove('has-items');
       }
       
       // Disable checkout if cart is empty
@@ -11752,7 +11743,7 @@
       </div>
       
       <div class="customize-actions">
-        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart(); return false;">
+        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart(); closeCustomizeModal(); return false;">
           <i class="fas fa-shopping-cart"></i>
           <span id="add-to-cart-text">ADD TO CART</span>
         </button>
