@@ -3780,7 +3780,7 @@
       <div class="food-container">
         <h2 id="food-name">Margherita Pizza</h2>
         <div class="model-container">
-          <model-viewer id="food-model-viewer" src="./models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
+          <model-viewer id="food-model-viewer" src="/models/Margherita Pizza.glb" alt="3D Food Model" auto-rotate camera-controls ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" camera-orbit="-20deg 75deg 2m" shadow-intensity="1" ar-placement="floor" loading="eager" reveal="interaction" environment-image="neutral" exposure="1" shadow-softness="1">
             <button slot="ar-button" class="ar-button" id="ar-button">VIEW IN AR</button>
             <div class="model-loading-indicator" id="model-loading-indicator">
               <div class="loading-spinner model-spinner"></div>
@@ -6257,8 +6257,13 @@
           tempModelViewer.style.pointerEvents = 'none';
           tempModelViewer.style.width = '1px';
           tempModelViewer.style.height = '1px';
-          // Ensure correct path to model (absolute path)
-          tempModelViewer.src = modelSrc.replace('models/', '/models/');
+          // Use absolute path for model loading
+          const modelPath = modelSrc.startsWith('./') 
+            ? modelSrc.replace('./', '/') 
+            : modelSrc.startsWith('/') 
+              ? modelSrc 
+              : '/' + modelSrc;
+          tempModelViewer.setAttribute('src', modelPath);
           tempModelViewer.loading = 'eager';
           tempModelViewer.reveal = 'interaction';
           tempModelViewer.preload = true;
@@ -6442,8 +6447,14 @@
       // Use cached model if available, otherwise load directly
       if (modelCache[item.modelSrc] && modelCache[item.modelSrc].loaded) {
         console.log(`Using cached model for ${item.name}`);
-        // Ensure correct path to model (local path instead of relative path)
-        modelViewer.src = item.modelSrc.replace('models/', '/models/');
+        // Use absolute path for model loading with leading slash
+        const modelPath = item.modelSrc.startsWith('./') 
+          ? item.modelSrc.replace('./', '/') 
+          : item.modelSrc.startsWith('/') 
+            ? item.modelSrc 
+            : '/' + item.modelSrc;
+            
+        modelViewer.setAttribute('src', modelPath);
         
         // Hide loading indicator after a short delay for smoother transition
         setTimeout(() => {
@@ -6451,8 +6462,14 @@
         }, 300);
       } else {
         console.log(`Loading model for ${item.name}`);
-        // Ensure correct path to model (local path instead of relative path)
-        modelViewer.src = item.modelSrc.replace('models/', '/models/');
+        // Use absolute path for model loading with leading slash
+        const modelPath = item.modelSrc.startsWith('./') 
+          ? item.modelSrc.replace('./', '/') 
+          : item.modelSrc.startsWith('/') 
+            ? item.modelSrc 
+            : '/' + item.modelSrc;
+            
+        modelViewer.setAttribute('src', modelPath);
         
         // Add event listener to hide loading indicator when model is loaded
         const onLoad = () => {
@@ -6808,29 +6825,21 @@
       // Verify the checkout button is enabled
       checkoutBtn.disabled = false;
       
-      // Show success animation in the button
-      const addButton = document.getElementById('add-to-cart-btn');
-      addButton.innerHTML = '<i class="fas fa-check"></i> <span>' + (currentLanguage === 'ar' ? 'تمت الإضافة' : 'ADDED!') + '</span>';
-      addButton.style.background = 'linear-gradient(135deg, #2e7d32 0%, #4CAF50 100%)';
+      // Store a reference to the item name and quantity before closing the modal
+      const itemName = currentCustomizeItem.name;
+      const itemQty = itemQuantity;
       
-      setTimeout(() => {
-        // Close modal
-        closeCustomizeModal();
-        
-        // Reset button
-        addButton.innerHTML = '<i class="fas fa-shopping-cart"></i> <span id="add-to-cart-text">' + 
-          (currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART') + '</span>';
-        addButton.style.background = '';
-        
-        // Show confirmation notification
-        showNotification(
-          currentLanguage === 'ar' ? 'تمت الإضافة' : 'Added to Cart',
-          currentLanguage === 'ar' 
-            ? `تم إضافة ${itemQuantity > 1 ? itemQuantity + 'x ' : ''}${currentCustomizeItem.name} إلى سلة التسوق` 
-            : `${itemQuantity > 1 ? itemQuantity + 'x ' : ''}${currentCustomizeItem.name} has been added to your cart`,
-          'success'
-        );
-      }, 800);
+      // Close modal immediately
+      closeCustomizeModal();
+      
+      // Show confirmation notification after the modal is closed
+      showNotification(
+        currentLanguage === 'ar' ? 'تمت الإضافة' : 'Added to Cart',
+        currentLanguage === 'ar' 
+          ? `تم إضافة ${itemQty > 1 ? itemQty + 'x ' : ''}${itemName} إلى سلة التسوق` 
+          : `${itemQty > 1 ? itemQty + 'x ' : ''}${itemName} has been added to your cart`,
+        'success'
+      );
     }
     
     // Update customization modal text based on current language
