@@ -6267,16 +6267,35 @@
       foodItems.forEach(item => {
         // Check if there's an exact match with an available model name
         const itemName = item.name.replace(/\s+/g, ' ').trim();
-        const exactModelMatch = availableModels.find(model => 
+        
+        // Try exact match first
+        let modelMatch = availableModels.find(model => 
           model === `${itemName}.glb` || model.toLowerCase() === `${itemName.toLowerCase()}.glb`
         );
         
-        if (exactModelMatch) {
-          // Set the model path to the exact match
-          item.modelSrc = `/models/${exactModelMatch}`;
-          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
+        // If no exact match, try matching with name variants
+        if (!modelMatch) {
+          // Special case for "Alfredo Pasta" that should match "Fettuccine Alfredo.glb"
+          if (itemName === "Alfredo Pasta") {
+            modelMatch = availableModels.find(model => model.includes("Fettuccine") && model.includes("Alfredo"));
+          } 
+          // Special case for pasta dishes
+          else if (itemName.includes("Spaghetti")) {
+            // "Spaghetti Bolognese" might match with "Rose Pasta.glb"
+            modelMatch = availableModels.find(model => model.includes("Rose") && model.includes("Pasta"));
+          }
+          // Special case for "Sea Food Pasta"
+          else if (itemName.toLowerCase().includes("seafood") || itemName.toLowerCase().includes("sea food")) {
+            modelMatch = availableModels.find(model => model.includes("Sea") && model.includes("Food"));
+          }
+        }
+        
+        if (modelMatch) {
+          // Set the model path to the matched model
+          item.modelSrc = `/models/${modelMatch}`;
+          console.log(`Mapped ${item.name} to model: ${item.modelSrc}`);
         } else {
-          // No exact match found, clear model src
+          // No match found, clear model src
           item.modelSrc = null;
           console.log(`No model available for: ${item.name}`);
         }
