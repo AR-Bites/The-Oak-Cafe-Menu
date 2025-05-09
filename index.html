@@ -2727,6 +2727,92 @@
       padding: 15px;
     }
     
+    /* Admin Charts and Ratings */
+    #orders-chart, #ratings-chart {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+    
+    /* Rating Cards Styling */
+    .rating-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-left: 3px solid var(--gold);
+      transition: all 0.2s ease;
+    }
+    
+    .rating-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .rating-card .rating-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
+    }
+    
+    .rating-card .rating-time {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .rating-card .rating-stars-display .fa-star {
+      color: var(--gold);
+      margin-right: 2px;
+    }
+    
+    .rating-card .rating-staff,
+    .rating-card .rating-table {
+      display: flex;
+      margin-bottom: 6px;
+    }
+    
+    .rating-card .label {
+      font-weight: bold;
+      width: 70px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .rating-card .value {
+      color: var(--light-cream);
+    }
+    
+    .rating-card .rating-feedback {
+      margin-top: 12px;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      padding: 10px;
+    }
+    
+    .rating-card .feedback-label {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .rating-card .feedback-text {
+      font-style: italic;
+      color: var(--light-cream);
+      line-height: 1.4;
+    }
+    
+    /* Low rating highlight */
+    .rating-card.low-rating {
+      border-left-color: #f44336;
+    }
+    
+    .rating-card.low-rating .rating-stars-display .fa-star {
+      color: #f44336;
+    }
+    
     /* Admin Tabs - Enhanced Modern Design */
     .admin-tabs {
       display: flex;
@@ -5019,7 +5105,7 @@
       // FOOD - Burger items
       {
         name: "Classic Cheeseburger",
-        nameAr: "تشيزبرجر كلاسيكي",
+        nameAr: "تشيزبرجر كلاسيكh�",
         modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Juicy beef patty with cheddar cheese, lettuce, tomato, and our special sauce.",
         descriptionAr: "قطعة لحم بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
@@ -8880,7 +8966,18 @@
               } else if (orderData.status === 'completed' && !orderData.rated) {
                 // Show rating modal for completed orders that haven't been rated
                 currentOrderForRating = orderData.id;
-                showRatingModal();
+                
+                // For guest users, immediately prompt for a rating
+                if (userType === 'guest') {
+                  // Use the more comprehensive showRatingDialog function 
+                  // which includes staff info in the rating
+                  console.log("Showing rating dialog for guest user");
+                  showRatingDialog(orderData.id);
+                } else {
+                  // For staff users, use the simpler showRatingModal
+                  console.log("Showing rating modal for staff user");
+                  showRatingModal();
+                }
               }
             }
             
@@ -9476,9 +9573,13 @@
         
         // No need for auth check for now - just cancel it
         
-        // Delete the order directly
-        await orderRef.delete();
-        console.log(`Order ${orderId} has been deleted from the database`);
+        // Instead of deleting, mark as cancelled so all clients receive the update
+        await orderRef.update({
+          status: 'cancelled',
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          cancelledBy: userType === 'guest' ? 'guest' : localStorage.getItem('username') || 'staff'
+        });
+        console.log(`Order ${orderId} has been marked as cancelled in the database`);
         
         // Remove from UI
         if (targetCardElement && targetCardElement.parentNode) {
@@ -9627,7 +9728,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
             currentLanguage === 'ar' 
-              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة l�ذا الطلب' 
+              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
               : 'Only the assigned staff or manager can change this order status',
             'error'
           );
@@ -9696,25 +9797,31 @@
             }
           }
           
-          // For cancelled orders, actually delete them rather than just updating status
+          // For cancelled orders, mark them as cancelled so all clients receive the update
           if (newStatus === 'cancelled') {
-            // Delete the order completely
-            await db.collection('orders').doc(orderId).delete();
+            // Update the order status rather than deleting it
+            await db.collection('orders').doc(orderId).update({
+              status: 'cancelled',
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              cancelledBy: userType === 'guest' ? 'guest' : localStorage.getItem('username') || 'staff',
+              cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
             
-            console.log(`Order ${orderId} has been deleted from the database`);
+            console.log(`Order ${orderId} has been marked as cancelled in the database`);
             
-            // Remove from local UI if needed
+            // Update UI to show cancelled status
             if (targetCardElement && targetCardElement.parentNode) {
-              // Apply fade out animation
-              targetCardElement.style.opacity = '0';
-              targetCardElement.style.transform = 'scale(0.95)';
+              // Apply visual changes to indicate cancellation
+              const statusElement = targetCardElement.querySelector('.order-status');
+              if (statusElement) {
+                statusElement.className = 'order-status status-cancelled';
+                statusElement.textContent = currentLanguage === 'ar' ? 'ملغي' : 'Cancelled';
+              }
               
-              // After animation, remove from DOM
-              setTimeout(() => {
-                if (targetCardElement.parentNode) {
-                  targetCardElement.parentNode.removeChild(targetCardElement);
-                }
-              }, 300);
+              // Fade out the card
+              targetCardElement.style.opacity = '0.7';
+              targetCardElement.style.transform = 'scale(0.98)';
+              targetCardElement.style.backgroundColor = 'rgba(0,0,0,0.05)';
             }
             
             // Release the table
@@ -10686,62 +10793,96 @@
     // Load and display staff ratings feedback in the admin dashboard
     function loadStaffRatings() {
       const staffRatingsList = document.getElementById('staff-ratings-list');
-      if (!staffRatingsList) return;
+      if (!staffRatingsList) {
+        console.warn("Staff ratings list element not found");
+        return;
+      }
       
-      // Clear existing content
-      staffRatingsList.innerHTML = '';
+      // Add loading indicator
+      staffRatingsList.innerHTML = `
+        <div class="admin-loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>${currentLanguage === 'ar' ? 'جارٍ تحميل التقييمات...' : 'Loading ratings...'}</span>
+        </div>
+      `;
       
-      // Fetch ratings from Firebase, order by timestamp (newest first)
+      // Fetch ratings from Firebase
       db.collection('ratings')
         .orderBy('timestamp', 'desc')
-        .limit(20) // Limit to most recent 20 ratings
+        .limit(50) // Limit to recent 50 ratings
         .get()
         .then(snapshot => {
           if (snapshot.empty) {
-            staffRatingsList.innerHTML = '<div class="no-ratings">No customer ratings available yet.</div>';
+            staffRatingsList.innerHTML = `
+              <div class="empty-list">
+                <i class="fas fa-star-half-alt"></i>
+                <p>${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>
+              </div>
+            `;
             return;
           }
           
+          // Clear loading indicator
+          staffRatingsList.innerHTML = '';
+          
+          // Display each rating
           snapshot.forEach(doc => {
             const rating = doc.data();
+            const ratingCard = document.createElement('div');
             const isLowRating = rating.rating <= 3;
+            ratingCard.className = isLowRating ? 'rating-card low-rating' : 'rating-card';
+            ratingCard.setAttribute('data-rating', rating.rating);
             
             // Format timestamp
             let timeStr = '';
             if (rating.timestamp) {
-              const timestamp = rating.timestamp.toDate();
-              timeStr = timestamp.toLocaleDateString() + ' ' + timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              const date = rating.timestamp.toDate();
+              timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
             
-            // Generate star icons based on rating
+            // Generate stars HTML
             let starsHtml = '';
             for (let i = 1; i <= 5; i++) {
-              const starClass = i <= rating.rating ? 'fas fa-star' : 'far fa-star';
-              starsHtml += `<i class="${starClass}"></i>`;
+              if (i <= rating.rating) {
+                starsHtml += '<i class="fas fa-star"></i>';
+              } else {
+                starsHtml += '<i class="far fa-star"></i>';
+              }
             }
             
-            // Create the rating item HTML
-            const ratingEl = document.createElement('div');
-            ratingEl.className = `rating-item ${isLowRating ? 'low-rating' : ''}`;
-            
-            ratingEl.innerHTML = `
+            // Build the rating card HTML
+            ratingCard.innerHTML = `
               <div class="rating-header">
-                <span class="rating-staff-name">${rating.staffName || 'N/A'}</span>
-                <span class="rating-stars-display ${isLowRating ? 'low-rating' : ''}">${starsHtml}</span>
+                <div class="rating-stars-display">${starsHtml}</div>
+                <div class="rating-time">${timeStr}</div>
               </div>
-              ${rating.feedback ? `<div class="rating-feedback">"${rating.feedback}"</div>` : ''}
-              <div class="rating-meta">
-                <span>Table #${rating.tableNumber || 'N/A'}</span>
-                <span>${timeStr}</span>
+              <div class="rating-staff">
+                <span class="label">${currentLanguage === 'ar' ? 'الموظف:' : 'Staff:'}</span>
+                <span class="value">${rating.staffName || 'Unknown'}</span>
               </div>
+              <div class="rating-table">
+                <span class="label">${currentLanguage === 'ar' ? 'الطاولة:' : 'Table:'}</span>
+                <span class="value">${rating.tableNumber || 'N/A'}</span>
+              </div>
+              ${rating.feedback ? `
+                <div class="rating-feedback">
+                  <div class="feedback-label">${currentLanguage === 'ar' ? 'ملاحظات:' : 'Feedback:'}</div>
+                  <div class="feedback-text">${rating.feedback}</div>
+                </div>
+              ` : ''}
             `;
             
-            staffRatingsList.appendChild(ratingEl);
+            staffRatingsList.appendChild(ratingCard);
           });
         })
         .catch(error => {
-          console.error("Error loading staff ratings:", error);
-          staffRatingsList.innerHTML = '<div class="no-ratings">Error loading ratings. Please try again.</div>';
+          console.error("Error loading ratings:", error);
+          staffRatingsList.innerHTML = `
+            <div class="error-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>${currentLanguage === 'ar' ? 'خطأ في تحميل التقييمات' : 'Error loading ratings'}</p>
+            </div>
+          `;
         });
     }
     
@@ -11773,7 +11914,7 @@
           staff: {
             day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من العملاء',
             week: 'سارة لديها أعلى درجة رضا العملاء عند 4.9/5 هذا الأسبوع',
-            month: 'أظهر جون أكبر تحسن هذا الشهر، بزيا �ة 12٪',
+            month: 'أظهر جون أكبر تحسن هذا الشهر، بزيادة 12٪',
             year: 'سارة هي أفضل موظف سنوي بمتوسط تقييم 4.8/5'
           },
           marketing: {
