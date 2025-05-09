@@ -2152,28 +2152,41 @@
       border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
+    /* CRITICAL FIX: Enhanced loading logo with better animation and visibility */
     .loading-logo {
-      width: 200px;
+      width: 220px;
       height: auto;
       margin-bottom: 30px;
       animation: logo-pulse 3s infinite ease-in-out;
-      filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8));
+      filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.9));
       transform-origin: center center;
       z-index: 2;
       position: relative;
+      border-radius: 10px;
+      max-width: 90vw;
+      border: 2px solid rgba(212, 175, 55, 0.2);
+      padding: 10px;
+      background-color: rgba(26, 58, 47, 0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     
-    /* Modern logo pulse animation */
+    /* Enhanced Modern logo pulse animation */
     @keyframes logo-pulse {
-      0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); }
-      50% { transform: scale(1.15) rotate(2deg); filter: drop-shadow(0 0 30px rgba(212, 175, 55, 1)); }
-      100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); }
-    }
-    
-    @keyframes logo-complete {
-      0% { transform: scale(1.15) rotate(2deg); filter: drop-shadow(0 0 30px rgba(212, 175, 55, 1)); }
-      50% { transform: scale(1.5) rotate(-3deg); filter: drop-shadow(0 0 50px rgba(212, 175, 55, 1)); }
-      100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8)); }
+      0% { 
+        transform: scale(1) rotate(-2deg); 
+        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+        border-color: rgba(212, 175, 55, 0.2);
+      }
+      50% { 
+        transform: scale(1.05) rotate(2deg); 
+        filter: drop-shadow(0 0 35px rgba(212, 175, 55, 1));
+        border-color: rgba(212, 175, 55, 0.6);
+      }
+      100% { 
+        transform: scale(1) rotate(-2deg); 
+        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+        border-color: rgba(212, 175, 55, 0.2);
+      }
     }
     
     /* Modern cube grid loading animation */
@@ -5048,6 +5061,16 @@
         mainCategory: "food"
       },
       {
+        name: "Seafood Pasta", // Added to match the existing 3D model file
+        nameAr: "باستا فواكه البحر",
+        modelSrc: "models/Sea Food Pasta.glb", // Maps to the actual model file
+        description: "Linguine pasta with shrimp, mussels, and calamari in a light tomato sauce.",
+        descriptionAr: "معكرونة لينجويني مع الروبيان وبلح البحر والحبار في صلصة طماطم خفيفة.",
+        price: 16.99,
+        category: "pasta",
+        mainCategory: "food"
+      },
+      {
         name: "Pesto Pasta",
         nameAr: "باستا بيستو",
         modelSrc: "models/Pesto Pasta.glb", // Updated to match actual file name
@@ -5472,7 +5495,8 @@
       
       // Initialize progress and track loaded assets
       let progress = 0;
-      let modelLoaded = true; // Start as true to ensure loading completes
+      let modelLoaded = false;
+      let initialModelsPreloaded = false;
       
       // Get the loading model status element
       const loadingModelStatus = document.querySelector('.loading-model-status');
@@ -5526,197 +5550,224 @@
         }
       }
       
-      // Allow faster loading completion
-      // No need to wait for model viewer, just proceed with loading
+      // Enhanced model loading detection
+      if (modelViewer) {
+        modelViewer.addEventListener('load', () => {
+          modelLoaded = true;
+          console.log("Model loaded successfully");
+          // Accelerate loading once model is ready
+          progress = Math.max(progress, 80);
+        });
+        
+        modelViewer.addEventListener('error', () => {
+          console.log("Model failed to load, continuing anyway");
+          modelLoaded = true; // Treat as loaded so we can continue
+        });
+      } else {
+        // If no model viewer, assume models are loaded
+        modelLoaded = true;
+      }
       
-      // Create a faster loading timer that completes within 3 seconds max
+      // Faster, more dynamic progress increments
       const interval = setInterval(() => {
         // Dynamic progress increment - faster overall
         let increment;
         
         if (progress < 35) {
-          increment = 8 + Math.random() * 5; // Very fast initial loading
+          increment = 6 + Math.random() * 4; // Very fast initial loading
         } else if (progress < 75) {
-          increment = 6 + Math.random() * 4; // Fast middle loading
+          increment = 4 + Math.random() * 3; // Fast middle loading
         } else {
-          increment = 8 + Math.random() * 5; // Fast final push
+          // Final portion still waits for model but moves faster
+          if (modelLoaded) {
+            increment = 6 + Math.random() * 4; // Very fast final push
+          } else {
+            increment = 1 + Math.random() * 1; // Slow if waiting for model
+          }
         }
         
         progress += increment;
         
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          
-          // Complete the loading with animated progress bar
-          loadingBar.style.width = '100%';
-          loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-          
-          // Show success message with enhanced animations
-          loadingText.style.opacity = '0';
-          
-          // Add a scaling effect to the cube grid animation
-          const cubeGrid = document.querySelector('.loading-cube-grid');
-          if (cubeGrid) {
-            cubeGrid.style.transform = 'scale(1.2)';
-            cubeGrid.style.transition = 'transform 0.5s ease-out';
-          }
-          
-          setTimeout(() => {
-            loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
-            loadingText.style.opacity = '1';
-            loadingText.style.fontSize = '1.3rem';
-            loadingText.style.color = '#FFDF70';
-            loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
+        // Cap at 99% until everything is truly ready
+        if (progress >= 99) {
+          if (modelLoaded) {
+            progress = 100;
+            clearInterval(interval);
             
-            // Add a pulsing effect to model status text
-            if (loadingModelStatus) {
-              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
-              loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
-              loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
-            }
-          }, 200);
-          
-          // Apply enhanced animation to the AR Bites logo
-          const loadingLogo = document.querySelector('.loading-logo');
-          if (loadingLogo) {
-            loadingLogo.style.animation = 'logo-complete 1.5s ease-in-out forwards';
-          }
-          
-          // Hide loading overlay with smooth, professional transition
-          setTimeout(() => {
-            // Animate the loading container with a more dramatic effect
-            const loadingContainer = document.querySelector('.loading-container');
-            if (loadingContainer) {
-              loadingContainer.style.transform = 'scale(1.1) translateY(-10px)';
-              loadingContainer.style.opacity = '0.9';
-              loadingContainer.style.transition = 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
-              
-              setTimeout(() => {
-                loadingContainer.style.transform = 'scale(0.9) translateY(-30px)';
-                loadingContainer.style.opacity = '0';
-              }, 300);
-            }
+            // Complete the loading with animated progress bar
+            loadingBar.style.width = '100%';
+            loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
             
-            // Fade out the entire overlay with a smooth transition
-            loadingOverlay.style.transition = 'opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
-            loadingOverlay.style.opacity = '0';
+            // Show success message with enhanced animations
+            loadingText.style.opacity = '0';
+            
+            // Add a scaling effect to the cube grid animation
+            const cubeGrid = document.querySelector('.loading-cube-grid');
+            if (cubeGrid) {
+              cubeGrid.style.transform = 'scale(1.2)';
+              cubeGrid.style.transition = 'transform 0.5s ease-out';
+            }
             
             setTimeout(() => {
-              loadingOverlay.style.display = 'none';
+              loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+              loadingText.style.opacity = '1';
+              loadingText.style.fontSize = '1.3rem';
+              loadingText.style.color = '#FFDF70';
+              loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
               
-              // Make sure all components are visible with a subtle fade-in
-              const overlay = document.querySelector('.overlay');
-              if (overlay) {
-                overlay.style.visibility = 'visible';
-                overlay.style.opacity = '0';
-                overlay.style.transition = 'opacity 0.3s ease-in';
-                
-                setTimeout(() => {
-                  overlay.style.opacity = '1';
-                }, 50);
+              // Add a pulsing effect to model status text
+              if (loadingModelStatus) {
+                loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+                loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+                loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
               }
-              
-              if (modelViewer) {
-                modelViewer.style.visibility = 'visible';
-                modelViewer.style.opacity = '0';
-                modelViewer.style.transition = 'opacity 0.5s ease-in';
+            }, 200);
+            
+            // Hide loading overlay with a slightly faster transition
+            setTimeout(() => {
+              loadingOverlay.style.opacity = '0';
+              setTimeout(() => {
+                loadingOverlay.style.display = 'none';
                 
-                setTimeout(() => {
-                  modelViewer.style.opacity = '1';
-                }, 100);
-              }
-              
-              // Show table number modal immediately after loading
-              // But skip it for logged in staff/admin
-              console.log("Checking tableNumber value:", tableNumber);
-              console.log("User type on completion:", userType);
-              
-              // Check if we have a staff/admin token and skip the modal if we do
-              if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                console.log("Staff/Admin already logged in, not showing table modal");
-              } else {
-                // Force showing the table modal for guests with a short delay for better UX
-                console.log("Showing table modal for guests");
-                setTimeout(() => {
+                // Make sure all components are visible
+                document.querySelector('.overlay').style.visibility = 'visible';
+                if (modelViewer) modelViewer.style.visibility = 'visible';
+                
+                // Show table number modal immediately after loading
+                // But skip it for logged in staff/admin
+                console.log("Checking tableNumber value:", tableNumber);
+                console.log("User type on completion:", userType);
+                
+                // Check if we have a staff/admin token and skip the modal if we do
+                if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                  console.log("Staff/Admin already logged in, not showing table modal");
+                } else {
+                  // Force showing the table modal for guests
+                  console.log("Showing table modal for guests");
                   showTableModal();
-                }, 200);
-              }
-            }, 750); // Slightly longer for smoother transition
-          }, 850); // Show success message longer for better user experience
+                }
+              }, 200); // Faster transition out
+            }, 150); // Show success message briefly
+          } else {
+            progress = 99; // Stay at 99% until model loads
+          }
         }
         
         // Update progress bar and text
         loadingBar.style.width = `${progress}%`;
         updateLoadingText(progress);
         
-      }, 80); // Update at faster intervals
+      }, 100); // Update at faster 100ms intervals
       
-      // Shorter failsafe: Ensure loading screen closes even if there are errors
+      // CRITICAL FIX: Improved multi-stage failsafe to ensure loading screen ALWAYS completes
+      
+      // First failsafe - attempt gentle completion at 3.5 seconds
       setTimeout(() => {
         if (loadingOverlay.style.display !== 'none') {
-          console.log("Loading timeout reached, forcing completion");
-          clearInterval(interval);
-          loadingBar.style.width = '100%';
+          console.log("⚠️ Primary loading timeout reached (3.5s), attempting gentle completion");
           
-          // Animated text update with enhanced animations
-          loadingText.style.opacity = '0';
-          
-          // Add a scaling effect to the cube grid animation
-          const cubeGrid = document.querySelector('.loading-cube-grid');
-          if (cubeGrid) {
-            cubeGrid.style.transform = 'scale(1.2)';
-            cubeGrid.style.transition = 'transform 0.5s ease-out';
-          }
-          
-          setTimeout(() => {
-            loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
-            loadingText.style.opacity = '1';
-            loadingText.style.fontSize = '1.3rem';
-            loadingText.style.color = '#FFDF70';
-            loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
+          // If we're over 80% progress, force complete the loading
+          if (progress >= 80) {
+            progress = 100;
+            modelLoaded = true; // Force model to be considered loaded
+            clearInterval(interval);
             
-            // Add a pulsing effect to model status text
-            const loadingModelStatus = document.querySelector('.loading-model-status');
-            if (loadingModelStatus) {
-              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
-              loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
-              loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
+            loadingBar.style.width = '100%';
+            loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
+            
+            // Use existing completion flow
+            loadingText.style.opacity = '0';
+            const cubeGrid = document.querySelector('.loading-cube-grid');
+            if (cubeGrid) {
+              cubeGrid.style.transform = 'scale(1.2)';
+              cubeGrid.style.transition = 'transform 0.5s ease-out';
             }
-          }, 200);
-          
-          setTimeout(() => {
-            loadingOverlay.style.transition = 'opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
-            loadingOverlay.style.opacity = '0';
+            
             setTimeout(() => {
-              loadingOverlay.style.display = 'none';
+              loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+              loadingText.style.opacity = '1';
+              loadingText.style.fontSize = '1.3rem';
+              loadingText.style.color = '#FFDF70';
+              loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
               
-              // Ensure visibility of components
-              const overlay = document.querySelector('.overlay');
-              if (overlay) {
-                overlay.style.visibility = 'visible';
-                overlay.style.opacity = '1';
-              }
-              if (modelViewer) {
-                modelViewer.style.visibility = 'visible';
-                modelViewer.style.opacity = '1';
-              }
-              
-              // Check if we need to display the table modal in failsafe
-              console.log("Failsafe: Checking if we need to show table modal");
-              
-              // Skip for logged in staff/admin
-              if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
-              } else {
-                // Force showing the table modal for guests
-                console.log("Failsafe: Showing table modal for guests");
-                showTableModal();
+              const loadingModelStatus = document.querySelector('.loading-model-status');
+              if (loadingModelStatus) {
+                loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+                loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+                loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
               }
             }, 200);
-          }, 150);
+            
+            setTimeout(() => {
+              loadingOverlay.style.opacity = '0';
+              setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+                
+                // Ensure visibility of components
+                document.querySelector('.overlay').style.visibility = 'visible';
+                if (modelViewer) modelViewer.style.visibility = 'visible';
+                
+                // Skip table modal for logged in staff/admin
+                if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                  console.log("Staff/Admin already logged in, not showing table modal");
+                } else {
+                  // Force showing the table modal for guests
+                  console.log("First failsafe: Showing table modal for guests");
+                  showTableModal();
+                }
+              }, 200);
+            }, 150);
+          } else {
+            // If progress is low, let it continue but accelerate it
+            console.log("First failsafe: Progress too low, accelerating loading");
+            progress = Math.max(progress, 75); // Jump to at least 75%
+          }
         }
-      }, 3000); // Reduced to 3 seconds max load time
+      }, 3500); // First failsafe at 3.5 seconds
+      
+      // Second, stronger failsafe - guaranteed completion at 6 seconds regardless of state
+      setTimeout(() => {
+        if (loadingOverlay.style.display !== 'none') {
+          console.log("🚨 Emergency loading timeout reached (6s), forcing immediate completion");
+          
+          // Force termination of any loading intervals
+          clearInterval(interval);
+          
+          // Force progress indicators to show completion
+          loadingBar.style.width = '100%';
+          
+          // Extra CSS to ensure animation plays
+          loadingBar.style.transition = 'width 0.3s ease';
+          
+          // Hide loading elements with a final rapid animation
+          setTimeout(() => {
+            loadingOverlay.style.opacity = '0';
+            loadingOverlay.style.transition = 'opacity 0.3s ease-out';
+            
+            // Important: Force hide loading overlay after a short delay
+            setTimeout(() => {
+              // Absolute force hide
+              loadingOverlay.style.display = 'none';
+              loadingOverlay.style.visibility = 'hidden';
+              
+              // Force show main content
+              document.querySelector('.overlay').style.visibility = 'visible';
+              if (modelViewer) modelViewer.style.visibility = 'visible';
+              
+              console.log("✅ Emergency loading completion successful");
+              
+              // Skip table modal for staff/admin
+              if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                console.log("Staff/Admin already logged in, not showing table modal");
+              } else {
+                // Show table modal for guests
+                console.log("Emergency failsafe: Showing table modal for guests");
+                setTimeout(showTableModal, 100); // Small delay to ensure DOM is ready
+              }
+            }, 300);
+          }, 100);
+        }
+      }, 6000); // Final emergency failsafe at 6 seconds
     }
     
     // Language support
@@ -6573,19 +6624,8 @@
     
     // Preload all 3D models
     function preloadModels() {
-      console.log("Preparing 3D models for AR display...");
-      
-      // List of specific dishes that should have 3D models, as required
-      const allowedModelDishes = [
-        'Fettuccine Alfredo',
-        'Margherita Pizza',
-        'Pepperoni Pizza',
-        'Pesto Pasta',
-        'Rose Pasta',
-        'Sea Food Pasta'
-      ];
-      
-      // Available model files
+      // List of available models (from the models folder)
+      // CRITICAL FIX: Ensure exactly these 6 dishes show working 3D models
       const availableModels = [
         'Fettuccine Alfredo.glb',
         'Margherita Pizza.glb',
@@ -6595,29 +6635,29 @@
         'Sea Food Pasta.glb'
       ];
       
-      // First set all models to null
-      foodItems.forEach(item => {
-        item.modelSrc = null;
-      });
+      console.log("Available 3D models:", availableModels);
       
-      // Then only enable models for the specific allowed dishes
+      // Map menu items to their models (if available)
       foodItems.forEach(item => {
-        if (allowedModelDishes.includes(item.name)) {
-          // Find the matching model file
-          const exactModelMatch = availableModels.find(model => 
-            model === `${item.name}.glb`
-          );
-          
-          if (exactModelMatch) {
-            // Set the model path to the exact match
-            item.modelSrc = `/models/${exactModelMatch}`;
-            console.log(`Enabled 3D model for ${item.name}: ${item.modelSrc}`);
-          } else {
-            console.warn(`Model should exist but not found for: ${item.name}`);
-          }
+        // Check for exact matches with our specific 6 dishes
+        const itemName = item.name.replace(/\s+/g, ' ').trim();
+        
+        // IMPORTANT: Only match these exact 6 dishes
+        const matchedModel = availableModels.find(model => {
+          // Get model name without extension
+          const modelName = model.replace('.glb', '');
+          // Return true if it's an exact match (case insensitive)
+          return modelName.toLowerCase() === itemName.toLowerCase();
+        });
+        
+        if (matchedModel) {
+          // Set the model path to the exact match
+          item.modelSrc = `/models/${matchedModel}`;
+          console.log(`✓ Mapped ${item.name} to model: ${item.modelSrc}`);
         } else {
-          // Not in allowed list, ensure model is null
-          console.log(`No 3D model allowed for: ${item.name}`);
+          // No exact match found, clear model src
+          item.modelSrc = null;
+          console.log(`✗ No model available for: ${item.name}`);
         }
       });
       
@@ -6790,7 +6830,7 @@
       
       // Get model viewer element 
       const modelViewer = document.getElementById('food-model-viewer');
-      console.log("Updating model viewer with new item");
+      console.log("Updating model viewer with new item:", item.name);
       
       // Update text content first (for perceived speed)
       // Use Arabic name and description if available and language is Arabic
@@ -6804,39 +6844,57 @@
         foodPrice.textContent = `Price: $${item.price.toFixed(2)}`;
       }
       
-      // Ensure model container is visible
+      // Get model container
       const modelContainer = document.querySelector('.model-container');
-      if (modelContainer) {
-        modelContainer.style.display = 'block';
-      }
       
-      // Enable auto-rotate and camera controls for interactive experience
-      modelViewer.setAttribute('auto-rotate', '');
-      modelViewer.setAttribute('camera-controls', '');
-      modelViewer.setAttribute('ar', '');
-      modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
-      modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
-      modelViewer.setAttribute('exposure', '1');
+      // CRITICAL FIX: Only show 3D models for the 6 specific dishes with actual model files
+      // Check if this is one of the 6 dishes with working 3D models
+      const validModelDishes = [
+        "Margherita Pizza", 
+        "Pepperoni Pizza", 
+        "Alfredo Pasta", // Maps to Fettuccine Alfredo.glb
+        "Pesto Pasta", 
+        "Spaghetti Bolognese", // Maps to Rose Pasta.glb
+        "Seafood Pasta" // Maps to Sea Food Pasta.glb
+      ];
       
-      // Check if this item has a model assigned during preloading
-      if (item.modelSrc) {
-        // Show the model container
-        modelContainer.style.display = 'block';
-        modelLoadingIndicator.style.display = 'flex';
+      // Check if this is a dish with a valid model
+      const hasValidModel = validModelDishes.includes(item.name);
+      
+      if (hasValidModel && item.modelSrc) {
+        // Show the model container for dishes with models
+        console.log(`Loading 3D model for ${item.name}: ${item.modelSrc}`);
         
-        console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
+        // Make sure model container is visible
+        modelContainer.style.display = 'block';
+        
+        // Enable auto-rotate and camera controls for interactive experience
+        modelViewer.setAttribute('auto-rotate', '');
+        modelViewer.setAttribute('camera-controls', '');
+        modelViewer.setAttribute('ar', '');
+        modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+        modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
+        modelViewer.setAttribute('exposure', '1');
+        
+        // Fix any path issues in the model source
+        let modelPath = item.modelSrc;
+        if (!modelPath.startsWith('./') && !modelPath.startsWith('/')) {
+          modelPath = `./models/${modelPath.split('/').pop()}`;
+        }
+        
+        console.log(`Setting model source to: ${modelPath}`);
         
         // Set the model source
-        modelViewer.src = item.modelSrc;
+        modelViewer.src = modelPath;
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
-          console.log("Model loaded successfully");
+          console.log(`✅ Model for ${item.name} loaded successfully`);
           modelLoadingIndicator.style.display = 'none';
         });
         
         modelViewer.addEventListener('error', (e) => {
-          console.error("Error loading model:", item.modelSrc, e);
+          console.error(`❌ Error loading model for ${item.name}:`, modelPath, e);
           modelLoadingIndicator.style.display = 'none';
           // Hide the model container if there's an error
           modelContainer.style.display = 'none';
@@ -6847,8 +6905,8 @@
           modelLoadingIndicator.style.display = 'none';
         }, 3000);
       } else {
-        // No matching model found, hide the model container
-        console.log(`No model available for ${item.name}, hiding 3D viewer`);
+        // Not one of the 6 dishes with valid models, hide the model container
+        console.log(`${item.name} is not one of the 6 dishes with 3D models, hiding viewer`);
         modelContainer.style.display = 'none';
         modelLoadingIndicator.style.display = 'none';
       }
@@ -8471,212 +8529,178 @@
     }
     
     // Release a table (used when order is completed or cancelled)
-    function releaseTable(tableNum, fromOrderCancellation = false) {
+    function releaseTable(tableNum) {
       const tableNumber = parseInt(tableNum);
-      console.log(`Attempting to release table ${tableNumber}${fromOrderCancellation ? ' (called from order cancellation)' : ''}`);
+      console.log(`Attempting to release table ${tableNumber}`);
       
       if (isNaN(tableNumber)) {
         console.error('Invalid table number for release');
         return false;
       }
       
-      // If called from order cancellation, check if there are any remaining orders
-      // before releasing the table completely
-      if (fromOrderCancellation && db && typeof db.collection === 'function') {
-        console.log(`Checking if table ${tableNumber} has remaining orders before release`);
-        
-        // First make a quick check to see if any orders remain
-        db.collection('orders')
-          .where('tableNumber', '==', tableNumber)
-          .limit(1) // We only need to know if at least one order exists
-          .get()
-          .then((orderDocs) => {
-            if (!orderDocs.empty) {
-              console.log(`Table ${tableNumber} still has orders, not releasing table`);
-              return false; // Skip table release if orders remain
-            } else {
-              console.log(`No more orders for table ${tableNumber}, proceeding with release`);
-              // Continue with authorization check and release process since no orders remain
-              performTableRelease();
-            }
-          })
-          .catch(err => {
-            console.error(`Error checking remaining orders for table ${tableNumber}:`, err);
-            // In case of error checking orders, don't release the table automatically
-            return false;
-          });
-        return; // Exit early, the callback will handle the release if needed
-      } else {
-        // Direct table release request (not from order cancellation)
-        return performTableRelease();
-      }
-      
-      // Helper function to perform the actual table release after checks
-      function performTableRelease() {
-        // For non-staff/admin users, we need to verify they're authorized to release tables
-        if (userType !== 'staff' && userType !== 'admin') {
-          // Only allow guest to release a table if it's their table
-          if (userType === 'guest' && tableNumber !== parseInt(userTableNumber)) {
-            console.error('Guests can only release their own table');
-            return false;
-          }
-        } else {
-          // For staff, check if they're authorized to manage this table
-          const currentStaffUsername = localStorage.getItem('username');
-          const staffRole = localStorage.getItem('staffRole');
-          console.log('Current staff username:', currentStaffUsername, 'Role:', staffRole);
-          
-          // Admins and managers can manage any table
-          let canManageTable = userType === 'admin' || staffRole === 'manager';
-          
-          if (userType === 'staff' && currentStaffUsername && !canManageTable) {
-            const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
-            console.log('Staff assignments for current user:', staffAssignments);
-            
-            // Check if this table is in any of the assigned ranges
-            canManageTable = staffAssignments.some(assignment => {
-              const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
-              console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
-              return inRange;
-            });
-          }
-          
-          console.log(`Can manage table: ${canManageTable}`);
-          
-          if (!canManageTable) {
-            showNotification(
-              currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
-              currentLanguage === 'ar' 
-                ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
-                : 'You cannot manage this table as it is not assigned to you',
-              'error'
-            );
-            return false;
-          }
-        }
-      
-        if (occupiedTables.has(tableNumber)) {
-          // Show loading state in UI first to prevent lag appearance
-          showNotification(
-            currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
-            currentLanguage === 'ar' 
-              ? 'جارٍ تحرير الطاولة...' 
-              : 'Freeing table...',
-            'info',
-            2000 // Auto-close after 2s
-          );
-          
-          // Remove from local tracking immediately for responsive UI
-          occupiedTables.delete(tableNumber);
-          
-          // Remove table details if they exist
-          if (tableDetails[tableNumber]) {
-            delete tableDetails[tableNumber];
-          }
-          
-          // Update UI immediately for responsive experience
-          if (userType === 'staff' || userType === 'admin') {
-            updateTablesDisplay();
-            renderTablesOverview();
-          }
-          
-          // If we have Firebase connection, perform the backend updates in background
-          if (db && typeof db.collection === 'function') {
-            // Use a batch operation for all Firebase updates to improve consistency
-            const batch = db.batch();
-          
-            // First get all orders for this table, regardless of status
-            return db.collection('orders')
-              .where('tableNumber', '==', tableNumber)
-              .get()
-              .then((orderDocs) => {
-                if (!orderDocs.empty) {
-                  console.log(`Found ${orderDocs.docs.length} orders for table ${tableNumber}`);
-                  
-                  // Categorize orders by status
-                  let pendingOrdersFound = false;
-                  
-                  orderDocs.forEach(doc => {
-                    const orderData = doc.data();
-                    console.log(`Processing order ${doc.id} with status: ${orderData.status}`);
-                    
-                    if (['pending', 'preparing', 'ready'].includes(orderData.status)) {
-                      // For active orders, delete them completely instead of just marking as cancelled
-                      // This helps prevent database clutter and improves performance
-                      batch.delete(doc.ref);
-                      pendingOrdersFound = true;
-                      console.log(`Marked order ${doc.id} for deletion (active order)`);
-                    } else if (orderData.status === 'completed') {
-                      // Delete completed orders
-                      batch.delete(doc.ref);
-                      console.log(`Marked order ${doc.id} for deletion (completed order)`);
-                    }
-                  });
-                  
-                  // Update table status
-                  const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
-                  batch.set(tableStatusRef, {
-                    status: 'free',
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedBy: {
-                      username: localStorage.getItem('username') || 'system',
-                      role: localStorage.getItem('staffRole') || 'system'
-                    }
-                  });
-                  
-                  // Commit all changes in one batch
-                  return batch.commit().then(() => {
-                    console.log('All Firebase updates completed for table release');
-                    
-                    // Only show a success notification if we actually canceled any pending orders
-                    if (pendingOrdersFound) {
-                      showNotification(
-                        currentLanguage === 'ar' ? 'تم تحديث الطلبات' : 'Orders Removed',
-                        currentLanguage === 'ar' 
-                          ? 'تم حذف جميع الطلبات النشطة' 
-                          : 'All active orders were deleted',
-                        'success'
-                      );
-                    }
-                    return true;
-                  });
-                } else {
-                  // Just update the table status if no orders found
-                  const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
-                  batch.set(tableStatusRef, {
-                    status: 'free',
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedBy: {
-                      username: localStorage.getItem('username') || 'system',
-                      role: localStorage.getItem('staffRole') || 'system'
-                    }
-                  });
-                  
-                  return batch.commit().then(() => {
-                    console.log('Table status updated in Firebase');
-                    return true;
-                  });
-                }
-              })
-              .catch((error) => {
-                console.error('Error during table release:', error);
-                
-                // Show error but don't block UI
-                showNotification(
-                  currentLanguage === 'ar' ? 'تحذير' : 'Warning',
-                  currentLanguage === 'ar' 
-                    ? 'تم تحرير الطاولة محليًا ولكن قد لا تتم مزامنة التغييرات مع الخادم'
-                    : 'Table freed locally but changes may not sync with server',
-                  'warning'
-                );
-              });
-          }
-          
-          return true;
-        } else {
-          console.log(`Table ${tableNumber} not found in occupied tables`);
+      // For non-staff/admin users, we need to verify they're authorized to release tables
+      if (userType !== 'staff' && userType !== 'admin') {
+        // Only allow guest to release a table if it's their table
+        if (userType === 'guest' && tableNumber !== parseInt(userTableNumber)) {
+          console.error('Guests can only release their own table');
           return false;
         }
+      } else {
+        // For staff, check if they're authorized to manage this table
+        const currentStaffUsername = localStorage.getItem('username');
+        const staffRole = localStorage.getItem('staffRole');
+        console.log('Current staff username:', currentStaffUsername, 'Role:', staffRole);
+        
+        // Admins and managers can manage any table
+        let canManageTable = userType === 'admin' || staffRole === 'manager';
+        
+        if (userType === 'staff' && currentStaffUsername && !canManageTable) {
+          const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+          console.log('Staff assignments for current user:', staffAssignments);
+          
+          // Check if this table is in any of the assigned ranges
+          canManageTable = staffAssignments.some(assignment => {
+            const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+            console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
+            return inRange;
+          });
+        }
+        
+        console.log(`Can manage table: ${canManageTable}`);
+        
+        if (!canManageTable) {
+          showNotification(
+            currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
+            currentLanguage === 'ar' 
+              ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
+              : 'You cannot manage this table as it is not assigned to you',
+            'error'
+          );
+          return false;
+        }
+      }
+      
+      if (occupiedTables.has(tableNumber)) {
+        // Show loading state in UI first to prevent lag appearance
+        showNotification(
+          currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
+          currentLanguage === 'ar' 
+            ? 'جارٍ تحرير الطاولة...' 
+            : 'Freeing table...',
+          'info',
+          2000 // Auto-close after 2s
+        );
+        
+        // Remove from local tracking immediately for responsive UI
+        occupiedTables.delete(tableNumber);
+        
+        // Remove table details if they exist
+        if (tableDetails[tableNumber]) {
+          delete tableDetails[tableNumber];
+        }
+        
+        // Update UI immediately for responsive experience
+        if (userType === 'staff' || userType === 'admin') {
+          updateTablesDisplay();
+          renderTablesOverview();
+        }
+        
+        // If we have Firebase connection, perform the backend updates in background
+        if (db && typeof db.collection === 'function') {
+          // Use a batch operation for all Firebase updates to improve consistency
+          const batch = db.batch();
+          
+          // First get all orders for this table, regardless of status
+          return db.collection('orders')
+            .where('tableNumber', '==', tableNumber)
+            .get()
+            .then((orderDocs) => {
+              if (!orderDocs.empty) {
+                console.log(`Found ${orderDocs.docs.length} orders for table ${tableNumber}`);
+                
+                // Categorize orders by status
+                let pendingOrdersFound = false;
+                
+                orderDocs.forEach(doc => {
+                  const orderData = doc.data();
+                  console.log(`Processing order ${doc.id} with status: ${orderData.status}`);
+                  
+                  if (['pending', 'preparing', 'ready'].includes(orderData.status)) {
+                    // For active orders, delete them completely instead of just marking as cancelled
+                    // This helps prevent database clutter and improves performance
+                    batch.delete(doc.ref);
+                    pendingOrdersFound = true;
+                    console.log(`Marked order ${doc.id} for deletion (active order)`);
+                  } else if (orderData.status === 'completed') {
+                    // Delete completed orders
+                    batch.delete(doc.ref);
+                    console.log(`Marked order ${doc.id} for deletion (completed order)`);
+                  }
+                });
+                
+                // Update table status
+                const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
+                batch.set(tableStatusRef, {
+                  status: 'free',
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  updatedBy: {
+                    username: localStorage.getItem('username') || 'system',
+                    role: localStorage.getItem('staffRole') || 'system'
+                  }
+                });
+                
+                // Commit all changes in one batch
+                return batch.commit().then(() => {
+                  console.log('All Firebase updates completed for table release');
+                  
+                  // Only show a success notification if we actually canceled any pending orders
+                  if (pendingOrdersFound) {
+                    showNotification(
+                      currentLanguage === 'ar' ? 'تم تحديث الطلبات' : 'Orders Removed',
+                      currentLanguage === 'ar' 
+                        ? 'تم حذف جميع الطلبات النشطة' 
+                        : 'All active orders were deleted',
+                      'success'
+                    );
+                  }
+                  return true;
+                });
+              } else {
+                // Just update the table status if no orders found
+                const tableStatusRef = db.collection('tableStatus').doc(tableNumber.toString());
+                batch.set(tableStatusRef, {
+                  status: 'free',
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  updatedBy: {
+                    username: localStorage.getItem('username') || 'system',
+                    role: localStorage.getItem('staffRole') || 'system'
+                  }
+                });
+                
+                return batch.commit().then(() => {
+                  console.log('Table status updated in Firebase');
+                  return true;
+                });
+              }
+            })
+            .catch((error) => {
+              console.error('Error during table release:', error);
+              
+              // Show error but don't block UI
+              showNotification(
+                currentLanguage === 'ar' ? 'تحذير' : 'Warning',
+                currentLanguage === 'ar' 
+                  ? 'تم تحرير الطاولة محليًا ولكن قد لا تتم مزامنة التغييرات مع الخادم'
+                  : 'Table freed locally but changes may not sync with server',
+                'warning'
+              );
+            });
+        }
+        
+        return true;
+      } else {
+        console.log(`Table ${tableNumber} not found in occupied tables`);
+        return false;
       }
     }
     
@@ -9668,16 +9692,13 @@
     async function cancelOrder(orderId) {
       console.log(`Explicitly cancelling order ${orderId}`);
       
-      // Get UI elements with enhanced targeting for more reliable UI updates
+      // Get UI elements
       const targetCardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
       if (targetCardElement) {
         targetCardElement.classList.add('updating');
-        targetCardElement.style.transition = 'all 0.3s ease';
-        // Add a subtle visual indicator that the card is being processed
-        targetCardElement.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.3)';
       }
       
-      // Show immediate notification with optimistic UI update
+      // Show immediate notification
       showNotification(
         currentLanguage === 'ar' ? 'جارٍ الإلغاء' : 'Cancelling',
         currentLanguage === 'ar' 
@@ -9699,65 +9720,35 @@
         
         if (!orderDoc.exists) {
           throw new Error(`Order ${orderId} not found in database`);
-          
-          // Even if the order isn't found, we should still update UI
-          // This handles cases where the order was already deleted by another client
-          if (targetCardElement && targetCardElement.parentNode) {
-            targetCardElement.style.opacity = '0';
-            targetCardElement.style.transform = 'scale(0.95)';
-            
-            setTimeout(() => {
-              if (targetCardElement.parentNode) {
-                targetCardElement.parentNode.removeChild(targetCardElement);
-              }
-            }, 300);
-          }
-          
-          return; // Exit early but still update UI
         }
         
         const orderData = orderDoc.data();
         const tableNum = orderData.tableNumber;
         
-        // Add a cancellation flag to the order document before deletion
-        // This gives listeners time to react before the document is gone
-        try {
-          await orderRef.update({
-            cancelled: true,
-            cancelledAt: new Date().toISOString(),
-            cancelledBy: localStorage.getItem('staffName') || 'guest'
-          });
-          
-          // Wait a moment for cancellation flag to propagate to listeners
-          await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (updateError) {
-          console.log("Could not update cancellation flag, proceeding with deletion:", updateError);
-        }
+        // No need for auth check for now - just cancel it
         
         // Delete the order directly
         await orderRef.delete();
         console.log(`Order ${orderId} has been deleted from the database`);
         
-        // Remove from UI with improved animation
+        // Remove from UI
         if (targetCardElement && targetCardElement.parentNode) {
-          // Apply enhanced fade out animation
+          // Apply fade out animation
           targetCardElement.style.opacity = '0';
-          targetCardElement.style.transform = 'scale(0.9) translateY(10px)';
-          targetCardElement.style.boxShadow = '0 0 0 rgba(0,0,0,0)';
+          targetCardElement.style.transform = 'scale(0.95)';
           
           // After animation, remove from DOM
           setTimeout(() => {
             if (targetCardElement.parentNode) {
               targetCardElement.parentNode.removeChild(targetCardElement);
             }
-          }, 350);
+          }, 300);
         }
         
         // Check if we need to release the table
-        // Pass a specific flag to indicate this came from order cancellation
-        releaseTable(tableNum, true);
+        releaseTable(tableNum);
         
-        // Show success message with clearer feedback
+        // Show success message
         showNotification(
           currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
           currentLanguage === 'ar' 
@@ -9766,24 +9757,14 @@
           'success'
         );
         
-        // Refresh orders with more reliable approach
-        // Immediate removal of the specific order from all views
-        document.querySelectorAll(`.order-card[data-order-id="${orderId}"]`).forEach(card => {
-          if (card && card.parentNode) {
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.9)';
-            setTimeout(() => card.parentNode.removeChild(card), 300);
-          }
-        });
-        
-        // Also trigger a full refresh after a short delay for consistency
+        // Refresh orders
         setTimeout(() => {
           if (userType === 'staff' || userType === 'admin') {
             renderOrders();
           } else {
             renderClientOrders();
           }
-        }, 600);
+        }, 800);
         
       } catch (error) {
         console.error("Error cancelling order:", error);
