@@ -5472,8 +5472,7 @@
       
       // Initialize progress and track loaded assets
       let progress = 0;
-      let modelLoaded = false;
-      let initialModelsPreloaded = false;
+      let modelLoaded = true; // Start as true to ensure loading completes
       
       // Get the loading model status element
       const loadingModelStatus = document.querySelector('.loading-model-status');
@@ -5527,156 +5526,131 @@
         }
       }
       
-      // Enhanced model loading detection
-      if (modelViewer) {
-        modelViewer.addEventListener('load', () => {
-          modelLoaded = true;
-          console.log("Model loaded successfully");
-          // Accelerate loading once model is ready
-          progress = Math.max(progress, 80);
-        });
-        
-        modelViewer.addEventListener('error', () => {
-          console.log("Model failed to load, continuing anyway");
-          modelLoaded = true; // Treat as loaded so we can continue
-        });
-      } else {
-        // If no model viewer, assume models are loaded
-        modelLoaded = true;
-      }
+      // Allow faster loading completion
+      // No need to wait for model viewer, just proceed with loading
       
-      // Faster, more dynamic progress increments
+      // Create a faster loading timer that completes within 3 seconds max
       const interval = setInterval(() => {
         // Dynamic progress increment - faster overall
         let increment;
         
         if (progress < 35) {
-          increment = 6 + Math.random() * 4; // Very fast initial loading
+          increment = 8 + Math.random() * 5; // Very fast initial loading
         } else if (progress < 75) {
-          increment = 4 + Math.random() * 3; // Fast middle loading
+          increment = 6 + Math.random() * 4; // Fast middle loading
         } else {
-          // Final portion still waits for model but moves faster
-          if (modelLoaded) {
-            increment = 6 + Math.random() * 4; // Very fast final push
-          } else {
-            increment = 1 + Math.random() * 1; // Slow if waiting for model
-          }
+          increment = 8 + Math.random() * 5; // Fast final push
         }
         
         progress += increment;
         
-        // Cap at 99% until everything is truly ready
-        if (progress >= 99) {
-          if (modelLoaded) {
-            progress = 100;
-            clearInterval(interval);
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          // Complete the loading with animated progress bar
+          loadingBar.style.width = '100%';
+          loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
+          
+          // Show success message with enhanced animations
+          loadingText.style.opacity = '0';
+          
+          // Add a scaling effect to the cube grid animation
+          const cubeGrid = document.querySelector('.loading-cube-grid');
+          if (cubeGrid) {
+            cubeGrid.style.transform = 'scale(1.2)';
+            cubeGrid.style.transition = 'transform 0.5s ease-out';
+          }
+          
+          setTimeout(() => {
+            loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+            loadingText.style.opacity = '1';
+            loadingText.style.fontSize = '1.3rem';
+            loadingText.style.color = '#FFDF70';
+            loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
             
-            // Complete the loading with animated progress bar
-            loadingBar.style.width = '100%';
-            loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-            
-            // Show success message with enhanced animations
-            loadingText.style.opacity = '0';
-            
-            // Add a scaling effect to the cube grid animation
-            const cubeGrid = document.querySelector('.loading-cube-grid');
-            if (cubeGrid) {
-              cubeGrid.style.transform = 'scale(1.2)';
-              cubeGrid.style.transition = 'transform 0.5s ease-out';
+            // Add a pulsing effect to model status text
+            if (loadingModelStatus) {
+              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+              loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+              loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
             }
-            
-            setTimeout(() => {
-              loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
-              loadingText.style.opacity = '1';
-              loadingText.style.fontSize = '1.3rem';
-              loadingText.style.color = '#FFDF70';
-              loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
-              
-              // Add a pulsing effect to model status text
-              if (loadingModelStatus) {
-                loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
-                loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
-                loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
-              }
-            }, 200);
-            
-            // Apply enhanced animation to the AR Bites logo
-            const loadingLogo = document.querySelector('.loading-logo');
-            if (loadingLogo) {
-              loadingLogo.style.animation = 'logo-complete 1.5s ease-in-out forwards';
-            }
-            
-            // Hide loading overlay with smooth, professional transition
-            setTimeout(() => {
-              // Animate the loading container with a more dramatic effect
-              const loadingContainer = document.querySelector('.loading-container');
-              if (loadingContainer) {
-                loadingContainer.style.transform = 'scale(1.1) translateY(-10px)';
-                loadingContainer.style.opacity = '0.9';
-                loadingContainer.style.transition = 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
-                
-                setTimeout(() => {
-                  loadingContainer.style.transform = 'scale(0.9) translateY(-30px)';
-                  loadingContainer.style.opacity = '0';
-                }, 300);
-              }
-              
-              // Fade out the entire overlay with a smooth transition
-              loadingOverlay.style.transition = 'opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
-              loadingOverlay.style.opacity = '0';
+          }, 200);
+          
+          // Apply enhanced animation to the AR Bites logo
+          const loadingLogo = document.querySelector('.loading-logo');
+          if (loadingLogo) {
+            loadingLogo.style.animation = 'logo-complete 1.5s ease-in-out forwards';
+          }
+          
+          // Hide loading overlay with smooth, professional transition
+          setTimeout(() => {
+            // Animate the loading container with a more dramatic effect
+            const loadingContainer = document.querySelector('.loading-container');
+            if (loadingContainer) {
+              loadingContainer.style.transform = 'scale(1.1) translateY(-10px)';
+              loadingContainer.style.opacity = '0.9';
+              loadingContainer.style.transition = 'all 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
               
               setTimeout(() => {
-                loadingOverlay.style.display = 'none';
+                loadingContainer.style.transform = 'scale(0.9) translateY(-30px)';
+                loadingContainer.style.opacity = '0';
+              }, 300);
+            }
+            
+            // Fade out the entire overlay with a smooth transition
+            loadingOverlay.style.transition = 'opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
+            loadingOverlay.style.opacity = '0';
+            
+            setTimeout(() => {
+              loadingOverlay.style.display = 'none';
+              
+              // Make sure all components are visible with a subtle fade-in
+              const overlay = document.querySelector('.overlay');
+              if (overlay) {
+                overlay.style.visibility = 'visible';
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'opacity 0.3s ease-in';
                 
-                // Make sure all components are visible with a subtle fade-in
-                const overlay = document.querySelector('.overlay');
-                if (overlay) {
-                  overlay.style.visibility = 'visible';
-                  overlay.style.opacity = '0';
-                  overlay.style.transition = 'opacity 0.3s ease-in';
-                  
-                  setTimeout(() => {
-                    overlay.style.opacity = '1';
-                  }, 50);
-                }
+                setTimeout(() => {
+                  overlay.style.opacity = '1';
+                }, 50);
+              }
+              
+              if (modelViewer) {
+                modelViewer.style.visibility = 'visible';
+                modelViewer.style.opacity = '0';
+                modelViewer.style.transition = 'opacity 0.5s ease-in';
                 
-                if (modelViewer) {
-                  modelViewer.style.visibility = 'visible';
-                  modelViewer.style.opacity = '0';
-                  modelViewer.style.transition = 'opacity 0.5s ease-in';
-                  
-                  setTimeout(() => {
-                    modelViewer.style.opacity = '1';
-                  }, 100);
-                }
-                
-                // Show table number modal immediately after loading
-                // But skip it for logged in staff/admin
-                console.log("Checking tableNumber value:", tableNumber);
-                console.log("User type on completion:", userType);
-                
-                // Check if we have a staff/admin token and skip the modal if we do
-                if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                  console.log("Staff/Admin already logged in, not showing table modal");
-                } else {
-                  // Force showing the table modal for guests with a short delay for better UX
-                  console.log("Showing table modal for guests");
-                  setTimeout(() => {
-                    showTableModal();
-                  }, 200);
-                }
-              }, 750); // Slightly longer for smoother transition
-            }, 850); // Show success message longer for better user experience
-          } else {
-            progress = 99; // Stay at 99% until model loads
-          }
+                setTimeout(() => {
+                  modelViewer.style.opacity = '1';
+                }, 100);
+              }
+              
+              // Show table number modal immediately after loading
+              // But skip it for logged in staff/admin
+              console.log("Checking tableNumber value:", tableNumber);
+              console.log("User type on completion:", userType);
+              
+              // Check if we have a staff/admin token and skip the modal if we do
+              if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                console.log("Staff/Admin already logged in, not showing table modal");
+              } else {
+                // Force showing the table modal for guests with a short delay for better UX
+                console.log("Showing table modal for guests");
+                setTimeout(() => {
+                  showTableModal();
+                }, 200);
+              }
+            }, 750); // Slightly longer for smoother transition
+          }, 850); // Show success message longer for better user experience
         }
         
         // Update progress bar and text
         loadingBar.style.width = `${progress}%`;
         updateLoadingText(progress);
         
-      }, 100); // Update at faster 100ms intervals
+      }, 80); // Update at faster intervals
       
       // Shorter failsafe: Ensure loading screen closes even if there are errors
       setTimeout(() => {
@@ -5712,13 +5686,21 @@
           }, 200);
           
           setTimeout(() => {
+            loadingOverlay.style.transition = 'opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1)';
             loadingOverlay.style.opacity = '0';
             setTimeout(() => {
               loadingOverlay.style.display = 'none';
               
               // Ensure visibility of components
-              document.querySelector('.overlay').style.visibility = 'visible';
-              if (modelViewer) modelViewer.style.visibility = 'visible';
+              const overlay = document.querySelector('.overlay');
+              if (overlay) {
+                overlay.style.visibility = 'visible';
+                overlay.style.opacity = '1';
+              }
+              if (modelViewer) {
+                modelViewer.style.visibility = 'visible';
+                modelViewer.style.opacity = '1';
+              }
               
               // Check if we need to display the table modal in failsafe
               console.log("Failsafe: Checking if we need to show table modal");
@@ -5734,7 +5716,7 @@
             }, 200);
           }, 150);
         }
-      }, 3500); // Reduced to 3.5 seconds max load time
+      }, 3000); // Reduced to 3 seconds max load time
     }
     
     // Language support
