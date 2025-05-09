@@ -5573,23 +5573,20 @@
         
         // Cap at 99% until everything is truly ready
         if (progress >= 99) {
-          if (modelLoaded) {
-            progress = 100;
-            clearInterval(interval);
-            
-            // Complete the loading with animated progress bar
-            loadingBar.style.width = '100%';
-            loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-            
-            // Show success message with enhanced animations
-            loadingText.style.opacity = '0';
-            
-            // Add a scaling effect to the cube grid animation
-            const cubeGrid = document.querySelector('.loading-cube-grid');
-            if (cubeGrid) {
-              cubeGrid.style.transform = 'scale(1.2)';
-              cubeGrid.style.transition = 'transform 0.5s ease-out';
-            }
+          // Simplified model loading check to prevent infinite loop
+          // ALWAYS proceed if we're at 99%+ whether model is loaded or not
+          progress = 100;
+          clearInterval(interval);
+          console.log("Completing loading sequence - progress reached 100%");
+          
+          // Complete the loading with animated progress bar
+          loadingBar.style.width = '100%';
+          
+          // Skip all animations for simplicity
+          const cubeGrid = document.querySelector('.loading-cube-grid');
+          if (cubeGrid) {
+            cubeGrid.style.display = 'none'; // Hide animation to avoid any issues
+          }
             
             setTimeout(() => {
               loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
@@ -5631,9 +5628,8 @@
                 }
               }, 200); // Faster transition out
             }, 150); // Show success message briefly
-          } else {
-            progress = 99; // Stay at 99% until model loads
-          }
+          } 
+          // REMOVED THE ELSE CLAUSE THAT KEPT PROGRESS AT 99%
         }
         
         // Update progress bar and text
@@ -5642,27 +5638,21 @@
         
       }, 100); // Update at faster 100ms intervals
       
-      // Enhanced failsafe: Ensure loading screen never hangs even if model loading fails
+      // Hard failsafe: Forces loading screen to complete after a set time
       setTimeout(() => {
         if (loadingOverlay.style.display !== 'none') {
           console.log("Loading timeout reached, forcing completion");
           clearInterval(interval);
           
-          // Force model loading to be considered complete to prevent hanging
+          // CRITICAL: Force progress to 100 and model to be loaded
+          progress = 100;
           modelLoaded = true;
           
+          // Set the loading bar to 100% immediately
           loadingBar.style.width = '100%';
-          loadingBar.style.transition = 'width 0.75s cubic-bezier(0.19, 1, 0.22, 1)';
           
-          // Animated text update with enhanced animations
-          loadingText.style.opacity = '0';
-          
-          // Add a scaling effect to the cube grid animation
-          const cubeGrid = document.querySelector('.loading-cube-grid');
-          if (cubeGrid) {
-            cubeGrid.style.transform = 'scale(1.2)';
-            cubeGrid.style.transition = 'transform 0.5s ease-out';
-          }
+          // Skip animations and move directly to completion
+          console.log("Forcing immediate completion of loading screen");
           
           setTimeout(() => {
             loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
@@ -5703,7 +5693,7 @@
             }, 200);
           }, 150);
         }
-      }, 3500); // Reduced to 3.5 seconds max load time
+      }, 2500); // Further reduced to 2.5 seconds max load time
     }
     
     // Language support
@@ -8665,7 +8655,7 @@
       showNotification(
         currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
         currentLanguage === 'ar' 
-          ? `جارٍ تحديث حالة الطاولة ${tableNumber}...` 
+          ? `f�ارٍ تحديث حالة الطاولة ${tableNumber}...` 
           : `Updating table ${tableNumber} status...`,
         'info',
         1500 // Auto-close after 1.5 seconds
@@ -11950,7 +11940,7 @@
             day: 'اليوم أنفق مستخدمو قائمة الواقع المعزز 22٪ أكثر من مستخدمي القائمة العادية',
             week: 'تصور قائمة الواقع المعزز يزيد متوسط قيمة الطلب بنسبة 18٪ هذا الأسبوع',
             month: 'زادت الإحالات من وسائل التواصل الاجتماعي بنسبة 15٪ هذا الشهر',
-            year: 'أدى تصور قائمة الواقع المعزز إلى زيادة بنسبة 25٪ في طلبات الحلويات سنويًا'
+            year: 'أدى تصور قائمة الواقع المعزز إلى زيادة بنسبة 25٪ في طلبات الحلويات سنويًr�'
           }
         }
       };
