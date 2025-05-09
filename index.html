@@ -2152,41 +2152,22 @@
       border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
-    /* CRITICAL FIX: Enhanced loading logo with better animation and visibility */
     .loading-logo {
-      width: 220px;
+      width: 200px;
       height: auto;
       margin-bottom: 30px;
       animation: logo-pulse 3s infinite ease-in-out;
-      filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.9));
+      filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8));
       transform-origin: center center;
       z-index: 2;
       position: relative;
-      border-radius: 10px;
-      max-width: 90vw;
-      border: 2px solid rgba(212, 175, 55, 0.2);
-      padding: 10px;
-      background-color: rgba(26, 58, 47, 0.5);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     
-    /* Enhanced Modern logo pulse animation */
+    /* Modern logo pulse animation */
     @keyframes logo-pulse {
-      0% { 
-        transform: scale(1) rotate(-2deg); 
-        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
-        border-color: rgba(212, 175, 55, 0.2);
-      }
-      50% { 
-        transform: scale(1.05) rotate(2deg); 
-        filter: drop-shadow(0 0 35px rgba(212, 175, 55, 1));
-        border-color: rgba(212, 175, 55, 0.6);
-      }
-      100% { 
-        transform: scale(1) rotate(-2deg); 
-        filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
-        border-color: rgba(212, 175, 55, 0.2);
-      }
+      0% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); }
+      50% { transform: scale(1.1); filter: drop-shadow(0 0 30px rgba(212, 175, 55, 1)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); }
     }
     
     /* Modern cube grid loading animation */
@@ -5061,16 +5042,6 @@
         mainCategory: "food"
       },
       {
-        name: "Seafood Pasta", // Added to match the existing 3D model file
-        nameAr: "باستا فواكه البحر",
-        modelSrc: "models/Sea Food Pasta.glb", // Maps to the actual model file
-        description: "Linguine pasta with shrimp, mussels, and calamari in a light tomato sauce.",
-        descriptionAr: "معكرونة لينجويني مع الروبيان وبلح البحر والحبار في صلصة طماطم خفيفة.",
-        price: 16.99,
-        category: "pasta",
-        mainCategory: "food"
-      },
-      {
         name: "Pesto Pasta",
         nameAr: "باستا بيستو",
         modelSrc: "models/Pesto Pasta.glb", // Updated to match actual file name
@@ -5109,7 +5080,7 @@
         nameAr: "تشيزبرجر كلاسيكي",
         modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Juicy beef patty with cheddar cheese, lettuce, tomato, and our special sauce.",
-        descriptionAr: "قطعة لحم بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
+        descriptionAr: "قطعة لحe� بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
         price: 12.99,
         category: "burgers",
         mainCategory: "food"
@@ -5659,181 +5630,63 @@
         
       }, 100); // Update at faster 100ms intervals
       
-      // CRITICAL FIX: Improved multi-stage failsafe to ensure loading screen ALWAYS completes
-      
-      // First failsafe - attempt gentle completion at 3.5 seconds
+      // Shorter failsafe: Ensure loading screen closes even if there are errors
       setTimeout(() => {
         if (loadingOverlay.style.display !== 'none') {
-          console.log("⚠️ Primary loading timeout reached (3.5s), attempting gentle completion");
+          console.log("Loading timeout reached, forcing completion");
+          clearInterval(interval);
+          loadingBar.style.width = '100%';
           
-          // If we're over 80% progress, force complete the loading
-          if (progress >= 80) {
-            progress = 100;
-            modelLoaded = true; // Force model to be considered loaded
-            clearInterval(interval);
+          // Animated text update with enhanced animations
+          loadingText.style.opacity = '0';
+          
+          // Add a scaling effect to the cube grid animation
+          const cubeGrid = document.querySelector('.loading-cube-grid');
+          if (cubeGrid) {
+            cubeGrid.style.transform = 'scale(1.2)';
+            cubeGrid.style.transition = 'transform 0.5s ease-out';
+          }
+          
+          setTimeout(() => {
+            loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+            loadingText.style.opacity = '1';
+            loadingText.style.fontSize = '1.3rem';
+            loadingText.style.color = '#FFDF70';
+            loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
             
-            loadingBar.style.width = '100%';
-            loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-            
-            // Use existing completion flow
-            loadingText.style.opacity = '0';
-            const cubeGrid = document.querySelector('.loading-cube-grid');
-            if (cubeGrid) {
-              cubeGrid.style.transform = 'scale(1.2)';
-              cubeGrid.style.transition = 'transform 0.5s ease-out';
+            // Add a pulsing effect to model status text
+            const loadingModelStatus = document.querySelector('.loading-model-status');
+            if (loadingModelStatus) {
+              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+              loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+              loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
             }
-            
+          }, 200);
+          
+          setTimeout(() => {
+            loadingOverlay.style.opacity = '0';
             setTimeout(() => {
-              loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
-              loadingText.style.opacity = '1';
-              loadingText.style.fontSize = '1.3rem';
-              loadingText.style.color = '#FFDF70';
-              loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
+              loadingOverlay.style.display = 'none';
               
-              const loadingModelStatus = document.querySelector('.loading-model-status');
-              if (loadingModelStatus) {
-                loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
-                loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
-                loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
+              // Ensure visibility of components
+              document.querySelector('.overlay').style.visibility = 'visible';
+              if (modelViewer) modelViewer.style.visibility = 'visible';
+              
+              // Check if we need to display the table modal in failsafe
+              console.log("Failsafe: Checking if we need to show table modal");
+              
+              // Skip for logged in staff/admin
+              if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
+              } else {
+                // Force showing the table modal for guests
+                console.log("Failsafe: Showing table modal for guests");
+                showTableModal();
               }
             }, 200);
-            
-            setTimeout(() => {
-              loadingOverlay.style.opacity = '0';
-              setTimeout(() => {
-                loadingOverlay.style.display = 'none';
-                
-                // Ensure visibility of components
-                document.querySelector('.overlay').style.visibility = 'visible';
-                if (modelViewer) modelViewer.style.visibility = 'visible';
-                
-                // Skip table modal for logged in staff/admin
-                if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                  console.log("Staff/Admin already logged in, not showing table modal");
-                } else {
-                  // Force showing the table modal for guests
-                  console.log("First failsafe: Showing table modal for guests");
-                  showTableModal();
-                }
-              }, 200);
-            }, 150);
-          } else {
-            // If progress is low, let it continue but accelerate it
-            console.log("First failsafe: Progress too low, accelerating loading");
-            progress = Math.max(progress, 75); // Jump to at least 75%
-          }
+          }, 150);
         }
-      }, 3500); // First failsafe at 3.5 seconds
-      
-      // 🚨 CRITICAL FIX: Ultra-reliable emergency fallback system (multiple layers)
-      // Second, stronger failsafe - guaranteed completion at 5 seconds regardless of state
-      setTimeout(() => {
-        if (loadingOverlay.style.display !== 'none') {
-          console.log("🚨 Emergency loading timeout reached (5s), forcing immediate completion");
-          
-          try {
-            // Force termination of any loading intervals
-            clearInterval(interval);
-            
-            // Force progress indicators to show completion 
-            loadingBar.style.width = '100%';
-            loadingBar.style.transition = 'width 0.2s ease';
-            
-            // Hide loading elements with a final rapid animation
-            setTimeout(() => {
-              try {
-                loadingOverlay.style.opacity = '0';
-                loadingOverlay.style.transition = 'opacity 0.3s ease-out';
-                
-                // Important: Force hide loading overlay after a short delay
-                setTimeout(() => {
-                  try {
-                    // Absolute force hide with multiple approaches
-                    loadingOverlay.style.display = 'none';
-                    loadingOverlay.style.visibility = 'hidden';
-                    loadingOverlay.style.zIndex = '-1';
-                    loadingOverlay.style.pointerEvents = 'none';
-                    
-                    // Forcefully remove any remaining event listeners that might prevent loading
-                    loadingOverlay.replaceWith(loadingOverlay.cloneNode(true));
-                    
-                    // Force show main content
-                    const mainOverlay = document.querySelector('.overlay');
-                    if (mainOverlay) {
-                      mainOverlay.style.visibility = 'visible';
-                      mainOverlay.style.display = 'block';
-                      mainOverlay.style.opacity = '1';
-                    }
-                    
-                    if (modelViewer) {
-                      modelViewer.style.visibility = 'visible';
-                      modelViewer.style.display = 'block';
-                    }
-                    
-                    console.log("✅ Emergency loading completion successful");
-                    
-                    // Skip table modal for staff/admin
-                    if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                      console.log("Staff/Admin already logged in, not showing table modal");
-                    } else {
-                      // Show table modal for guests with try-catch for safety
-                      console.log("🔄 Emergency failsafe: Showing table modal for guests");
-                      try {
-                        // Delay ensures DOM is ready, catching any potential issues
-                        setTimeout(() => {
-                          try {
-                            showTableModal();
-                          } catch (error) {
-                            console.error("Error showing table modal in final phase:", error);
-                            // Last resort - try once more after a longer delay
-                            setTimeout(showTableModal, 500);
-                          }
-                        }, 200);
-                      } catch (error) {
-                        console.error("Error in guest table modal handling:", error);
-                      }
-                    }
-                  } catch (error) {
-                    console.error("Critical error in final phase of emergency completion:", error);
-                    // Last resort - forceful direct DOM manipulation if all else fails
-                    document.getElementById("loading-overlay").style.display = "none";
-                    document.querySelector(".overlay").style.visibility = "visible";
-                  }
-                }, 250);
-              } catch (error) {
-                console.error("Error in animation phase of emergency completion:", error);
-                // Fall back to direct element manipulation
-                document.getElementById("loading-overlay").style.display = "none";
-              }
-            }, 100);
-          } catch (error) {
-            console.error("Fatal error in emergency loading completion:", error);
-            // Absolute last resort - directly manipulate DOM
-            try {
-              document.getElementById("loading-overlay").style.display = "none";
-              document.querySelector(".overlay").style.visibility = "visible";
-            } catch (e) {
-              // Nothing more we can do if this fails
-            }
-          }
-        }
-      }, 5000); // Final emergency failsafe at 5 seconds (reduced from 6 seconds)
-      
-      // Additional final failsafe at 7 seconds if somehow everything else fails
-      setTimeout(() => {
-        if (document.getElementById("loading-overlay") && 
-            document.getElementById("loading-overlay").style.display !== 'none') {
-          console.log("🚨 FINAL EMERGENCY FAILSAFE TRIGGERED");
-          try {
-            document.getElementById("loading-overlay").style.display = "none";
-            document.getElementById("loading-overlay").style.visibility = "hidden";
-            document.querySelector(".overlay").style.visibility = "visible";
-          } catch (e) {
-            // Direct manipulation of document body as last resort
-            document.body.innerHTML = document.body.innerHTML.replace('id="loading-overlay"', 'id="loading-overlay" style="display:none"');
-          }
-        }
-      }, 7000); // Absolute final failsafe
+      }, 3500); // Reduced to 3.5 seconds max load time
     }
     
     // Language support
@@ -6371,7 +6224,7 @@
           tableRangeEnd: "نهاية النطاق",
           noAssignments: "لا يوجد تعيينات",
           logout: "تسجيل الخروج",
-          rateYourExperience: "(�يم تجربتك",
+          rateYourExperience: "قيم تجربتك",
           feedback: "تعليقات (اختياري)",
           submit: "إرسال",
           poweredBy: "مقدم بواسطة",
@@ -6689,10 +6542,8 @@
     const modelCache = {};
     
     // Preload all 3D models
-    // CRITICAL FIX: Completely reliable model preloading with multiple guarantees
     function preloadModels() {
       // List of available models (from the models folder)
-      // CRITICAL FIX: Ensure exactly these 6 dishes show working 3D models
       const availableModels = [
         'Fettuccine Alfredo.glb',
         'Margherita Pizza.glb',
@@ -6702,158 +6553,57 @@
         'Sea Food Pasta.glb'
       ];
       
-      console.log("🌟 Available 3D models:", availableModels);
+      // Map menu items to their models (if available)
+      foodItems.forEach(item => {
+        // Check if there's an exact match with an available model name
+        const itemName = item.name.replace(/\s+/g, ' ').trim();
+        const exactModelMatch = availableModels.find(model => 
+          model === `${itemName}.glb` || model.toLowerCase() === `${itemName.toLowerCase()}.glb`
+        );
+        
+        if (exactModelMatch) {
+          // Set the model path to the exact match
+          item.modelSrc = `/models/${exactModelMatch}`;
+          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
+        } else {
+          // No exact match found, clear model src
+          item.modelSrc = null;
+          console.log(`No model available for: ${item.name}`);
+        }
+      });
       
-      // Guarantee 1: Forced loading completion after a fixed time
-      // This ensures that even if everything else fails, the app will still load
-      const ABSOLUTE_MAX_LOADING_TIME = 4000; // 4 seconds max for entire preloading
+      // Create a single hidden container for preloading
+      const preloadContainer = document.createElement('div');
+      preloadContainer.style.position = 'absolute';
+      preloadContainer.style.left = '-9999px';
+      preloadContainer.style.width = '1px';
+      preloadContainer.style.height = '1px';
+      preloadContainer.style.overflow = 'hidden';
+      document.body.appendChild(preloadContainer);
       
-      // Set a guaranteed completion timeout that bypasses everything else
-      const forcedCompletionTimeout = setTimeout(() => {
-        console.log("⏰ Forced loading completion triggered after maximum time");
-        modelLoaded = true;
-        initialModelsPreloaded = true;
-        progress = 100;
-      }, ABSOLUTE_MAX_LOADING_TIME);
-      
-      // Guarantee 2: Map models more reliably with better error handling
-      try {
-        // Map menu items to their models (with improved matching)
-        foodItems.forEach(item => {
-          // Check for exact matches with our specific 6 dishes
-          const itemName = item.name.replace(/\s+/g, ' ').trim();
-          
-          // Special case handling for each model
-          if (itemName === "Margherita Pizza") {
-            item.modelSrc = "./models/Margherita Pizza.glb";
-          } else if (itemName === "Pepperoni Pizza") {
-            item.modelSrc = "./models/Pepperoni Pizza.glb";
-          } else if (itemName === "Alfredo Pasta") {
-            item.modelSrc = "./models/Fettuccine Alfredo.glb";
-          } else if (itemName === "Pesto Pasta") {
-            item.modelSrc = "./models/Pesto Pasta.glb";
-          } else if (itemName === "Spaghetti Bolognese") {
-            item.modelSrc = "./models/Rose Pasta.glb";
-          } else if (itemName === "Seafood Pasta") {
-            item.modelSrc = "./models/Sea Food Pasta.glb";
-          } else {
-            // No match for any of our 6 specific dishes
-            item.modelSrc = null;
-          }
-          
-          // Log what happened
-          if (item.modelSrc) {
-            console.log(`✅ Mapped ${item.name} to model: ${item.modelSrc}`);
-          } else {
-            console.log(`❌ No model available for: ${item.name}`);
-          }
+      // Preload only available models
+      availableModels.forEach(modelName => {
+        const modelPath = `/models/${modelName}`;
+        console.log(`Preloading model: ${modelPath}`);
+        
+        const preloader = document.createElement('model-viewer');
+        preloader.setAttribute('src', modelPath);
+        preloader.setAttribute('preload', '');
+        
+        // Simpler event handling
+        preloader.addEventListener('load', () => {
+          console.log(`Model ${modelPath} preloaded successfully`);
+          // Store in simple lookup for quick reference
+          modelCache[modelPath] = true;
         });
-      } catch (error) {
-        // If mapping fails, don't block the loading
-        console.error("⚠️ Error mapping models:", error);
-      }
-      
-      // Guarantee 3: More reliable preloading
-      try {
-        // Create a hidden container for preloading
-        const preloadContainer = document.createElement('div');
-        preloadContainer.style.position = 'absolute';
-        preloadContainer.style.left = '-9999px';
-        preloadContainer.style.visibility = 'hidden';
-        preloadContainer.style.width = '1px';
-        preloadContainer.style.height = '1px';
-        document.body.appendChild(preloadContainer);
         
-        let loadedCount = 0;
-        const totalModels = availableModels.length;
-        
-        // Set a timeout for when we consider preloading to be "done enough"
-        const preloadTimeout = setTimeout(() => {
-          console.log(`⚠️ Model preloading timed out after loading ${loadedCount}/${totalModels} models`);
-          // Still consider preloading complete
-          initialModelsPreloaded = true;
-          modelLoaded = true;
-          progress = 95; // Set near completion
-        }, 2500); // 2.5 second timeout
-        
-        // Preload each model with individual timeouts
-        availableModels.forEach(modelName => {
-          const modelPath = `./models/${modelName}`;
-          console.log(`🔄 Preloading model: ${modelPath}`);
-          
-          try {
-            const preloader = document.createElement('model-viewer');
-            preloader.setAttribute('src', modelPath);
-            preloader.setAttribute('preload', '');
-            
-            // Set individual model timeout
-            const modelTimeout = setTimeout(() => {
-              console.log(`⚠️ Timeout loading model ${modelPath}, continuing anyway`);
-              modelCache[modelPath] = true; // Mark as loaded even if it timed out
-              loadedCount++;
-              
-              if (loadedCount >= totalModels) {
-                clearTimeout(preloadTimeout); // No need for the main timeout
-                initialModelsPreloaded = true;
-                modelLoaded = true;
-                console.log("✅ All models considered loaded (some via timeout)");
-              }
-            }, 2000); // 2 second timeout per model
-            
-            // Success handler
-            preloader.addEventListener('load', () => {
-              clearTimeout(modelTimeout); // Clear the individual timeout
-              console.log(`✅ Model ${modelPath} preloaded successfully`);
-              modelCache[modelPath] = true;
-              loadedCount++;
-              
-              if (loadedCount >= totalModels) {
-                clearTimeout(preloadTimeout); // No need for the main timeout
-                initialModelsPreloaded = true;
-                modelLoaded = true;
-                console.log("✅ All models loaded successfully");
-              }
-            });
-            
-            // Error handler
-            preloader.addEventListener('error', (e) => {
-              clearTimeout(modelTimeout); // Clear the individual timeout
-              console.error(`❌ Error preloading model ${modelPath}:`, e);
-              loadedCount++; // Count as loaded anyway to continue
-              
-              if (loadedCount >= totalModels) {
-                clearTimeout(preloadTimeout); // No need for the main timeout
-                initialModelsPreloaded = true;
-                modelLoaded = true;
-                console.log("✅ All models considered loaded (some had errors)");
-              }
-            });
-            
-            preloadContainer.appendChild(preloader);
-          } catch (error) {
-            console.error(`❌ Exception loading model ${modelPath}:`, error);
-            loadedCount++; // Count anyway to ensure we continue
-            
-            if (loadedCount >= totalModels) {
-              clearTimeout(preloadTimeout);
-              initialModelsPreloaded = true;
-              modelLoaded = true;
-            }
-          }
+        // Basic error handling
+        preloader.addEventListener('error', (e) => {
+          console.error(`Error preloading model ${modelPath}:`, e);
         });
-      } catch (error) {
-        // Critical error handling - ensure we still complete loading
-        console.error("🚨 Critical error in preloadModels:", error);
-        initialModelsPreloaded = true;
-        modelLoaded = true;
-      }
-      
-      // Final guarantee - after a reasonable time, consider preloading complete
-      setTimeout(() => {
-        console.log("⏱️ Reasonable time passed, ensuring models are considered loaded");
-        initialModelsPreloaded = true;
-        modelLoaded = true;
-      }, 1500); // 1.5 seconds is a reasonable time
+        
+        preloadContainer.appendChild(preloader);
+      });
     }
     
     // Main category selection
@@ -6991,7 +6741,7 @@
       
       // Get model viewer element 
       const modelViewer = document.getElementById('food-model-viewer');
-      console.log("Updating model viewer with new item:", item.name);
+      console.log("Updating model viewer with new item");
       
       // Update text content first (for perceived speed)
       // Use Arabic name and description if available and language is Arabic
@@ -7005,57 +6755,39 @@
         foodPrice.textContent = `Price: $${item.price.toFixed(2)}`;
       }
       
-      // Get model container
+      // Ensure model container is visible
       const modelContainer = document.querySelector('.model-container');
-      
-      // CRITICAL FIX: Only show 3D models for the 6 specific dishes with actual model files
-      // Check if this is one of the 6 dishes with working 3D models
-      const validModelDishes = [
-        "Margherita Pizza", 
-        "Pepperoni Pizza", 
-        "Alfredo Pasta", // Maps to Fettuccine Alfredo.glb
-        "Pesto Pasta", 
-        "Spaghetti Bolognese", // Maps to Rose Pasta.glb
-        "Seafood Pasta" // Maps to Sea Food Pasta.glb
-      ];
-      
-      // Check if this is a dish with a valid model
-      const hasValidModel = validModelDishes.includes(item.name);
-      
-      if (hasValidModel && item.modelSrc) {
-        // Show the model container for dishes with models
-        console.log(`Loading 3D model for ${item.name}: ${item.modelSrc}`);
-        
-        // Make sure model container is visible
+      if (modelContainer) {
         modelContainer.style.display = 'block';
+      }
+      
+      // Enable auto-rotate and camera controls for interactive experience
+      modelViewer.setAttribute('auto-rotate', '');
+      modelViewer.setAttribute('camera-controls', '');
+      modelViewer.setAttribute('ar', '');
+      modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
+      modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
+      modelViewer.setAttribute('exposure', '1');
+      
+      // Check if this item has a model assigned during preloading
+      if (item.modelSrc) {
+        // Show the model container
+        modelContainer.style.display = 'block';
+        modelLoadingIndicator.style.display = 'flex';
         
-        // Enable auto-rotate and camera controls for interactive experience
-        modelViewer.setAttribute('auto-rotate', '');
-        modelViewer.setAttribute('camera-controls', '');
-        modelViewer.setAttribute('ar', '');
-        modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
-        modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
-        modelViewer.setAttribute('exposure', '1');
-        
-        // Fix any path issues in the model source
-        let modelPath = item.modelSrc;
-        if (!modelPath.startsWith('./') && !modelPath.startsWith('/')) {
-          modelPath = `./models/${modelPath.split('/').pop()}`;
-        }
-        
-        console.log(`Setting model source to: ${modelPath}`);
+        console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
         
         // Set the model source
-        modelViewer.src = modelPath;
+        modelViewer.src = item.modelSrc;
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
-          console.log(`✅ Model for ${item.name} loaded successfully`);
+          console.log("Model loaded successfully");
           modelLoadingIndicator.style.display = 'none';
         });
         
         modelViewer.addEventListener('error', (e) => {
-          console.error(`❌ Error loading model for ${item.name}:`, modelPath, e);
+          console.error("Error loading model:", item.modelSrc, e);
           modelLoadingIndicator.style.display = 'none';
           // Hide the model container if there's an error
           modelContainer.style.display = 'none';
@@ -7066,8 +6798,8 @@
           modelLoadingIndicator.style.display = 'none';
         }, 3000);
       } else {
-        // Not one of the 6 dishes with valid models, hide the model container
-        console.log(`${item.name} is not one of the 6 dishes with 3D models, hiding viewer`);
+        // No matching model found, hide the model container
+        console.log(`No model available for ${item.name}, hiding 3D viewer`);
         modelContainer.style.display = 'none';
         modelLoadingIndicator.style.display = 'none';
       }
