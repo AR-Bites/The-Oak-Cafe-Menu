@@ -2,6 +2,29 @@
 <html>
 <head>
   <title>The Oak Cafe - Premium AR Dining</title>
+  <!-- Emergency loading fix -->
+  <script>
+    // Force close loading overlay after 3 seconds regardless of any other code
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay) {
+          console.log("EMERGENCY: Force closing loading overlay");
+          loadingOverlay.style.opacity = '0';
+          setTimeout(function() {
+            loadingOverlay.style.display = 'none';
+            // Try to show table modal if needed
+            var showTableModal = window.showTableModal;
+            if (typeof showTableModal === 'function' && 
+                !localStorage.getItem('staffToken') && 
+                !localStorage.getItem('adminToken')) {
+              showTableModal();
+            }
+          }, 200);
+        }
+      }, 3000);
+    });
+  </script>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
@@ -5080,7 +5103,7 @@
         nameAr: "تشيزبرجر كلاسيكي",
         modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Juicy beef patty with cheddar cheese, lettuce, tomato, and our special sauce.",
-        descriptionAr: "قطعة لحe� بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
+        descriptionAr: "قطعة لحم بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
         price: 12.99,
         category: "burgers",
         mainCategory: "food"
@@ -12164,5 +12187,24 @@
       </div>
     </div>
   </div>
+  
+  <!-- Final loading overlay force close script -->
+  <script>
+    // This is a direct failsafe that will always execute
+    (function() {
+      console.log("FINAL FAILSAFE: Setting up force close timer");
+      setTimeout(function() {
+        var loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+          console.log("FINAL FAILSAFE: Forcing loading overlay to close");
+          loadingOverlay.style.opacity = '0';
+          setTimeout(function() {
+            loadingOverlay.style.display = 'none';
+            console.log("FINAL FAILSAFE: Loading overlay has been forced to close");
+          }, 200);
+        }
+      }, 1500); // Force close after 1.5 seconds for better user experience
+    })();
+  </script>
 </body>
 </html>
