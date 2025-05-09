@@ -2347,27 +2347,76 @@
     .rating-stars {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 12px;
+      margin-bottom: 20px;
       transition: all 0.3s ease;
     }
     
     .rating-star {
-      font-size: 1.5rem;
+      font-size: 2rem;
       color: #ccc;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.3s ease;
     }
     
-    .rating-star:hover, .rating-star.active {
+    .rating-star:hover {
+      transform: scale(1.15);
       color: var(--gold);
+      text-shadow: 0 0 10px rgba(255, 223, 112, 0.4);
     }
     
-    /* Rating system animation */
+    .rating-star.active {
+      color: var(--gold);
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    }
+    
+    /* Rating feedback section styles */
+    .rating-feedback {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .rating-feedback.feedback-highlight {
+      animation: highlight-pulse 1.2s ease;
+    }
+    
+    .rating-feedback textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #c4ab75;
+      border-radius: 6px;
+      background-color: rgba(0,0,0,0.2);
+      color: #e4e4e4;
+      font-family: inherit;
+      resize: vertical;
+      transition: all 0.2s ease;
+    }
+    
+    .rating-feedback textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 8px rgba(255, 223, 112, 0.3);
+      outline: none;
+    }
+    
+    .rating-feedback textarea.highlight {
+      border-color: #e67700;
+      background-color: rgba(230, 119, 0, 0.1);
+      animation: highlight-pulse 0.8s ease infinite;
+    }
+    
+    /* Rating system animations */
     @keyframes pulse-attention {
       0% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.05); opacity: 0.9; }
       100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes highlight-pulse {
+      0% { background-color: transparent; box-shadow: none; }
+      50% { background-color: rgba(230, 119, 0, 0.1); box-shadow: 0 0 10px rgba(230, 119, 0, 0.3); }
+      100% { background-color: transparent; box-shadow: none; }
     }
     
     .rating-stars.pulse-attention {
@@ -4427,10 +4476,19 @@
         <i class="fas fa-star rating-star" data-rating="4"></i>
         <i class="fas fa-star rating-star" data-rating="5"></i>
       </div>
-      <div class="input-group">
-        <label for="rating-feedback" id="rating-feedback-label">FEEDBACK (OPTIONAL)</label>
-        <textarea id="rating-feedback" rows="3" placeholder="Tell us about your experience..."></textarea>
+      
+      <!-- This div is initially hidden and shown for low ratings -->
+      <div class="rating-feedback" style="display: none; transition: opacity 0.3s ease;">
+        <p id="feedback-prompt" style="margin-bottom: 8px; color: var(--gold); font-size: 0.9rem;">
+          Please tell us what you didn't like:
+        </p>
+        <textarea id="feedback-text" rows="3" placeholder="Your feedback helps us improve..."></textarea>
       </div>
+      
+      <!-- Hidden fields for tracking order and staff -->
+      <input type="hidden" id="rating-order-id" value="">
+      <input type="hidden" id="rating-staff-name" value="">
+      
       <div class="modal-buttons">
         <button onclick="submitRating()" class="confirm-btn" id="submit-rating-btn">SUBMIT</button>
         <button onclick="closeRatingModal()" class="cancel-btn" id="cancel-rating-btn">CANCEL</button>
@@ -5022,7 +5080,7 @@
         nameAr: "تشيزبرجر كلاسيكي",
         modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Juicy beef patty with cheddar cheese, lettuce, tomato, and our special sauce.",
-        descriptionAr: "قطعة لحم بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
+        descriptionAr: "قطعة لحm� بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
         price: 12.99,
         category: "burgers",
         mainCategory: "food"
@@ -5236,6 +5294,22 @@
     
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async function() {
+      // CRITICAL GLOBAL FAILSAFE: Force hide loading screen after a maximum time
+      setTimeout(() => {
+        const loadingOverlay = document.getElementById("loading-overlay");
+        if (loadingOverlay) {
+          console.log("GLOBAL FAILSAFE: Forcing loading screen to hide after timeout");
+          loadingOverlay.style.opacity = '0';
+          loadingOverlay.style.display = 'none';
+          
+          // Also show table modal if needed
+          if (!localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
+            const tableModal = document.getElementById('table-number-modal');
+            if (tableModal) tableModal.style.display = 'flex';
+          }
+        }
+      }, 5000);  // 5 second absolute maximum
+      
       // Load language preference
       currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'en';
       updateLanguage();
@@ -5351,6 +5425,39 @@
               s.classList.remove('active');
             }
           });
+          
+          // Show/hide feedback section based on rating
+          const feedbackSection = document.querySelector('.rating-feedback');
+          if (rating <= 3) {
+            // Show feedback section with animation
+            feedbackSection.style.display = 'block';
+            feedbackSection.style.opacity = '0';
+            setTimeout(() => {
+              feedbackSection.style.opacity = '1';
+            }, 50);
+            
+            // Update feedback prompt based on rating
+            const feedbackPrompt = document.getElementById('feedback-prompt');
+            if (feedbackPrompt) {
+              if (currentLanguage === 'ar') {
+                feedbackPrompt.textContent = rating <= 2 ? 
+                  'يرجى إخبارنا بما لم يعجبك:' : 
+                  'كيف يمكننا تحسين خدمتنا؟';
+              } else {
+                feedbackPrompt.textContent = rating <= 2 ? 
+                  'Please tell us what you didn\'t like:' : 
+                  'How can we improve our service?';
+              }
+            }
+          } else {
+            // Hide feedback section
+            feedbackSection.style.opacity = '0';
+            setTimeout(() => {
+              feedbackSection.style.display = 'none';
+              // Clear feedback text for high ratings
+              document.getElementById('feedback-text').value = '';
+            }, 300);
+          }
         });
       });
       
@@ -5539,43 +5646,44 @@
         
       }, 100); // Update at faster 100ms intervals
       
-      // Shorter failsafe: Ensure loading screen closes even if there are errors
+      // CRITICAL FAILSAFE: Always close loading screen even if Firebase fails
       setTimeout(() => {
-        if (loadingOverlay.style.display !== 'none') {
-          console.log("Loading timeout reached, forcing completion");
-          clearInterval(interval);
-          loadingBar.style.width = '100%';
+        // ALWAYS force loading to complete, regardless of current state
+        console.log("Loading timeout reached, forcing completion");
+        clearInterval(interval);
+        loadingBar.style.width = '100%';
+        
+        // Animated text update with enhanced animations
+        loadingText.style.opacity = '0';
+        
+        // Add a scaling effect to the cube grid animation
+        const cubeGrid = document.querySelector('.loading-cube-grid');
+        if (cubeGrid) {
+          cubeGrid.style.transform = 'scale(1.2)';
+          cubeGrid.style.transition = 'transform 0.5s ease-out';
+        }
+        
+        setTimeout(() => {
+          loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+          loadingText.style.opacity = '1';
+          loadingText.style.fontSize = '1.3rem';
+          loadingText.style.color = '#FFDF70';
+          loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
           
-          // Animated text update with enhanced animations
-          loadingText.style.opacity = '0';
-          
-          // Add a scaling effect to the cube grid animation
-          const cubeGrid = document.querySelector('.loading-cube-grid');
-          if (cubeGrid) {
-            cubeGrid.style.transform = 'scale(1.2)';
-            cubeGrid.style.transition = 'transform 0.5s ease-out';
+          // Add a pulsing effect to model status text
+          const loadingModelStatus = document.querySelector('.loading-model-status');
+          if (loadingModelStatus) {
+            loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+            loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+            loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
           }
-          
+        }, 200);
+        
+        setTimeout(() => {
+          loadingOverlay.style.opacity = '0';
           setTimeout(() => {
-            loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
-            loadingText.style.opacity = '1';
-            loadingText.style.fontSize = '1.3rem';
-            loadingText.style.color = '#FFDF70';
-            loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
-            
-            // Add a pulsing effect to model status text
-            const loadingModelStatus = document.querySelector('.loading-model-status');
-            if (loadingModelStatus) {
-              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
-              loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
-              loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
-            }
-          }, 200);
-          
-          setTimeout(() => {
-            loadingOverlay.style.opacity = '0';
-            setTimeout(() => {
-              loadingOverlay.style.display = 'none';
+            // Force hide loading screen
+            loadingOverlay.style.display = 'none';
               
               // Ensure visibility of components
               document.querySelector('.overlay').style.visibility = 'visible';
@@ -5595,7 +5703,7 @@
             }, 200);
           }, 150);
         }
-      }, 3500); // Reduced to 3.5 seconds max load time
+      }, 2500); // CRITICAL FAILSAFE: 2.5 seconds maximum load time
     }
     
     // Language support
@@ -8843,43 +8951,73 @@
     
     // Order Management
     function setupOrderListeners() {
-      // Listen for orders in real-time
+      console.log("Setting up enhanced order listeners for real-time updates");
+      
+      // Listen for orders in real-time with enhanced guest-side synchronization
       db.collection('orders')
         .onSnapshot((snapshot) => {
           // Track which tables are occupied
           const newOccupiedTables = new Set();
           const newTableDetails = {};
           
+          // Process document changes first to detect deletions/cancellations
+          snapshot.docChanges().forEach(change => {
+            const orderData = change.doc.data();
+            const orderId = change.doc.id;
+            
+            // For removed/deleted orders, we need to handle UI updates
+            if (change.type === 'removed') {
+              console.log(`Order ${orderId} was removed from Firebase`);
+              
+              // If this order was from the current client, show a notification
+              if (orderData.clientId === clientId) {
+                showNotification(
+                  currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
+                  currentLanguage === 'ar' 
+                    ? 'تم إلغاء طلبك بواسطة الموظف' 
+                    : 'Your order has been cancelled by staff',
+                  'warning'
+                );
+                
+                // Force refresh client orders
+                if (clientOrders.classList.contains('active')) {
+                  renderClientOrders();
+                }
+              }
+            }
+          });
+          
+          // Process all current documents to update the tables
           snapshot.forEach(doc => {
             const orderData = doc.data();
             
-            // We only care about current client's orders for the client view
+            // Special handling for current client's orders
             if (orderData.clientId === clientId) {
-              // Render client orders if needed
+              // Force refresh client orders view if active
               if (clientOrders.classList.contains('active')) {
                 renderClientOrders();
               }
               
-              // Show notifications for status changes
+              // Show notifications for specific status changes
               if (orderData.status === 'preparing') {
                 showNotification(
                   currentLanguage === 'ar' ? 'طلبك قيد التحضير' : 'Order Preparing',
                   currentLanguage === 'ar' 
-                    ? `طلبك رقم ${orderData.id} قيد التحضير الآن` 
-                    : `Your order #${orderData.id} is now being prepared`,
+                    ? `طلبك رقم ${doc.id} قيد التحضير الآن` 
+                    : `Your order #${doc.id} is now being prepared`,
                   'info'
                 );
               } else if (orderData.status === 'ready') {
                 showNotification(
                   currentLanguage === 'ar' ? 'طلبك جاهز' : 'Order Ready',
                   currentLanguage === 'ar' 
-                    ? `طلبك رقم ${orderData.id} جاهز للاستلام` 
-                    : `Your order #${orderData.id} is ready for pickup`,
+                    ? `طلبك رقم ${doc.id} جاهز للاستلام` 
+                    : `Your order #${doc.id} is ready for pickup`,
                   'success'
                 );
               } else if (orderData.status === 'completed' && !orderData.rated) {
                 // Show rating modal for completed orders that haven't been rated
-                currentOrderForRating = orderData.id;
+                currentOrderForRating = doc.id;
                 showRatingModal();
               }
             }
@@ -8891,23 +9029,46 @@
               
               // Build table details for staff view
               if (!newTableDetails[orderData.tableNumber]) {
-                newTableDetails[orderData.tableNumber] = [];
+                newTableDetails[orderData.tableNumber] = {
+                  orders: []
+                };
               }
               
-              newTableDetails[orderData.tableNumber].push({
-                id: orderData.id,
+              newTableDetails[orderData.tableNumber].orders.push({
+                id: doc.id,
                 status: orderData.status,
-                items: orderData.items,
-                total: orderData.total,
-                createdAt: orderData.createdAt
+                items: orderData.items || [],
+                total: orderData.total || 0,
+                timestamp: orderData.timestamp?.toDate() || new Date(),
+                assignedStaff: orderData.assignedStaff
               });
             }
           });
           
-          // Update occupied tables
+          // If user has a table but it's no longer in occupied tables, it means the table was freed
+          if (userType === "guest" && tableNumber && !newOccupiedTables.has(parseInt(tableNumber))) {
+            console.log(`Table ${tableNumber} was freed while guest is still using it`);
+            
+            // Show notification to the guest
+            showNotification(
+              currentLanguage === 'ar' ? 'تم تحرير الطاولة' : 'Table Released',
+              currentLanguage === 'ar' 
+                ? 'تم تحرير طاولتك من قبل الموظف' 
+                : 'Your table has been released by staff',
+              'info'
+            );
+            
+            // Force refresh client orders
+            if (clientOrders.classList.contains('active')) {
+              renderClientOrders();
+            }
+          }
+          
+          // Update local state
           occupiedTables = newOccupiedTables;
           tableDetails = newTableDetails;
           
+          // Update UI based on user type
           if (userType === "staff") {
             renderOrders();
             renderTablesOverview();
@@ -9627,7 +9788,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
             currentLanguage === 'ar' 
-              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة l�ذا الطلب' 
+              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
               : 'Only the assigned staff or manager can change this order status',
             'error'
           );
@@ -9861,7 +10022,13 @@
     // Rating system functions
     // currentRating is already declared above, so we're not redeclaring it
     
+    // We will use the existing currentOrderForRating variable
+    
     function showRatingDialog(orderId) {
+      // Store current order ID for reference when submitting
+      currentOrderForRating = orderId;
+      console.log("Setting up rating for order:", orderId);
+      
       // Get order details to fetch staff name
       db.collection('orders').doc(orderId).get()
         .then(doc => {
@@ -9874,8 +10041,10 @@
           let staffName = '';
           
           // Check different ways staff might be assigned
-          if (orderData.assignedStaff) {
-            staffName = orderData.assignedStaff.name;
+          if (orderData.assignedStaff && typeof orderData.assignedStaff === 'object') {
+            staffName = orderData.assignedStaff.name || '';
+          } else if (orderData.assignedStaff && typeof orderData.assignedStaff === 'string') {
+            staffName = orderData.assignedStaff;
           } else if (orderData.assignedStaffName) {
             staffName = orderData.assignedStaffName;
           }
@@ -9887,8 +10056,8 @@
           const ratingStars = document.querySelectorAll(".rating-star");
           ratingStars.forEach(star => star.classList.remove('active'));
           
-          // Hide feedback container initially
-          document.getElementById('feedback-container').style.display = 'none';
+          // Hide feedback section initially
+          document.querySelector('.rating-feedback').style.display = 'none';
           
           // Store order ID and staff name in hidden fields
           document.getElementById('rating-order-id').value = orderId;
@@ -9898,8 +10067,8 @@
           document.getElementById('rating-title').textContent = 
             currentLanguage === 'ar' ? 'قيم تجربتك' : 'RATE YOUR EXPERIENCE';
           
-          document.getElementById('feedback-label').textContent = 
-            currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
+          document.getElementById('feedback-prompt').textContent = 
+            currentLanguage === 'ar' ? 'يرجى إخبارنا بما لم يعجبك:' : 'Please tell us what you didn\'t like:';
           
           document.getElementById('submit-rating-btn').textContent = 
             currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
@@ -9922,14 +10091,21 @@
                 }
               });
               
-              // If rating is 3 or less, show feedback container
-              const feedbackContainer = document.getElementById('feedback-container');
+              // If rating is 3 or less, show feedback section
+              const feedbackSection = document.querySelector('.rating-feedback');
               if (rating <= 3) {
-                feedbackContainer.style.display = 'block';
+                feedbackSection.style.display = 'block';
+                // Add a small animation to draw attention
+                feedbackSection.classList.add('feedback-highlight');
+                setTimeout(() => feedbackSection.classList.remove('feedback-highlight'), 1000);
+                
                 // Clear previous feedback
                 document.getElementById('feedback-text').value = '';
+                
+                // Set focus on the feedback textarea for better UX
+                setTimeout(() => document.getElementById('feedback-text').focus(), 300);
               } else {
-                feedbackContainer.style.display = 'none';
+                feedbackSection.style.display = 'none';
               }
             });
           });
@@ -9947,61 +10123,7 @@
       document.getElementById('rating-modal').style.display = 'none';
     }
     
-    function submitRating() {
-      if (currentRating === 0) {
-        showNotification(
-          currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
-          currentLanguage === 'ar' ? 'يرجى تحديد تقييم قبل الإرسال' : 'Please select a rating before submitting',
-          'warning'
-        );
-        return;
-      }
-      
-      const orderId = document.getElementById('rating-order-id').value;
-      const staffName = document.getElementById('rating-staff-name').value;
-      const feedback = document.getElementById('feedback-text').value;
-      
-      // Create rating object
-      const ratingData = {
-        orderId: orderId,
-        rating: currentRating,
-        staffName: staffName,
-        feedback: feedback || '', // Send empty string if no feedback
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        tableNumber: tableNumber,
-        fromLanguage: currentLanguage
-      };
-      
-      // Save to ratings collection in Firebase
-      db.collection('ratings').add(ratingData)
-        .then(() => {
-          // Update order with rating info
-          return db.collection('orders').doc(orderId).update({
-            rated: true,
-            rating: currentRating
-          });
-        })
-        .then(() => {
-          // Close the rating dialog
-          closeRatingDialog();
-          
-          // Show success notification
-          showNotification(
-            currentLanguage === 'ar' ? 'شكراً على تقييمك' : 'Thank You for Your Rating',
-            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
-            'success'
-          );
-        })
-        .catch(error => {
-          console.error("Error saving rating:", error);
-          
-          showNotification(
-            currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-            currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ تقييمك' : 'There was an error saving your rating',
-            'error'
-          );
-        });
-    }
+    // The submitRating function has been updated to use async/await syntax elsewhere in the code
     
     // Function to clean up old completed orders (delete after 6 hours)
     async function cleanupCompletedOrders() {
@@ -10466,41 +10588,134 @@
     
     // Rating System
     function showRatingModal() {
+      console.log("Showing rating modal for order:", currentOrderForRating);
+      
+      // Make sure we have a valid order ID to rate
+      if (!currentOrderForRating) {
+        console.error("No order ID to rate");
+        return;
+      }
+      
+      // Set the hidden order ID field
+      document.getElementById('rating-order-id').value = currentOrderForRating;
+      
+      // Try to get staff name for the order
+      db.collection('orders').doc(currentOrderForRating).get()
+        .then(doc => {
+          if (doc.exists) {
+            const orderData = doc.data();
+            if (orderData.assignedStaff) {
+              document.getElementById('rating-staff-name').value = orderData.assignedStaff;
+            } else {
+              document.getElementById('rating-staff-name').value = 'Unassigned';
+            }
+          }
+        })
+        .catch(error => {
+          console.error("Error getting order data for rating:", error);
+          document.getElementById('rating-staff-name').value = 'Unknown';
+        });
+      
       // Reset stars
       ratingStars.forEach(star => star.classList.remove('active'));
       currentRating = 0;
       
       // Clear feedback
-      ratingFeedback.value = '';
+      document.getElementById('feedback-text').value = '';
       
-      // Show modal
+      // Hide feedback section initially
+      const feedbackSection = document.querySelector('.rating-feedback');
+      feedbackSection.style.display = 'none';
+      
+      // Show modal with animation
       ratingModal.style.display = 'flex';
+      ratingModal.style.opacity = '0';
+      setTimeout(() => {
+        ratingModal.style.opacity = '1';
+      }, 50);
     }
     
     function closeRatingModal() {
-      ratingModal.style.display = 'none';
+      // Fade out animation
+      ratingModal.style.opacity = '0';
+      setTimeout(() => {
+        ratingModal.style.display = 'none';
+      }, 300);
     }
     
     async function submitRating() {
-      if (currentRating === 0) {
-        showNotification(
-          currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
-          currentLanguage === 'ar' ? "الرجاء تحديد تقييم قبل الإرسال" : "Please select a rating before submitting",
-          'error'
-        );
-        // Add focus animation to the rating stars
-        const starsContainer = document.querySelector('.rating-stars');
-        starsContainer.classList.add('pulse-attention');
-        setTimeout(() => starsContainer.classList.remove('pulse-attention'), 1000);
-        return;
-      }
+      // Show processing state
+      const submitBtn = document.getElementById('submit-rating-btn');
+      const originalText = submitBtn.textContent;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      submitBtn.disabled = true;
       
       try {
-        // Update order with rating
-        await db.collection('orders').doc(currentOrderForRating).update({
+        if (currentRating === 0) {
+          showNotification(
+            currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
+            currentLanguage === 'ar' ? "الرجاء تحديد تقييم قبل الإرسال" : "Please select a rating before submitting",
+            'error'
+          );
+          // Add focus animation to the rating stars
+          const starsContainer = document.querySelector('.rating-stars');
+          starsContainer.classList.add('pulse-attention');
+          setTimeout(() => starsContainer.classList.remove('pulse-attention'), 1000);
+          
+          // Reset button state
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+          return;
+        }
+        
+        // If rating is 3 or less, check if feedback was provided
+        const feedbackText = document.getElementById('feedback-text');
+        if (currentRating <= 3 && !feedbackText.value.trim()) {
+          showNotification(
+            currentLanguage === 'ar' ? 'تعليق مطلوب' : 'Feedback Required',
+            currentLanguage === 'ar' 
+              ? 'يرجى تقديم تعليقات عندما يكون التقييم 3 نجوم أو أقل'
+              : 'Please provide feedback when rating is 3 stars or less',
+            'warning'
+          );
+          // Highlight the feedback box
+          feedbackText.classList.add('highlight');
+          setTimeout(() => {
+            feedbackText.classList.remove('highlight');
+          }, 3000);
+          
+          // Reset button state
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+          return;
+        }
+        
+        // Get values from form
+        const orderId = document.getElementById('rating-order-id').value;
+        const staffName = document.getElementById('rating-staff-name').value;
+        const feedback = feedbackText.value.trim();
+        
+        console.log(`Submitting rating: ${currentRating} stars for order ${orderId} (staff: ${staffName})`);
+        
+        // Create rating object to store in ratings collection
+        const ratingData = {
+          orderId: orderId,
+          staffName: staffName,
           rating: currentRating,
-          feedback: ratingFeedback.value.trim(),
+          feedback: feedback,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          tableNumber: parseInt(tableNumber) || 0,
+          clientId: clientId
+        };
+        
+        // First store the rating in a separate collection for admin reporting
+        await db.collection('ratings').add(ratingData);
+        
+        // Update the original order with rating info
+        await db.collection('orders').doc(orderId).update({
           rated: true,
+          rating: currentRating,
+          feedback: feedback || '',
           ratedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
@@ -10513,6 +10728,7 @@
           'success'
         );
         
+        // Close modal
         closeRatingModal();
       } catch (error) {
         console.error("Error submitting rating:", error);
@@ -10521,14 +10737,21 @@
           currentLanguage === 'ar' ? "حدث خطأ أثناء تقديم التقييم" : "There was an error while submitting your rating",
           'error'
         );
+        
+        // Reset button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
       }
     }
     
     // Admin Dashboard
     function renderAdminDashboard() {
-      // Load staff accounts and table assignments
+      console.log("Rendering admin dashboard with enhanced staff ratings");
+      
+      // Load staff accounts, table assignments, and ratings
       loadStaffAccounts();
       loadTableAssignments();
+      loadStaffRatings();
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
@@ -10743,78 +10966,6 @@
           console.error("Error loading staff ratings:", error);
           staffRatingsList.innerHTML = '<div class="no-ratings">Error loading ratings. Please try again.</div>';
         });
-    }
-    
-    // Add call to loadStaffRatings in renderAdminDashboard function
-    function renderAdminDashboard() {
-      // Load staff accounts and table assignments
-      loadStaffAccounts();
-      loadTableAssignments();
-      loadStaffRatings(); // Load staff ratings
-      
-      // Fetch stats and render charts
-      db.collection('orders').get().then(snapshot => {
-        const totalOrders = snapshot.size;
-        let totalRating = 0;
-        let ratedOrders = 0;
-        let lowRatings = 0;
-        
-        // Prepare data for charts
-        const orderStatusData = {
-          pending: 0,
-          preparing: 0,
-          ready: 0,
-          completed: 0,
-          cancelled: 0
-        };
-        
-        const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
-        
-        snapshot.forEach(doc => {
-          const order = doc.data();
-          
-          // Count by status
-          if (orderStatusData.hasOwnProperty(order.status)) {
-            orderStatusData[order.status]++;
-          }
-          
-          // Track ratings
-          if (order.rating) {
-            totalRating += order.rating;
-            ratedOrders++;
-            
-            // Count low ratings (1-2 stars)
-            if (order.rating <= 2) {
-              lowRatings++;
-            }
-            
-            // Update rating distribution
-            if (order.rating >= 1 && order.rating <= 5) {
-              ratingDistribution[order.rating - 1]++;
-            }
-          }
-        });
-        
-        // Calculate average rating
-        const avgRating = ratedOrders > 0 ? (totalRating / ratedOrders).toFixed(1) : '0.0';
-        
-        // Update stats display
-        document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('avg-rating').textContent = avgRating;
-        document.getElementById('low-ratings').textContent = lowRatings;
-        
-        // Count active staff
-        db.collection('staff')
-          .where('active', '==', true)
-          .get()
-          .then(staffSnapshot => {
-            document.getElementById('active-staff').textContent = staffSnapshot.size;
-          });
-        
-        // Update charts
-        updateOrdersChart(orderStatusData);
-        updateRatingsChart(ratingDistribution);
-      });
     }
     
     // Load staff accounts into the UI
@@ -11773,7 +11924,7 @@
           staff: {
             day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من العملاء',
             week: 'سارة لديها أعلى درجة رضا العملاء عند 4.9/5 هذا الأسبوع',
-            month: 'أظهر جون أكبر تحسن هذا الشهر، بزيا �ة 12٪',
+            month: 'أظهر جون أكبر تحسن هذا الشهر، بزيادة 12٪',
             year: 'سارة هي أفضل موظف سنوي بمتوسط تقييم 4.8/5'
           },
           marketing: {
