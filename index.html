@@ -516,6 +516,36 @@
       border-radius: 2px;
     }
     
+    .phone-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .phone-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .phone-link svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--gold);
+    }
+    
+    .contact-info {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    
     .footer-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -1328,7 +1358,7 @@
       transition: all 0.3s ease;
     }
     
-    /* Order Status Notification - Enhanced for better visibility and experience */
+    /* Order Status Notification - Enhanced for better visibility and experience on all devices */
     .order-status-notification {
       position: fixed;
       top: 20px; /* Centered at the top */
@@ -1336,13 +1366,13 @@
       transform: translateX(-50%) translateY(-120%);
       background: white;
       color: var(--dark-green);
-      padding: 18px 22px;
+      padding: 16px 20px;
       border-radius: 16px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 3px 8px rgba(0,0,0,0.3);
       z-index: 9999; /* Ensure highest visibility */
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border-left: 6px solid var(--gold);
       width: calc(100% - 40px);
@@ -1674,6 +1704,30 @@
     @keyframes pulse-info {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.9; transform: scale(1.1); text-shadow: 0 0 8px rgba(33, 150, 243, 0.7); }
+    }
+    
+    /* Mobile notification fixes */
+    @media (max-width: 480px) {
+      .order-status-notification {
+        padding: 12px 16px;
+        gap: 10px;
+        width: calc(100% - 20px);
+        max-width: none;
+        border-radius: 12px;
+      }
+      
+      .status-title {
+        font-size: 0.9rem;
+      }
+      
+      .status-message {
+        font-size: 0.8rem;
+      }
+      
+      .status-icon {
+        width: 24px;
+        height: 24px;
+      }
     }
     
     .user-option-buttons {
@@ -2053,46 +2107,107 @@
     }
 
     /* Enhanced Loading Animation */
+    /* Modern & Visually Appealing Loading Animation */
     .loading-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(26, 58, 47, 0.98);
+      background: linear-gradient(135deg, rgba(26, 58, 47, 0.98) 0%, rgba(16, 48, 37, 0.99) 100%);
       z-index: 2000;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
       transition: opacity 0.5s ease;
+      overflow: hidden;
+    }
+    
+    .loading-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,0.05)' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.8;
+      pointer-events: none;
+    }
+    
+    .loading-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      max-width: 90%;
+      padding: 30px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
     .loading-logo {
-      width: 150px;
+      width: 200px;
       height: auto;
       margin-bottom: 30px;
-      animation: glow-pulse 3s infinite;
-      filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.8));
+      animation: logo-pulse 3s infinite ease-in-out;
+      filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8));
       transform-origin: center center;
       z-index: 2;
       position: relative;
     }
     
-    /* Enhanced logo animation with glow effect */
-    @keyframes glow-pulse {
-      0% { 
-        transform: scale(1); 
-        filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.7));
-      }
-      50% { 
-        transform: scale(1.08); 
-        filter: drop-shadow(0 0 22px rgba(212, 175, 55, 0.9));
-      }
-      100% { 
-        transform: scale(1); 
-        filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.7));
-      }
+    /* Modern logo pulse animation */
+    @keyframes logo-pulse {
+      0% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); }
+      50% { transform: scale(1.1); filter: drop-shadow(0 0 30px rgba(212, 175, 55, 1)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); }
+    }
+    
+    /* Modern cube grid loading animation */
+    .loading-cube-grid {
+      width: 60px;
+      height: 60px;
+      margin: 20px auto;
+      position: relative;
+    }
+    
+    .loading-cube {
+      width: 33%;
+      height: 33%;
+      background-color: var(--gold);
+      float: left;
+      animation: cube-grid-scale-delay 1.3s infinite ease-in-out;
+      border-radius: 2px;
+    }
+    
+    .loading-cube.cube1 { animation-delay: 0.2s; }
+    .loading-cube.cube2 { animation-delay: 0.3s; }
+    .loading-cube.cube3 { animation-delay: 0.4s; }
+    .loading-cube.cube4 { animation-delay: 0.1s; }
+    .loading-cube.cube5 { animation-delay: 0.2s; }
+    .loading-cube.cube6 { animation-delay: 0.3s; }
+    .loading-cube.cube7 { animation-delay: 0.0s; }
+    .loading-cube.cube8 { animation-delay: 0.1s; }
+    .loading-cube.cube9 { animation-delay: 0.2s; }
+    
+    @keyframes cube-grid-scale-delay {
+      0%, 70%, 100% { transform: scale3D(0.5, 0.5, 1); opacity: 0.6; }
+      35% { transform: scale3D(1, 1, 1); opacity: 1; }
+    }
+    
+    .loading-model-status {
+      color: rgba(212, 175, 55, 0.7);
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 15px;
+      font-style: italic;
     }
     
     /* Dynamic background animation */
@@ -4151,9 +4266,18 @@
       <div class="footer-grid">
         <div class="branding-section">
           <div class="powered-by">
-            <span id="powered-by-text">Powered by</span>
+            <span id="powered-by-text">Powered by AR Bites</span>
             <img src="ar-bites-logo.png" alt="AR Bites" class="ar-bites-logo" />
           </div>
+        </div>
+        <div class="contact-info">
+          <span id="contact-us-text">Contact Us</span>
+          <a href="tel:+962790753376" class="phone-link">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span id="phone-text">+962790753376</span>
+          </a>
         </div>
         <div class="social-links">
           <a href="https://www.instagram.com/ar.bitesjo?igsh=ajhmd3ZvbjJhamJh" target="_blank" rel="noopener noreferrer" class="social-link">
@@ -4164,7 +4288,7 @@
           </a>
         </div>
       </div>
-      <div class="copyright" id="copyright-text">© 2023-2025 AR Bites. All rights reserved.</div>
+      <div class="copyright" id="copyright-text">© 2025 AR Bites. All rights reserved.</div>
     </div>
   </div>
   
@@ -4340,13 +4464,26 @@
     </div>
   </div>
   
-  <!-- Loading Animation -->
+  <!-- Enhanced Loading Animation -->
   <div class="loading-overlay" id="loading-overlay">
-    <img src="ar-bites-logo.png" alt="AR Bites Logo" class="loading-logo" />
-    <div class="loading-spinner"></div>
-    <p class="loading-text" id="loading-text">Loading Augmented Reality Experience...</p>
-    <div class="loading-progress">
-      <div class="loading-bar" id="loading-bar"></div>
+    <div class="loading-container">
+      <img src="ar-bites-logo.png" alt="AR Bites Logo" class="loading-logo" />
+      <div class="loading-cube-grid">
+        <div class="loading-cube cube1"></div>
+        <div class="loading-cube cube2"></div>
+        <div class="loading-cube cube3"></div>
+        <div class="loading-cube cube4"></div>
+        <div class="loading-cube cube5"></div>
+        <div class="loading-cube cube6"></div>
+        <div class="loading-cube cube7"></div>
+        <div class="loading-cube cube8"></div>
+        <div class="loading-cube cube9"></div>
+      </div>
+      <p class="loading-text" id="loading-text">Loading Augmented Reality Experience...</p>
+      <div class="loading-progress">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <div class="loading-model-status">Preloading 3D Models...</div>
     </div>
   </div>
 
@@ -4784,7 +4921,8 @@
     let clientId = localStorage.getItem('clientId') || 
                   'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     let occupiedTables = new Set(); // Track occupied tables
-    let tableNumber = null; // Current table number
+    let tableNumber = null; // Current table number for all users
+    let userTableNumber = null; // Specifically for guest users to track their own table
     let tableNumberExpiry = null; // When the table number expires
     let tableDetails = {}; // Store table details for staff view
     let currentRating = 0;
@@ -5130,13 +5268,20 @@
       
       // Check for expired table number - should always be null now for testing
       const savedTableNumber = localStorage.getItem(TABLE_NUMBER_KEY);
+      const savedUserTableNumber = localStorage.getItem('userTableNumber');
       const expiry = localStorage.getItem(TABLE_EXPIRY_KEY);
       
       console.log("Table number in storage:", savedTableNumber);
+      console.log("User table number in storage:", savedUserTableNumber);
       
       if (savedTableNumber && expiry && new Date(expiry) > new Date()) {
         tableNumber = parseInt(savedTableNumber, 10);
         tableNumberExpiry = new Date(expiry);
+      }
+      
+      // Load user table number for guests regardless of expiry
+      if (savedUserTableNumber) {
+        userTableNumber = parseInt(savedUserTableNumber, 10);
       }
       
       // Set client ID for tracking orders
@@ -5233,26 +5378,36 @@
       let modelLoaded = false;
       let initialModelsPreloaded = false;
       
+      // Get the loading model status element
+      const loadingModelStatus = document.querySelector('.loading-model-status');
+      
       // Start with initial loading text
       loadingText.textContent = currentLanguage === 'ar' ? 'تحميل التجربة...' : 'Loading AR Experience...';
+      loadingModelStatus.textContent = currentLanguage === 'ar' ? 'جارٍ التحضير للنماذج ثلاثية الأبعاد...' : 'Preparing 3D Models...';
       
       // Start silently preloading 3D models in the background
       setTimeout(() => {
         preloadModels();
+        loadingModelStatus.textContent = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
       }, 500);
       
       // Update loading text based on progress with animated transitions
       function updateLoadingText(progress) {
         let newText = '';
+        let modelStatusText = '';
         
         if (progress <= 35) {
           newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة النماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
         } else if (progress <= 90) {
           newText = currentLanguage === 'ar' ? 'الاتصال بقاعدة البيانات...' : 'Connecting to Database...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تهيئة العرض ثلاثي الأبعاد...' : 'Initializing AR Viewer...';
         } else {
           newText = currentLanguage === 'ar' ? 'جاهز تقريبًا...' : 'Almost Ready...';
+          modelStatusText = currentLanguage === 'ar' ? 'اكتمل تحميل النماذج ثلاثية الأبعاد' : '3D Models Ready';
         }
         
         // Only update if text has changed (reduces unnecessary DOM operations)
@@ -5263,6 +5418,15 @@
             loadingText.textContent = newText;
             loadingText.style.opacity = '1';
           }, 200);
+        }
+        
+        // Update model status text with animation if it has changed
+        if (loadingModelStatus.textContent !== modelStatusText) {
+          loadingModelStatus.style.opacity = '0';
+          setTimeout(() => {
+            loadingModelStatus.textContent = modelStatusText;
+            loadingModelStatus.style.opacity = '1';
+          }, 300);
         }
       }
       
@@ -5314,13 +5478,29 @@
             loadingBar.style.width = '100%';
             loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
             
-            // Show success message
+            // Show success message with enhanced animations
             loadingText.style.opacity = '0';
+            
+            // Add a scaling effect to the cube grid animation
+            const cubeGrid = document.querySelector('.loading-cube-grid');
+            if (cubeGrid) {
+              cubeGrid.style.transform = 'scale(1.2)';
+              cubeGrid.style.transition = 'transform 0.5s ease-out';
+            }
+            
             setTimeout(() => {
               loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
               loadingText.style.opacity = '1';
               loadingText.style.fontSize = '1.3rem';
               loadingText.style.color = '#FFDF70';
+              loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
+              
+              // Add a pulsing effect to model status text
+              if (loadingModelStatus) {
+                loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+                loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+                loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
+              }
             }, 200);
             
             // Hide loading overlay with a slightly faster transition
@@ -5366,13 +5546,30 @@
           clearInterval(interval);
           loadingBar.style.width = '100%';
           
-          // Animated text update
+          // Animated text update with enhanced animations
           loadingText.style.opacity = '0';
+          
+          // Add a scaling effect to the cube grid animation
+          const cubeGrid = document.querySelector('.loading-cube-grid');
+          if (cubeGrid) {
+            cubeGrid.style.transform = 'scale(1.2)';
+            cubeGrid.style.transition = 'transform 0.5s ease-out';
+          }
+          
           setTimeout(() => {
             loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
             loadingText.style.opacity = '1';
             loadingText.style.fontSize = '1.3rem';
             loadingText.style.color = '#FFDF70';
+            loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
+            
+            // Add a pulsing effect to model status text
+            const loadingModelStatus = document.querySelector('.loading-model-status');
+            if (loadingModelStatus) {
+              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+              loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+              loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
+            }
           }, 200);
           
           setTimeout(() => {
@@ -5866,9 +6063,10 @@
           rateYourExperience: "RATE YOUR EXPERIENCE",
           feedback: "FEEDBACK (OPTIONAL)",
           submit: "SUBMIT",
-          poweredBy: "Experience at",
+          poweredBy: "Powered by",
           followInstagram: "Follow us on Instagram",
-          copyright: "© 2023 The Oak Cafe. All rights reserved.",
+          contact: "Contact Us",
+          copyright: "© 2025 AR Bites. All rights reserved.",
           loadingText: "Loading Augmented Reality Experience...",
           // Category buttons
           allItems: "All Items",
@@ -5938,9 +6136,10 @@
           rateYourExperience: "قيم تجربتك",
           feedback: "تعليقات (اختياري)",
           submit: "إرسال",
-          poweredBy: "استمتع في",
+          poweredBy: "مقدم بواسطة",
           followInstagram: "تابعنا على إنستغرام",
-          copyright: "© 2023 ذا أوك كافيه. جميع الحقوق محفوظة.",
+          contact: "اتصل بنا",
+          copyright: "© 2025 إيه آر بايتس. جميع الحقوق محفوظة.",
           loadingText: "جاري تحميل تجربة الواقع المعزز...",
           // Category buttons
           allItems: "جميع العناصر",
@@ -6267,35 +6466,16 @@
       foodItems.forEach(item => {
         // Check if there's an exact match with an available model name
         const itemName = item.name.replace(/\s+/g, ' ').trim();
-        
-        // Try exact match first
-        let modelMatch = availableModels.find(model => 
+        const exactModelMatch = availableModels.find(model => 
           model === `${itemName}.glb` || model.toLowerCase() === `${itemName.toLowerCase()}.glb`
         );
         
-        // If no exact match, try matching with name variants
-        if (!modelMatch) {
-          // Special case for "Alfredo Pasta" that should match "Fettuccine Alfredo.glb"
-          if (itemName === "Alfredo Pasta") {
-            modelMatch = availableModels.find(model => model.includes("Fettuccine") && model.includes("Alfredo"));
-          } 
-          // Special case for pasta dishes
-          else if (itemName.includes("Spaghetti")) {
-            // "Spaghetti Bolognese" might match with "Rose Pasta.glb"
-            modelMatch = availableModels.find(model => model.includes("Rose") && model.includes("Pasta"));
-          }
-          // Special case for "Sea Food Pasta"
-          else if (itemName.toLowerCase().includes("seafood") || itemName.toLowerCase().includes("sea food")) {
-            modelMatch = availableModels.find(model => model.includes("Sea") && model.includes("Food"));
-          }
-        }
-        
-        if (modelMatch) {
-          // Set the model path to the matched model
-          item.modelSrc = `/models/${modelMatch}`;
-          console.log(`Mapped ${item.name} to model: ${item.modelSrc}`);
+        if (exactModelMatch) {
+          // Set the model path to the exact match
+          item.modelSrc = `/models/${exactModelMatch}`;
+          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
         } else {
-          // No match found, clear model src
+          // No exact match found, clear model src
           item.modelSrc = null;
           console.log(`No model available for: ${item.name}`);
         }
@@ -8060,9 +8240,11 @@
         
         // Save table number with 1 hour expiry
         tableNumber = tableNumberInt;
+        userTableNumber = tableNumberInt; // For guest users specifically
         tableNumberExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
         
         localStorage.setItem(TABLE_NUMBER_KEY, tableNumber.toString());
+        localStorage.setItem('userTableNumber', tableNumber.toString()); // Store separately for guests
         localStorage.setItem(TABLE_EXPIRY_KEY, tableNumberExpiry.toString());
         
         // Check which staff member is assigned to this table
@@ -8161,31 +8343,32 @@
       // For non-staff/admin users, we need to verify they're authorized to release tables
       if (userType !== 'staff' && userType !== 'admin') {
         // Only allow guest to release a table if it's their table
-        if (userType === 'guest' && tableNumber !== parseInt(tableNumber)) {
+        if (userType === 'guest' && tableNumber !== parseInt(userTableNumber)) {
           console.error('Guests can only release their own table');
           return false;
         }
       } else {
         // For staff, check if they're authorized to manage this table
-        // Check if this staff member is assigned to this table
         const currentStaffUsername = localStorage.getItem('username');
         const staffRole = localStorage.getItem('staffRole');
+        console.log('Current staff username:', currentStaffUsername, 'Role:', staffRole);
         
-        let canManageTable = userType === 'admin'; // Admins can manage any table
-        
-        // Managers can manage any table too
-        if (staffRole === 'manager') {
-          canManageTable = true;
-        }
+        // Admins and managers can manage any table
+        let canManageTable = userType === 'admin' || staffRole === 'manager';
         
         if (userType === 'staff' && currentStaffUsername && !canManageTable) {
           const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+          console.log('Staff assignments for current user:', staffAssignments);
           
           // Check if this table is in any of the assigned ranges
           canManageTable = staffAssignments.some(assignment => {
-            return tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+            const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+            console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
+            return inRange;
           });
         }
+        
+        console.log(`Can manage table: ${canManageTable}`);
         
         if (!canManageTable) {
           showNotification(
@@ -8340,22 +8523,24 @@
       // Check if this staff member is assigned to this table
       const currentStaffUsername = localStorage.getItem('username');
       const staffRole = localStorage.getItem('staffRole');
+      console.log('Current staff username:', currentStaffUsername, 'Role:', staffRole);
       
-      let canManageTable = userType === 'admin'; // Admins can manage any table
-      
-      // Managers can manage any table too
-      if (staffRole === 'manager') {
-        canManageTable = true;
-      }
+      // Admins and managers can manage any table
+      let canManageTable = userType === 'admin' || staffRole === 'manager';
       
       if (userType === 'staff' && currentStaffUsername && !canManageTable) {
         const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        console.log('Staff assignments for current user:', staffAssignments);
         
         // Check if this table is in any of the assigned ranges
         canManageTable = staffAssignments.some(assignment => {
-          return tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+          const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+          console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
+          return inRange;
         });
       }
+      
+      console.log(`Can manage table: ${canManageTable}`);
       
       if (!canManageTable) {
         showNotification(
@@ -8506,8 +8691,11 @@
         return;
       }
       
+      // For guest users, we'll use their specific userTableNumber
+      const orderTableNumber = userTableNumber || tableNumber;
+      
       // Verify table number exists
-      if (!tableNumber) {
+      if (!orderTableNumber) {
         showNotification(
           currentLanguage === 'ar' ? 'رقم الطاولة مطلوب' : 'Table Number Required',
           currentLanguage === 'ar' 
@@ -8525,14 +8713,14 @@
       
       // Check if table is still available
       try {
-        const isAvailable = await checkTableAvailability(tableNumber);
+        const isAvailable = await checkTableAvailability(orderTableNumber);
         if (!isAvailable) {
           // Table is occupied, show error and ask for new table
           showNotification(
             currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
             currentLanguage === 'ar' 
-              ? `الطاولة ${tableNumber} مشغولة. يرجى اختيار طاولة أخرى.`
-              : `Table ${tableNumber} is occupied. Please choose another table.`,
+              ? `الطاولة ${orderTableNumber} مشغولة. يرجى اختيار طاولة أخرى.`
+              : `Table ${orderTableNumber} is occupied. Please choose another table.`,
             'error'
           );
           
@@ -8575,7 +8763,7 @@
           tax: tax,
           total: total,
           status: 'pending',
-          tableNumber: tableNumber,
+          tableNumber: orderTableNumber, // Use the order-specific table number
           estimatedTime: estimatedTime,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -8602,7 +8790,7 @@
         }
         
         // Mark table as occupied locally for immediate feedback
-        occupiedTables.add(tableNumber);
+        occupiedTables.add(orderTableNumber);
         
         // Update estimated time for next order (kitchen load simulation)
         estimatedTime = Math.min(estimatedTime + 5, 60); // Increase by 5 mins, max 60
@@ -9396,36 +9584,55 @@
         
         const orderData = orderDoc.data();
           
-          if (!orderData) {
-            console.error("Order not found");
-            return;
+        if (!orderData) {
+          console.error("Order not found");
+          return;
+        }
+          
+        // Get current staff role and username
+        const staffRole = localStorage.getItem('staffRole');
+        const staffUsername = localStorage.getItem('username');
+        const isAdmin = userType === 'admin';
+        const isManager = staffRole === 'manager';
+          
+        // Get staff info for the table and check table assignments
+        const tableStaff = getStaffForTable(orderData.tableNumber);
+        const tableNumber = parseInt(orderData.tableNumber);
+          
+        console.log('Checking permission for order update. Staff:', staffUsername, 'Role:', staffRole, 'Table:', tableNumber);
+          
+        // Admins and managers can update any order
+        let canManageTable = isAdmin || isManager;
+          
+        if (userType === 'staff' && staffUsername && !canManageTable) {
+          const staffAssignments = tableAssignments.filter(a => a.staffUsername === staffUsername);
+          console.log('Staff assignments for current user:', staffAssignments);
+            
+          // Check if this table is in any of the assigned ranges
+          canManageTable = staffAssignments.some(assignment => {
+            const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+            console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
+            return inRange;
+          });
+        }
+          
+        console.log(`Can manage order: ${canManageTable}`);
+          
+        if (!canManageTable) {
+          // If not authorized, revert UI changes
+          if (targetCardElement) {
+            targetCardElement.classList.remove('updating');
           }
-          
-          // Get current staff role and username
-          const staffRole = localStorage.getItem('staffRole');
-          const staffUsername = localStorage.getItem('username');
-          const isAdmin = userType === 'admin';
-          
-          // Get staff info for the table
-          const tableStaff = getStaffForTable(orderData.tableNumber);
-          
-          // Only allow order updates if:
-          // 1. Current user is an admin
-          // 2. Current user is the assigned staff for this table
-          // 3. Current user has manager role
-          const isAssignedStaff = tableStaff && staffUsername === tableStaff.username;
-          const isManager = staffRole === 'manager';
-          
-          if (!isAdmin && !isAssignedStaff && !isManager) {
-            showNotification(
-              currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
-              currentLanguage === 'ar' 
-                ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
-                : 'Only the assigned staff or manager can change this order status',
-              'error'
-            );
-            return;
-          }
+              
+          showNotification(
+            currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
+            currentLanguage === 'ar' 
+              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة l�ذا الطلب' 
+              : 'Only the assigned staff or manager can change this order status',
+            'error'
+          );
+          return;
+        }
           
           // Update local display immediately for better UX
           if (targetCardElement) {
@@ -9582,11 +9789,13 @@
       
       // Check if the current staff is assigned to this table
       const currentStaffUsername = localStorage.getItem('username');
-      console.log('Current staff username:', currentStaffUsername);
+      const staffRole = localStorage.getItem('staffRole');
+      console.log('Current staff username:', currentStaffUsername, 'Role:', staffRole);
       
-      let canManageTable = userType === 'admin'; // Admins can manage any table
+      // Admins and managers can manage any table
+      let canManageTable = userType === 'admin' || staffRole === 'manager';
       
-      if (userType === 'staff' && currentStaffUsername) {
+      if (userType === 'staff' && currentStaffUsername && !canManageTable) {
         console.log('Table assignments:', tableAssignments);
         const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
         console.log('Staff assignments for current user:', staffAssignments);
@@ -11564,7 +11773,7 @@
           staff: {
             day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من العملاء',
             week: 'سارة لديها أعلى درجة رضا العملاء عند 4.9/5 هذا الأسبوع',
-            month: 'أظهر جون أكبر تحسن هذا الشهر، بزيادة 12٪',
+            month: 'أظهر جون أكبر تحسن هذا الشهر، بزيا �ة 12٪',
             year: 'سارة هي أفضل موظف سنوي بمتوسط تقييم 4.8/5'
           },
           marketing: {
