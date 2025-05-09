@@ -2,29 +2,6 @@
 <html>
 <head>
   <title>The Oak Cafe - Premium AR Dining</title>
-  <!-- Emergency loading fix -->
-  <script>
-    // Force close loading overlay after 3 seconds regardless of any other code
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        var loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay) {
-          console.log("EMERGENCY: Force closing loading overlay");
-          loadingOverlay.style.opacity = '0';
-          setTimeout(function() {
-            loadingOverlay.style.display = 'none';
-            // Try to show table modal if needed
-            var showTableModal = window.showTableModal;
-            if (typeof showTableModal === 'function' && 
-                !localStorage.getItem('staffToken') && 
-                !localStorage.getItem('adminToken')) {
-              showTableModal();
-            }
-          }, 200);
-        }
-      }, 3000);
-    });
-  </script>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
@@ -2370,76 +2347,27 @@
     .rating-stars {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 15px;
       transition: all 0.3s ease;
     }
     
     .rating-star {
-      font-size: 2rem;
+      font-size: 1.5rem;
       color: #ccc;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: var(--transition);
     }
     
-    .rating-star:hover {
-      transform: scale(1.15);
+    .rating-star:hover, .rating-star.active {
       color: var(--gold);
-      text-shadow: 0 0 10px rgba(255, 223, 112, 0.4);
     }
     
-    .rating-star.active {
-      color: var(--gold);
-      text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
-    }
-    
-    /* Rating feedback section styles */
-    .rating-feedback {
-      margin-top: 15px;
-      padding: 15px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    
-    .rating-feedback.feedback-highlight {
-      animation: highlight-pulse 1.2s ease;
-    }
-    
-    .rating-feedback textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #c4ab75;
-      border-radius: 6px;
-      background-color: rgba(0,0,0,0.2);
-      color: #e4e4e4;
-      font-family: inherit;
-      resize: vertical;
-      transition: all 0.2s ease;
-    }
-    
-    .rating-feedback textarea:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 8px rgba(255, 223, 112, 0.3);
-      outline: none;
-    }
-    
-    .rating-feedback textarea.highlight {
-      border-color: #e67700;
-      background-color: rgba(230, 119, 0, 0.1);
-      animation: highlight-pulse 0.8s ease infinite;
-    }
-    
-    /* Rating system animations */
+    /* Rating system animation */
     @keyframes pulse-attention {
       0% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.05); opacity: 0.9; }
       100% { transform: scale(1); opacity: 1; }
-    }
-    
-    @keyframes highlight-pulse {
-      0% { background-color: transparent; box-shadow: none; }
-      50% { background-color: rgba(230, 119, 0, 0.1); box-shadow: 0 0 10px rgba(230, 119, 0, 0.3); }
-      100% { background-color: transparent; box-shadow: none; }
     }
     
     .rating-stars.pulse-attention {
@@ -4499,19 +4427,10 @@
         <i class="fas fa-star rating-star" data-rating="4"></i>
         <i class="fas fa-star rating-star" data-rating="5"></i>
       </div>
-      
-      <!-- This div is initially hidden and shown for low ratings -->
-      <div class="rating-feedback" style="display: none; transition: opacity 0.3s ease;">
-        <p id="feedback-prompt" style="margin-bottom: 8px; color: var(--gold); font-size: 0.9rem;">
-          Please tell us what you didn't like:
-        </p>
-        <textarea id="feedback-text" rows="3" placeholder="Your feedback helps us improve..."></textarea>
+      <div class="input-group">
+        <label for="rating-feedback" id="rating-feedback-label">FEEDBACK (OPTIONAL)</label>
+        <textarea id="rating-feedback" rows="3" placeholder="Tell us about your experience..."></textarea>
       </div>
-      
-      <!-- Hidden fields for tracking order and staff -->
-      <input type="hidden" id="rating-order-id" value="">
-      <input type="hidden" id="rating-staff-name" value="">
-      
       <div class="modal-buttons">
         <button onclick="submitRating()" class="confirm-btn" id="submit-rating-btn">SUBMIT</button>
         <button onclick="closeRatingModal()" class="cancel-btn" id="cancel-rating-btn">CANCEL</button>
@@ -5416,23 +5335,7 @@
       }, 2000);
       
       // Start the loading animation
-      // Start loading simulation with a fallback
       simulateLoading();
-      
-      // Add an absolute fallback to ensure loading completes
-      setTimeout(() => {
-        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
-          console.log("FALLBACK: Force closing loading overlay after 5 seconds");
-          loadingOverlay.style.opacity = '0';
-          setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-            // Show table number modal for guest users if needed
-            if (!localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
-              showTableModal();
-            }
-          }, 200);
-        }
-      }, 5000);
       
       // Listen for rating stars
       ratingStars.forEach(star => {
@@ -5448,39 +5351,6 @@
               s.classList.remove('active');
             }
           });
-          
-          // Show/hide feedback section based on rating
-          const feedbackSection = document.querySelector('.rating-feedback');
-          if (rating <= 3) {
-            // Show feedback section with animation
-            feedbackSection.style.display = 'block';
-            feedbackSection.style.opacity = '0';
-            setTimeout(() => {
-              feedbackSection.style.opacity = '1';
-            }, 50);
-            
-            // Update feedback prompt based on rating
-            const feedbackPrompt = document.getElementById('feedback-prompt');
-            if (feedbackPrompt) {
-              if (currentLanguage === 'ar') {
-                feedbackPrompt.textContent = rating <= 2 ? 
-                  'يرجى إخبارنا بما لم يعجبك:' : 
-                  'كيف يمكننا تحسين خدمتنا؟';
-              } else {
-                feedbackPrompt.textContent = rating <= 2 ? 
-                  'Please tell us what you didn\'t like:' : 
-                  'How can we improve our service?';
-              }
-            }
-          } else {
-            // Hide feedback section
-            feedbackSection.style.opacity = '0';
-            setTimeout(() => {
-              feedbackSection.style.display = 'none';
-              // Clear feedback text for high ratings
-              document.getElementById('feedback-text').value = '';
-            }, 300);
-          }
         });
       });
       
@@ -5669,9 +5539,45 @@
         
       }, 100); // Update at faster 100ms intervals
       
-      // Shorter failsafe: Ensure loading screen closes even if there are errors
+      // Add a FINAL absolute failsafe to ensure the loading screen never gets stuck
+      console.log("FINAL FAILSAFE: Setting up force close timer");
       setTimeout(() => {
-        if (loadingOverlay.style.display !== 'none') {
+        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+          console.log("FINAL FAILSAFE: Forcing loading overlay to close");
+          try {
+            // Force stop any animations or transitions
+            clearInterval(interval);
+            
+            // Set progress bar to 100%
+            if (loadingBar) loadingBar.style.width = '100%';
+            
+            // Hide the overlay with no animations or transitions
+            loadingOverlay.style.transition = 'none';
+            loadingOverlay.style.opacity = '0';
+            loadingOverlay.style.display = 'none';
+            
+            // Make sure UI elements are visible
+            const overlay = document.querySelector('.overlay');
+            if (overlay) overlay.style.visibility = 'visible';
+            if (modelViewer) modelViewer.style.visibility = 'visible';
+            
+            // Show table modal if needed
+            if (userType !== 'staff' && userType !== 'admin') {
+              showTableModal();
+            }
+            
+            console.log("FINAL FAILSAFE: Loading overlay has been forced to close");
+          } catch (e) {
+            console.log("EMERGENCY: Force closing loading overlay");
+            // Ultimate emergency failsafe
+            loadingOverlay.style.display = 'none';
+          }
+        }
+      }, 6000); // Absolute maximum time the loading screen can stay visible (6 seconds)
+      
+      // Regular failsafe: Ensure loading screen closes even if there are errors
+      setTimeout(() => {
+        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
           console.log("Loading timeout reached, forcing completion");
           clearInterval(interval);
           loadingBar.style.width = '100%';
@@ -5725,7 +5631,7 @@
             }, 200);
           }, 150);
         }
-      }, 2500); // Reduced to 2.5 seconds max load time for better user experience
+      }, 3500); // Reduced to 3.5 seconds max load time
     }
     
     // Language support
@@ -6274,7 +6180,7 @@
           // Category buttons
           allItems: "جميع العناصر",
           hotFood: "طعام ساخن",
-          coldFood: "طعام بارد",
+          coldFood: "طعاi� بارد",
           drinks: "مشروبات",
           desserts: "حلويات",
           // Advanced Analytics translations
@@ -6582,7 +6488,7 @@
     
     // Preload all 3D models
     function preloadModels() {
-      // List of available models (from the models folder)
+      // List of available models (from the models folder) - only these dishes should have 3D models
       const availableModels = [
         'Fettuccine Alfredo.glb',
         'Margherita Pizza.glb',
@@ -6592,22 +6498,33 @@
         'Sea Food Pasta.glb'
       ];
       
-      // Map menu items to their models (if available)
+      // Create a list of normalized model names without the .glb extension for comparison
+      const normalizedModelNames = availableModels.map(model => 
+        model.replace('.glb', '').toLowerCase()
+      );
+      
+      // Map menu items to their models (strictly only for the 6 dishes with models)
       foodItems.forEach(item => {
-        // Check if there's an exact match with an available model name
-        const itemName = item.name.replace(/\s+/g, ' ').trim();
-        const exactModelMatch = availableModels.find(model => 
-          model === `${itemName}.glb` || model.toLowerCase() === `${itemName.toLowerCase()}.glb`
+        // Normalize the item name for comparison
+        const normalizedItemName = item.name.replace(/\s+/g, ' ').trim().toLowerCase();
+        
+        // Check if this dish exactly matches one of our available models
+        const modelIndex = normalizedModelNames.findIndex(modelName => 
+          normalizedItemName === modelName || 
+          // Handle special cases where the item name might be slightly different
+          (modelName === "fettuccine alfredo" && normalizedItemName === "alfredo pasta") ||
+          // Add more special cases as needed
+          normalizedItemName.includes(modelName) || modelName.includes(normalizedItemName)
         );
         
-        if (exactModelMatch) {
-          // Set the model path to the exact match
-          item.modelSrc = `/models/${exactModelMatch}`;
-          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
+        if (modelIndex !== -1) {
+          // Found a match - use the original model filename
+          item.modelSrc = `/models/${availableModels[modelIndex]}`;
+          console.log(`✅ Mapped ${item.name} to 3D model: ${item.modelSrc}`);
         } else {
-          // No exact match found, clear model src
+          // No match found - this dish should not have a 3D model
           item.modelSrc = null;
-          console.log(`No model available for: ${item.name}`);
+          console.log(`❌ No 3D model available for: ${item.name}`);
         }
       });
       
@@ -6808,10 +6725,51 @@
       modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
       modelViewer.setAttribute('exposure', '1');
       
-      // Check if this item has a model assigned during preloading
-      if (item.modelSrc) {
-        // Show the model container
+      // Create or get model error message element
+      let modelErrorMessage = document.getElementById('model-error-message');
+      if (!modelErrorMessage) {
+        modelErrorMessage = document.createElement('div');
+        modelErrorMessage.id = 'model-error-message';
+        modelErrorMessage.className = 'model-error-message';
+        modelErrorMessage.style.position = 'absolute';
+        modelErrorMessage.style.top = '50%';
+        modelErrorMessage.style.left = '50%';
+        modelErrorMessage.style.transform = 'translate(-50%, -50%)';
+        modelErrorMessage.style.color = 'rgba(255, 255, 255, 0.7)';
+        modelErrorMessage.style.textAlign = 'center';
+        modelErrorMessage.style.width = '100%';
+        modelErrorMessage.style.fontSize = '0.9rem';
+        modelErrorMessage.style.padding = '15px';
+        modelContainer.appendChild(modelErrorMessage);
+      }
+      
+      // List of dishes that have real 3D models available
+      const availableModelDishes = [
+        'Fettuccine Alfredo',
+        'Alfredo Pasta', // Alternative name
+        'Margherita Pizza',
+        'Pepperoni Pizza', 
+        'Pesto Pasta',
+        'Rose Pasta',
+        'Sea Food Pasta'
+      ];
+      
+      // Check if this item has a valid model
+      const hasValidModel = availableModelDishes.some(dish => 
+        item.name === dish || item.name.includes(dish)
+      );
+      
+      // Update error message text based on language
+      modelErrorMessage.innerHTML = currentLanguage === 'ar' 
+        ? '<i class="fas fa-cube"></i> نموذج ثلاثي الأبعاد غير متوفر حالياً' 
+        : '<i class="fas fa-cube"></i> 3D Model Not Available';
+      
+      // Check if this item has a model assigned during preloading and is a valid dish
+      if (item.modelSrc && hasValidModel) {
+        // Show the model, hide the error message
         modelContainer.style.display = 'block';
+        modelViewer.style.display = 'block';
+        modelErrorMessage.style.display = 'none';
         modelLoadingIndicator.style.display = 'flex';
         
         console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
@@ -6828,8 +6786,9 @@
         modelViewer.addEventListener('error', (e) => {
           console.error("Error loading model:", item.modelSrc, e);
           modelLoadingIndicator.style.display = 'none';
-          // Hide the model container if there's an error
-          modelContainer.style.display = 'none';
+          // Show error message instead of hiding the container
+          modelViewer.style.display = 'none';
+          modelErrorMessage.style.display = 'block';
         });
         
         // Failsafe: Hide loading indicator after 3 seconds
@@ -6837,9 +6796,13 @@
           modelLoadingIndicator.style.display = 'none';
         }, 3000);
       } else {
-        // No matching model found, hide the model container
-        console.log(`No model available for ${item.name}, hiding 3D viewer`);
-        modelContainer.style.display = 'none';
+        // No matching model found or not in the list of available models
+        console.log(`No valid 3D model available for ${item.name}, showing placeholder`);
+        
+        // Keep the container visible but hide the viewer and show error message
+        modelContainer.style.display = 'block';
+        modelViewer.style.display = 'none';
+        modelErrorMessage.style.display = 'block';
         modelLoadingIndicator.style.display = 'none';
       }
       
@@ -8973,73 +8936,43 @@
     
     // Order Management
     function setupOrderListeners() {
-      console.log("Setting up enhanced order listeners for real-time updates");
-      
-      // Listen for orders in real-time with enhanced guest-side synchronization
+      // Listen for orders in real-time
       db.collection('orders')
         .onSnapshot((snapshot) => {
           // Track which tables are occupied
           const newOccupiedTables = new Set();
           const newTableDetails = {};
           
-          // Process document changes first to detect deletions/cancellations
-          snapshot.docChanges().forEach(change => {
-            const orderData = change.doc.data();
-            const orderId = change.doc.id;
-            
-            // For removed/deleted orders, we need to handle UI updates
-            if (change.type === 'removed') {
-              console.log(`Order ${orderId} was removed from Firebase`);
-              
-              // If this order was from the current client, show a notification
-              if (orderData.clientId === clientId) {
-                showNotification(
-                  currentLanguage === 'ar' ? 'تم إلغاء الطلب' : 'Order Cancelled',
-                  currentLanguage === 'ar' 
-                    ? 'تم إلغاء طلبك بواسطة الموظف' 
-                    : 'Your order has been cancelled by staff',
-                  'warning'
-                );
-                
-                // Force refresh client orders
-                if (clientOrders.classList.contains('active')) {
-                  renderClientOrders();
-                }
-              }
-            }
-          });
-          
-          // Process all current documents to update the tables
           snapshot.forEach(doc => {
             const orderData = doc.data();
             
-            // Special handling for current client's orders
+            // We only care about current client's orders for the client view
             if (orderData.clientId === clientId) {
-              // Force refresh client orders view if active
+              // Render client orders if needed
               if (clientOrders.classList.contains('active')) {
                 renderClientOrders();
               }
               
-              // Show notifications for specific status changes
+              // Show notifications for status changes
               if (orderData.status === 'preparing') {
                 showNotification(
                   currentLanguage === 'ar' ? 'طلبك قيد التحضير' : 'Order Preparing',
                   currentLanguage === 'ar' 
-                    ? `طلبك رقم ${doc.id} قيد التحضير الآن` 
-                    : `Your order #${doc.id} is now being prepared`,
+                    ? `طلبك رقم ${orderData.id} قيد التحضير الآن` 
+                    : `Your order #${orderData.id} is now being prepared`,
                   'info'
                 );
               } else if (orderData.status === 'ready') {
                 showNotification(
                   currentLanguage === 'ar' ? 'طلبك جاهز' : 'Order Ready',
                   currentLanguage === 'ar' 
-                    ? `طلبك رقم ${doc.id} جاهز للاستلام` 
-                    : `Your order #${doc.id} is ready for pickup`,
+                    ? `طلبك رقم ${orderData.id} جاهز للاستلام` 
+                    : `Your order #${orderData.id} is ready for pickup`,
                   'success'
                 );
               } else if (orderData.status === 'completed' && !orderData.rated) {
                 // Show rating modal for completed orders that haven't been rated
-                currentOrderForRating = doc.id;
+                currentOrderForRating = orderData.id;
                 showRatingModal();
               }
             }
@@ -9051,46 +8984,23 @@
               
               // Build table details for staff view
               if (!newTableDetails[orderData.tableNumber]) {
-                newTableDetails[orderData.tableNumber] = {
-                  orders: []
-                };
+                newTableDetails[orderData.tableNumber] = [];
               }
               
-              newTableDetails[orderData.tableNumber].orders.push({
-                id: doc.id,
+              newTableDetails[orderData.tableNumber].push({
+                id: orderData.id,
                 status: orderData.status,
-                items: orderData.items || [],
-                total: orderData.total || 0,
-                timestamp: orderData.timestamp?.toDate() || new Date(),
-                assignedStaff: orderData.assignedStaff
+                items: orderData.items,
+                total: orderData.total,
+                createdAt: orderData.createdAt
               });
             }
           });
           
-          // If user has a table but it's no longer in occupied tables, it means the table was freed
-          if (userType === "guest" && tableNumber && !newOccupiedTables.has(parseInt(tableNumber))) {
-            console.log(`Table ${tableNumber} was freed while guest is still using it`);
-            
-            // Show notification to the guest
-            showNotification(
-              currentLanguage === 'ar' ? 'تم تحرير الطاولة' : 'Table Released',
-              currentLanguage === 'ar' 
-                ? 'تم تحرير طاولتك من قبل الموظف' 
-                : 'Your table has been released by staff',
-              'info'
-            );
-            
-            // Force refresh client orders
-            if (clientOrders.classList.contains('active')) {
-              renderClientOrders();
-            }
-          }
-          
-          // Update local state
+          // Update occupied tables
           occupiedTables = newOccupiedTables;
           tableDetails = newTableDetails;
           
-          // Update UI based on user type
           if (userType === "staff") {
             renderOrders();
             renderTablesOverview();
@@ -10044,13 +9954,7 @@
     // Rating system functions
     // currentRating is already declared above, so we're not redeclaring it
     
-    // We will use the existing currentOrderForRating variable
-    
     function showRatingDialog(orderId) {
-      // Store current order ID for reference when submitting
-      currentOrderForRating = orderId;
-      console.log("Setting up rating for order:", orderId);
-      
       // Get order details to fetch staff name
       db.collection('orders').doc(orderId).get()
         .then(doc => {
@@ -10063,10 +9967,8 @@
           let staffName = '';
           
           // Check different ways staff might be assigned
-          if (orderData.assignedStaff && typeof orderData.assignedStaff === 'object') {
-            staffName = orderData.assignedStaff.name || '';
-          } else if (orderData.assignedStaff && typeof orderData.assignedStaff === 'string') {
-            staffName = orderData.assignedStaff;
+          if (orderData.assignedStaff) {
+            staffName = orderData.assignedStaff.name;
           } else if (orderData.assignedStaffName) {
             staffName = orderData.assignedStaffName;
           }
@@ -10078,8 +9980,8 @@
           const ratingStars = document.querySelectorAll(".rating-star");
           ratingStars.forEach(star => star.classList.remove('active'));
           
-          // Hide feedback section initially
-          document.querySelector('.rating-feedback').style.display = 'none';
+          // Hide feedback container initially
+          document.getElementById('feedback-container').style.display = 'none';
           
           // Store order ID and staff name in hidden fields
           document.getElementById('rating-order-id').value = orderId;
@@ -10089,8 +9991,8 @@
           document.getElementById('rating-title').textContent = 
             currentLanguage === 'ar' ? 'قيم تجربتك' : 'RATE YOUR EXPERIENCE';
           
-          document.getElementById('feedback-prompt').textContent = 
-            currentLanguage === 'ar' ? 'يرجى إخبارنا بما لم يعجبك:' : 'Please tell us what you didn\'t like:';
+          document.getElementById('feedback-label').textContent = 
+            currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
           
           document.getElementById('submit-rating-btn').textContent = 
             currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
@@ -10113,21 +10015,14 @@
                 }
               });
               
-              // If rating is 3 or less, show feedback section
-              const feedbackSection = document.querySelector('.rating-feedback');
+              // If rating is 3 or less, show feedback container
+              const feedbackContainer = document.getElementById('feedback-container');
               if (rating <= 3) {
-                feedbackSection.style.display = 'block';
-                // Add a small animation to draw attention
-                feedbackSection.classList.add('feedback-highlight');
-                setTimeout(() => feedbackSection.classList.remove('feedback-highlight'), 1000);
-                
+                feedbackContainer.style.display = 'block';
                 // Clear previous feedback
                 document.getElementById('feedback-text').value = '';
-                
-                // Set focus on the feedback textarea for better UX
-                setTimeout(() => document.getElementById('feedback-text').focus(), 300);
               } else {
-                feedbackSection.style.display = 'none';
+                feedbackContainer.style.display = 'none';
               }
             });
           });
@@ -10145,7 +10040,61 @@
       document.getElementById('rating-modal').style.display = 'none';
     }
     
-    // The submitRating function has been updated to use async/await syntax elsewhere in the code
+    function submitRating() {
+      if (currentRating === 0) {
+        showNotification(
+          currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
+          currentLanguage === 'ar' ? 'يرجى تحديد تقييم قبل الإرسال' : 'Please select a rating before submitting',
+          'warning'
+        );
+        return;
+      }
+      
+      const orderId = document.getElementById('rating-order-id').value;
+      const staffName = document.getElementById('rating-staff-name').value;
+      const feedback = document.getElementById('feedback-text').value;
+      
+      // Create rating object
+      const ratingData = {
+        orderId: orderId,
+        rating: currentRating,
+        staffName: staffName,
+        feedback: feedback || '', // Send empty string if no feedback
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        tableNumber: tableNumber,
+        fromLanguage: currentLanguage
+      };
+      
+      // Save to ratings collection in Firebase
+      db.collection('ratings').add(ratingData)
+        .then(() => {
+          // Update order with rating info
+          return db.collection('orders').doc(orderId).update({
+            rated: true,
+            rating: currentRating
+          });
+        })
+        .then(() => {
+          // Close the rating dialog
+          closeRatingDialog();
+          
+          // Show success notification
+          showNotification(
+            currentLanguage === 'ar' ? 'شكراً على تقييمك' : 'Thank You for Your Rating',
+            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
+            'success'
+          );
+        })
+        .catch(error => {
+          console.error("Error saving rating:", error);
+          
+          showNotification(
+            currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
+            currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ تقييمك' : 'There was an error saving your rating',
+            'error'
+          );
+        });
+    }
     
     // Function to clean up old completed orders (delete after 6 hours)
     async function cleanupCompletedOrders() {
@@ -10610,134 +10559,41 @@
     
     // Rating System
     function showRatingModal() {
-      console.log("Showing rating modal for order:", currentOrderForRating);
-      
-      // Make sure we have a valid order ID to rate
-      if (!currentOrderForRating) {
-        console.error("No order ID to rate");
-        return;
-      }
-      
-      // Set the hidden order ID field
-      document.getElementById('rating-order-id').value = currentOrderForRating;
-      
-      // Try to get staff name for the order
-      db.collection('orders').doc(currentOrderForRating).get()
-        .then(doc => {
-          if (doc.exists) {
-            const orderData = doc.data();
-            if (orderData.assignedStaff) {
-              document.getElementById('rating-staff-name').value = orderData.assignedStaff;
-            } else {
-              document.getElementById('rating-staff-name').value = 'Unassigned';
-            }
-          }
-        })
-        .catch(error => {
-          console.error("Error getting order data for rating:", error);
-          document.getElementById('rating-staff-name').value = 'Unknown';
-        });
-      
       // Reset stars
       ratingStars.forEach(star => star.classList.remove('active'));
       currentRating = 0;
       
       // Clear feedback
-      document.getElementById('feedback-text').value = '';
+      ratingFeedback.value = '';
       
-      // Hide feedback section initially
-      const feedbackSection = document.querySelector('.rating-feedback');
-      feedbackSection.style.display = 'none';
-      
-      // Show modal with animation
+      // Show modal
       ratingModal.style.display = 'flex';
-      ratingModal.style.opacity = '0';
-      setTimeout(() => {
-        ratingModal.style.opacity = '1';
-      }, 50);
     }
     
     function closeRatingModal() {
-      // Fade out animation
-      ratingModal.style.opacity = '0';
-      setTimeout(() => {
-        ratingModal.style.display = 'none';
-      }, 300);
+      ratingModal.style.display = 'none';
     }
     
     async function submitRating() {
-      // Show processing state
-      const submitBtn = document.getElementById('submit-rating-btn');
-      const originalText = submitBtn.textContent;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-      submitBtn.disabled = true;
+      if (currentRating === 0) {
+        showNotification(
+          currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
+          currentLanguage === 'ar' ? "الرجاء تحديد تقييم قبل الإرسال" : "Please select a rating before submitting",
+          'error'
+        );
+        // Add focus animation to the rating stars
+        const starsContainer = document.querySelector('.rating-stars');
+        starsContainer.classList.add('pulse-attention');
+        setTimeout(() => starsContainer.classList.remove('pulse-attention'), 1000);
+        return;
+      }
       
       try {
-        if (currentRating === 0) {
-          showNotification(
-            currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
-            currentLanguage === 'ar' ? "الرجاء تحديد تقييم قبل الإرسال" : "Please select a rating before submitting",
-            'error'
-          );
-          // Add focus animation to the rating stars
-          const starsContainer = document.querySelector('.rating-stars');
-          starsContainer.classList.add('pulse-attention');
-          setTimeout(() => starsContainer.classList.remove('pulse-attention'), 1000);
-          
-          // Reset button state
-          submitBtn.innerHTML = originalText;
-          submitBtn.disabled = false;
-          return;
-        }
-        
-        // If rating is 3 or less, check if feedback was provided
-        const feedbackText = document.getElementById('feedback-text');
-        if (currentRating <= 3 && !feedbackText.value.trim()) {
-          showNotification(
-            currentLanguage === 'ar' ? 'تعليق مطلوب' : 'Feedback Required',
-            currentLanguage === 'ar' 
-              ? 'يرجى تقديم تعليقات عندما يكون التقييم 3 نجوم أو أقل'
-              : 'Please provide feedback when rating is 3 stars or less',
-            'warning'
-          );
-          // Highlight the feedback box
-          feedbackText.classList.add('highlight');
-          setTimeout(() => {
-            feedbackText.classList.remove('highlight');
-          }, 3000);
-          
-          // Reset button state
-          submitBtn.innerHTML = originalText;
-          submitBtn.disabled = false;
-          return;
-        }
-        
-        // Get values from form
-        const orderId = document.getElementById('rating-order-id').value;
-        const staffName = document.getElementById('rating-staff-name').value;
-        const feedback = feedbackText.value.trim();
-        
-        console.log(`Submitting rating: ${currentRating} stars for order ${orderId} (staff: ${staffName})`);
-        
-        // Create rating object to store in ratings collection
-        const ratingData = {
-          orderId: orderId,
-          staffName: staffName,
+        // Update order with rating
+        await db.collection('orders').doc(currentOrderForRating).update({
           rating: currentRating,
-          feedback: feedback,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          tableNumber: parseInt(tableNumber) || 0,
-          clientId: clientId
-        };
-        
-        // First store the rating in a separate collection for admin reporting
-        await db.collection('ratings').add(ratingData);
-        
-        // Update the original order with rating info
-        await db.collection('orders').doc(orderId).update({
+          feedback: ratingFeedback.value.trim(),
           rated: true,
-          rating: currentRating,
-          feedback: feedback || '',
           ratedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
@@ -10750,7 +10606,6 @@
           'success'
         );
         
-        // Close modal
         closeRatingModal();
       } catch (error) {
         console.error("Error submitting rating:", error);
@@ -10759,21 +10614,14 @@
           currentLanguage === 'ar' ? "حدث خطأ أثناء تقديم التقييم" : "There was an error while submitting your rating",
           'error'
         );
-        
-        // Reset button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
       }
     }
     
     // Admin Dashboard
     function renderAdminDashboard() {
-      console.log("Rendering admin dashboard with enhanced staff ratings");
-      
-      // Load staff accounts, table assignments, and ratings
+      // Load staff accounts and table assignments
       loadStaffAccounts();
       loadTableAssignments();
-      loadStaffRatings();
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
@@ -10988,6 +10836,78 @@
           console.error("Error loading staff ratings:", error);
           staffRatingsList.innerHTML = '<div class="no-ratings">Error loading ratings. Please try again.</div>';
         });
+    }
+    
+    // Add call to loadStaffRatings in renderAdminDashboard function
+    function renderAdminDashboard() {
+      // Load staff accounts and table assignments
+      loadStaffAccounts();
+      loadTableAssignments();
+      loadStaffRatings(); // Load staff ratings
+      
+      // Fetch stats and render charts
+      db.collection('orders').get().then(snapshot => {
+        const totalOrders = snapshot.size;
+        let totalRating = 0;
+        let ratedOrders = 0;
+        let lowRatings = 0;
+        
+        // Prepare data for charts
+        const orderStatusData = {
+          pending: 0,
+          preparing: 0,
+          ready: 0,
+          completed: 0,
+          cancelled: 0
+        };
+        
+        const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
+        
+        snapshot.forEach(doc => {
+          const order = doc.data();
+          
+          // Count by status
+          if (orderStatusData.hasOwnProperty(order.status)) {
+            orderStatusData[order.status]++;
+          }
+          
+          // Track ratings
+          if (order.rating) {
+            totalRating += order.rating;
+            ratedOrders++;
+            
+            // Count low ratings (1-2 stars)
+            if (order.rating <= 2) {
+              lowRatings++;
+            }
+            
+            // Update rating distribution
+            if (order.rating >= 1 && order.rating <= 5) {
+              ratingDistribution[order.rating - 1]++;
+            }
+          }
+        });
+        
+        // Calculate average rating
+        const avgRating = ratedOrders > 0 ? (totalRating / ratedOrders).toFixed(1) : '0.0';
+        
+        // Update stats display
+        document.getElementById('total-orders').textContent = totalOrders;
+        document.getElementById('avg-rating').textContent = avgRating;
+        document.getElementById('low-ratings').textContent = lowRatings;
+        
+        // Count active staff
+        db.collection('staff')
+          .where('active', '==', true)
+          .get()
+          .then(staffSnapshot => {
+            document.getElementById('active-staff').textContent = staffSnapshot.size;
+          });
+        
+        // Update charts
+        updateOrdersChart(orderStatusData);
+        updateRatingsChart(ratingDistribution);
+      });
     }
     
     // Load staff accounts into the UI
@@ -12187,24 +12107,5 @@
       </div>
     </div>
   </div>
-  
-  <!-- Final loading overlay force close script -->
-  <script>
-    // This is a direct failsafe that will always execute
-    (function() {
-      console.log("FINAL FAILSAFE: Setting up force close timer");
-      setTimeout(function() {
-        var loadingOverlay = document.getElementById('loading-overlay');
-        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
-          console.log("FINAL FAILSAFE: Forcing loading overlay to close");
-          loadingOverlay.style.opacity = '0';
-          setTimeout(function() {
-            loadingOverlay.style.display = 'none';
-            console.log("FINAL FAILSAFE: Loading overlay has been forced to close");
-          }, 200);
-        }
-      }, 1500); // Force close after 1.5 seconds for better user experience
-    })();
-  </script>
 </body>
 </html>
