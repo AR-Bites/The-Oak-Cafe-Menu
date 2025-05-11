@@ -2374,6 +2374,19 @@
       animation: pulse-attention 0.5s ease-in-out 2;
     }
     
+    /* Highlight required feedback field with animation */
+    .highlight-required {
+      border: 2px solid var(--bright-red) !important;
+      box-shadow: 0 0 8px rgba(255, 59, 48, 0.6) !important;
+      animation: pulse-border 1.5s infinite;
+    }
+    
+    @keyframes pulse-border {
+      0% { border-color: var(--bright-red); }
+      50% { border-color: rgba(255, 59, 48, 0.5); }
+      100% { border-color: var(--bright-red); }
+    }
+    
     /* Item Customization Modal (Talabat-style) */
     .customize-modal {
       display: none;
@@ -10143,14 +10156,25 @@
                 }
               });
               
-              // If rating is 3 or less, show feedback container
+              // If rating is 3 or less, show feedback container and make it required
               const feedbackContainer = document.getElementById('feedback-container');
+              const feedbackText = document.getElementById('feedback-text');
+              
               if (rating <= 3) {
                 feedbackContainer.style.display = 'block';
                 // Clear previous feedback
-                document.getElementById('feedback-text').value = '';
+                feedbackText.value = '';
+                // Make feedback required for low ratings
+                feedbackText.required = true;
+                // Update label to indicate requirement
+                document.getElementById('feedback-label').textContent = 
+                  currentLanguage === 'ar' ? 'تعليقات (مطلوب)' : 'FEEDBACK (REQUIRED)';
               } else {
                 feedbackContainer.style.display = 'none';
+                feedbackText.required = false;
+                // Reset label for high ratings
+                document.getElementById('feedback-label').textContent = 
+                  currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
               }
             });
           });
@@ -10180,7 +10204,22 @@
       
       const orderId = document.getElementById('rating-order-id').value;
       const staffName = document.getElementById('rating-staff-name').value;
-      const feedback = document.getElementById('feedback-text').value;
+      const feedbackText = document.getElementById('feedback-text');
+      const feedback = feedbackText.value.trim();
+      
+      // For low ratings (3 or less), feedback is required - this is a critical requirement
+      if (currentRating <= 3 && !feedback) {
+        showNotification(
+          currentLanguage === 'ar' ? 'التعليق مطلوب' : 'Feedback Required',
+          currentLanguage === 'ar' ? 'يرجى كتابة تعليق للتقييمات المنخفضة' : 'Please provide feedback for low ratings',
+          'warning'
+        );
+        // Highlight the feedback field to draw attention
+        feedbackText.classList.add('highlight-required');
+        feedbackText.focus();
+        setTimeout(() => feedbackText.classList.remove('highlight-required'), 2000);
+        return;
+      }
       
       // Create rating object
       const ratingData = {
@@ -10750,6 +10789,7 @@
       // Load staff accounts and table assignments
       loadStaffAccounts();
       loadTableAssignments();
+      loadStaffRatings(); // Load staff ratings for admin dashboard
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
@@ -10998,16 +11038,10 @@
             </div>
           `;
         });
+      });
     }
     
-    // Add call to loadStaffRatings in renderAdminDashboard function
-    function renderAdminDashboard() {
-      // Load staff accounts and table assignments
-      loadStaffAccounts();
-      loadTableAssignments();
-      loadStaffRatings(); // Load staff ratings
-      
-      // Fetch stats and render charts
+    // Helper function to ensure ratings feedback is properly formatted
       db.collection('orders').get().then(snapshot => {
         const totalOrders = snapshot.size;
         let totalRating = 0;
