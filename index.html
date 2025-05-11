@@ -2107,7 +2107,7 @@
     }
 
     /* Enhanced Loading Animation */
-    /* Modern & Visually Appealing Loading Animation */
+    /* Modern & Visually Appealing Loading Animation with Error Handling */
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -2120,7 +2120,7 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.7s ease;
       overflow: hidden;
     }
     
@@ -2150,6 +2150,7 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(5px);
       border: 1px solid rgba(212, 175, 55, 0.2);
+      transition: all 0.3s ease;
     }
     
     .loading-logo {
@@ -2202,16 +2203,70 @@
       35% { transform: scale3D(1, 1, 1); opacity: 1; }
     }
     
-    .loading-model-status {
-      color: rgba(212, 175, 55, 0.7);
-      font-size: 0.85rem;
+    .loading-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
       text-align: center;
+      margin: 10px 0;
+      letter-spacing: 0.5px;
+      font-weight: 300;
+      max-width: 280px;
+    }
+    
+    .loading-progress {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .loading-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold) 0%, #F9D342 100%);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+    
+    /* Error state styling */
+    .loading-error-message {
+      color: #ff6b6b;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      display: none;
+      text-align: center;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      max-width: 300px;
+    }
+    
+    .retry-button {
+      background: var(--gold);
+      color: var(--dark-green);
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
       margin-top: 15px;
-      font-style: italic;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      display: none;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .retry-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      background: #f5dc69;
     }
     
     /* Dynamic background animation */
-    .loading-overlay::before {
+    .loading-overlay::after {
       content: '';
       position: absolute;
       top: 0;
@@ -2372,19 +2427,6 @@
     
     .rating-stars.pulse-attention {
       animation: pulse-attention 0.5s ease-in-out 2;
-    }
-    
-    /* Highlight required feedback field with animation */
-    .highlight-required {
-      border: 2px solid var(--bright-red) !important;
-      box-shadow: 0 0 8px rgba(255, 59, 48, 0.6) !important;
-      animation: pulse-border 1.5s infinite;
-    }
-    
-    @keyframes pulse-border {
-      0% { border-color: var(--bright-red); }
-      50% { border-color: rgba(255, 59, 48, 0.5); }
-      100% { border-color: var(--bright-red); }
     }
     
     /* Item Customization Modal (Talabat-style) */
@@ -4583,6 +4625,13 @@
         <div class="loading-bar" id="loading-bar"></div>
       </div>
       <div class="loading-model-status">Preloading 3D Models...</div>
+      <!-- Error elements (hidden by default) -->
+      <div id="loading-error-message" class="loading-error-message">
+        There was an error loading the application. This could be due to network issues or browser compatibility.
+      </div>
+      <button id="retry-button" class="retry-button">
+        <i class="fas fa-redo-alt"></i> Retry
+      </button>
     </div>
   </div>
 
@@ -8115,7 +8164,7 @@
             <span id="guest-option-text">${currentLanguage === 'ar' ? 'أنا ضيف' : 'I\'m a Guest'}</span>
             <div class="option-description" id="guest-option-desc">
               ${currentLanguage === 'ar' 
-                ? 'حدد هذا إذا كنت تتناول الطعام وتحتاج إلى طلب من طاولتك' 
+                ? 'حدد هذا إذا كنت تتناo�ل الطعام وتحتاج إلى طلب من طاولتك' 
                 : 'Select this if you\'re dining in and need to place an order from your table'}
             </div>
           `;
@@ -10095,8 +10144,11 @@
     // Rating system functions
     // currentRating is already declared above, so we're not redeclaring it
     
+    // Global variable to track current order details
+    let currentOrderDetails = null;
+
     function showRatingDialog(orderId) {
-      // Get order details to fetch staff name
+      // Only show rating dialog for completed orders
       db.collection('orders').doc(orderId).get()
         .then(doc => {
           if (!doc.exists) {
@@ -10105,6 +10157,22 @@
           }
           
           const orderData = doc.data();
+          
+          // Ensure the order is completed before showing rating dialog
+          if (orderData.status !== 'completed') {
+            console.log(`Not showing rating dialog for order ${orderId} because status is ${orderData.status}`);
+            return;
+          }
+          
+          // Check if already rated
+          if (orderData.rated === true) {
+            console.log(`Not showing rating dialog for order ${orderId} because it was already rated`);
+            return;
+          }
+          
+          // Store current order details
+          currentOrderDetails = orderData;
+          
           let staffName = '';
           
           // Check different ways staff might be assigned
@@ -10124,6 +10192,9 @@
           // Hide feedback container initially
           document.getElementById('feedback-container').style.display = 'none';
           
+          // Clear previous feedback
+          document.getElementById('feedback-text').value = '';
+          
           // Store order ID and staff name in hidden fields
           document.getElementById('rating-order-id').value = orderId;
           document.getElementById('rating-staff-name').value = staffName;
@@ -10132,8 +10203,9 @@
           document.getElementById('rating-title').textContent = 
             currentLanguage === 'ar' ? 'قيم تجربتك' : 'RATE YOUR EXPERIENCE';
           
+          // Update feedback label to indicate it's required for low ratings
           document.getElementById('feedback-label').textContent = 
-            currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
+            currentLanguage === 'ar' ? 'تعليقات' : 'FEEDBACK';
           
           document.getElementById('submit-rating-btn').textContent = 
             currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
@@ -10156,25 +10228,24 @@
                 }
               });
               
-              // If rating is 3 or less, show feedback container and make it required
+              // If rating is 3 or less, show feedback container and mark as required
               const feedbackContainer = document.getElementById('feedback-container');
-              const feedbackText = document.getElementById('feedback-text');
+              const feedbackLabel = document.getElementById('feedback-label');
               
               if (rating <= 3) {
                 feedbackContainer.style.display = 'block';
-                // Clear previous feedback
-                feedbackText.value = '';
-                // Make feedback required for low ratings
-                feedbackText.required = true;
-                // Update label to indicate requirement
-                document.getElementById('feedback-label').textContent = 
+                // Update label to indicate feedback is required for low ratings
+                feedbackLabel.textContent = 
                   currentLanguage === 'ar' ? 'تعليقات (مطلوب)' : 'FEEDBACK (REQUIRED)';
+                // Add required attribute
+                document.getElementById('feedback-text').setAttribute('required', 'required');
               } else {
-                feedbackContainer.style.display = 'none';
-                feedbackText.required = false;
-                // Reset label for high ratings
-                document.getElementById('feedback-label').textContent = 
+                // For high ratings, feedback is optional
+                feedbackContainer.style.display = 'block';
+                feedbackLabel.textContent = 
                   currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
+                // Remove required attribute
+                document.getElementById('feedback-text').removeAttribute('required');
               }
             });
           });
@@ -10202,24 +10273,22 @@
         return;
       }
       
+      // If rating is 3 or less, feedback is required
+      if (currentRating <= 3) {
+        const feedback = document.getElementById('feedback-text').value.trim();
+        if (!feedback) {
+          showNotification(
+            currentLanguage === 'ar' ? 'ملاحظات مطلوبة' : 'Feedback Required',
+            currentLanguage === 'ar' ? 'يرجى تقديم ملاحظات لتحسين خدمتنا' : 'Please provide feedback so we can improve our service',
+            'warning'
+          );
+          return;
+        }
+      }
+      
       const orderId = document.getElementById('rating-order-id').value;
       const staffName = document.getElementById('rating-staff-name').value;
-      const feedbackText = document.getElementById('feedback-text');
-      const feedback = feedbackText.value.trim();
-      
-      // For low ratings (3 or less), feedback is required - this is a critical requirement
-      if (currentRating <= 3 && !feedback) {
-        showNotification(
-          currentLanguage === 'ar' ? 'التعليق مطلوب' : 'Feedback Required',
-          currentLanguage === 'ar' ? 'يرجى كتابة تعليق للتقييمات المنخفضة' : 'Please provide feedback for low ratings',
-          'warning'
-        );
-        // Highlight the feedback field to draw attention
-        feedbackText.classList.add('highlight-required');
-        feedbackText.focus();
-        setTimeout(() => feedbackText.classList.remove('highlight-required'), 2000);
-        return;
-      }
+      const feedback = document.getElementById('feedback-text').value.trim();
       
       // Create rating object
       const ratingData = {
@@ -10229,7 +10298,12 @@
         feedback: feedback || '', // Send empty string if no feedback
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         tableNumber: tableNumber,
-        fromLanguage: currentLanguage
+        fromLanguage: currentLanguage,
+        // Add dish info if available
+        dishName: currentOrderDetails?.items ? currentOrderDetails.items[0]?.name || '' : '',
+        // Flag as visible only to admin
+        visibleToAdmin: true,
+        visibleToStaff: false
       };
       
       // Save to ratings collection in Firebase
@@ -10248,7 +10322,7 @@
           // Show success notification
           showNotification(
             currentLanguage === 'ar' ? 'شكراً على تقييمك' : 'Thank You for Your Rating',
-            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
+            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح. سيراجع المدير ملاحظاتك.' : 'Your feedback has been recorded successfully. The admin will review your feedback.',
             'success'
           );
         })
@@ -10789,7 +10863,6 @@
       // Load staff accounts and table assignments
       loadStaffAccounts();
       loadTableAssignments();
-      loadStaffRatings(); // Load staff ratings for admin dashboard
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
@@ -11038,10 +11111,16 @@
             </div>
           `;
         });
-      });
     }
     
-    // Helper function to ensure ratings feedback is properly formatted
+    // Add call to loadStaffRatings in renderAdminDashboard function
+    function renderAdminDashboard() {
+      // Load staff accounts and table assignments
+      loadStaffAccounts();
+      loadTableAssignments();
+      loadStaffRatings(); // Load staff ratings
+      
+      // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
         const totalOrders = snapshot.size;
         let totalRating = 0;
