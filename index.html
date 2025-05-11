@@ -4698,13 +4698,40 @@
         if (hasPermissionErrors) {
           showNotification(
             'Firebase Permission Issues',
-            'Some Firebase operations may fail due to permission settings. Please check console for details and update Firebase rules.',
+            'The app requires open Firebase rules. Current rules are too restrictive - update to "allow read, write: if true;"',
             'error',
             15000
           );
           
-          // Log the recommended rules
-          console.info("Recommended Firebase rules:", recommendedFirebaseRules);
+          // Log the simplest recommended rules for testing
+          console.info("Recommended Firebase rules for immediate fix:", `
+          rules_version = '2';
+          service cloud.firestore {
+            match /databases/{database}/documents {
+              match /{document=**} {
+                allow read, write: if true;
+              }
+            }
+          }`);
+          
+          // Attempt to create necessary collections anyway - may work with default rules
+          try {
+            // Initialize orders collection if it doesn't exist
+            db.collection('orders').doc('__init__').set({
+              initialized: true,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            // Initialize tables collection if it doesn't exist
+            db.collection('tables').doc('__init__').set({
+              initialized: true,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            console.log("Attempted to create initial collections");
+          } catch (err) {
+            console.error("Failed to create initial collections:", err);
+          }
         }
       };
       
