@@ -4659,6 +4659,9 @@
         cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
       });
       
+      // Define a global variable to track if we're in fallback mode due to Firebase permission issues
+      let isFirebaseFallbackMode = false;
+      
       // Test Firebase permissions
       const testPermissions = async () => {
         console.log("Testing Firebase permissions...");
@@ -4694,16 +4697,15 @@
           hasPermissionErrors = true;
         }
         
-        // Show a notification if there are permission issues
+        // Log permission issues but don't show notification to users
         if (hasPermissionErrors) {
-          showNotification(
-            'Firebase Permission Issues',
-            'The app requires open Firebase rules. Current rules are too restrictive - update to "allow read, write: if true;"',
-            'error',
-            15000
-          );
+          // Set fallback mode to true if there are permission errors
+          isFirebaseFallbackMode = true;
           
-          // Log the simplest recommended rules for testing
+          // Only log the errors to console, don't show notification to users
+          console.warn("Firebase Permission Issues - Using fallback mode with limited functionality");
+          
+          // Log the simplest recommended rules for testing (for developers only)
           console.info("Recommended Firebase rules for immediate fix:", `
           rules_version = '2';
           service cloud.firestore {
@@ -4732,6 +4734,9 @@
           } catch (err) {
             console.error("Failed to create initial collections:", err);
           }
+        } else {
+          // If no permission errors, ensure fallback mode is turned off
+          isFirebaseFallbackMode = false;
         }
       };
       
