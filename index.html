@@ -4592,6 +4592,33 @@
     let db;
     let isOfflineMode = false; // Use Firebase by default
     
+    // Firebase permissions debug - these rules should be applied in Firebase console
+    const recommendedFirebaseRules = `
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /{document=**} {
+          // Allow all read access
+          allow read: if true;
+          
+          // Allow write to specific collections
+          match /orders/{orderId} {
+            allow write: if true;
+          }
+          match /ratings/{ratingId} {
+            allow write: if true;
+          }
+          match /tables/{tableId} {
+            allow write: if true;
+          }
+          match /staff/{staffId} {
+            allow write: if true;
+          }
+        }
+      }
+    }`;
+    console.log("Recommended Firebase rules:", recommendedFirebaseRules);
+    
     // Show a temporary toast notification
     function showConnectionToast(message, type = 'info') {
       const toast = document.createElement('div');
@@ -4628,6 +4655,61 @@
       }
       
       db = firebase.firestore();
+      db.settings({
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+      });
+      
+      // Test Firebase permissions
+      const testPermissions = async () => {
+        console.log("Testing Firebase permissions...");
+        
+        const collections = ['orders', 'tables', 'ratings', 'staff'];
+        let hasPermissionErrors = false;
+        
+        // Test read permissions
+        for (const collection of collections) {
+          try {
+            await db.collection(collection).limit(1).get();
+            console.log(`✅ Read permission test passed for ${collection}`);
+          } catch (error) {
+            console.error(`❌ Read permission test failed for ${collection}:`, error);
+            hasPermissionErrors = true;
+          }
+        }
+        
+        // Test write permission with a test document
+        try {
+          const testDoc = {
+            test: 'permission_check',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          
+          await db.collection('permission_test').doc('test_write').set(testDoc);
+          console.log("✅ Write permission test passed");
+          
+          // Clean up test document
+          await db.collection('permission_test').doc('test_write').delete();
+        } catch (error) {
+          console.error("❌ Write permission test failed:", error);
+          hasPermissionErrors = true;
+        }
+        
+        // Show a notification if there are permission issues
+        if (hasPermissionErrors) {
+          showNotification(
+            'Firebase Permission Issues',
+            'Some Firebase operations may fail due to permission settings. Please check console for details and update Firebase rules.',
+            'error',
+            15000
+          );
+          
+          // Log the recommended rules
+          console.info("Recommended Firebase rules:", recommendedFirebaseRules);
+        }
+      };
+      
+      // Run the permission tests (async)
+      testPermissions();
       
       // Define staff accounts early for initialization
       const accounts = [
@@ -5105,7 +5187,7 @@
       // FOOD - Burger items
       {
         name: "Classic Cheeseburger",
-        nameAr: "تشيزبرجر كلاسيكh�",
+        nameAr: "تشيزبرجر كلاسيكي",
         modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Juicy beef patty with cheddar cheese, lettuce, tomato, and our special sauce.",
         descriptionAr: "قطعة لحم بقري عصيرية مع جبنة شيدر، خس، طماطم، وصلصتنا الخاصة.",
