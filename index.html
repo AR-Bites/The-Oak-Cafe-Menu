@@ -4662,69 +4662,6 @@
       // Define a global variable to track if we're in fallback mode due to Firebase permission issues
       let isFirebaseFallbackMode = false;
       
-      // Create fallback local storage for when Firebase is unavailable
-      const localStorageFallback = {
-        orders: [],
-        tables: {},
-        ratings: [],
-        staff: {
-          "admin": { password: "123456", name: "Admin", role: "admin" },
-          "ahmad": { password: "123456", name: "Ahmad", role: "manager" },
-          "john": { password: "123456", name: "John", role: "chef" },
-          "sarah": { password: "123456", name: "Sarah", role: "server" },
-          "staff": { password: "123456", name: "General Staff", role: "staff" }
-        },
-        // Helper methods for the fallback mode
-        addOrder: function(order) {
-          order.id = 'local-' + Date.now(); // Generate a unique local ID
-          this.orders.push(order);
-          this.saveToLocal();
-          return order;
-        },
-        updateOrder: function(orderId, updates) {
-          const index = this.orders.findIndex(o => o.id === orderId);
-          if (index >= 0) {
-            this.orders[index] = {...this.orders[index], ...updates};
-            this.saveToLocal();
-            return this.orders[index];
-          }
-          return null;
-        },
-        getOrders: function(tableNumber) {
-          if (tableNumber) {
-            return this.orders.filter(o => o.tableNumber === tableNumber);
-          }
-          return this.orders;
-        },
-        saveToLocal: function() {
-          try {
-            localStorage.setItem('arBites_fallbackData', JSON.stringify({
-              orders: this.orders,
-              tables: this.tables,
-              ratings: this.ratings
-            }));
-          } catch (e) {
-            console.error("Failed to save fallback data to localStorage:", e);
-          }
-        },
-        loadFromLocal: function() {
-          try {
-            const data = localStorage.getItem('arBites_fallbackData');
-            if (data) {
-              const parsed = JSON.parse(data);
-              this.orders = parsed.orders || [];
-              this.tables = parsed.tables || {};
-              this.ratings = parsed.ratings || [];
-            }
-          } catch (e) {
-            console.error("Failed to load fallback data from localStorage:", e);
-          }
-        }
-      };
-      
-      // Initially load any saved data
-      localStorageFallback.loadFromLocal();
-      
       // Test Firebase permissions
       const testPermissions = async () => {
         console.log("Testing Firebase permissions...");
@@ -4760,11 +4697,13 @@
           hasPermissionErrors = true;
         }
         
-        // Handle permission issues silently and enable fallback mode
+        // Log permission issues but don't show notification to users
         if (hasPermissionErrors) {
           // Set fallback mode to true if there are permission errors
           isFirebaseFallbackMode = true;
-          console.log("📱 Firebase Permission Issues - Switching to local storage fallback mode");
+          
+          // Only log the errors to console, don't show notification to users
+          console.warn("Firebase Permission Issues - Using fallback mode with limited functionality");
           
           // Log the simplest recommended rules for testing (for developers only)
           console.info("Recommended Firebase rules for immediate fix:", `
@@ -4777,299 +4716,32 @@
             }
           }`);
           
-          // Setup override functions for Firebase operations using our fallback storage
-          // These won't cause permission errors as they use local storage
-          
-          // Wrap collection access to use our fallback if needed
-          const originalCollection = db.collection;
-          db.collection = function(collectionPath) {
-            if (isFirebaseFallbackMode) {
-              // Return a fallback object that mimics Firestore's API
-              return {
-                doc: function(docId) {
-                  return {
-                    get: async function() {
-                      // Simulate async behavior
-                      return new Promise((resolve) => {
-                        setTimeout(() => {
-                          // Return a custom data snapshot based on local data
-                          if (collectionPath === 'staff' && localStorageFallback.staff[docId]) {
-                            resolve({
-                              exists: true,
-                              data: () => localStorageFallback.staff[docId],
-                              id: docId
-                            });
-                          } else {
-                            resolve({ exists: false, data: () => null, id: docId });
-                          }
-                        }, 100);
-                      });
-                    },
-                    set: async function(data, options) {
-                      // Handle specific collections
-                      if (collectionPath === 'orders') {
-                        const order = { ...data, id: docId || 'local-' + Date.now() };
-                        localStorageFallback.addOrder(order);
-                      } else if (collectionPath === 'tables') {
-                        localStorageFallback.tables[docId] = data;
-                        localStorageFallback.saveToLocal();
-                      } else if (collectionPath === 'ratings') {
-                        const rating = { ...data, id: docId || 'local-' + Date.now() };
-                        localStorageFallback.ratings.push(rating);
-                        localStorageFallback.saveToLocal();
-                      }
-                      return Promise.resolve();
-                    },
-                    update: async function(data) {
-                      // Similar to set but updates existing data
-                      if (collectionPath === 'orders') {
-                        localStorageFallback.updateOrder(docId, data);
-                      } else if (collectionPath === 'tables') {
-                        localStorageFallback.tables[docId] = {...(localStorageFallback.tables[docId] || {}), ...data};
-                        localStorageFallback.saveToLocal();
-                      }
-                      return Promise.resolve();
-                    },
-                    delete: async function() {
-                      if (collectionPath === 'orders') {
-                        localStorageFallback.orders = localStorageFallback.orders.filter(o => o.id !== docId);
-                      } else if (collectionPath === 'tables') {
-                        delete localStorageFallback.tables[docId];
-                      } else if (collectionPath === 'ratings') {
-                        localStorageFallback.ratings = localStorageFallback.ratings.filter(r => r.id !== docId);
-                      }
-                      localStorageFallback.saveToLocal();
-                      return Promise.resolve();
-                    }
-                  };
-                },
-                where: function() {
-                  // Return a chainable query object
-                  return {
-                    get: async function() {
-                      // Simulate an empty query result
-                      return {
-                        empty: true,
-                        docs: [],
-                        forEach: function() {}
-                      };
-                    },
-                    where: function() { return this; },
-                    orderBy: function() { return this; },
-                    limit: function() { return this; }
-                  };
-                },
-                get: async function() {
-                  // Return appropriate data based on collection
-                  if (collectionPath === 'orders') {
-                    return {
-                      empty: localStorageFallback.orders.length === 0,
-                      docs: localStorageFallback.orders.map(order => ({
-                        id: order.id,
-                        data: () => order,
-                        exists: true
-                      })),
-                      forEach: function(callback) {
-                        localStorageFallback.orders.forEach((order, index) => {
-                          callback({
-                            id: order.id,
-                            data: () => order,
-                            exists: true
-                          }, index);
-                        });
-                      }
-                    };
-                  } else if (collectionPath === 'staff') {
-                    const staffDocs = Object.entries(localStorageFallback.staff).map(([id, data]) => ({
-                      id,
-                      data: () => data,
-                      exists: true
-                    }));
-                    return {
-                      empty: staffDocs.length === 0,
-                      docs: staffDocs,
-                      forEach: function(callback) {
-                        staffDocs.forEach((doc, index) => callback(doc, index));
-                      }
-                    };
-                  } else {
-                    // Default empty result for other collections
-                    return {
-                      empty: true,
-                      docs: [],
-                      forEach: function() {}
-                    };
-                  }
-                },
-                add: async function(data) {
-                  const id = 'local-' + Date.now();
-                  if (collectionPath === 'orders') {
-                    const order = { ...data, id };
-                    localStorageFallback.orders.push(order);
-                    localStorageFallback.saveToLocal();
-                    return { id };
-                  } else if (collectionPath === 'ratings') {
-                    const rating = { ...data, id };
-                    localStorageFallback.ratings.push(rating);
-                    localStorageFallback.saveToLocal();
-                    return { id };
-                  }
-                  return { id };
-                }
-              };
-            } else {
-              // Use the original Firestore collection method
-              return originalCollection.call(db, collectionPath);
-            }
-          };
-          
-          console.log("📱 Local storage fallback mode initialized successfully");
+          // Attempt to create necessary collections anyway - may work with default rules
+          try {
+            // Initialize orders collection if it doesn't exist
+            db.collection('orders').doc('__init__').set({
+              initialized: true,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            // Initialize tables collection if it doesn't exist
+            db.collection('tables').doc('__init__').set({
+              initialized: true,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            console.log("Attempted to create initial collections");
+          } catch (err) {
+            console.error("Failed to create initial collections:", err);
+          }
         } else {
           // If no permission errors, ensure fallback mode is turned off
           isFirebaseFallbackMode = false;
-          console.log("✅ Firebase permissions verified, using cloud database");
         }
       };
       
       // Run the permission tests (async)
       testPermissions();
-      
-      // Add fallback for onSnapshot functionality
-      if (firebase.firestore.DocumentReference) {
-        const originalOnSnapshot = firebase.firestore.DocumentReference.prototype.onSnapshot;
-        firebase.firestore.DocumentReference.prototype.onSnapshot = function(...args) {
-          if (isFirebaseFallbackMode) {
-            // Create a mock unsubscribe function
-            const unsubscribe = () => {};
-            
-            // Simulate a one-time callback for local data
-            const observer = typeof args[0] === 'function' ? args[0] : args[1];
-            const onError = typeof args[1] === 'function' ? args[1] : args[0].error;
-            
-            // Get collection and document ID from this reference
-            const pathSegments = this._path ? this._path.segments : [];
-            const collectionPath = pathSegments.length > 0 ? pathSegments[0] : '';
-            const docId = pathSegments.length > 1 ? pathSegments[1] : '';
-            
-            // Only simulate data for collections we handle in fallback
-            setTimeout(() => {
-              try {
-                if (collectionPath === 'staff' && docId && localStorageFallback.staff[docId]) {
-                  observer({
-                    exists: true,
-                    data: () => localStorageFallback.staff[docId],
-                    id: docId
-                  });
-                } else if (collectionPath === 'orders' && docId) {
-                  const order = localStorageFallback.orders.find(o => o.id === docId);
-                  observer({
-                    exists: !!order,
-                    data: () => order || null,
-                    id: docId
-                  });
-                } else if (collectionPath === 'tables' && docId) {
-                  observer({
-                    exists: !!localStorageFallback.tables[docId],
-                    data: () => localStorageFallback.tables[docId] || null,
-                    id: docId
-                  });
-                } else {
-                  // No data available
-                  observer({
-                    exists: false,
-                    data: () => null,
-                    id: docId
-                  });
-                }
-              } catch (err) {
-                if (onError) onError(err);
-                console.error("Error in fallback onSnapshot:", err);
-              }
-            }, 100);
-            
-            return unsubscribe;
-          } else {
-            // Use the original onSnapshot method
-            return originalOnSnapshot.apply(this, args);
-          }
-        };
-      }
-      
-      // Add fallback for Query.onSnapshot
-      if (firebase.firestore.Query) {
-        const originalQueryOnSnapshot = firebase.firestore.Query.prototype.onSnapshot;
-        firebase.firestore.Query.prototype.onSnapshot = function(...args) {
-          if (isFirebaseFallbackMode) {
-            // Create a mock unsubscribe function
-            const unsubscribe = () => {};
-            
-            // Get the observer callback
-            const observer = typeof args[0] === 'function' ? args[0] : args[1];
-            const onError = typeof args[1] === 'function' ? args[1] : args[0].error;
-            
-            // Attempt to determine the collection name from the query
-            let collectionPath = '';
-            if (this._query && this._query._path) {
-              collectionPath = this._query._path.segments[0];
-            }
-            
-            setTimeout(() => {
-              try {
-                if (collectionPath === 'orders') {
-                  // Return all local orders
-                  observer({
-                    docs: localStorageFallback.orders.map(order => ({
-                      id: order.id,
-                      data: () => order,
-                      exists: true
-                    })),
-                    empty: localStorageFallback.orders.length === 0,
-                    forEach: (callback) => {
-                      localStorageFallback.orders.forEach((order, index) => {
-                        callback({
-                          id: order.id,
-                          data: () => order,
-                          exists: true
-                        }, index);
-                      });
-                    }
-                  });
-                } else if (collectionPath === 'staff') {
-                  // Return staff accounts
-                  const staffDocs = Object.entries(localStorageFallback.staff).map(([id, data]) => ({
-                    id,
-                    data: () => data,
-                    exists: true
-                  }));
-                  
-                  observer({
-                    docs: staffDocs,
-                    empty: staffDocs.length === 0,
-                    forEach: (callback) => {
-                      staffDocs.forEach((doc, index) => callback(doc, index));
-                    }
-                  });
-                } else {
-                  // Return empty results for other collections
-                  observer({
-                    docs: [],
-                    empty: true,
-                    forEach: () => {}
-                  });
-                }
-              } catch (err) {
-                if (onError) onError(err);
-                console.error("Error in fallback Query.onSnapshot:", err);
-              }
-            }, 100);
-            
-            return unsubscribe;
-          } else {
-            // Use the original onSnapshot method
-            return originalQueryOnSnapshot.apply(this, args);
-          }
-        };
-      }
       
       // Define staff accounts early for initialization
       const accounts = [
