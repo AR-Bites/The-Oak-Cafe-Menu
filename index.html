@@ -295,10 +295,12 @@
     .model-container {
       position: relative;
       width: 100%;
+      max-width: 350px;
       height: 250px;
-      margin: 12px 0;
+      margin: 12px auto;
       border-radius: 10px;
       overflow: hidden;
+      box-sizing: border-box;
     }
     
     model-viewer {
@@ -308,9 +310,28 @@
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      background-color: rgba(26, 58, 47, 0.1);
-      --poster-color: transparent;
-      transition: opacity 0.3s ease;
+    }
+    
+    .model-placeholder {
+      width: 100%;
+      height: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      background-color: rgba(240, 240, 240, 0.3);
+      border-radius: 10px;
+      color: #555;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .placeholder-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
     }
     
     .model-loading-indicator {
@@ -497,11 +518,13 @@
     .footer {
       margin-top: 20px;
       padding: 15px;
-      background: rgba(26, 58, 47, 0.95);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 12px 12px 0 0;
-      border-top: 2px solid var(--gold);
+      border-top: 1px solid #eaeaea;
       position: relative;
       z-index: 1;
+      color: #333;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
     }
     
     .footer::before {
@@ -3351,6 +3374,22 @@
         height: 65px;
       }
       
+      /* Mobile-friendly 3D model viewer */
+      .model-container {
+        height: 200px;
+        max-width: 100%;
+        margin: 10px auto;
+      }
+      
+      model-viewer {
+        height: 180px;
+        max-width: 100%;
+      }
+      
+      .model-placeholder {
+        height: 180px;
+      }
+      
       h1 {
         font-size: 1.6rem;
         margin: 8px 0 4px;
@@ -4362,7 +4401,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
             </svg>
-            <span id="phone-text">+962790753376</span>
+            <span id="phone-text">📞 +962790753376</span>
           </a>
         </div>
         <div class="social-links">
@@ -6579,7 +6618,7 @@
       
       if (allMainCategoryBtn) {
         const allBtn = allMainCategoryBtn.querySelector('span');
-        if (allBtn) allBtn.textContent = currentLanguage === 'ar' ? 'الكل' : 'All';
+        if (allBtn) allBtn.textContent = currentLanguage === 'ar' ? 'الB�ل' : 'All';
       }
       if (foodMainCategoryBtn) {
         const foodBtn = foodMainCategoryBtn.querySelector('span');
@@ -6659,7 +6698,13 @@
         'Pepperoni Pizza.glb',
         'Pesto Pasta.glb',
         'Rose Pasta.glb',
-        'Sea Food Pasta.glb'
+        'Sea Food Pasta.glb',
+        'Fatet Makdus Breakfast.glb',
+        'Makdus Breakfast.glb',
+        'Maqdus Salad Breakfast.glb',
+        'Mtabal Baba Ghanooj Breakfast.glb',
+        'Mtabal Breakfast.glb',
+        'Korat AlJebna Breakfast.glb'
       ];
       
       // Map menu items to their models (if available)
@@ -6893,13 +6938,45 @@
         modelViewer.addEventListener('load', () => {
           console.log("Model loaded successfully");
           modelLoadingIndicator.style.display = 'none';
+          
+          // Make sure model is visible and placeholder is hidden
+          modelViewer.style.display = 'block';
+          
+          // Remove any existing placeholder
+          let existingPlaceholder = modelContainer.querySelector('.model-placeholder');
+          if (existingPlaceholder) {
+            existingPlaceholder.style.display = 'none';
+          }
         });
         
         modelViewer.addEventListener('error', (e) => {
           console.error("Error loading model:", item.modelSrc, e);
           modelLoadingIndicator.style.display = 'none';
-          // Hide the model container if there's an error
-          modelContainer.style.display = 'none';
+          
+          // Show a nice error placeholder instead of hiding the container
+          modelViewer.style.display = 'none';
+          
+          // Create or update a placeholder element
+          let placeholderElement = modelContainer.querySelector('.model-placeholder');
+          if (!placeholderElement) {
+            placeholderElement = document.createElement('div');
+            placeholderElement.className = 'model-placeholder';
+            modelContainer.appendChild(placeholderElement);
+          }
+          
+          // Style the placeholder
+          placeholderElement.innerHTML = `
+            <div class="placeholder-content">
+              <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px; color: #e67e22;"></i>
+              <p style="text-align: center; font-size: 0.9rem;">
+                ${currentLanguage === 'ar' ? 'تعذر تحميل النموذج' : 'Could not load model'}
+              </p>
+            </div>
+          `;
+          
+          // Set placeholder style
+          placeholderElement.style.display = 'flex';
+          modelContainer.style.display = 'block';
         });
         
         // Failsafe: Hide loading indicator after 3 seconds
@@ -6907,10 +6984,39 @@
           modelLoadingIndicator.style.display = 'none';
         }, 3000);
       } else {
-        // No matching model found, hide the model container
-        console.log(`No model available for ${item.name}, hiding 3D viewer`);
-        modelContainer.style.display = 'none';
+        // No matching model found, show a placeholder instead of hiding the container
+        console.log(`No model available for ${item.name}, showing placeholder`);
+        
+        // Show container but with a placeholder
+        modelContainer.style.display = 'block';
         modelLoadingIndicator.style.display = 'none';
+        
+        // Instead of leaving the last model, explicitly clear it
+        modelViewer.src = '';
+        
+        // Create or update a placeholder element
+        let placeholderElement = modelContainer.querySelector('.model-placeholder');
+        if (!placeholderElement) {
+          placeholderElement = document.createElement('div');
+          placeholderElement.className = 'model-placeholder';
+          modelContainer.appendChild(placeholderElement);
+        }
+        
+        // Show placeholder message
+        placeholderElement.innerHTML = `
+          <div class="placeholder-content">
+            <i class="fas fa-cube" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <p style="text-align: center; font-size: 0.9rem;">
+              ${currentLanguage === 'ar' ? 'نموذج ثلاثي الأبعاد غير متوفر' : '3D model not available'}
+            </p>
+          </div>
+        `;
+        
+        // Set placeholder style
+        placeholderElement.style.display = 'flex';
+        
+        // Hide actual model viewer since we're showing a placeholder
+        modelViewer.style.display = 'none';
       }
       
       // Clear existing extras
@@ -12269,5 +12375,58 @@
       </div>
     </div>
   </div>
+  <!-- Footer Style Overrides -->
+  <style>
+    .footer {
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: #333 !important;
+      border-top: 1px solid #eaeaea !important;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.05) !important;
+    }
+    
+    .phone-link, .social-link {
+      color: #333 !important;
+      background: rgba(0, 0, 0, 0.05) !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .phone-link:hover, .social-link:hover {
+      background: rgba(0, 0, 0, 0.1) !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .phone-link svg, .social-link svg {
+      fill: #0275d8 !important;
+    }
+    
+    .copyright {
+      color: #333 !important;
+      font-weight: 500 !important;
+    }
+    
+    .powered-by span {
+      font-weight: 600 !important;
+      color: #333 !important;
+    }
+    
+    .contact-info span, .social-links span {
+      color: #333 !important;
+      font-weight: 600 !important;
+    }
+    
+    /* Make sure the footer is responsive on mobile */
+    @media (max-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+      }
+      
+      .copyright {
+        margin-top: 10px !important;
+        text-align: center !important;
+      }
+    }
+  </style>
 </body>
 </html>
