@@ -7999,9 +7999,67 @@
           tableNumber = parseInt(savedTableNumber, 10);
           if (!isNaN(tableNumber)) {
             console.log(`Setting up rating listener for guest with table ${tableNumber}`);
-            // FIXED: Rating system re-enabled with simplified, more reliable implementation
-            console.log("[RATING] Setting up new polling-based rating system");
-            setupRatingListener();
+            // EMERGENCY FIX: Add explicit rating button instead of automatic setup
+            console.log("[RATING] Adding manual rating activation button for better reliability");
+            
+            // Add a button to the guest interface to manually activate ratings
+            setTimeout(() => {
+              // Create a floating button in the bottom-right corner
+              const ratingButton = document.createElement('button');
+              ratingButton.innerHTML = currentLanguage === 'ar' ? 'تنشيط التقييمات' : 'Activate Ratings';
+              ratingButton.className = 'activate-ratings-btn';
+              ratingButton.style.position = 'fixed';
+              ratingButton.style.bottom = '20px';
+              ratingButton.style.right = '20px';
+              ratingButton.style.zIndex = '1000';
+              ratingButton.style.padding = '10px 15px';
+              ratingButton.style.backgroundColor = '#4CAF50';
+              ratingButton.style.color = 'white';
+              ratingButton.style.border = 'none';
+              ratingButton.style.borderRadius = '4px';
+              ratingButton.style.cursor = 'pointer';
+              ratingButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+              
+              // Add click handler
+              ratingButton.onclick = function() {
+                // Ask for table number confirmation
+                const ratingTableNumber = prompt("Please confirm your table number to activate ratings:", tableNumber || "");
+                
+                if (ratingTableNumber && !isNaN(parseInt(ratingTableNumber))) {
+                  const parsedTableNumber = parseInt(ratingTableNumber);
+                  
+                  // Store specifically for ratings
+                  localStorage.setItem('ratingTableNumber', parsedTableNumber.toString());
+                  
+                  // Start the rating system with this explicit table number
+                  setupRatingListener(parsedTableNumber);
+                  
+                  // Hide the button
+                  ratingButton.style.display = 'none';
+                  
+                  // Show confirmation
+                  showNotification(
+                    currentLanguage === 'ar' ? 'تم تنشيط التقييمات' : 'Ratings Activated',
+                    currentLanguage === 'ar' ? 'يمكنك الآن تقييم الطلبات المكتملة' : 
+                    'You can now rate completed orders',
+                    'success',
+                    5000
+                  );
+                } else {
+                  // Show error
+                  showNotification(
+                    currentLanguage === 'ar' ? 'خطأ' : 'Error',
+                    currentLanguage === 'ar' ? 'يرجى إدخال رقم طاولة صالح' : 
+                    'Please enter a valid table number',
+                    'error',
+                    3000
+                  );
+                }
+              };
+              
+              // Add to body
+              document.body.appendChild(ratingButton);
+            }, 3000); // Wait for DOM to be ready
           }
         }
       } else if (userType === "staff") {
@@ -10349,7 +10407,7 @@
     // CRITICAL FIX: Safety function to display rating with timeout to prevent infinite loading
     // CRITICAL FIX: Complete rewrite of the rating system with proper real-time Firebase listener
     // REBUILT FROM SCRATCH: Ultra-simplified rating system with minimal dependencies
-    function setupRatingListener() {
+    function setupRatingListener(explicitTableNumber) {
       console.log("[RATING] Setting up bare-bones rating listener");
       
       // Basic validation only
@@ -10358,7 +10416,11 @@
         return;
       }
       
-      if (!tableNumber) {
+      // Use the explicit table number if provided (from manual activation button)
+      const tableToUse = explicitTableNumber || tableNumber;
+      console.log(`[RATING] Using table number: ${tableToUse} for rating system`);
+      
+      if (!tableToUse) {
         console.log("[RATING] No table number, skipping rating system");
         return;
       }
@@ -10377,21 +10439,49 @@
       }
       
       // Set up polling instead of a real-time listener to avoid potential infinite loops
-      console.log(`[RATING] Setting up polling for completed orders on table ${tableNumber}`);
+      console.log(`[RATING] Setting up polling for completed orders on table ${tableToUse}`);
       
       // Instead of a real-time listener that might cause infinite loops,
       // we'll check for completed orders on a regular interval
-      function checkForCompletedOrders() {
+      function checkForCompletedOrders(explicitTableNumber) {
+        // Use the explicitly provided table number parameter if available
+        let currentTableNumber;
+        
+        if (explicitTableNumber && !isNaN(explicitTableNumber) && explicitTableNumber > 0) {
+          // Use the table number passed as parameter
+          currentTableNumber = explicitTableNumber;
+          console.log(`[RATING] Using explicitly provided table number: ${explicitTableNumber}`);
+        } else if (tableNumber && !isNaN(tableNumber) && tableNumber > 0) {
+          // Fallback to global variable if parameter not provided
+          currentTableNumber = tableNumber;
+          console.log(`[RATING] Using global tableNumber: ${tableNumber}`);
+        } else {
+          // Last resort - try all localStorage keys
+          const tableNumberFromStorage = localStorage.getItem('ratingTableNumber') ||
+                                         localStorage.getItem('tableNumber') || 
+                                         localStorage.getItem('userTableNumber') || 
+                                         localStorage.getItem(TABLE_NUMBER_KEY);
+          
+          console.log(`[RATING] Table number from localStorage: "${tableNumberFromStorage}"`);
+          currentTableNumber = parseInt(tableNumberFromStorage, 10);
+        }
+        
+        // Skip if no table number found or if rating modal is already active
+        if (isNaN(currentTableNumber) || currentTableNumber <= 0) {
+          console.log("[RATING] No valid table number, skipping check");
+          return;
+        }
+        
         if (isRatingModalActive) {
           console.log("[RATING] Rating modal already active, skipping check");
           return;
         }
         
-        console.log(`[RATING] Checking for completed, unrated orders for table ${tableNumber}`);
+        console.log(`[RATING] Checking for completed, unrated orders for table ${currentTableNumber}`);
         
         // Simple one-time query, no persistent listener
         db.collection('orders')
-          .where('tableNumber', '==', tableNumber)
+          .where('tableNumber', '==', currentTableNumber)
           .where('status', '==', 'completed')
           .where('rated', '==', false)
           .limit(1) // Only get one order at a time
@@ -10463,20 +10553,20 @@
           });
       }
       
-      // Initial check
-      checkForCompletedOrders();
+      // Initial check with the explicit table number
+      checkForCompletedOrders(tableToUse);
       
-      // Set up polling interval (every 10 seconds)
-      const pollingInterval = setInterval(checkForCompletedOrders, 10000);
-      
-      // Also set up star rating handlers when we initialize the rating system
-      setupRatingStarHandlers();
+      // Set up polling interval (every 10 seconds) with the explicit table number
+      const pollingInterval = setInterval(() => checkForCompletedOrders(tableToUse), 10000);
       
       // Store unsubscribe function to clear interval when needed
       window.ratingUnsubscribe = function() {
         clearInterval(pollingInterval);
         console.log("[RATING] Rating polling stopped");
       };
+      
+      // Set up star rating handlers when we initialize the rating system
+      setupRatingStarHandlers();
       
       console.log("[RATING] Rating polling setup complete");
     }
@@ -11487,7 +11577,7 @@
           // Show success notification
           showNotification(
             currentLanguage === 'ar' ? 'شكراً على تقييمك' : 'Thank You for Your Rating',
-            currentLanguage === 'ar' ? 'تم تm�جيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
+            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
             'success',
             5000 // Show for 5 seconds
           );
@@ -12736,7 +12826,7 @@
       if (!code) {
         showNotification(
           currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
-          currentLanguage === 'ar' ? "الرجاء i�دخال رمز الخصم قبل التطبيق" : "Please enter a discount code before applying",
+          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم قبل التطبيق" : "Please enter a discount code before applying",
           'error'
         );
         
@@ -13328,7 +13418,7 @@
           menu: {
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
             week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
-            month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
+            month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ ه �ا الشهر',
             year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
           satisfaction: {
