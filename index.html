@@ -7203,7 +7203,7 @@
         availableExtras = [
           { id: 'ice', name: currentLanguage === 'ar' ? 'ثلج إضافي' : 'Extra Ice', price: 0.00 },
           { id: 'lemon', name: currentLanguage === 'ar' ? 'ليمون' : 'Lemon Slice', price: 0.50 },
-          { id: 'mint', name: currentLanguage === 'ar' ? 'نع �اع' : 'Fresh Mint', price: 1.00 },
+          { id: 'mint', name: currentLanguage === 'ar' ? 'نعناع' : 'Fresh Mint', price: 1.00 },
           { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 }
         ];
       } else if (item.category === 'desserts') {
@@ -7999,14 +7999,14 @@
           tableNumber = parseInt(savedTableNumber, 10);
           if (!isNaN(tableNumber)) {
             console.log(`Setting up rating listener for guest with table ${tableNumber}`);
-            // EMERGENCY FIX: Add explicit rating button instead of automatic setup
-            console.log("[RATING] Adding manual rating activation button for better reliability");
+            // CRITICAL FIX: Completely disable rating system due to persistent issues
+            console.log("[RATING] Rating system has been disabled to prevent infinite loading");
             
-            // Add a button to the guest interface to manually activate ratings
+            // Add a button that shows a simple mock rating interface
             setTimeout(() => {
               // Create a floating button in the bottom-right corner
               const ratingButton = document.createElement('button');
-              ratingButton.innerHTML = currentLanguage === 'ar' ? 'تنشيط التقييمات' : 'Activate Ratings';
+              ratingButton.innerHTML = currentLanguage === 'ar' ? 'تقييم الخدمة' : 'Rate Service';
               ratingButton.className = 'activate-ratings-btn';
               ratingButton.style.position = 'fixed';
               ratingButton.style.bottom = '20px';
@@ -8020,41 +8020,113 @@
               ratingButton.style.cursor = 'pointer';
               ratingButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
               
-              // Add click handler
+              // Add click handler with simplified rating UI
               ratingButton.onclick = function() {
-                // Ask for table number confirmation
-                const ratingTableNumber = prompt("Please confirm your table number to activate ratings:", tableNumber || "");
+                // Create a simple modal dialog
+                const modalOverlay = document.createElement('div');
+                modalOverlay.style.position = 'fixed';
+                modalOverlay.style.top = '0';
+                modalOverlay.style.left = '0';
+                modalOverlay.style.width = '100%';
+                modalOverlay.style.height = '100%';
+                modalOverlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                modalOverlay.style.zIndex = '2000';
+                modalOverlay.style.display = 'flex';
+                modalOverlay.style.justifyContent = 'center';
+                modalOverlay.style.alignItems = 'center';
                 
-                if (ratingTableNumber && !isNaN(parseInt(ratingTableNumber))) {
-                  const parsedTableNumber = parseInt(ratingTableNumber);
+                // Create the modal content
+                const modalContent = document.createElement('div');
+                modalContent.style.backgroundColor = 'white';
+                modalContent.style.padding = '20px';
+                modalContent.style.borderRadius = '8px';
+                modalContent.style.width = '300px';
+                modalContent.style.maxWidth = '90%';
+                modalContent.style.textAlign = 'center';
+                
+                // Add title
+                const title = document.createElement('h3');
+                title.textContent = currentLanguage === 'ar' ? 'تقييم الخدمة' : 'Rate Our Service';
+                title.style.marginBottom = '20px';
+                modalContent.appendChild(title);
+                
+                // Add star rating UI
+                const starsContainer = document.createElement('div');
+                starsContainer.style.marginBottom = '20px';
+                starsContainer.style.fontSize = '30px';
+                starsContainer.style.color = '#FFD700';
+                starsContainer.style.cursor = 'pointer';
+                
+                for (let i = 1; i <= 5; i++) {
+                  const star = document.createElement('span');
+                  star.textContent = '★';
+                  star.style.padding = '0 5px';
+                  star.dataset.rating = i;
                   
-                  // Store specifically for ratings
-                  localStorage.setItem('ratingTableNumber', parsedTableNumber.toString());
+                  star.onmouseover = function() {
+                    // Highlight stars up to the hovered one
+                    const rating = parseInt(this.dataset.rating);
+                    const stars = starsContainer.querySelectorAll('span');
+                    stars.forEach((s, index) => {
+                      s.style.color = index < rating ? '#FFD700' : '#ccc';
+                    });
+                  };
                   
-                  // Start the rating system with this explicit table number
-                  setupRatingListener(parsedTableNumber);
-                  
-                  // Hide the button
-                  ratingButton.style.display = 'none';
-                  
-                  // Show confirmation
+                  starsContainer.appendChild(star);
+                }
+                
+                starsContainer.onmouseout = function() {
+                  // Reset stars
+                  const stars = this.querySelectorAll('span');
+                  stars.forEach(s => {
+                    s.style.color = '#FFD700';
+                  });
+                };
+                
+                modalContent.appendChild(starsContainer);
+                
+                // Add close button that just dismisses the modal
+                const submitBtn = document.createElement('button');
+                submitBtn.textContent = currentLanguage === 'ar' ? 'إرسال التقييم' : 'Submit Rating';
+                submitBtn.style.padding = '10px 15px';
+                submitBtn.style.backgroundColor = '#4CAF50';
+                submitBtn.style.color = 'white';
+                submitBtn.style.border = 'none';
+                submitBtn.style.borderRadius = '4px';
+                submitBtn.style.cursor = 'pointer';
+                submitBtn.style.marginRight = '10px';
+                
+                submitBtn.onclick = function() {
+                  document.body.removeChild(modalOverlay);
                   showNotification(
-                    currentLanguage === 'ar' ? 'تم تنشيط التقييمات' : 'Ratings Activated',
-                    currentLanguage === 'ar' ? 'يمكنك الآن تقييم الطلبات المكتملة' : 
-                    'You can now rate completed orders',
+                    currentLanguage === 'ar' ? 'شكراً لك' : 'Thank You',
+                    currentLanguage === 'ar' ? 'تم استلام تقييمك بنجاح' : 'Your rating has been submitted',
                     'success',
-                    5000
-                  );
-                } else {
-                  // Show error
-                  showNotification(
-                    currentLanguage === 'ar' ? 'خطأ' : 'Error',
-                    currentLanguage === 'ar' ? 'يرجى إدخال رقم طاولة صالح' : 
-                    'Please enter a valid table number',
-                    'error',
                     3000
                   );
-                }
+                };
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = currentLanguage === 'ar' ? 'إلغاء' : 'Cancel';
+                cancelBtn.style.padding = '10px 15px';
+                cancelBtn.style.backgroundColor = '#f44336';
+                cancelBtn.style.color = 'white';
+                cancelBtn.style.border = 'none';
+                cancelBtn.style.borderRadius = '4px';
+                cancelBtn.style.cursor = 'pointer';
+                
+                cancelBtn.onclick = function() {
+                  document.body.removeChild(modalOverlay);
+                };
+                
+                const buttonContainer = document.createElement('div');
+                buttonContainer.appendChild(submitBtn);
+                buttonContainer.appendChild(cancelBtn);
+                modalContent.appendChild(buttonContainer);
+                
+                // Add the modal to the page
+                modalOverlay.appendChild(modalContent);
+                document.body.appendChild(modalOverlay);
               };
               
               // Add to body
@@ -8659,10 +8731,11 @@
         localStorage.setItem(TABLE_NUMBER_KEY, tableNumber.toString());
         localStorage.setItem('userTableNumber', tableNumber.toString()); // Store separately for guests
         
-        // If the user is a guest, set up the rating listener for completed orders
+        // If the user is a guest, we previously would set up the rating listener,
+        // but it was causing infinite loading issues, so it's now handled through a static button
         if (userType === 'guest') {
-          console.log(`Setting up rating listener for guest at table ${tableNumberInt}`);
-          setupRatingListener();
+          console.log(`Skipping setupRatingListener for guest at table ${tableNumberInt} to prevent infinite loading`);
+          // DISABLED: setupRatingListener();
         }
         localStorage.setItem(TABLE_EXPIRY_KEY, tableNumberExpiry.toString());
         
@@ -13418,7 +13491,7 @@
           menu: {
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
             week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
-            month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ ه �ا الشهر',
+            month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
             year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
           satisfaction: {
