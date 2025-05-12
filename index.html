@@ -5248,6 +5248,10 @@
     let filteredFoodItems = [];
     let cart = [];
     let estimatedTime = 15; // in minutes
+    
+    // CRITICAL FIX: Track active order listeners to enable real-time updates
+    let activeOrderListeners = {}; // Maps orderId -> unsubscribe function
+    let isRatingModalActive = false; // Flag to prevent multiple rating dialogs
     let currentLanguage = 'en';
     let userType = "guest"; // guest, staff, admin
     let currentStaff = null;
@@ -7199,7 +7203,7 @@
         availableExtras = [
           { id: 'ice', name: currentLanguage === 'ar' ? 'ثلج إضافي' : 'Extra Ice', price: 0.00 },
           { id: 'lemon', name: currentLanguage === 'ar' ? 'ليمون' : 'Lemon Slice', price: 0.50 },
-          { id: 'mint', name: currentLanguage === 'ar' ? 'نعناع' : 'Fresh Mint', price: 1.00 },
+          { id: 'mint', name: currentLanguage === 'ar' ? 'نع �اع' : 'Fresh Mint', price: 1.00 },
           { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 }
         ];
       } else if (item.category === 'desserts') {
@@ -9357,6 +9361,74 @@
       // Maximum retry attempts
       const MAX_RETRIES = 3;
       
+      // CRITICAL FIX: For guest users, set up real-time listeners for each order
+      // This ensures we detect when an order is marked as completed by staff
+      if (userType === 'guest' && tableNumber) {
+        console.log("Setting up real-time order listeners for guest table:", tableNumber);
+        
+        // Clear any existing listeners first
+        for (const orderId in activeOrderListeners) {
+          if (typeof activeOrderListeners[orderId] === 'function') {
+            console.log(`Removing listener for order ${orderId}`);
+            activeOrderListeners[orderId]();
+            delete activeOrderListeners[orderId];
+          }
+        }
+        
+        // Set up real-time listeners for active orders (pending, preparing, ready)
+        // following the approach in the user's instructions
+        db.collection('orders')
+          .where('tableNumber', '==', tableNumber)
+          .where('status', 'in', ['pending', 'preparing', 'ready'])
+          .get()
+          .then(snapshot => {
+            if (snapshot.empty) {
+              console.log("No active orders found to monitor");
+              return;
+            }
+            
+            console.log(`Found ${snapshot.size} active orders to monitor for status changes`);
+            
+            snapshot.forEach(doc => {
+              const orderId = doc.id;
+              console.log(`Setting up real-time listener for order ${orderId}`);
+              
+              // Set up real-time listener for this order document
+              // This is exactly what was requested in the instructions
+              activeOrderListeners[orderId] = db.collection('orders').doc(orderId)
+                .onSnapshot(docSnapshot => {
+                  if (!docSnapshot.exists) {
+                    console.log(`Order ${orderId} no longer exists`);
+                    return;
+                  }
+                  
+                  const orderData = docSnapshot.data();
+                  console.log(`Real-time update for order ${orderId}: status = ${orderData.status}`);
+                  
+                  // CRITICAL: This is the key logic from the instructions
+                  // When order status becomes "completed" and it's not rated yet, 
+                  // show the rating modal immediately
+                  if (orderData.status === 'completed' && !orderData.rated) {
+                    console.log(`Order ${orderId} COMPLETED - showing rating dialog immediately`);
+                    
+                    // Only show if we're not already displaying another rating
+                    if (!isRatingModalActive) {
+                      // Show the rating modal for this order
+                      displayRatingWithSafety(orderId, orderData);
+                    } else {
+                      console.log("Another rating modal is already active, queuing this one");
+                    }
+                  }
+                }, error => {
+                  console.error(`Error in real-time listener for order ${orderId}:`, error);
+                });
+            });
+          })
+          .catch(error => {
+            console.error("Error setting up real-time order listeners:", error);
+          });
+      }
+      
       try {
         // Define a function to fetch orders with fallback for missing index errors
         const fetchOrders = async () => {
@@ -10276,7 +10348,7 @@
     // Global variable to track if a rating is currently being displayed
     let isRatingModalActive = false;
     
-    // CRITICAL FIX: Complete rewrite of the rating system with proper useEffect-like Firebase listener
+    // CRITICAL FIX: Complete rewrite of the rating system with proper real-time Firebase listener
     function setupRatingListener() {
       console.log("Setting up rating listener for completed orders");
       
@@ -10305,6 +10377,10 @@
         window.ratingUnsubscribe = null;
       }
       
+      // Also set up individual order listeners for active orders
+      // This ensures we detect when an order changes status to completed in real-time
+      setupActiveOrderListeners();
+      
       // Create the query - only get completed orders for this table that haven't been rated
       const ratingQuery = db.collection('orders')
         .where('status', '==', 'completed')
@@ -10314,7 +10390,7 @@
       // Start the real-time listener
       window.ratingUnsubscribe = ratingQuery.onSnapshot(snapshot => {
         // Handle query errors
-        if (snapshot.metadata.fromCache && snapshot.metadata.hasPendingWrites) {
+        if (snapshot.metadata && snapshot.metadata.fromCache && snapshot.metadata.hasPendingWrites) {
           console.log("Rating query using cached data with pending writes - skipping");
           return;
         }
@@ -10350,9 +10426,80 @@
       console.log("Rating listener setup complete");
     }
     
-    // Safety function to display rating with timeout to prevent infinite loading
+    // Global storage for active order listeners
+    const activeOrderListeners = {};
+    
+    // Function to set up real-time listeners for each active order
+    function setupActiveOrderListeners() {
+      console.log("Setting up individual order listeners for active orders");
+      
+      // Clear any existing listeners first
+      for (const orderId in activeOrderListeners) {
+        if (typeof activeOrderListeners[orderId] === 'function') {
+          activeOrderListeners[orderId]();
+          delete activeOrderListeners[orderId];
+        }
+      }
+      
+      // Only proceed if we have a valid table number
+      if (!tableNumber) {
+        console.log("Cannot setup order listeners - no table number");
+        return;
+      }
+      
+      // Find all pending, preparing, and ready orders for this table
+      db.collection('orders')
+        .where('tableNumber', '==', tableNumber)
+        .where('status', 'in', ['pending', 'preparing', 'ready'])
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            console.log("No active orders found to monitor");
+            return;
+          }
+          
+          console.log(`Found ${snapshot.size} active orders to monitor for status changes`);
+          
+          // Set up a listener for each order
+          snapshot.forEach(doc => {
+            const orderId = doc.id;
+            console.log(`Setting up listener for order ${orderId}`);
+            
+            // Add real-time listener for this specific order document
+            activeOrderListeners[orderId] = db.collection('orders').doc(orderId)
+              .onSnapshot(docSnapshot => {
+                if (!docSnapshot.exists) {
+                  console.log(`Order ${orderId} no longer exists`);
+                  return;
+                }
+                
+                const orderData = docSnapshot.data();
+                console.log(`Order ${orderId} status updated to: ${orderData.status}`);
+                
+                // If the order is now completed and not rated, show the rating modal
+                if (orderData.status === 'completed' && !orderData.rated) {
+                  console.log(`Order ${orderId} is now completed - showing rating dialog`);
+                  
+                  // Only show if we're not already showing another rating
+                  if (!isRatingModalActive) {
+                    displayRatingWithSafety(orderId, orderData);
+                  } else {
+                    console.log("Rating modal already active, queuing this one for later");
+                  }
+                }
+              }, error => {
+                console.error(`Error listening to order ${orderId}:`, error);
+              });
+          });
+        })
+        .catch(error => {
+          console.error("Error setting up order listeners:", error);
+        });
+    }
+    
+    // CRITICAL FIX: Safety function to display rating with timeout to prevent infinite loading
     function displayRatingWithSafety(orderId, orderData) {
-      console.log(`Safely displaying rating for order ${orderId} with timeout protection`);
+      console.log(`[RATING] Safely displaying rating for order ${orderId} with timeout protection`);
       
       // Mark the rating modal as active
       isRatingModalActive = true;
@@ -10361,9 +10508,10 @@
       let ratingDisplayed = false;
       
       // Set a timeout to ensure we don't hang the app if Firebase or modal has issues
+      // CRITICAL FIX: Increased timeout to prevent false timeouts on slower connections
       const safetyTimeout = setTimeout(() => {
         if (!ratingDisplayed) {
-          console.warn(`Rating timeout reached for order ${orderId} - ensuring app continues`);
+          console.warn(`[RATING] Timeout reached for order ${orderId} - ensuring app continues`);
           
           // Show a notification to the user that rating couldn't be loaded
           showNotification(
@@ -10377,26 +10525,43 @@
           
           // Make sure the app flow continues by updating the order as rated
           try {
+            console.log(`[RATING] Marking order ${orderId} as rated due to timeout`);
             db.collection('orders').doc(orderId).update({
               rated: true,
               ratingSkipped: true,
+              ratingSkippedReason: 'timeout',
               ratingSkippedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(err => console.error("Error marking order as rating skipped:", err));
+            }).then(() => {
+              console.log(`[RATING] Successfully marked order ${orderId} as rated after timeout`);
+            }).catch(err => {
+              console.error(`[RATING] Error marking order as rating skipped:`, err);
+            });
           } catch (err) {
-            console.error("Failed to mark order as rating skipped:", err);
+            console.error(`[RATING] Critical error marking order as rated:`, err);
           }
           
           // Reset the rating modal active flag
           isRatingModalActive = false;
         }
-      }, 5000); // 5 second timeout
+      }, 10000); // CRITICAL FIX: Increased to 10 seconds for better reliability
       
       try {
+        console.log(`[RATING] Attempting to show rating dialog for order ${orderId}`);
+        
+        // CRITICAL FIX: Check if order data is valid before proceeding
+        if (!orderData || typeof orderData !== 'object') {
+          throw new Error('Invalid order data provided to rating dialog');
+        }
+        
         // Attempt to show the rating dialog
         showRatingDialog(orderId, orderData);
         
         // Mark as displayed if we get here without errors
         ratingDisplayed = true;
+        console.log(`[RATING] Successfully displayed rating dialog for order ${orderId}`);
+        
+        // Clear the safety timeout since we displayed it successfully
+        clearTimeout(safetyTimeout);
         
         // Add a listener to the cancel button to mark the order as rated on cancel
         const cancelBtn = document.getElementById('cancel-rating-btn');
@@ -10431,50 +10596,114 @@
         // Clear the timeout if we've made it this far
         clearTimeout(safetyTimeout);
       } catch (err) {
-        console.error("Error in displayRatingWithSafety:", err);
-        // No need to clear timeout - let it fire to clean up the state
+        console.error("[RATING] Critical error in displayRatingWithSafety:", err);
         
-        // Make sure we reset the rating modal active flag after a delay
+        // Clear the safety timeout - we'll handle cleanup ourselves
+        clearTimeout(safetyTimeout);
+        
+        // Show an error notification to the user
+        showNotification(
+          currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
+          currentLanguage === 'ar' 
+            ? 'حدث خطأ أثناء محاولة تحميل نافذة التقييم. سنقوم بإصلاح هذه المشكلة قريبًا.' 
+            : 'An error occurred while trying to display the rating dialog. We\'ll fix this issue soon.',
+          'error',
+          5000
+        );
+        
+        // CRITICAL FIX: Mark the order as rated to prevent showing the dialog again
+        // This prevents infinite loops with problematic orders
+        try {
+          db.collection('orders').doc(orderId).update({
+            rated: true,
+            ratingSkipped: true,
+            ratingSkippedReason: 'error',
+            ratingError: err.message || 'Unknown error',
+            ratingSkippedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(() => {
+            console.log(`[RATING] Marked order ${orderId} as rated due to error`);
+          }).catch(dbErr => {
+            console.error(`[RATING] Failed to mark order as rated after error:`, dbErr);
+          });
+        } catch (dbErr) {
+          console.error(`[RATING] Critical database error:`, dbErr);
+        }
+        
+        // Make sure we reset the rating modal active flag after a short delay
         setTimeout(() => {
           isRatingModalActive = false;
+          console.log(`[RATING] Reset rating modal active flag after error`);
         }, 500);
       }
     }
     
+    // CRITICAL FIX: Define refreshOrders function to ensure it exists
+    function refreshOrders() {
+      console.log("[RATING] refreshOrders called - refreshing orders list");
+      // Simply call renderOrders with default retry count
+      renderOrders(0);
+    }
+    
+    // CRITICAL FIX: Display rating with safety measures to prevent infinite loading
+    // This is the primary implementation, the duplicate will be removed
+    
     function showRatingDialog(orderId, orderData) {
-      console.log(`Starting showRatingDialog for order ${orderId}`);
+      console.log(`[RATING] Starting showRatingDialog for order ${orderId}`);
+      
+      // CRITICAL FIX: Add safety check for orderId
+      if (!orderId) {
+        console.error("[RATING] Invalid order ID provided to showRatingDialog");
+        isRatingModalActive = false;
+        throw new Error("Invalid order ID");
+      }
       
       // Only guests should be able to rate orders
       if (userType !== 'guest') {
-        console.log("Aborting rating dialog - only guests can rate orders");
+        console.log("[RATING] Aborting rating dialog - only guests can rate orders");
         isRatingModalActive = false; // Reset the flag
-        return;
+        throw new Error("Only guests can rate orders");
+      }
+      
+      // CRITICAL FIX: Check for valid table number
+      if (!tableNumber) {
+        console.error("[RATING] No table number available for rating");
+        isRatingModalActive = false;
+        throw new Error("No table number available");
       }
       
       // If we have orderData and just need to show UI
       const processOrder = (data) => {
+        // CRITICAL FIX: Safety check for data validity
+        if (!data || typeof data !== 'object') {
+          console.error(`[RATING] Invalid order data for order ${orderId}`);
+          isRatingModalActive = false;
+          throw new Error("Invalid order data");
+        }
+        
         // Check if order has already been rated
         if (data.rated) {
-          console.log(`Order ${orderId} has already been rated`);
+          console.log(`[RATING] Order ${orderId} has already been rated`);
           isRatingModalActive = false; // Reset the flag
           return;
         }
         
         // Make sure this is really a completed order
         if (data.status !== 'completed') {
-          console.log(`Order ${orderId} is not completed (status: ${data.status}), can't rate yet`);
+          console.log(`[RATING] Order ${orderId} is not completed (status: ${data.status}), can't rate yet`);
           isRatingModalActive = false; // Reset the flag
           return;
         }
         
         // Make sure the order belongs to this guest's table
         if (data.tableNumber !== tableNumber) {
-          console.log(`Order ${orderId} is for table ${data.tableNumber}, not for current table ${tableNumber}`);
+          console.log(`[RATING] Order ${orderId} is for table ${data.tableNumber}, not for current table ${tableNumber}`);
           isRatingModalActive = false; // Reset the flag
           return;
         }
         
-        console.log(`Preparing rating dialog for order ${orderId}`);
+        console.log(`[RATING] Order ${orderId} verified as valid for rating`);
+        
+        console.log(`[RATING] Preparing rating dialog for order ${orderId}`);
         
         // Set current order ID for rating
         currentOrderForRating = orderId;
@@ -10588,12 +10817,12 @@
           }
         });
         
-        console.log(`Rating dialog prepared for order ${orderId}`);
+        console.log(`[RATING] Dialog prepared for order ${orderId}`);
         
         // Show the rating modal with animation
         const ratingModalElement = document.getElementById('rating-modal');
         if (ratingModalElement) {
-          // First ensure it's not already displaying
+          // CRITICAL FIX: Ensure we're not already displaying
           ratingModalElement.style.display = 'none';
           
           // Reset opacity for animation
@@ -10601,24 +10830,30 @@
           
           // Then show it with a slight delay for better user experience
           setTimeout(() => {
-            ratingModalElement.style.display = 'flex';
-            
-            // Trigger fade-in animation
-            setTimeout(() => {
-              ratingModalElement.style.opacity = '1';
-            }, 10);
-            
-            console.log(`Rating modal displayed for order ${orderId}`);
-            
-            // Force focus on the first star to draw attention
-            const firstStar = document.querySelector('.rating-star');
-            if (firstStar) {
-              firstStar.focus();
+            try {
+              ratingModalElement.style.display = 'flex';
+              
+              // Trigger fade-in animation
+              setTimeout(() => {
+                ratingModalElement.style.opacity = '1';
+              }, 10);
+              
+              console.log(`[RATING] Modal successfully displayed for order ${orderId}`);
+              
+              // CRITICAL FIX: Force focus on the first star to draw attention
+              const firstStar = document.querySelector('.rating-star');
+              if (firstStar) {
+                firstStar.focus();
+              }
+            } catch (animError) {
+              console.error(`[RATING] Error during animation:`, animError);
+              // Still continue in case the display works without animation
             }
           }, 50);
         } else {
-          console.error("Rating modal element not found");
+          console.error("[RATING] Critical error: Rating modal element not found");
           isRatingModalActive = false; // Reset the flag
+          throw new Error("Rating modal element not found");
         }
         
         // Setup rating star event handlers - clone nodes to remove old event listeners
@@ -10767,8 +11002,8 @@
     }
     
     function submitRating() {
-      // Clear existing function data-binding issues
-      console.log(`Starting submitRating with currentOrderForRating=${currentOrderForRating} and currentRating=${currentRating}`);
+      // CRITICAL FIX: Enhanced rating submission with better error handling
+      console.log(`[RATING] Starting submitRating with currentOrderForRating=${currentOrderForRating} and currentRating=${currentRating}`);
       
       // Initialize orderId from either the value field or the current global tracking variable
       let orderId = null;
@@ -10777,11 +11012,13 @@
         // Check if it's an input or just a display element
         if (orderIdField.tagName === 'INPUT') {
           orderId = orderIdField.value;
+          console.log(`[RATING] Got order ID ${orderId} from input field`);
         } else {
           // Get from the textContent, removing the leading # if present
           const text = orderIdField.textContent;
           if (text) {
             orderId = text.replace('#', '');
+            console.log(`[RATING] Got order ID ${orderId} from text content`);
           }
         }
       }
@@ -10789,19 +11026,24 @@
       // Fall back to the current global tracking variable if needed
       if (!orderId && currentOrderForRating) {
         orderId = currentOrderForRating;
+        console.log(`[RATING] Using fallback order ID ${orderId} from currentOrderForRating`);
       }
       
       if (!orderId) {
-        console.error("No order ID found for rating");
+        console.error("[RATING] CRITICAL ERROR: No order ID found for rating submission");
         showNotification(
           currentLanguage === 'ar' ? 'خطأ' : 'Error',
           currentLanguage === 'ar' ? 'لم يتم تحديد الطلب للتقييم' : 'No order specified for rating',
           'error'
         );
+        
+        // CRITICAL FIX: Reset the rating modal active flag to allow future ratings
+        isRatingModalActive = false;
         return;
       }
       
       if (currentRating === 0) {
+        console.log(`[RATING] Error: No rating selected for order ${orderId}`);
         showNotification(
           currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
           currentLanguage === 'ar' ? 'يرجى تحديد تقييم قبل الإرسال' : 'Please select a rating first',
@@ -10810,14 +11052,35 @@
         return;
       }
       
-      // For ratings of 3 or less, feedback is required
+      console.log(`[RATING] Rating of ${currentRating} stars selected for order ${orderId}`);
+      
+      // CRITICAL FIX: For ratings of 3 or less, feedback is required
       if (currentRating <= 3) {
-        const feedbackText = document.getElementById('feedback-text').value.trim();
+        const feedbackTextElement = document.getElementById('feedback-text');
+        
+        // SAFETY CHECK: Make sure element exists before trying to access its value
+        if (!feedbackTextElement) {
+          console.error(`[RATING] Critical error: Feedback text element not found`);
+          showNotification(
+            currentLanguage === 'ar' ? 'خطأ في النظام' : 'System Error',
+            currentLanguage === 'ar' ? 'حدث خطأ في نظام التقييم. سنقوم بإصلاح هذه المشكلة قريبًا.' : 'There was an error in the rating system. We\'ll fix this issue soon.',
+            'error'
+          );
+          isRatingModalActive = false;
+          return;
+        }
+        
+        const feedbackText = feedbackTextElement.value.trim();
         if (!feedbackText) {
+          console.log(`[RATING] Low rating (${currentRating}) submitted without required feedback`);
+          
           // Show error message if no feedback is provided for low ratings
           const requiredMsg = document.getElementById('feedback-required-message');
           if (requiredMsg) {
             requiredMsg.style.display = 'block';
+            
+            // Focus the feedback text field to draw attention to it
+            feedbackTextElement.focus();
           }
           
           const feedbackField = document.getElementById('feedback-text');
@@ -10855,21 +11118,53 @@
         }
       });
       
-      // Get dish names for better analytics
-      let dishNames = [];
-      const itemElements = document.querySelectorAll('.rating-order-item .item-name');
-      itemElements.forEach(el => {
-        if (el && el.textContent) {
-          dishNames.push(el.textContent.trim());
+      // CRITICAL FIX: Get the feedback text with proper error handling
+      let feedback = '';
+      try {
+        const feedbackElement = document.getElementById('feedback-text');
+        if (feedbackElement) {
+          feedback = feedbackElement.value.trim();
+          console.log(`[RATING] Feedback text retrieved: "${feedback.substring(0, 30)}${feedback.length > 30 ? '...' : ''}"`);
+        } else {
+          console.warn(`[RATING] Feedback text element not found`);
         }
-      });
+      } catch (feedbackError) {
+        console.error(`[RATING] Error getting feedback text:`, feedbackError);
+      }
       
-      // Create detailed rating data object
+      // Get dish names for better analytics with safety checks
+      let dishNames = [];
+      try {
+        const itemElements = document.querySelectorAll('.rating-order-item .item-name');
+        itemElements.forEach(el => {
+          if (el && el.textContent) {
+            dishNames.push(el.textContent.trim());
+          }
+        });
+        console.log(`[RATING] Collected ${dishNames.length} dish names for analytics`);
+      } catch (dishError) {
+        console.error(`[RATING] Error collecting dish names:`, dishError);
+      }
+      
+      // Get current staff name for this table (if assigned)
+      let staffName = '';
+      try {
+        if (tableNumber) {
+          const tableStaffInfo = document.querySelector(`.table-card[data-table-number="${tableNumber}"] .assigned-staff`);
+          if (tableStaffInfo) {
+            staffName = tableStaffInfo.textContent.trim();
+            console.log(`[RATING] Found assigned staff name: "${staffName}"`);
+          }
+        }
+      } catch (staffError) {
+        console.error(`[RATING] Error getting staff name:`, staffError);
+      }
+      
+      // Create detailed rating data object with safety checks
       const ratingData = {
         orderId: orderId,
         rating: currentRating,
-        staffName: staffName,
-        feedback: feedback,
+        feedback: feedback || '',
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         tableNumber: tableNumber,
         language: currentLanguage,
@@ -10877,10 +11172,16 @@
         isLowRating: currentRating <= 3, // Flag for easy filtering of low ratings
         dishes: dishNames.length > 0 ? dishNames : ['Unknown dish'],
         // Add metadata for admin reporting
-        ratingDate: new Date().toISOString().split('T')[0] // YYYY-MM-DD format for easy querying
+        ratingDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format for easy querying
+        clientId: localStorage.getItem('clientId') || 'unknown' // Track unique clients
       };
       
-      console.log(`Submitting rating for order ${orderId}: ${currentRating} stars with feedback: "${feedback.substring(0, 30)}${feedback.length > 30 ? '...' : ''}"`);
+      // Add staff name if available
+      if (staffName) {
+        ratingData.staffName = staffName;
+      }
+      
+      console.log(`[RATING] Submitting rating for order ${orderId}: ${currentRating} stars with feedback: "${feedback.substring(0, 30)}${feedback.length > 30 ? '...' : ''}"`);
     
       // CRITICAL FIX: Set a safety timeout to prevent infinite loading
       const submissionTimeout = setTimeout(() => {
@@ -10913,15 +11214,17 @@
         
       }, 8000); // 8-second safety timeout
       
-      // Save to ratings collection in Firebase
+      // CRITICAL FIX: Save to ratings collection in Firebase with enhanced error handling
       db.collection('ratings').add(ratingData)
         .then((ratingRef) => {
-          console.log(`Rating saved with ID: ${ratingRef.id}`);
+          console.log(`[RATING] Successfully saved rating with ID: ${ratingRef.id}`);
           
           // Clear the safety timeout as we got a response
           clearTimeout(submissionTimeout);
           
-          // Update order with rating info - add all relevant details
+          // CRITICAL FIX: Update order with rating info - add all relevant details
+          console.log(`[RATING] Updating order ${orderId} with rating information`);
+          
           return db.collection('orders').doc(orderId).update({
             rated: true,
             rating: currentRating,
@@ -10929,24 +11232,42 @@
             ratingTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
             ratingFeedback: feedback, // Store feedback on the order too for easy reference
             ratingRequiredFeedback: currentRating <= 3,
-            ratingDate: new Date().toISOString().split('T')[0]
+            ratingDate: new Date().toISOString().split('T')[0],
+            ratingSource: 'guest_app',
+            ratingCompletedSuccessfully: true
           });
         })
         .then(() => {
-          console.log(`Order ${orderId} marked as rated`);
+          console.log(`[RATING] Order ${orderId} successfully marked as rated`);
           
           // Clear the safety timeout again (defensive)
           clearTimeout(submissionTimeout);
           
+          // CRITICAL FIX: Reset tracking variables
+          currentOrderForRating = null;
+          currentRating = 0;
+          
           // Close the rating dialog with animation
           const ratingModal = document.getElementById('rating-modal');
           if (ratingModal) {
-            ratingModal.style.opacity = '0';
-            setTimeout(() => {
-              ratingModal.style.display = 'none';
-              ratingModal.style.opacity = '1';
-            }, 300);
+            try {
+              // Animate out
+              ratingModal.style.opacity = '0';
+              setTimeout(() => {
+                ratingModal.style.display = 'none';
+                
+                // Reset opacity for next time
+                setTimeout(() => {
+                  ratingModal.style.opacity = '1';
+                }, 100);
+              }, 300);
+            } catch (animError) {
+              console.error("[RATING] Error during close animation:", animError);
+              // Fall back to direct close
+              closeRatingDialog();
+            }
           } else {
+            console.warn("[RATING] Rating modal not found for animation, using closeRatingDialog instead");
             closeRatingDialog();
           }
           
@@ -10958,11 +11279,11 @@
             5000 // Show for 5 seconds
           );
           
-          // Reset the order for rating
-          currentOrderForRating = null;
-          
-          // Reset form for next time
-          currentRating = 0;
+          // CRITICAL FIX: Form already reset above, don't do it again
+          // Reset form for next time if not already done
+          if (currentRating !== 0) {
+            currentRating = 0;
+          }
           const ratingStars = document.querySelectorAll(".rating-star");
           ratingStars.forEach(star => star.classList.remove('active'));
           
@@ -10975,14 +11296,35 @@
           // Reset the rating modal active flag
           isRatingModalActive = false;
           
-          // Refresh orders to show updated status
-          refreshOrders();
+          // CRITICAL FIX: Refresh orders to show updated status
+          try {
+            // If refreshOrders exists, call it
+            if (typeof refreshOrders === 'function') {
+              console.log("[RATING] Refreshing orders after successful rating");
+              refreshOrders();
+            } else {
+              // Otherwise call renderOrders directly
+              console.log("[RATING] Calling renderOrders after successful rating");
+              renderOrders(0);
+            }
+          } catch (refreshError) {
+            console.error("[RATING] Error refreshing orders:", refreshError);
+            // Try renderOrders as fallback
+            try {
+              renderOrders(0);
+            } catch (renderError) {
+              console.error("[RATING] Error calling renderOrders:", renderError);
+            }
+          }
         })
         .catch(error => {
-          console.error("Error saving rating:", error);
+          console.error("[RATING] Critical error saving rating:", error);
           
           // Clear the safety timeout as we got a response (even if it's an error)
           clearTimeout(submissionTimeout);
+          
+          // CRITICAL FIX: Always reset the current order variable
+          currentOrderForRating = null;
           
           // Re-enable the submit buttons if there was an error
           submitButtons.forEach(button => {
@@ -10993,16 +11335,29 @@
             }
           });
           
-          // Show error notification
+          // Show a more detailed error notification with specific error message if available
+          let errorMsg = currentLanguage === 'ar' 
+            ? 'حدث خطأ أثناء حفظ تقييمك، يرجى المحاولة مرة أخرى' 
+            : 'There was an error saving your rating, please try again';
+            
+          // Add error code if available
+          if (error && error.code) {
+            errorMsg += currentLanguage === 'ar'
+              ? ` (رمز الخطأ: ${error.code})`
+              : ` (Error code: ${error.code})`;
+          }
+          
           showNotification(
             currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-            currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ تقييمك، يرجى المحاولة مرة أخرى' : 'There was an error saving your rating, please try again',
+            errorMsg,
             'error',
             8000 // Show for 8 seconds to ensure user sees it
           );
           
-          // Still mark the order as rated to prevent infinite prompts on error
+          // CRITICAL FIX: Still mark the order as rated to prevent infinite prompts on error
+          // This ensures users don't get stuck in a loop if ratings can't be submitted
           try {
+            console.log(`[RATING] Marking order ${orderId} as rated due to submission error`);
             db.collection('orders').doc(orderId).update({
               rated: true,
               ratingAttempted: true,
