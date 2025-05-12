@@ -7203,7 +7203,7 @@
         availableExtras = [
           { id: 'ice', name: currentLanguage === 'ar' ? 'ثلج إضافي' : 'Extra Ice', price: 0.00 },
           { id: 'lemon', name: currentLanguage === 'ar' ? 'ليمون' : 'Lemon Slice', price: 0.50 },
-          { id: 'mint', name: currentLanguage === 'ar' ? 'نع �اع' : 'Fresh Mint', price: 1.00 },
+          { id: 'mint', name: currentLanguage === 'ar' ? 'نعناع' : 'Fresh Mint', price: 1.00 },
           { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 }
         ];
       } else if (item.category === 'desserts') {
@@ -7999,7 +7999,15 @@
           tableNumber = parseInt(savedTableNumber, 10);
           if (!isNaN(tableNumber)) {
             console.log(`Setting up rating listener for guest with table ${tableNumber}`);
-            setupRatingListener();
+            // CRITICAL EMERGENCY FIX: Rating system disabled to prevent infinite loading
+            console.log("[EMERGENCY] Rating system has been disabled to prevent infinite loading");
+            showNotification(
+              currentLanguage === 'ar' ? 'تم تعطيل التقييمات مؤقتًا' : 'Ratings Temporarily Disabled',
+              currentLanguage === 'ar' ? 'تم تعطيل نظام التقييم مؤقتًا لأسباب فنية' : 
+              'Rating system has been temporarily disabled for technical reasons',
+              'info',
+              5000
+            );
           }
         }
       } else if (userType === "staff") {
@@ -10345,105 +10353,249 @@
     // currentRating is already declared above, so we're not redeclaring it
     
     // CRITICAL FIX: Safety function to display rating with timeout to prevent infinite loading
-    // Global variable to track if a rating is currently being displayed
-    let isRatingModalActive = false;
-    
     // CRITICAL FIX: Complete rewrite of the rating system with proper real-time Firebase listener
+    // COMPLETE REWRITE: Simplified rating system with no nested listeners or callbacks
     function setupRatingListener() {
-      console.log("Setting up rating listener for completed orders");
+      console.log("[RATING] Setting up simplified rating listener");
       
-      // Only guests should be able to rate
+      // Create global emergency timeout that will force-reset if anything hangs
+      window.emergencyRatingReset = setTimeout(() => {
+        console.error("[RATING] 🚨 EMERGENCY TIMEOUT - Forcing page reload");
+        
+        try {
+          // Reset state first
+          isRatingModalActive = false;
+          
+          // Force close any open modals
+          const modalContainer = document.getElementById('rating-modal-container');
+          if (modalContainer) modalContainer.style.display = 'none';
+          
+          // Clean up listeners
+          if (window.ratingUnsubscribe && typeof window.ratingUnsubscribe === 'function') {
+            window.ratingUnsubscribe();
+            window.ratingUnsubscribe = null;
+          }
+          
+          // Show notification
+          showNotification(
+            currentLanguage === 'ar' ? 'جاري إعادة تحميل الصفحة' : 'Reloading page',
+            currentLanguage === 'ar' ? 'تم اكتشاف مشكلة. جاري إعادة تحميل الصفحة.' : 
+            'An issue was detected. Reloading the page.',
+            'warning',
+            5000
+          );
+        } catch (e) {
+          // Ignore any errors in emergency handler
+        }
+        
+        // Force reload after short delay
+        setTimeout(() => window.location.reload(), 3000);
+      }, 45000); // 45-second absolute maximum
+      
+      // Only continue for guest users
       if (userType !== 'guest') {
-        console.log("Rating system disabled for non-guest users");
+        console.log("[RATING] Not guest user, skipping rating listener");
+        clearTimeout(window.emergencyRatingReset);
         return;
       }
       
-      // Current table number for this user (for filtering orders)
+      // Require table number
       if (!tableNumber) {
-        console.log("Cannot setup rating listener - no table number");
+        console.log("[RATING] No table number, skipping rating listener");
+        clearTimeout(window.emergencyRatingReset);
         return;
       }
       
-      console.log(`Setting up rating listener for table ${tableNumber}`);
+      // Require valid Firebase connection
+      if (!db) {
+        console.error("[RATING] Firebase not initialized, cannot setup rating listener");
+        clearTimeout(window.emergencyRatingReset);
+        return;
+      }
       
-      // Create a Firebase listener for orders that are:
-      // 1. Completed
-      // 2. Not rated yet
-      // 3. Belong to this guest's table
-      
-      // Unsubscribe from any previous listener first to prevent duplicates
+      // Clean up any existing listeners
       if (window.ratingUnsubscribe && typeof window.ratingUnsubscribe === 'function') {
-        window.ratingUnsubscribe();
+        try {
+          console.log("[RATING] Cleaning up previous listener");
+          window.ratingUnsubscribe();
+        } catch (e) {
+          console.error("[RATING] Error cleaning up listener:", e);
+        }
         window.ratingUnsubscribe = null;
       }
       
-      // Also set up individual order listeners for active orders
-      // This ensures we detect when an order changes status to completed in real-time
-      setupActiveOrderListeners();
+      console.log(`[RATING] Setting up simplified single listener for table ${tableNumber}`);
       
-      // Create the query - only get completed orders for this table that haven't been rated
-      const ratingQuery = db.collection('orders')
-        .where('status', '==', 'completed')
-        .where('tableNumber', '==', tableNumber)
-        .where('rated', '==', false);
-        
-      // Start the real-time listener
-      window.ratingUnsubscribe = ratingQuery.onSnapshot(snapshot => {
-        // Handle query errors
-        if (snapshot.metadata && snapshot.metadata.fromCache && snapshot.metadata.hasPendingWrites) {
-          console.log("Rating query using cached data with pending writes - skipping");
-          return;
-        }
-        
-        // Only process if we're not already showing a rating modal
-        if (isRatingModalActive) {
-          console.log("Rating modal already active, not showing another one");
-          return;
-        }
-        
-        // Check if we have any orders that need rating
-        if (snapshot.empty) {
-          console.log("No completed orders requiring rating");
-          return;
-        }
-        
-        // Process the first order that needs rating
-        snapshot.forEach(doc => {
-          const orderData = doc.data();
-          console.log(`Found completed order ${doc.id} requiring rating`);
+      // SIMPLIFIED: Use a single listener for completed, unrated orders
+      try {
+        // Query for completed, unrated orders for this table only
+        window.ratingUnsubscribe = db.collection('orders')
+          .where('tableNumber', '==', tableNumber)
+          .where('status', '==', 'completed')
+          .where('rated', '==', false)
+          .onSnapshot(snapshot => {
+            // Skip if empty
+            if (snapshot.empty) {
+              console.log("[RATING] No orders to rate at this time");
+              return;
+            }
+            
+            // Skip if we're already showing a rating modal
+            if (isRatingModalActive) {
+              console.log("[RATING] Rating modal already active, not showing another one");
+              return;
+            }
+            
+            console.log(`[RATING] Found ${snapshot.size} orders that need rating`);
+            
+            // Get first order only (to avoid multiple ratings)
+            const firstDoc = snapshot.docs[0];
+            const orderId = firstDoc.id;
+            const orderData = firstDoc.data();
+            
+            console.log(`[RATING] Showing rating for order ${orderId}`);
+            
+            // Flag that we're showing a rating
+            isRatingModalActive = true;
+            
+            // Show the rating modal container
+            try {
+              const modalContainer = document.getElementById('rating-modal-container');
+              if (modalContainer) {
+                modalContainer.style.display = 'flex';
+              } else {
+                console.error("[RATING] Modal container not found");
+                isRatingModalActive = false;
+                return;
+              }
+              
+              // Set order details
+              const orderIdField = document.getElementById('rating-order-id');
+              if (orderIdField) {
+                orderIdField.value = orderId;
+              }
+              
+              // Populate order details for display
+              const orderItemsList = document.getElementById('rating-order-items');
+              if (orderItemsList) {
+                orderItemsList.innerHTML = '';
+                
+                // Create simple item display
+                const itemNames = orderData.items.map(item => item.name).join(', ');
+                const itemText = document.createElement('p');
+                itemText.className = 'rating-items-text';
+                itemText.textContent = itemNames;
+                orderItemsList.appendChild(itemText);
+              }
+              
+              // Reset stars
+              const stars = document.querySelectorAll('.rating-star');
+              stars.forEach(star => star.classList.remove('active'));
+              
+              // Hide feedback form initially
+              const feedbackContainer = document.getElementById('feedback-container');
+              if (feedbackContainer) {
+                feedbackContainer.style.display = 'none';
+              }
+              
+              console.log("[RATING] Successfully displayed rating modal");
+              
+              // Safe cleanup function for when user is done with rating
+              window.cleanupRatingModal = () => {
+                // Hide modal
+                if (modalContainer) modalContainer.style.display = 'none';
+                
+                // Reset flag
+                isRatingModalActive = false;
+                
+                // Clear any input fields
+                const feedbackText = document.getElementById('feedback-text');
+                if (feedbackText) feedbackText.value = '';
+              };
+              
+              // Set up cancel button
+              const cancelButton = document.getElementById('cancel-rating-btn');
+              if (cancelButton) {
+                cancelButton.onclick = function() {
+                  // Mark order as rated but skipped
+                  try {
+                    db.collection('orders').doc(orderId).update({
+                      rated: true,
+                      ratingSkipped: true,
+                      ratingSkippedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                  } catch (e) {
+                    console.error("[RATING] Error marking order as skipped:", e);
+                  }
+                  
+                  // Clean up UI
+                  window.cleanupRatingModal();
+                };
+              }
+            } catch (e) {
+              console.error("[RATING] Error displaying rating modal:", e);
+              isRatingModalActive = false;
+            }
+          }, error => {
+            console.error("[RATING] Firebase query error:", error);
+          });
           
-          // Display the rating modal for this order
-          displayRatingWithSafety(doc.id, orderData);
-          
-          // Only process one order at a time
-          return;
-        });
-      }, error => {
-        console.error("Error in rating listener:", error);
-        // Don't let errors in the rating system block the application
-      });
-      
-      console.log("Rating listener setup complete");
+        console.log("[RATING] Rating listener setup completed successfully");
+        
+        // Clear emergency timeout
+        clearTimeout(window.emergencyRatingReset);
+      } catch (e) {
+        console.error("[RATING] Critical error setting up rating listener:", e);
+        clearTimeout(window.emergencyRatingReset);
+      }
     }
     
-    // Global storage for active order listeners
-    const activeOrderListeners = {};
+    // CRITICAL FIX: Global storage for active order listeners is already defined at the top
     
     // Function to set up real-time listeners for each active order
     function setupActiveOrderListeners() {
-      console.log("Setting up individual order listeners for active orders");
+      console.log("[RATING] Setting up individual order listeners for active orders");
+      
+      // CRITICAL FIX: Add master safety timeout similar to setupRatingListener
+      const orderListenerTimeout = setTimeout(() => {
+        console.warn("[RATING] ⚠️ Order listener setup timeout triggered - ensuring app can continue");
+        
+        // Clean up any listeners that might have been created
+        for (const orderId in activeOrderListeners) {
+          if (typeof activeOrderListeners[orderId] === 'function') {
+            try {
+              activeOrderListeners[orderId]();
+            } catch (err) {
+              // Ignore errors during cleanup
+            }
+            delete activeOrderListeners[orderId];
+          }
+        }
+      }, 10000); // 10 second safety
       
       // Clear any existing listeners first
       for (const orderId in activeOrderListeners) {
         if (typeof activeOrderListeners[orderId] === 'function') {
-          activeOrderListeners[orderId]();
+          try {
+            activeOrderListeners[orderId]();
+          } catch (err) {
+            console.error(`[RATING] Error removing listener for order ${orderId}:`, err);
+          }
           delete activeOrderListeners[orderId];
         }
       }
       
       // Only proceed if we have a valid table number
       if (!tableNumber) {
-        console.log("Cannot setup order listeners - no table number");
+        console.log("[RATING] Cannot setup order listeners - no table number");
+        clearTimeout(orderListenerTimeout);
+        return;
+      }
+      
+      // CRITICAL FIX: Add a safety check for Firebase connection
+      if (!db) {
+        console.error("[RATING] Firebase database not initialized for active order listeners");
+        clearTimeout(orderListenerTimeout);
         return;
       }
       
@@ -10493,7 +10645,13 @@
           });
         })
         .catch(error => {
-          console.error("Error setting up order listeners:", error);
+          console.error("[RATING] Error setting up order listeners:", error);
+        })
+        .finally(() => {
+          // CRITICAL FIX: Clear the safety timeout in finally block
+          // This ensures it happens regardless of success or failure
+          clearTimeout(orderListenerTimeout);
+          console.log("[RATING] Order listener setup completed");
         });
     }
     
@@ -10553,8 +10711,24 @@
           throw new Error('Invalid order data provided to rating dialog');
         }
         
-        // Attempt to show the rating dialog
-        showRatingDialog(orderId, orderData);
+        // CRITICAL FIX: Directly show rating dialog without function call
+        console.log(`[RATING] Directly showing rating dialog for order ${orderId}`);
+        
+        try {
+          // Show the rating modal container
+          const ratingModalContainer = document.getElementById('rating-modal-container');
+          if (ratingModalContainer) {
+            ratingModalContainer.style.display = 'flex';
+          }
+          
+          // Set order details in hidden fields
+          const orderIdField = document.getElementById('rating-order-id');
+          if (orderIdField) {
+            orderIdField.value = orderId;
+          }
+        } catch (err) {
+          console.error("[RATING] Error directly displaying rating modal:", err);
+        }
         
         // Mark as displayed if we get here without errors
         ratingDisplayed = true;
@@ -11100,27 +11274,18 @@
         }
       }
       
-      const staffNameField = document.getElementById('rating-staff-name');
-      const staffName = staffNameField ? staffNameField.value || '' : '';
-      const feedback = document.getElementById('feedback-text').value.trim() || '';
-      
-      // Disable all possible submit buttons to prevent double-submission
-      const submitButtons = [
-        document.getElementById('submit-rating-btn'),
-        document.getElementById('rating-submit-btn')
-      ];
-      
-      submitButtons.forEach(button => {
-        if (button) {
-          button.disabled = true;
-          button.style.opacity = '0.7';
-          button.textContent = currentLanguage === 'ar' ? 'جار الإرسال...' : 'SUBMITTING...';
-        }
-      });
-      
-      // CRITICAL FIX: Get the feedback text with proper error handling
+      // CRITICAL FIX: Get staff name and feedback with proper error handling
+      let staffName = '';
       let feedback = '';
+      
       try {
+        // Get staff name
+        const staffNameField = document.getElementById('rating-staff-name');
+        if (staffNameField) {
+          staffName = staffNameField.value || '';
+        }
+        
+        // Get feedback text properly
         const feedbackElement = document.getElementById('feedback-text');
         if (feedbackElement) {
           feedback = feedbackElement.value.trim();
@@ -11128,36 +11293,82 @@
         } else {
           console.warn(`[RATING] Feedback text element not found`);
         }
-      } catch (feedbackError) {
-        console.error(`[RATING] Error getting feedback text:`, feedbackError);
+      } catch (textError) {
+        console.error(`[RATING] Error getting text fields:`, textError);
+      }
+      
+      // Disable all possible submit buttons to prevent double-submission
+      try {
+        const submitButtons = [
+          document.getElementById('submit-rating-btn'),
+          document.getElementById('rating-submit-btn')
+        ];
+        
+        submitButtons.forEach(button => {
+          if (button) {
+            button.disabled = true;
+            button.style.opacity = '0.7';
+            button.textContent = currentLanguage === 'ar' ? 'جار الإرسال...' : 'SUBMITTING...';
+          }
+        });
+      } catch (buttonError) {
+        console.error(`[RATING] Error disabling buttons:`, buttonError);
       }
       
       // Get dish names for better analytics with safety checks
       let dishNames = [];
       try {
         const itemElements = document.querySelectorAll('.rating-order-item .item-name');
+        
+        // CRITICAL FIX: Add safety timeout to ensure this always completes
+        const dishTimeout = setTimeout(() => {
+          console.warn("[RATING] Timed out collecting dish names - using fallback");
+          dishNames = ['Unknown dish'];  // Fallback to prevent blocking
+        }, 3000);
+        
         itemElements.forEach(el => {
           if (el && el.textContent) {
             dishNames.push(el.textContent.trim());
           }
         });
+        
+        // Clear timeout since we completed successfully
+        clearTimeout(dishTimeout);
+        
         console.log(`[RATING] Collected ${dishNames.length} dish names for analytics`);
       } catch (dishError) {
         console.error(`[RATING] Error collecting dish names:`, dishError);
+        dishNames = ['Unknown dish']; // Always provide a fallback on error
       }
       
       // Get current staff name for this table (if assigned)
-      let staffName = '';
+      // CRITICAL FIX: We already have staffName from above, don't redeclare it
       try {
         if (tableNumber) {
+          // CRITICAL FIX: Add safety timeout for DOM operations
+          const staffTimeout = setTimeout(() => {
+            console.warn("[RATING] Timed out getting staff name - continuing without it");
+            // Just use the staffName we already have
+          }, 2000);
+          
           const tableStaffInfo = document.querySelector(`.table-card[data-table-number="${tableNumber}"] .assigned-staff`);
+          
+          // Clear timeout since lookup completed
+          clearTimeout(staffTimeout);
+          
           if (tableStaffInfo) {
-            staffName = tableStaffInfo.textContent.trim();
-            console.log(`[RATING] Found assigned staff name: "${staffName}"`);
+            // Update the existing staffName variable
+            if (!staffName) { // Only set if it's empty
+              staffName = tableStaffInfo.textContent.trim();
+              console.log(`[RATING] Found assigned staff name: "${staffName}"`);
+            }
+          } else {
+            console.log(`[RATING] No assigned staff found for table ${tableNumber}`);
           }
         }
       } catch (staffError) {
         console.error(`[RATING] Error getting staff name:`, staffError);
+        // Continue without staff name - it's optional
       }
       
       // Create detailed rating data object with safety checks
