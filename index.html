@@ -9219,31 +9219,17 @@
                   // Show the rating dialog immediately and ensure it's visible
                   console.log("Showing rating dialog for guest user for order:", orderData.id);
                   
-                  // Clear any existing rating first
-                  currentRating = 0;
+                  // CRITICAL FIX: Don't block the interface for rating - treat it as an independent process
+                  // that won't cause infinite loading if it fails
                   
-                  // Ensure the rating modal is ready to be displayed
-                  const ratingModal = document.getElementById('rating-modal');
-                  if (ratingModal) {
-                    // First ensure any existing dialog is closed
-                    ratingModal.style.display = 'none';
-                    
-                    // Then show the new rating dialog with a slight delay to ensure proper rendering
-                    setTimeout(() => {
-                      showRatingDialog(orderData.id);
-                      
-                      // Make sure dialog is displayed (double-check)
-                      setTimeout(() => {
-                        if (ratingModal.style.display !== 'flex') {
-                          console.log("Forcing rating dialog display");
-                          ratingModal.style.display = 'flex';
-                        }
-                      }, 300);
-                    }, 100);
-                  } else {
-                    console.error("Rating modal element not found");
+                  try {
+                    // Use a separate function to handle rating display with a timeout safety
+                    displayRatingWithSafety(orderData.id);
+                  } catch (err) {
+                    console.error("Failed to show rating dialog, but continuing app flow:", err);
+                    // Still continue normal app flow - don't block even if rating fails
                   }
-                } 
+                }
                 // No rating for staff or admin users
               }
             }
@@ -10264,6 +10250,79 @@
     // Rating system functions
     // currentRating is already declared above, so we're not redeclaring it
     
+    // CRITICAL FIX: Safety function to display rating with timeout to prevent infinite loading
+    function displayRatingWithSafety(orderId) {
+      console.log(`Safely displaying rating for order ${orderId} with timeout protection`);
+      
+      // Variable to track if the rating was successfully shown
+      let ratingDisplayed = false;
+      
+      // Set a timeout to ensure we don't hang the app if Firebase or modal has issues
+      const safetyTimeout = setTimeout(() => {
+        if (!ratingDisplayed) {
+          console.warn(`Rating timeout reached for order ${orderId} - ensuring app continues`);
+          
+          // Show a notification to the user that rating couldn't be loaded
+          showNotification(
+            currentLanguage === 'ar' ? 'تعذر تحميل التقييم' : 'Rating Unavailable',
+            currentLanguage === 'ar' 
+              ? 'لم نتمكن من تحميل نافذة التقييم. يمكنك المتابعة بدون تقييم.' 
+              : 'We couldn\'t load the rating dialog. You can continue without rating.',
+            'warning',
+            5000
+          );
+          
+          // Make sure the app flow continues by updating the order as rated
+          try {
+            db.collection('orders').doc(orderId).update({
+              rated: true,
+              ratingSkipped: true,
+              ratingSkippedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(err => console.error("Error marking order as rating skipped:", err));
+          } catch (err) {
+            console.error("Failed to mark order as rating skipped:", err);
+          }
+        }
+      }, 5000); // 5 second timeout
+      
+      try {
+        // Attempt to show the rating dialog
+        showRatingDialog(orderId);
+        
+        // Mark as displayed if we get here without errors
+        ratingDisplayed = true;
+        
+        // Add a listener to the cancel button to mark the order as rated on cancel
+        const cancelBtn = document.getElementById('cancel-rating-btn');
+        if (cancelBtn) {
+          cancelBtn.onclick = function() {
+            // Mark the order as rated but skipped when user cancels
+            try {
+              db.collection('orders').doc(orderId).update({
+                rated: true,
+                ratingSkipped: true,
+                ratingSkippedAt: firebase.firestore.FieldValue.serverTimestamp()
+              }).catch(err => console.error("Error marking order as rating skipped on cancel:", err));
+            } catch (err) {
+              console.error("Failed to mark order as rating skipped on cancel:", err);
+            }
+            
+            // Close the dialog
+            closeRatingDialog();
+            
+            // Clear the timeout as we've handled this properly
+            clearTimeout(safetyTimeout);
+          };
+        }
+        
+        // Clear the timeout if we've made it this far
+        clearTimeout(safetyTimeout);
+      } catch (err) {
+        console.error("Error in displayRatingWithSafety:", err);
+        // No need to clear timeout - let it fire to clean up the state
+      }
+    }
+    
     function showRatingDialog(orderId) {
       console.log(`Starting showRatingDialog for order ${orderId}`);
       
@@ -10358,14 +10417,14 @@
           console.log(`Rating dialog prepared for order ${orderId}`);
           
           // Show the rating modal with animation
-          const ratingModal = document.getElementById('rating-modal');
-          if (ratingModal) {
+          const ratingModalElement = document.getElementById('rating-modal');
+          if (ratingModalElement) {
             // First ensure it's not already displaying
-            ratingModal.style.display = 'none';
+            ratingModalElement.style.display = 'none';
             
             // Then show it with a slight delay for better user experience
             setTimeout(() => {
-              ratingModal.style.display = 'flex';
+              ratingModalElement.style.display = 'flex';
               console.log(`Rating modal displayed for order ${orderId}`);
               
               // Force focus on the first star to draw attention
@@ -10436,7 +10495,43 @@
     }
     
     function closeRatingDialog() {
-      document.getElementById('rating-modal').style.display = 'none';
+      console.log("Closing rating dialog");
+      
+      try {
+        const ratingModal = document.getElementById('rating-modal');
+        if (ratingModal) {
+          // Add fade-out animation
+          ratingModal.style.opacity = '0';
+          setTimeout(() => {
+            ratingModal.style.display = 'none';
+            ratingModal.style.opacity = '1'; // Reset opacity for next time
+          }, 200);
+        }
+        
+        // If we have a current order for rating, mark it as skipped
+        if (currentOrderForRating) {
+          try {
+            // Attempt to update the order, but don't block if it fails
+            db.collection('orders').doc(currentOrderForRating).update({
+              rated: true,
+              ratingSkipped: true,
+              ratingSkippedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(err => {
+              console.error("Non-blocking error marking order as skipped:", err);
+              // Continue app flow regardless
+            });
+          } catch (err) {
+            console.error("Error in closeRatingDialog during order update:", err);
+            // Continue app flow regardless
+          }
+          
+          // Reset current order for rating
+          currentOrderForRating = null;
+        }
+      } catch (err) {
+        console.error("Error in closeRatingDialog:", err);
+        // Continue anyway - never block the app
+      }
     }
     
     function submitRating() {
@@ -10495,10 +10590,39 @@
       
       console.log(`Submitting rating for order ${orderId}: ${currentRating} stars`);
     
+      // CRITICAL FIX: Set a safety timeout to prevent infinite loading
+      const submissionTimeout = setTimeout(() => {
+        console.warn(`Rating submission timeout reached for order ${orderId} - ensuring app continues`);
+        
+        // Re-enable the submit button
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.style.opacity = '1';
+          submitButton.textContent = currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
+        }
+        
+        // Show an error notification but allow the app to continue
+        showNotification(
+          currentLanguage === 'ar' ? 'تأخر في الاستجابة' : 'Response Delayed',
+          currentLanguage === 'ar' 
+            ? 'يبدو أن هناك مشكلة في حفظ تقييمك. يمكنك المحاولة مرة أخرى لاحقاً.' 
+            : 'There seems to be an issue saving your rating. You can try again later.',
+          'warning',
+          6000
+        );
+        
+        // Close the dialog to unblock the app flow
+        closeRatingDialog();
+        
+      }, 8000); // 8-second safety timeout
+      
       // Save to ratings collection in Firebase
       db.collection('ratings').add(ratingData)
         .then((ratingRef) => {
           console.log(`Rating saved with ID: ${ratingRef.id}`);
+          
+          // Clear the safety timeout as we got a response
+          clearTimeout(submissionTimeout);
           
           // Update order with rating info
           return db.collection('orders').doc(orderId).update({
@@ -10510,6 +10634,9 @@
         })
         .then(() => {
           console.log(`Order ${orderId} marked as rated`);
+          
+          // Clear the safety timeout again (defensive)
+          clearTimeout(submissionTimeout);
           
           // Close the rating dialog with animation
           const ratingModal = document.getElementById('rating-modal');
@@ -10531,6 +10658,9 @@
             5000 // Show for 5 seconds
           );
           
+          // Reset the order for rating
+          currentOrderForRating = null;
+          
           // Reset form for next time
           currentRating = 0;
           const ratingStars = document.querySelectorAll(".rating-star");
@@ -10540,6 +10670,9 @@
         .catch(error => {
           console.error("Error saving rating:", error);
           
+          // Clear the safety timeout as we got a response (even if it's an error)
+          clearTimeout(submissionTimeout);
+          
           // Re-enable the submit button if there was an error
           if (submitButton) {
             submitButton.disabled = false;
@@ -10547,12 +10680,25 @@
             submitButton.textContent = currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
           }
           
+          // Show error notification
           showNotification(
             currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
             currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ تقييمك، يرجى المحاولة مرة أخرى' : 'There was an error saving your rating, please try again',
             'error',
             8000 // Show for 8 seconds to ensure user sees it
           );
+          
+          // Still mark the order as rated to prevent infinite prompts on error
+          try {
+            db.collection('orders').doc(orderId).update({
+              rated: true,
+              ratingAttempted: true,
+              ratingError: true,
+              ratingErrorTime: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(err => console.error("Non-blocking error marking order as rating error:", err));
+          } catch (err) {
+            console.error("Error handling rating submission failure:", err);
+          }
         });
     }
     
