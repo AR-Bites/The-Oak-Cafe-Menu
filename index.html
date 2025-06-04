@@ -2363,6 +2363,32 @@
       color: var(--gold);
     }
     
+    /* Feedback container styling */
+    .feedback-container {
+      margin: 15px 0;
+      width: 100%;
+    }
+    
+    #feedback-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--gold);
+      font-size: 0.9rem;
+      text-align: left;
+    }
+    
+    #feedback-text {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+    }
+    
     /* Rating system animation */
     @keyframes pulse-attention {
       0% { transform: scale(1); opacity: 1; }
@@ -4513,10 +4539,15 @@
         <i class="fas fa-star rating-star" data-rating="4"></i>
         <i class="fas fa-star rating-star" data-rating="5"></i>
       </div>
-      <div class="input-group">
-        <label for="rating-feedback" id="rating-feedback-label">FEEDBACK (OPTIONAL)</label>
-        <textarea id="rating-feedback" rows="3" placeholder="Tell us about your experience..."></textarea>
+      
+      <div class="feedback-container" id="feedback-container">
+        <label for="feedback-text" id="feedback-label">FEEDBACK (REQUIRED FOR LOW RATINGS)</label>
+        <textarea id="feedback-text" rows="3" placeholder="Please let us know how we can improve..."></textarea>
       </div>
+      
+      <input type="hidden" id="rating-order-id">
+      <input type="hidden" id="rating-staff-name">
+      
       <div class="modal-buttons">
         <button onclick="submitRating()" class="confirm-btn" id="submit-rating-btn">SUBMIT</button>
         <button onclick="closeRatingModal()" class="cancel-btn" id="cancel-rating-btn">CANCEL</button>
@@ -9077,20 +9108,30 @@
                     : `Your order #${orderData.id} is ready for pickup`,
                   'success'
                 );
-              } else if (orderData.status === 'completed' && !orderData.rated) {
-                // Show rating modal for completed orders that haven't been rated
-                currentOrderForRating = orderData.id;
+              } else if (orderData.status === 'completed') {
+                // Show completion notification
+                showNotification(
+                  currentLanguage === 'ar' ? 'تم إكمال الطلب' : 'Order Completed',
+                  currentLanguage === 'ar' 
+                    ? `تم إكمال طلبك رقم ${orderData.id}. نأمل أن تستمتع بوجبتك!` 
+                    : `Your order #${orderData.id} has been completed. We hope you enjoy your meal!`,
+                  'success'
+                );
                 
-                // For guest users, immediately prompt for a rating
-                if (userType === 'guest') {
-                  // Use the more comprehensive showRatingDialog function 
-                  // which includes staff info in the rating
-                  console.log("Showing rating dialog for guest user");
-                  showRatingDialog(orderData.id);
-                } else {
-                  // For staff users, use the simpler showRatingModal
-                  console.log("Showing rating modal for staff user");
-                  showRatingModal();
+                // If not yet rated, show the rating modal
+                if (!orderData.rated) {
+                  // Show rating modal for completed orders that haven't been rated
+                  currentOrderForRating = orderData.id;
+                  
+                  // For guest users, immediately prompt for a rating
+                  if (userType === 'guest') {
+                    console.log("Showing rating modal for guest user, order ID:", orderData.id);
+                    
+                    // Use timeout to ensure it appears after any other UI updates/notifications
+                    setTimeout(() => {
+                      showRatingModal(orderData.id);
+                    }, 1200); // Longer timeout to ensure notification is seen first
+                  }
                 }
               }
             }
@@ -10082,146 +10123,14 @@
     // Rating system functions
     // currentRating is already declared above, so we're not redeclaring it
     
+    // Legacy function redirected to unified rating function
     function showRatingDialog(orderId) {
-      // Get order details to fetch staff name
-      db.collection('orders').doc(orderId).get()
-        .then(doc => {
-          if (!doc.exists) {
-            console.error("Order not found for rating");
-            return;
-          }
-          
-          const orderData = doc.data();
-          let staffName = '';
-          
-          // Check different ways staff might be assigned
-          if (orderData.assignedStaff) {
-            staffName = orderData.assignedStaff.name;
-          } else if (orderData.assignedStaffName) {
-            staffName = orderData.assignedStaffName;
-          }
-          
-          // Reset any previous rating
-          currentRating = 0;
-          
-          // Reset rating stars
-          const ratingStars = document.querySelectorAll(".rating-star");
-          ratingStars.forEach(star => star.classList.remove('active'));
-          
-          // Hide feedback container initially
-          document.getElementById('feedback-container').style.display = 'none';
-          
-          // Store order ID and staff name in hidden fields
-          document.getElementById('rating-order-id').value = orderId;
-          document.getElementById('rating-staff-name').value = staffName;
-          
-          // Update text labels based on language
-          document.getElementById('rating-title').textContent = 
-            currentLanguage === 'ar' ? 'قيم تجربتك' : 'RATE YOUR EXPERIENCE';
-          
-          document.getElementById('feedback-label').textContent = 
-            currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
-          
-          document.getElementById('submit-rating-btn').textContent = 
-            currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
-          
-          document.getElementById('cancel-rating-btn').textContent = 
-            currentLanguage === 'ar' ? 'إلغاء' : 'CANCEL';
-          
-          // Setup rating star event handlers
-          ratingStars.forEach(star => {
-            star.addEventListener('click', () => {
-              const rating = parseInt(star.getAttribute('data-rating'));
-              currentRating = rating;
-              
-              // Update stars visually
-              ratingStars.forEach(s => {
-                if (parseInt(s.getAttribute('data-rating')) <= rating) {
-                  s.classList.add('active');
-                } else {
-                  s.classList.remove('active');
-                }
-              });
-              
-              // If rating is 3 or less, show feedback container
-              const feedbackContainer = document.getElementById('feedback-container');
-              if (rating <= 3) {
-                feedbackContainer.style.display = 'block';
-                // Clear previous feedback
-                document.getElementById('feedback-text').value = '';
-              } else {
-                feedbackContainer.style.display = 'none';
-              }
-            });
-          });
-          
-          // Show the rating modal
-          const ratingModal = document.getElementById('rating-modal');
-          ratingModal.style.display = 'flex';
-        })
-        .catch(error => {
-          console.error("Error getting order for rating:", error);
-        });
+      showRatingModal(orderId);
     }
     
+    // Legacy function redirected to unified close function
     function closeRatingDialog() {
-      document.getElementById('rating-modal').style.display = 'none';
-    }
-    
-    function submitRating() {
-      if (currentRating === 0) {
-        showNotification(
-          currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
-          currentLanguage === 'ar' ? 'يرجى تحديد تقييم قبل الإرسال' : 'Please select a rating before submitting',
-          'warning'
-        );
-        return;
-      }
-      
-      const orderId = document.getElementById('rating-order-id').value;
-      const staffName = document.getElementById('rating-staff-name').value;
-      const feedback = document.getElementById('feedback-text').value;
-      
-      // Create rating object
-      const ratingData = {
-        orderId: orderId,
-        rating: currentRating,
-        staffName: staffName,
-        feedback: feedback || '', // Send empty string if no feedback
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        tableNumber: tableNumber,
-        fromLanguage: currentLanguage
-      };
-      
-      // Save to ratings collection in Firebase
-      db.collection('ratings').add(ratingData)
-        .then(() => {
-          // Update order with rating info
-          return db.collection('orders').doc(orderId).update({
-            rated: true,
-            rating: currentRating
-          });
-        })
-        .then(() => {
-          // Close the rating dialog
-          closeRatingDialog();
-          
-          // Show success notification
-          showNotification(
-            currentLanguage === 'ar' ? 'شكراً على تقييمك' : 'Thank You for Your Rating',
-            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
-            'success'
-          );
-        })
-        .catch(error => {
-          console.error("Error saving rating:", error);
-          
-          showNotification(
-            currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-            currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ تقييمك' : 'There was an error saving your rating',
-            'error'
-          );
-        });
+      closeRatingModal();
     }
     
     // Function to clean up old completed orders (delete after 6 hours)
@@ -10686,20 +10595,98 @@
     }
     
     // Rating System
-    function showRatingModal() {
-      // Reset stars
-      ratingStars.forEach(star => star.classList.remove('active'));
-      currentRating = 0;
+    function showRatingModal(orderId) {
+      console.log("Showing rating modal for order:", orderId);
       
-      // Clear feedback
-      ratingFeedback.value = '';
+      // Store the order ID for rating submission
+      currentOrderForRating = orderId;
       
-      // Show modal
-      ratingModal.style.display = 'flex';
+      // Get order details to fetch staff name
+      db.collection('orders').doc(orderId).get()
+        .then(doc => {
+          if (!doc.exists) {
+            console.error("Order not found for rating");
+            return;
+          }
+          
+          // Reset any previous rating
+          currentRating = 0;
+          
+          // Reset rating stars
+          const ratingStars = document.querySelectorAll(".rating-star");
+          ratingStars.forEach(star => star.classList.remove('active'));
+          
+          // Get order data
+          const orderData = doc.data();
+          let staffName = '';
+          
+          // Check different ways staff might be assigned
+          if (orderData.assignedStaff) {
+            staffName = orderData.assignedStaff.name;
+          } else if (orderData.assignedStaffName) {
+            staffName = orderData.assignedStaffName;
+          }
+          
+          // Hide feedback container initially
+          document.getElementById('feedback-container').style.display = 'none';
+          
+          // Store order ID and staff name in hidden fields
+          document.getElementById('rating-order-id').value = orderId;
+          document.getElementById('rating-staff-name').value = staffName;
+          
+          // Clear feedback text
+          document.getElementById('feedback-text').value = '';
+          
+          // Update text labels based on language
+          document.getElementById('rating-title').textContent = 
+            currentLanguage === 'ar' ? 'قيم تجربتك' : 'RATE YOUR EXPERIENCE';
+          
+          document.getElementById('feedback-label').textContent = 
+            currentLanguage === 'ar' ? 'تعليقات (مطلوب للتقييمات المنخفضة)' : 'FEEDBACK (REQUIRED FOR LOW RATINGS)';
+          
+          document.getElementById('submit-rating-btn').textContent = 
+            currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
+          
+          document.getElementById('cancel-rating-btn').textContent = 
+            currentLanguage === 'ar' ? 'إلغاء' : 'CANCEL';
+          
+          // Setup rating star event handlers
+          ratingStars.forEach(star => {
+            star.onclick = function() {
+              const rating = parseInt(this.getAttribute('data-rating'));
+              currentRating = rating;
+              
+              // Update stars visually
+              ratingStars.forEach(s => {
+                if (parseInt(s.getAttribute('data-rating')) <= rating) {
+                  s.classList.add('active');
+                } else {
+                  s.classList.remove('active');
+                }
+              });
+              
+              // If rating is 3 or less, show feedback container and make it required
+              const feedbackContainer = document.getElementById('feedback-container');
+              if (rating <= 3) {
+                feedbackContainer.style.display = 'block';
+              } else {
+                feedbackContainer.style.display = 'none';
+              }
+            };
+          });
+          
+          // Show the rating modal
+          const ratingModal = document.getElementById('rating-modal');
+          ratingModal.style.display = 'flex';
+        })
+        .catch(error => {
+          console.error("Error getting order for rating:", error);
+        });
     }
     
     function closeRatingModal() {
-      ratingModal.style.display = 'none';
+      document.getElementById('rating-modal').style.display = 'none';
+      currentOrderForRating = null;
     }
     
     async function submitRating() {
@@ -10716,16 +10703,58 @@
         return;
       }
       
+      // For low ratings (3 or less), require feedback
+      if (currentRating <= 3) {
+        const feedbackText = document.getElementById('feedback-text').value.trim();
+        if (!feedbackText) {
+          showNotification(
+            currentLanguage === 'ar' ? 'ملاحظات مطلوبة' : 'Feedback Required',
+            currentLanguage === 'ar' 
+              ? "للتقييمات المنخفضة، يرجى تقديم ملاحظات حول كيف يمكننا التحسين" 
+              : "For low ratings, please provide feedback on how we can improve",
+            'error'
+          );
+          
+          // Focus on the feedback textarea
+          document.getElementById('feedback-text').focus();
+          return;
+        }
+      }
+      
+      const orderId = document.getElementById('rating-order-id').value;
+      const staffName = document.getElementById('rating-staff-name').value;
+      const feedback = document.getElementById('feedback-text').value.trim();
+      
       try {
-        // Update order with rating
-        await db.collection('orders').doc(currentOrderForRating).update({
+        // Show loading state
+        const submitBtn = document.getElementById('submit-rating-btn');
+        const originalBtnText = submitBtn.textContent;
+        submitBtn.textContent = currentLanguage === 'ar' ? 'جاري الإرسال...' : 'SENDING...';
+        submitBtn.disabled = true;
+        
+        // Create rating object - store in ratings collection for admin view
+        const ratingData = {
+          orderId: orderId,
           rating: currentRating,
-          feedback: ratingFeedback.value.trim(),
+          staffName: staffName,
+          feedback: feedback || '', // Send empty string if no feedback
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          tableNumber: tableNumber || userTableNumber,
+          fromLanguage: currentLanguage
+        };
+        
+        // Save to ratings collection in Firebase for admin dashboard
+        await db.collection('ratings').add(ratingData);
+        
+        // Update order with rating info
+        await db.collection('orders').doc(orderId).update({
           rated: true,
+          rating: currentRating,
+          feedback: feedback || '',
           ratedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // Show notification
+        // Show success notification
         showNotification(
           currentLanguage === 'ar' ? 'شكراً لك!' : 'Thank You!',
           currentLanguage === 'ar' 
@@ -10734,12 +10763,22 @@
           'success'
         );
         
+        // Close modal
         closeRatingModal();
       } catch (error) {
         console.error("Error submitting rating:", error);
+        
+        // Reset button
+        const submitBtn = document.getElementById('submit-rating-btn');
+        submitBtn.textContent = currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
+        submitBtn.disabled = false;
+        
+        // Show error notification
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-          currentLanguage === 'ar' ? "حدث خطأ أثناء تقديم التقييم" : "There was an error while submitting your rating",
+          currentLanguage === 'ar' 
+            ? "حدث خطأ أثناء تقديم التقييم" 
+            : "There was an error while submitting your rating",
           'error'
         );
       }
@@ -10747,9 +10786,16 @@
     
     // Admin Dashboard
     function renderAdminDashboard() {
+      console.log("Rendering admin dashboard");
+      
       // Load staff accounts and table assignments
       loadStaffAccounts();
       loadTableAssignments();
+      
+      // Only load ratings for admin users
+      if (userType === 'admin') {
+        loadStaffRatings(); // Load staff ratings
+      }
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
@@ -11000,77 +11046,7 @@
         });
     }
     
-    // Add call to loadStaffRatings in renderAdminDashboard function
-    function renderAdminDashboard() {
-      // Load staff accounts and table assignments
-      loadStaffAccounts();
-      loadTableAssignments();
-      loadStaffRatings(); // Load staff ratings
-      
-      // Fetch stats and render charts
-      db.collection('orders').get().then(snapshot => {
-        const totalOrders = snapshot.size;
-        let totalRating = 0;
-        let ratedOrders = 0;
-        let lowRatings = 0;
-        
-        // Prepare data for charts
-        const orderStatusData = {
-          pending: 0,
-          preparing: 0,
-          ready: 0,
-          completed: 0,
-          cancelled: 0
-        };
-        
-        const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
-        
-        snapshot.forEach(doc => {
-          const order = doc.data();
-          
-          // Count by status
-          if (orderStatusData.hasOwnProperty(order.status)) {
-            orderStatusData[order.status]++;
-          }
-          
-          // Track ratings
-          if (order.rating) {
-            totalRating += order.rating;
-            ratedOrders++;
-            
-            // Count low ratings (1-2 stars)
-            if (order.rating <= 2) {
-              lowRatings++;
-            }
-            
-            // Update rating distribution
-            if (order.rating >= 1 && order.rating <= 5) {
-              ratingDistribution[order.rating - 1]++;
-            }
-          }
-        });
-        
-        // Calculate average rating
-        const avgRating = ratedOrders > 0 ? (totalRating / ratedOrders).toFixed(1) : '0.0';
-        
-        // Update stats display
-        document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('avg-rating').textContent = avgRating;
-        document.getElementById('low-ratings').textContent = lowRatings;
-        
-        // Count active staff
-        db.collection('staff')
-          .where('active', '==', true)
-          .get()
-          .then(staffSnapshot => {
-            document.getElementById('active-staff').textContent = staffSnapshot.size;
-          });
-        
-        // Update charts
-        updateOrdersChart(orderStatusData);
-        updateRatingsChart(ratingDistribution);
-      });
-    }
+    /* Admin ratings and stats code moved to primary renderAdminDashboard function */
     
     // Load staff accounts into the UI
     function loadStaffAccounts() {
@@ -12175,33 +12151,7 @@
     }
   </script>
   
-  <!-- Rating Dialog Modal -->
-  <div class="rating-modal" id="rating-modal">
-    <div class="rating-content">
-      <h3 class="rating-title" id="rating-title">RATE YOUR EXPERIENCE</h3>
-      
-      <div class="rating-stars">
-        <span class="rating-star" data-rating="1">★</span>
-        <span class="rating-star" data-rating="2">★</span>
-        <span class="rating-star" data-rating="3">★</span>
-        <span class="rating-star" data-rating="4">★</span>
-        <span class="rating-star" data-rating="5">★</span>
-      </div>
-      
-      <div class="feedback-container" id="feedback-container" style="display: none;">
-        <label for="feedback-text" id="feedback-label">FEEDBACK (OPTIONAL)</label>
-        <textarea id="feedback-text" rows="3" placeholder="Please let us know how we can improve"></textarea>
-      </div>
-      
-      <input type="hidden" id="rating-order-id">
-      <input type="hidden" id="rating-staff-name">
-      
-      <div class="modal-buttons">
-        <button id="submit-rating-btn" onclick="submitRating()">SUBMIT</button>
-        <button id="cancel-rating-btn" onclick="closeRatingDialog()">CANCEL</button>
-      </div>
-    </div>
-  </div>
+  <!-- Rating Dialog removed to fix duplicates -->
   
   <!-- Item Customization Modal (Talabat-style) -->
   <div class="customize-modal" id="customize-modal">
