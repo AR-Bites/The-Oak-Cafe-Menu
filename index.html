@@ -9881,7 +9881,7 @@
           }
               
           showNotification(
-            currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
+            currentLanguage === 'ar' ? 'ليس لدe�ك صلاحية' : 'Not Authorized',
             currentLanguage === 'ar' 
               ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
               : 'Only the assigned staff or manager can change this order status',
@@ -12219,5 +12219,29 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // Remove loading screen when everything is ready
+    window.addEventListener('load', () => {
+      const loadingOverlay = document.querySelector('.loading-overlay');
+      if (loadingOverlay) {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          loadingOverlay.style.display = 'none';
+        }, 500); // Matches the CSS transition
+      }
+    });
+
+    // Extra failsafe: auto-remove after 10 seconds no matter what
+    setTimeout(() => {
+      const loadingOverlay = document.querySelector('.loading-overlay');
+      if (loadingOverlay) {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          loadingOverlay.style.display = 'none';
+        }, 500);
+      }
+    }, 10000);
+  </script>
 </body>
 </html>
