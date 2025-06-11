@@ -11358,84 +11358,127 @@
         </div>
       `;
       
-      // Fetch ratings from Firebase
-      db.collection('ratings')
-        .orderBy('timestamp', 'desc')
-        .limit(50) // Limit to recent 50 ratings
-        .get()
-        .then(snapshot => {
-          if (snapshot.empty) {
-            staffRatingsList.innerHTML = `
-              <div class="empty-list">
-                <i class="fas fa-star-half-alt"></i>
-                <p>${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>
-              </div>
-            `;
-            return;
-          }
-          
-          // Clear loading indicator
-          staffRatingsList.innerHTML = '';
-          
-          // Display each rating
-          snapshot.forEach(doc => {
-            const rating = doc.data();
-            const ratingCard = document.createElement('div');
-            const isLowRating = rating.rating <= 3;
-            ratingCard.className = isLowRating ? 'rating-card low-rating' : 'rating-card';
-            ratingCard.setAttribute('data-rating', rating.rating);
-            
-            // Format timestamp
-            let timeStr = '';
-            if (rating.timestamp) {
-              const date = rating.timestamp.toDate();
-              timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-            
-            // Generate stars HTML
-            let starsHtml = '';
-            for (let i = 1; i <= 5; i++) {
-              if (i <= rating.rating) {
-                starsHtml += '<i class="fas fa-star"></i>';
-              } else {
-                starsHtml += '<i class="far fa-star"></i>';
-              }
-            }
-            
-            // Build the rating card HTML
-            ratingCard.innerHTML = `
-              <div class="rating-header">
-                <div class="rating-stars-display">${starsHtml}</div>
-                <div class="rating-time">${timeStr}</div>
-              </div>
-              <div class="rating-staff">
-                <span class="label">${currentLanguage === 'ar' ? 'الموظف:' : 'Staff:'}</span>
-                <span class="value">${rating.staffName || 'Unknown'}</span>
-              </div>
-              <div class="rating-table">
-                <span class="label">${currentLanguage === 'ar' ? 'الطاولة:' : 'Table:'}</span>
-                <span class="value">${rating.tableNumber || 'N/A'}</span>
-              </div>
-              ${rating.feedback ? `
-                <div class="rating-feedback">
-                  <div class="feedback-label">${currentLanguage === 'ar' ? 'ملاحظات:' : 'Feedback:'}</div>
-                  <div class="feedback-text">${rating.feedback}</div>
-                </div>
-              ` : ''}
-            `;
-            
-            staffRatingsList.appendChild(ratingCard);
-          });
-        })
-        .catch(error => {
-          console.error("Error loading ratings:", error);
+      let allRatings = [];
+      
+      // Load local storage ratings
+      try {
+        const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
+        console.log('Loading local ratings for admin:', localRatings.length);
+        allRatings = localRatings.map(rating => ({
+          ...rating,
+          source: 'local'
+        }));
+      } catch (error) {
+        console.error('Error loading local ratings:', error);
+      }
+      
+      // Function to display all ratings
+      function displayAllRatings() {
+        if (allRatings.length === 0) {
           staffRatingsList.innerHTML = `
-            <div class="error-message">
-              <i class="fas fa-exclamation-triangle"></i>
-              <p>${currentLanguage === 'ar' ? 'خطأ في تحميل التقييمات' : 'Error loading ratings'}</p>
+            <div class="empty-list">
+              <i class="fas fa-star-half-alt"></i>
+              <p>${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>
             </div>
           `;
+          return;
+        }
+        
+        // Sort by timestamp (newest first)
+        allRatings.sort((a, b) => {
+          const timeA = a.timestamp || a.localStorageTimestamp || 0;
+          const timeB = b.timestamp || b.localStorageTimestamp || 0;
+          return timeB - timeA;
         });
+        
+        staffRatingsList.innerHTML = '';
+        
+        allRatings.forEach(rating => {
+          const ratingCard = document.createElement('div');
+          const stars = rating.stars || rating.rating || 0;
+          const isLowRating = stars <= 3;
+          ratingCard.className = isLowRating ? 'rating-card low-rating' : 'rating-card';
+          
+          // Format timestamp
+          let timeStr = '';
+          if (rating.timestamp) {
+            if (typeof rating.timestamp === 'object' && rating.timestamp.toDate) {
+              timeStr = rating.timestamp.toDate().toLocaleString();
+            } else {
+              timeStr = new Date(rating.timestamp).toLocaleString();
+            }
+          } else if (rating.localStorageTimestamp) {
+            timeStr = new Date(rating.localStorageTimestamp).toLocaleString();
+          }
+          
+          // Generate stars HTML
+          let starsHtml = '';
+          for (let i = 1; i <= 5; i++) {
+            if (i <= stars) {
+              starsHtml += '<i class="fas fa-star"></i>';
+            } else {
+              starsHtml += '<i class="far fa-star"></i>';
+            }
+          }
+          
+          const sourceTag = rating.source === 'local' ? 
+            `<span style="background:#ff6b6b;color:white;padding:2px 6px;border-radius:3px;font-size:10px;margin-left:8px;">${currentLanguage === 'ar' ? 'محلي' : 'LOCAL'}</span>` : 
+            `<span style="background:#4CAF50;color:white;padding:2px 6px;border-radius:3px;font-size:10px;margin-left:8px;">${currentLanguage === 'ar' ? 'سحابي' : 'CLOUD'}</span>`;
+          
+          ratingCard.innerHTML = `
+            <div class="rating-header">
+              <div class="rating-stars-display">${starsHtml}</div>
+              <div class="rating-time">${timeStr}${sourceTag}</div>
+            </div>
+            <div class="rating-guest">
+              <span class="label">${currentLanguage === 'ar' ? 'الضيف:' : 'Guest:'}</span>
+              <span class="value">${rating.guestId || 'N/A'}</span>
+            </div>
+            <div class="rating-staff">
+              <span class="label">${currentLanguage === 'ar' ? 'الموظف:' : 'Staff:'}</span>
+              <span class="value">${rating.staffId || rating.staffName || 'N/A'}</span>
+            </div>
+            <div class="rating-table">
+              <span class="label">${currentLanguage === 'ar' ? 'الطاولة:' : 'Table:'}</span>
+              <span class="value">${rating.tableNumber || 'N/A'}</span>
+            </div>
+            ${(rating.reason || rating.feedback) ? `
+              <div class="rating-feedback">
+                <div class="feedback-label">${currentLanguage === 'ar' ? 'ملاحظات:' : 'Feedback:'}</div>
+                <div class="feedback-text">${rating.reason || rating.feedback}</div>
+              </div>
+            ` : ''}
+          `;
+          
+          staffRatingsList.appendChild(ratingCard);
+        });
+      }
+      
+      // Try to load Firebase ratings if available
+      if (db && typeof db.collection === 'function') {
+        db.collection('ratings')
+          .orderBy('timestamp', 'desc')
+          .limit(50)
+          .get()
+          .then(snapshot => {
+            console.log('Firebase ratings loaded:', snapshot.size);
+            snapshot.forEach(doc => {
+              const rating = doc.data();
+              allRatings.push({
+                ...rating,
+                source: 'firebase'
+              });
+            });
+            displayAllRatings();
+          })
+          .catch(error => {
+            console.warn("Firebase ratings not available:", error);
+            displayAllRatings(); // Show local ratings only
+          });
+      } else {
+        console.log('Firebase not available, showing local ratings only');
+        displayAllRatings();
+      }
     }
     
     // Add call to loadStaffRatings in renderAdminDashboard function
