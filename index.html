@@ -9991,41 +9991,67 @@
         const staffUsername = localStorage.getItem('username');
         const isAdmin = userType === 'admin';
         const isManager = staffRole === 'manager';
+        const isStaff = userType === 'staff';
           
         // Get staff info for the table and check table assignments
         const tableStaff = getStaffForTable(orderData.tableNumber);
         const tableNumber = parseInt(orderData.tableNumber);
           
-        console.log('Checking permission for order update. Staff:', staffUsername, 'Role:', staffRole, 'Table:', tableNumber);
+        console.log('Checking permission for order update.');
+        console.log('User type:', userType);
+        console.log('Staff role:', staffRole);
+        console.log('Staff username:', staffUsername);
+        console.log('Table number:', tableNumber);
+        console.log('Is admin:', isAdmin);
+        console.log('Is manager:', isManager);
           
-        // Admins and managers can update any order
-        let canManageTable = isAdmin || isManager;
-          
-        if (userType === 'staff' && staffUsername && !canManageTable) {
-          const staffAssignments = tableAssignments.filter(a => a.staffUsername === staffUsername);
-          console.log('Staff assignments for current user:', staffAssignments);
+        // Authorization logic: Admin and Manager have full access, Staff needs table assignment
+        let canManageOrder = false;
+        
+        if (isAdmin) {
+          canManageOrder = true;
+          console.log('Admin access granted');
+        } else if (isManager) {
+          canManageOrder = true;
+          console.log('Manager access granted');
+        } else if (isStaff && staffUsername) {
+          // For staff, check if they are assigned to this table
+          if (Array.isArray(tableAssignments) && tableAssignments.length > 0) {
+            const staffAssignments = tableAssignments.filter(a => a.staffUsername === staffUsername);
+            console.log('Staff assignments for current user:', staffAssignments);
             
-          // Check if this table is in any of the assigned ranges
-          canManageTable = staffAssignments.some(assignment => {
-            const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
-            console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
-            return inRange;
-          });
+            if (staffAssignments.length > 0) {
+              // Check if this table is in any of the assigned ranges
+              canManageOrder = staffAssignments.some(assignment => {
+                const inRange = tableNumber >= assignment.startTable && tableNumber <= assignment.endTable;
+                console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
+                return inRange;
+              });
+            } else {
+              console.log('No table assignments found for staff user');
+            }
+          } else {
+            // If no table assignments exist, allow all staff to manage orders (fallback)
+            console.log('No table assignments configured, allowing staff access');
+            canManageOrder = true;
+          }
+        } else {
+          console.log('User is not authorized (not admin, manager, or staff)');
         }
           
-        console.log(`Can manage order: ${canManageTable}`);
+        console.log(`Final authorization result: ${canManageOrder}`);
           
-        if (!canManageTable) {
+        if (!canManageOrder) {
           // If not authorized, revert UI changes
           if (targetCardElement) {
             targetCardElement.classList.remove('updating');
           }
               
           showNotification(
-            currentLanguage === 'ar' ? 'ليس لديك صلاحية' : 'Not Authorized',
+            currentLanguage === 'ar' ? 'غير مخول' : 'Not Authorized',
             currentLanguage === 'ar' 
-              ? 'فقط الموظف المعين أو المدير يمكنه تغيير حالة هذا الطلب' 
-              : 'Only the assigned staff or manager can change this order status',
+              ? 'ليس لديك صلاحية لتحديث هذا الطلب. يرجى الاتصال بالمدير'
+              : 'You don\'t have permission to update this order. Please contact the admin.',
             'error'
           );
           return;
@@ -10172,11 +10198,38 @@
           );
         } catch (error) {
           console.error("Error updating order:", error);
-          showNotification(
-            currentLanguage === 'ar' ? 'خطأ في تحديث الطلب' : 'Order Update Failed',
-            currentLanguage === 'ar' ? "حدث خطأ أثناء تحديث الطلب" : "There was an error while updating the order: " + error.message,
-            'error'
-          );
+          console.error("Error code:", error.code);
+          console.error("Error message:", error.message);
+          console.error("Full error object:", error);
+          
+          // Handle specific Firebase errors
+          let errorTitle = currentLanguage === 'ar' ? 'خطأ في تحديث الطلب' : 'Order Update Failed';
+          let errorMessage = '';
+          
+          if (error.code === 'permission-denied') {
+            errorTitle = currentLanguage === 'ar' ? 'غير مخول' : 'Not Authorized';
+            errorMessage = currentLanguage === 'ar' 
+              ? 'ليس لديك صلاحية لتحديث هذا الطلب. يرجى الاتصال بالمدير'
+              : 'You don\'t have permission to update this order. Please contact the admin.';
+          } else if (error.code === 'not-found') {
+            errorMessage = currentLanguage === 'ar' 
+              ? 'الطلب غير موجود في قاعدة البيانات'
+              : 'Order not found in database';
+          } else if (error.code === 'network-request-failed') {
+            errorMessage = currentLanguage === 'ar' 
+              ? 'خطأ في الاتصال بالشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى'
+              : 'Network connection error. Please check your connection and try again.';
+          } else if (error.code === 'already-exists') {
+            errorMessage = currentLanguage === 'ar' 
+              ? 'تم تحديث الطلب مسبقاً'
+              : 'Order has already been updated';
+          } else {
+            errorMessage = currentLanguage === 'ar' 
+              ? `حدث خطأ أثناء تحديث الطلب: ${error.message || 'خطأ غير معروف'}`
+              : `There was an error while updating the order: ${error.message || 'Unknown error'}`;
+          }
+          
+          showNotification(errorTitle, errorMessage, 'error');
           
           // Reset the card if there was an error
           if (targetCardElement) {
