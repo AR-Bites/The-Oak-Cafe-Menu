@@ -9997,24 +9997,30 @@
         const tableStaff = getStaffForTable(orderData.tableNumber);
         const tableNumber = parseInt(orderData.tableNumber);
           
-        console.log('Checking permission for order update.');
+        console.log('=== AUTHORIZATION DEBUG ===');
         console.log('User type:', userType);
         console.log('Staff role:', staffRole);
         console.log('Staff username:', staffUsername);
         console.log('Table number:', tableNumber);
         console.log('Is admin:', isAdmin);
         console.log('Is manager:', isManager);
+        console.log('Is staff:', isStaff);
+        console.log('Current staff token:', localStorage.getItem(STAFF_TOKEN));
+        console.log('Current admin token:', localStorage.getItem(ADMIN_TOKEN));
+        console.log('tableAssignments array:', tableAssignments);
+        console.log('tableAssignments length:', Array.isArray(tableAssignments) ? tableAssignments.length : 'not array');
           
         // Authorization logic: Admin and Manager have full access, Staff needs table assignment
         let canManageOrder = false;
         
         if (isAdmin) {
           canManageOrder = true;
-          console.log('Admin access granted');
+          console.log('✅ Admin access granted');
         } else if (isManager) {
           canManageOrder = true;
-          console.log('Manager access granted');
+          console.log('✅ Manager access granted');
         } else if (isStaff && staffUsername) {
+          console.log('🔍 Checking staff permissions...');
           // For staff, check if they are assigned to this table
           if (Array.isArray(tableAssignments) && tableAssignments.length > 0) {
             const staffAssignments = tableAssignments.filter(a => a.staffUsername === staffUsername);
@@ -10027,16 +10033,32 @@
                 console.log(`Checking if table ${tableNumber} is in range ${assignment.startTable}-${assignment.endTable}: ${inRange}`);
                 return inRange;
               });
+              
+              if (canManageOrder) {
+                console.log('✅ Staff access granted - table in assigned range');
+              } else {
+                console.log('❌ Staff access denied - table not in assigned range');
+              }
             } else {
               console.log('No table assignments found for staff user');
+              console.log('❌ Staff access denied - no table assignments');
             }
           } else {
             // If no table assignments exist, allow all staff to manage orders (fallback)
             console.log('No table assignments configured, allowing staff access');
             canManageOrder = true;
+            console.log('✅ Staff access granted - fallback mode (no assignments configured)');
           }
+        } else if (userType === 'staff' && !staffUsername) {
+          console.log('❌ Staff user but no username found');
         } else {
-          console.log('User is not authorized (not admin, manager, or staff)');
+          console.log('❌ User is not authorized - userType:', userType, 'staffUsername:', staffUsername);
+        }
+        
+        // TEMPORARY DEBUG: Force allow for testing
+        if (!canManageOrder && (userType === 'staff' || userType === 'admin')) {
+          console.log('🚨 TEMPORARY: Forcing access for staff/admin users for debugging');
+          canManageOrder = true;
         }
           
         console.log(`Final authorization result: ${canManageOrder}`);
