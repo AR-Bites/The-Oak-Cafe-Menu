@@ -3063,7 +3063,9 @@
     }
     
     .admin-panel canvas {
-      margin-bottom: 5px;
+      margin: 0;
+      padding: 0;
+      vertical-align: top;
     }
     
     .admin-panel-title {
@@ -4291,9 +4293,11 @@
                 </button>
               </div>
             </div>
-            <canvas id="ratings-chart" height="200" style="margin-bottom: 8px; display: block;"></canvas>
-            <div class="staff-ratings-list" id="staff-ratings-list">
-              <!-- Staff ratings will be displayed here -->
+            <div style="margin: 0; padding: 0; line-height: 0;">
+              <canvas id="ratings-chart" height="200" style="margin: 0; padding: 0; display: block; vertical-align: top;"></canvas>
+              <div class="staff-ratings-list" id="staff-ratings-list" style="margin: 0; padding: 0; line-height: normal;">
+                <!-- Staff ratings will be displayed here -->
+              </div>
             </div>
           </div>
         </div>
@@ -8958,7 +8962,7 @@
       
       // Show a notification to indicate the action is in progress
       showNotification(
-        currentLanguage === 'ar' ? 'جارٍ الت �ديث' : 'Updating',
+        currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
         currentLanguage === 'ar' 
           ? `جارٍ تحديث حالة الطاولة ${tableNumber}...` 
           : `Updating table ${tableNumber} status...`,
