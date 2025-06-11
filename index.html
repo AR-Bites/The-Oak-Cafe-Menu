@@ -3062,6 +3062,10 @@
       border: 1px solid rgba(212, 175, 55, 0.2);
     }
     
+    .admin-panel canvas {
+      margin-bottom: 5px;
+    }
+    
     .admin-panel-title {
       color: var(--gold);
       font-size: 1rem;
@@ -3974,11 +3978,10 @@
     
     /* Staff Ratings List */
     .staff-ratings-list {
-      margin-top: 0;
-      margin-bottom: 0;
+      margin: 0;
+      padding: 0;
       max-height: 400px;
       overflow-y: auto;
-      padding: 0;
     }
     
     .rating-item {
@@ -4288,9 +4291,7 @@
                 </button>
               </div>
             </div>
-            <canvas id="ratings-chart" height="200"></canvas>
-            
-            <!-- Staff Ratings List -->
+            <canvas id="ratings-chart" height="200" style="margin-bottom: 8px; display: block;"></canvas>
             <div class="staff-ratings-list" id="staff-ratings-list">
               <!-- Staff ratings will be displayed here -->
             </div>
@@ -8957,7 +8958,7 @@
       
       // Show a notification to indicate the action is in progress
       showNotification(
-        currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
+        currentLanguage === 'ar' ? 'جارٍ الت �ديث' : 'Updating',
         currentLanguage === 'ar' 
           ? `جارٍ تحديث حالة الطاولة ${tableNumber}...` 
           : `Updating table ${tableNumber} status...`,
