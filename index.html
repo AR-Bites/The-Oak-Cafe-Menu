@@ -11082,22 +11082,44 @@
         
         console.log('Rating data to submit:', ratingData);
         
-        // Try to add to ratings collection
+        // Check Firebase connection status and use fallback if needed
         console.log('Checking Firebase db object:', db);
         console.log('Checking if db.collection is a function:', typeof db.collection);
         
-        if (!db || typeof db.collection !== 'function') {
-          throw new Error('Firebase database not properly initialized');
+        let ratingSubmitted = false;
+        
+        // Try Firebase first if available
+        if (db && typeof db.collection === 'function') {
+          try {
+            const ratingsCollection = db.collection('ratings');
+            console.log('Attempting Firebase submission...');
+            
+            const result = await ratingsCollection.add(ratingData);
+            console.log('Rating added to Firebase successfully with ID:', result.id);
+            ratingSubmitted = true;
+            
+          } catch (firebaseError) {
+            console.warn('Firebase submission failed:', firebaseError);
+            console.log('Will use local storage fallback instead');
+          }
+        } else {
+          console.log('Firebase not available, using local storage directly');
         }
         
-        const ratingsCollection = db.collection('ratings');
-        console.log('Ratings collection reference:', ratingsCollection);
+        // If Firebase failed or isn't available, use local storage
+        if (!ratingSubmitted) {
+          const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
+          ratingData.localStorageTimestamp = Date.now();
+          ratingData.submissionStatus = 'pending_firebase';
+          localRatings.push(ratingData);
+          localStorage.setItem('pending_ratings', JSON.stringify(localRatings));
+          
+          console.log('Rating stored in local storage successfully:', ratingData);
+          ratingSubmitted = true;
+        }
         
-        const result = await ratingsCollection.add(ratingData);
-        console.log('Rating added successfully with ID:', result.id);
-        
-        // Also update the order with rating info
-        if (currentOrderForRating) {
+        // Try to update the order with rating info (optional)
+        if (currentOrderForRating && db && typeof db.collection === 'function') {
           try {
             await db.collection('orders').doc(currentOrderForRating).update({
               rating: currentRating,
@@ -11112,7 +11134,7 @@
           }
         }
         
-        console.log('Rating submitted successfully');
+        console.log('Rating submission completed successfully');
         
         // Show success notification
         showNotification(
@@ -11126,62 +11148,38 @@
         closeRatingModal();
         
       } catch (error) {
-        console.error("Error submitting rating:", error);
-        console.error("Error details:", error.message, error.code);
-        console.error("Full error object:", JSON.stringify(error, null, 2));
+        console.error("Unexpected error in rating submission:", error);
         
-        // Check if it's a Firebase permission error or network issue
-        const isFirebaseError = error.code === 'permission-denied' || 
-                               error.code === 'unavailable' || 
-                               error.message?.includes('permission') ||
-                               error.name === 'FirebaseError';
-        
-        if (isFirebaseError) {
-          console.log('Firebase write failed, implementing local storage fallback');
+        // If we reach here, something went wrong with the entire process
+        // Force save to local storage as final fallback
+        try {
+          const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
+          ratingData.localStorageTimestamp = Date.now();
+          ratingData.submissionStatus = 'emergency_backup';
+          localRatings.push(ratingData);
+          localStorage.setItem('pending_ratings', JSON.stringify(localRatings));
           
-          try {
-            // Store rating in localStorage as fallback
-            const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
-            ratingData.localStorageTimestamp = Date.now();
-            ratingData.submissionStatus = 'pending';
-            localRatings.push(ratingData);
-            localStorage.setItem('pending_ratings', JSON.stringify(localRatings));
-            
-            console.log('Rating stored locally successfully:', ratingData);
-            
-            showNotification(
-              currentLanguage === 'ar' ? 'شكراً لك!' : 'Thank You!',
-              currentLanguage === 'ar' 
-                ? 'تم حفظ تقييمك بنجاح!' 
-                : 'Your rating has been saved successfully!',
-              'success'
-            );
-            
-            closeRatingModal();
-            return;
-            
-          } catch (localError) {
-            console.error('Local storage fallback also failed:', localError);
-          }
+          console.log('Rating emergency backup completed:', ratingData);
+          
+          showNotification(
+            currentLanguage === 'ar' ? 'شكراً لك!' : 'Thank You!',
+            currentLanguage === 'ar' 
+              ? 'تم حفظ تقييمك بنجاح!' 
+              : 'Your rating has been saved successfully!',
+            'success'
+          );
+          
+          closeRatingModal();
+          
+        } catch (emergencyError) {
+          console.error('Emergency backup also failed:', emergencyError);
+          
+          showNotification(
+            currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
+            currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ التقييم' : 'Error saving rating',
+            'error'
+          );
         }
-        
-        // Show more specific error message
-        let errorMessage = 'There was an error submitting your rating. Please try again.';
-        let errorMessageAr = 'حدث خطأ أثناء تقديم التقييم. يرجى المحاولة مرة أخرى.';
-        
-        if (error.message) {
-          console.log('Specific error message:', error.message);
-          if (error.message.includes('permission')) {
-            errorMessage = 'Permission denied. Your rating has been saved locally.';
-            errorMessageAr = 'تم رفض الإذن. تم حفظ تقييمك محلياً.';
-          }
-        }
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-          currentLanguage === 'ar' ? errorMessageAr : errorMessage,
-          'error'
-        );
       }
     }
     
