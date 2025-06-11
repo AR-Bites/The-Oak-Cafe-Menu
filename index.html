@@ -2870,12 +2870,13 @@
     /* Rating Cards Styling */
     .rating-card {
       background: rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      border-left: 3px solid var(--gold);
-      transition: all 0.2s ease;
+      border-radius: 12px;
+      padding: 18px;
+      margin: 10px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
     }
     
     .rating-card:hover {
@@ -2887,9 +2888,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 8px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+      padding-bottom: 12px;
     }
     
     .rating-card .rating-time {
@@ -2902,26 +2903,49 @@
       margin-right: 2px;
     }
     
+    .rating-card .rating-details {
+      margin-bottom: 12px;
+    }
+    
+    .rating-card .rating-info-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+    
     .rating-card .rating-guest,
     .rating-card .rating-staff,
     .rating-card .rating-table {
       display: flex;
-      margin-bottom: 6px;
-      align-items: center;
+      flex-direction: column;
+      flex: 1;
     }
     
     .rating-card .label {
       font-weight: bold;
-      min-width: 80px;
-      color: rgba(255, 255, 255, 0.85);
-      margin-right: 8px;
-      flex-shrink: 0;
+      font-size: 0.8rem;
+      color: rgba(212, 175, 55, 0.9);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
     .rating-card .value {
       color: var(--light-cream);
-      flex: 1;
+      font-size: 0.9rem;
       word-wrap: break-word;
+    }
+    
+    .rating-card .value.order-id {
+      font-family: monospace;
+      background: rgba(212, 175, 55, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    
+    .rating-card .value.staff-name {
+      font-weight: 500;
     }
     
     .rating-card .rating-feedback {
@@ -3951,10 +3975,10 @@
     /* Staff Ratings List */
     .staff-ratings-list {
       margin-top: 0;
+      margin-bottom: 0;
       max-height: 400px;
       overflow-y: auto;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 15px;
+      padding: 0;
     }
     
     .rating-item {
@@ -11105,7 +11129,7 @@
         // Create rating data with proper identification
         const ratingData = {
           orderId: currentOrderForRating,
-          guestId: currentOrderForRating ? `Order #${currentOrderForRating.slice(-6).toUpperCase()}` : (actualTableNumber ? `Table ${actualTableNumber} Guest` : 'Unknown Guest'),
+          guestId: currentOrderForRating || `TBL${actualTableNumber}_${Date.now().toString().slice(-6)}`,
           staffId: assignedStaffInfo,
           stars: currentRating,
           reason: feedbackText,
@@ -11434,10 +11458,10 @@
         
         if (allRatings.length === 0) {
           staffRatingsList.innerHTML = `
-            <div class="empty-list">
-              <i class="fas fa-star-half-alt"></i>
-              <p>${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>
-              <p style="font-size: 0.8rem; opacity: 0.7;">Local storage will be checked for pending ratings</p>
+            <div class="empty-list" style="text-align: center; padding: 30px 20px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 20px 0;">
+              <i class="fas fa-star-half-alt" style="font-size: 2rem; color: var(--gold); margin-bottom: 15px;"></i>
+              <p style="color: var(--light-cream); margin-bottom: 10px;">${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings submitted yet'}</p>
+              <p style="font-size: 0.8rem; opacity: 0.7; color: rgba(255,255,255,0.6);">Ratings from guests will appear here automatically</p>
             </div>
           `;
           return;
@@ -11489,21 +11513,25 @@
               <div class="rating-stars-display">${starsHtml}</div>
               <div class="rating-time">${timeStr}${sourceTag}</div>
             </div>
-            <div class="rating-guest">
-              <span class="label">${currentLanguage === 'ar' ? 'اl�ضيف:' : 'Guest:'}</span>
-              <span class="value">${rating.guestId || 'N/A'}</span>
-            </div>
-            <div class="rating-staff">
-              <span class="label">${currentLanguage === 'ar' ? 'الموظف:' : 'Staff:'}</span>
-              <span class="value">${rating.staffId || rating.staffName || 'N/A'}</span>
-            </div>
-            <div class="rating-table">
-              <span class="label">${currentLanguage === 'ar' ? 'الطاولة:' : 'Table:'}</span>
-              <span class="value">${rating.tableNumber || 'N/A'}</span>
+            <div class="rating-details">
+              <div class="rating-info-row">
+                <div class="rating-guest">
+                  <span class="label">${currentLanguage === 'ar' ? 'رقم الطلب:' : 'Order ID:'}</span>
+                  <span class="value order-id">${rating.guestId || rating.orderId || 'N/A'}</span>
+                </div>
+                <div class="rating-table">
+                  <span class="label">${currentLanguage === 'ar' ? 'الطاولة:' : 'Table:'}</span>
+                  <span class="value">${rating.tableNumber || 'N/A'}</span>
+                </div>
+              </div>
+              <div class="rating-staff">
+                <span class="label">${currentLanguage === 'ar' ? 'الموظف المسؤول:' : 'Assigned Staff:'}</span>
+                <span class="value staff-name">${rating.staffId || rating.staffName || 'No Staff Assigned'}</span>
+              </div>
             </div>
             ${(rating.reason || rating.feedback) ? `
               <div class="rating-feedback">
-                <div class="feedback-label">${currentLanguage === 'ar' ? 'ملاحظات:' : 'Feedback:'}</div>
+                <div class="feedback-label">${currentLanguage === 'ar' ? 'ملاحظات العميل:' : 'Customer Feedback:'}</div>
                 <div class="feedback-text">${rating.reason || rating.feedback}</div>
               </div>
             ` : ''}
@@ -12625,7 +12653,7 @@
           menu: {
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
             week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
-            month: 'نمت شعبية فيتوتشيني ألفريn�و بنسبة 18٪ هذا الشهر',
+            month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
             year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
           satisfaction: {
