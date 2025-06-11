@@ -4015,6 +4015,109 @@
       direction: rtl;
     }
     
+    /* Ratings Header Design */
+    .ratings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+    }
+    
+    .ratings-header h3 {
+      margin: 0;
+      color: var(--light-cream);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    .ratings-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .ratings-count {
+      font-size: 0.85rem;
+      color: var(--gold);
+      font-weight: 500;
+      background: rgba(212, 175, 55, 0.1);
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+    
+    .refresh-btn {
+      background: var(--gold);
+      color: var(--dark-green);
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+    
+    .refresh-btn:hover {
+      background: #e6c063;
+      transform: translateY(-1px);
+    }
+    
+    /* Ratings Chart Container */
+    .ratings-chart-container {
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      border: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    #ratings-chart {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* Ratings Summary Stats */
+    .ratings-summary {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(212, 175, 55, 0.05);
+      border-radius: 10px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .rating-stat {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .rating-stat:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+    }
+    
+    .stat-number {
+      display: block;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
     .rating-item {
       background: rgba(40, 40, 40, 0.5);
       border-radius: 8px;
@@ -4313,16 +4416,36 @@
           </div>
           
           <div class="admin-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-              <h3 id="ratings-title" style="margin: 0;">RATINGS</h3>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <span id="ratings-count" style="font-size: 0.8rem; color: var(--gold);"></span>
-                <button onclick="refreshRatings()" style="background: var(--gold); color: var(--dark-green); border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
+            <div class="ratings-header">
+              <h3 id="ratings-title">RATINGS</h3>
+              <div class="ratings-controls">
+                <span id="ratings-count" class="ratings-count"></span>
+                <button onclick="refreshRatings()" class="refresh-btn">
                   <i class="fas fa-sync-alt"></i> Refresh
                 </button>
               </div>
             </div>
-            <canvas id="ratings-chart" height="200" style="margin-bottom: 8px;"></canvas>
+            
+            <!-- Ratings Chart -->
+            <div class="ratings-chart-container">
+              <canvas id="ratings-chart" height="180"></canvas>
+            </div>
+            
+            <!-- Ratings Summary Stats -->
+            <div class="ratings-summary" id="ratings-summary">
+              <div class="rating-stat">
+                <span class="stat-number" id="avg-rating-display">0.0</span>
+                <span class="stat-label">Avg Rating</span>
+              </div>
+              <div class="rating-stat">
+                <span class="stat-number" id="total-ratings-display">0</span>
+                <span class="stat-label">Total Reviews</span>
+              </div>
+              <div class="rating-stat">
+                <span class="stat-number" id="low-ratings-display">0</span>
+                <span class="stat-label">Low Ratings</span>
+              </div>
+            </div>
             
             <!-- Staff Ratings List -->
             <div class="staff-ratings-list" id="staff-ratings-list">
@@ -8244,7 +8367,7 @@
       
       // Change modal title to reflect guest mode
       const tableTitle = document.getElementById('table-number-title');
-      tableTitle.textContent = currentLanguage === 'ar' ? ' �دخال رقم الطاولة' : 'ENTER TABLE NUMBER';
+      tableTitle.textContent = currentLanguage === 'ar' ? 'إدخال رقم الطاولة' : 'ENTER TABLE NUMBER';
       
       // Fade out entire options container for a clean transition
       optionButtons.style.opacity = '0';
@@ -9865,7 +9988,7 @@
               break;
             case 'ready':
               statusClass = 'status-ready';
-              statusText = currentLanguage === 'ar' ? 'جاهز' : 'Ready';
+              statusText = currentLanguage === 'ar' ? 'جاه �' : 'Ready';
               break;
           }
           
@@ -11481,7 +11604,7 @@
       function displayAllRatings() {
         console.log('Displaying all ratings:', allRatings.length);
         
-        // Update ratings count display
+        // Update ratings count display and statistics
         const ratingsCountEl = document.getElementById('ratings-count');
         const localCount = allRatings.filter(r => r.source === 'local').length;
         const cloudCount = allRatings.filter(r => r.source === 'firebase').length;
@@ -11489,6 +11612,9 @@
         if (ratingsCountEl) {
           ratingsCountEl.textContent = `${allRatings.length} total (${localCount} local, ${cloudCount} cloud)`;
         }
+        
+        // Update statistics
+        updateRatingsStatistics(allRatings);
         
         if (allRatings.length === 0) {
           staffRatingsList.innerHTML = `
@@ -11662,6 +11788,98 @@
       } catch (error) {
         console.error('Error during rating sync:', error);
       }
+    }
+    
+    // Function to update ratings statistics and chart
+    function updateRatingsStatistics(ratings) {
+      const totalRatings = ratings.length;
+      const avgRatingEl = document.getElementById('avg-rating-display');
+      const totalRatingsEl = document.getElementById('total-ratings-display');
+      const lowRatingsEl = document.getElementById('low-ratings-display');
+      
+      if (totalRatings === 0) {
+        if (avgRatingEl) avgRatingEl.textContent = '0.0';
+        if (totalRatingsEl) totalRatingsEl.textContent = '0';
+        if (lowRatingsEl) lowRatingsEl.textContent = '0';
+        return;
+      }
+      
+      // Calculate statistics
+      let totalStars = 0;
+      let lowRatingsCount = 0;
+      const ratingCounts = [0, 0, 0, 0, 0]; // 1-star to 5-star counts
+      
+      ratings.forEach(rating => {
+        const stars = rating.stars || rating.rating || 0;
+        totalStars += stars;
+        if (stars <= 3) lowRatingsCount++;
+        if (stars >= 1 && stars <= 5) {
+          ratingCounts[stars - 1]++;
+        }
+      });
+      
+      const avgRating = (totalStars / totalRatings).toFixed(1);
+      
+      // Update DOM elements
+      if (avgRatingEl) avgRatingEl.textContent = avgRating;
+      if (totalRatingsEl) totalRatingsEl.textContent = totalRatings.toString();
+      if (lowRatingsEl) lowRatingsEl.textContent = lowRatingsCount.toString();
+      
+      // Update chart
+      updateRatingsChart(ratingCounts);
+    }
+    
+    // Function to create/update ratings chart
+    function updateRatingsChart(ratingCounts) {
+      const canvas = document.getElementById('ratings-chart');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
+      
+      // Chart configuration
+      const barWidth = 40;
+      const barSpacing = 20;
+      const maxBarHeight = height - 40;
+      const maxValue = Math.max(...ratingCounts, 1);
+      
+      // Colors for each star rating
+      const colors = ['#f44336', '#ff9800', '#ffc107', '#4caf50', '#2196f3'];
+      const labels = ['1★', '2★', '3★', '4★', '5★'];
+      
+      // Draw bars
+      ratingCounts.forEach((count, index) => {
+        const x = 30 + index * (barWidth + barSpacing);
+        const barHeight = (count / maxValue) * maxBarHeight;
+        const y = height - barHeight - 20;
+        
+        // Draw bar
+        ctx.fillStyle = colors[index];
+        ctx.fillRect(x, y, barWidth, barHeight);
+        
+        // Draw label
+        ctx.fillStyle = '#d4af37';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[index], x + barWidth/2, height - 5);
+        
+        // Draw count
+        if (count > 0) {
+          ctx.fillStyle = 'white';
+          ctx.font = 'bold 10px Arial';
+          ctx.fillText(count.toString(), x + barWidth/2, y - 5);
+        }
+      });
+      
+      // Draw title
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText('Ratings Distribution', 10, 20);
     }
     
     // Refresh ratings function for admin dashboard
@@ -12692,7 +12910,7 @@
           },
           satisfaction: {
             day: 'متوسط التقييم اليوم هو 4.7/5 نجوم من 25 مراجعة',
-            week: '85٪ من العملاء قيموا تجربتهم بـ 4+ نجوم هذا الأسبوع',
+            week: '85٪ من العملاء قيموا تجربتهم بـ 4+ نج �م هذا الأسبوع',
             month: 'تحسن رضا العملاء بنسبة 7٪ هذا الشهر مقارنة بالشهر الماضي',
             year: 'معدل الرضا السنوي هو 4.6/5، بتحسن 9٪ عن العام الماضي'
           },
