@@ -11027,7 +11027,10 @@
       console.log('=== RATING SUBMISSION DEBUG ===');
       console.log('Current rating:', currentRating);
       console.log('Order for rating:', currentOrderForRating);
-      console.log('Feedback text:', ratingFeedback ? ratingFeedback.value : 'No feedback element found');
+      // Get the correct feedback element from the modal
+      const feedbackElement = document.getElementById('rating-feedback');
+      console.log('Feedback element found:', feedbackElement);
+      console.log('Feedback text:', feedbackElement ? feedbackElement.value : 'No feedback element found');
       
       if (currentRating === 0) {
         showNotification(
@@ -11046,14 +11049,14 @@
       
       // Validate feedback for low ratings (3 or below)
       if (currentRating <= 3) {
-        const feedbackValue = ratingFeedback ? ratingFeedback.value.trim() : '';
+        const feedbackValue = feedbackElement ? feedbackElement.value.trim() : '';
         if (!feedbackValue) {
           showNotification(
             currentLanguage === 'ar' ? 'ملاحظات مطلوبة' : 'Feedback Required',
             currentLanguage === 'ar' ? "يرجى تقديم ملاحظات للتقييمات المنخفضة" : "Please provide feedback for ratings of 3 stars or below",
             'warning'
           );
-          if (ratingFeedback) ratingFeedback.focus();
+          if (feedbackElement) feedbackElement.focus();
           return;
         }
       }
@@ -11062,7 +11065,7 @@
         console.log('Attempting to submit rating...');
         
         // Get feedback text safely
-        const feedbackText = ratingFeedback ? ratingFeedback.value.trim() : '';
+        const feedbackText = feedbackElement ? feedbackElement.value.trim() : '';
         
         // Create rating data
         const ratingData = {
@@ -12592,36 +12595,7 @@
     }
   </script>
   
-  <!-- Rating Dialog Modal -->
-  <div class="rating-modal" id="rating-modal">
-    <div class="rating-content">
-      <h3 class="rating-title" id="rating-title">RATE YOUR EXPERIENCE</h3>
-      
-      <div class="rating-stars">
-        <span class="rating-star" data-rating="1">★</span>
-        <span class="rating-star" data-rating="2">★</span>
-        <span class="rating-star" data-rating="3">★</span>
-        <span class="rating-star" data-rating="4">★</span>
-        <span class="rating-star" data-rating="5">★</span>
-      </div>
-      
-      <div class="feedback-container" id="feedback-container" style="display: none;">
-        <label for="feedback-text" id="feedback-label">FEEDBACK</label>
-        <textarea id="feedback-text" rows="3" placeholder="Please tell us what went wrong"></textarea>
-        <p id="feedback-required-message" class="feedback-required-message" style="color: #ff6b6b; font-size: 12px; margin-top: 4px; display: none;">
-          Please provide feedback for ratings of 3 stars or less
-        </p>
-      </div>
-      
-      <input type="hidden" id="rating-order-id">
-      <input type="hidden" id="rating-staff-name">
-      
-      <div class="modal-buttons">
-        <button id="submit-rating-btn" onclick="submitRating()">SUBMIT</button>
-        <button id="cancel-rating-btn" onclick="closeRatingDialog()">CANCEL</button>
-      </div>
-    </div>
-  </div>
+
   
   <!-- Item Customization Modal (Talabat-style) -->
   <div class="customize-modal" id="customize-modal">
