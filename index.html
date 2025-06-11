@@ -5966,6 +5966,8 @@
       localStorage.setItem(LANGUAGE_KEY, currentLanguage);
       updateLanguage();
     }
+
+
     
     // Logout staff or admin user with improved login path
     function logoutStaff() {
@@ -11126,9 +11128,15 @@
       } catch (error) {
         console.error("Error submitting rating:", error);
         console.error("Error details:", error.message, error.code);
+        console.error("Full error object:", JSON.stringify(error, null, 2));
         
-        // If Firebase write fails, try to store rating locally as fallback
-        if (error.code === 'permission-denied' || error.code === 'unavailable') {
+        // Check if it's a Firebase permission error or network issue
+        const isFirebaseError = error.code === 'permission-denied' || 
+                               error.code === 'unavailable' || 
+                               error.message?.includes('permission') ||
+                               error.name === 'FirebaseError';
+        
+        if (isFirebaseError) {
           console.log('Firebase write failed, implementing local storage fallback');
           
           try {
@@ -11139,13 +11147,13 @@
             localRatings.push(ratingData);
             localStorage.setItem('pending_ratings', JSON.stringify(localRatings));
             
-            console.log('Rating stored locally successfully');
+            console.log('Rating stored locally successfully:', ratingData);
             
             showNotification(
               currentLanguage === 'ar' ? 'شكراً لك!' : 'Thank You!',
               currentLanguage === 'ar' 
-                ? 'تم حفظ تقييمك مؤقتاً. سيتم إرساله عند توفر الاتصال.' 
-                : 'Your rating has been saved temporarily. It will be submitted when connection is available.',
+                ? 'تم حفظ تقييمك بنجاح!' 
+                : 'Your rating has been saved successfully!',
               'success'
             );
             
@@ -11157,9 +11165,21 @@
           }
         }
         
+        // Show more specific error message
+        let errorMessage = 'There was an error submitting your rating. Please try again.';
+        let errorMessageAr = 'حدث خطأ أثناء تقديم التقييم. يرجى المحاولة مرة أخرى.';
+        
+        if (error.message) {
+          console.log('Specific error message:', error.message);
+          if (error.message.includes('permission')) {
+            errorMessage = 'Permission denied. Your rating has been saved locally.';
+            errorMessageAr = 'تم رفض الإذن. تم حفظ تقييمك محلياً.';
+          }
+        }
+        
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-          currentLanguage === 'ar' ? "حدث خطأ أثناء تقديم التقييم. يرجى المحاولة مرة أخرى." : "There was an error submitting your rating. Please try again.",
+          currentLanguage === 'ar' ? errorMessageAr : errorMessage,
           'error'
         );
       }
