@@ -4249,7 +4249,15 @@
           </div>
           
           <div class="admin-panel">
-            <h3 id="ratings-title">RATINGS</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h3 id="ratings-title">RATINGS</h3>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="ratings-count" style="font-size: 0.8rem; color: var(--gold);"></span>
+                <button onclick="refreshRatings()" style="background: var(--gold); color: var(--dark-green); border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
+                  <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+              </div>
+            </div>
             <canvas id="ratings-chart" height="200"></canvas>
             
             <!-- Staff Ratings List -->
@@ -11094,12 +11102,19 @@
             const ratingsCollection = db.collection('ratings');
             console.log('Attempting Firebase submission...');
             
-            const result = await ratingsCollection.add(ratingData);
-            console.log('Rating added to Firebase successfully with ID:', result.id);
+            // Add Firebase timestamp for consistency
+            const firebaseData = {
+              ...ratingData,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              submittedAt: new Date().toISOString()
+            };
+            
+            const result = await ratingsCollection.add(firebaseData);
+            console.log('✅ Rating added to Firebase successfully with ID:', result.id);
             ratingSubmitted = true;
             
           } catch (firebaseError) {
-            console.warn('Firebase submission failed:', firebaseError);
+            console.warn('❌ Firebase submission failed:', firebaseError.message);
             console.log('Will use local storage fallback instead');
           }
         } else {
@@ -11111,11 +11126,15 @@
           const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
           ratingData.localStorageTimestamp = Date.now();
           ratingData.submissionStatus = 'pending_firebase';
+          ratingData.id = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           localRatings.push(ratingData);
           localStorage.setItem('pending_ratings', JSON.stringify(localRatings));
           
-          console.log('Rating stored in local storage successfully:', ratingData);
+          console.log('✅ Rating stored in local storage successfully:', ratingData);
           ratingSubmitted = true;
+          
+          // Try to sync to Firebase in background
+          setTimeout(() => syncPendingRatings(), 2000);
         }
         
         // Try to update the order with rating info (optional)
@@ -11374,11 +11393,23 @@
       
       // Function to display all ratings
       function displayAllRatings() {
+        console.log('Displaying all ratings:', allRatings.length);
+        
+        // Update ratings count display
+        const ratingsCountEl = document.getElementById('ratings-count');
+        const localCount = allRatings.filter(r => r.source === 'local').length;
+        const cloudCount = allRatings.filter(r => r.source === 'firebase').length;
+        
+        if (ratingsCountEl) {
+          ratingsCountEl.textContent = `${allRatings.length} total (${localCount} local, ${cloudCount} cloud)`;
+        }
+        
         if (allRatings.length === 0) {
           staffRatingsList.innerHTML = `
             <div class="empty-list">
               <i class="fas fa-star-half-alt"></i>
               <p>${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings yet'}</p>
+              <p style="font-size: 0.8rem; opacity: 0.7;">Local storage will be checked for pending ratings</p>
             </div>
           `;
           return;
@@ -11393,7 +11424,7 @@
         
         staffRatingsList.innerHTML = '';
         
-        allRatings.forEach(rating => {
+        allRatings.forEach((rating, index) => {
           const ratingCard = document.createElement('div');
           const stars = rating.stars || rating.rating || 0;
           const isLowRating = stars <= 3;
@@ -11451,6 +11482,7 @@
           `;
           
           staffRatingsList.appendChild(ratingCard);
+          console.log(`Added rating card ${index + 1}:`, rating);
         });
       }
       
@@ -11481,12 +11513,86 @@
       }
     }
     
+    // Function to sync pending ratings to Firebase when connection is restored
+    async function syncPendingRatings() {
+      if (!db || typeof db.collection !== 'function') {
+        console.log('Firebase not available for sync');
+        return;
+      }
+      
+      try {
+        const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
+        if (localRatings.length === 0) {
+          console.log('No pending ratings to sync');
+          return;
+        }
+        
+        console.log(`Attempting to sync ${localRatings.length} pending ratings...`);
+        
+        const ratingsCollection = db.collection('ratings');
+        let syncedCount = 0;
+        const remainingRatings = [];
+        
+        for (const rating of localRatings) {
+          try {
+            const firebaseData = {
+              ...rating,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              syncedAt: new Date().toISOString(),
+              originalSubmissionTime: rating.timestamp
+            };
+            
+            // Remove local-only fields
+            delete firebaseData.localStorageTimestamp;
+            delete firebaseData.submissionStatus;
+            delete firebaseData.id;
+            
+            const result = await ratingsCollection.add(firebaseData);
+            console.log(`✅ Synced rating to Firebase with ID: ${result.id}`);
+            syncedCount++;
+            
+          } catch (syncError) {
+            console.warn('Failed to sync individual rating:', syncError);
+            remainingRatings.push(rating);
+          }
+        }
+        
+        // Update local storage with any remaining ratings
+        localStorage.setItem('pending_ratings', JSON.stringify(remainingRatings));
+        
+        if (syncedCount > 0) {
+          console.log(`✅ Successfully synced ${syncedCount} ratings to Firebase`);
+          
+          // Refresh admin dashboard if it's currently visible
+          if (currentView === 'admin' && typeof loadStaffRatings === 'function') {
+            loadStaffRatings();
+          }
+        }
+        
+      } catch (error) {
+        console.error('Error during rating sync:', error);
+      }
+    }
+    
+    // Refresh ratings function for admin dashboard
+    function refreshRatings() {
+      console.log('Manual refresh of ratings triggered');
+      if (typeof loadStaffRatings === 'function') {
+        loadStaffRatings();
+      }
+      // Also try to sync pending ratings
+      setTimeout(() => syncPendingRatings(), 500);
+    }
+    
     // Add call to loadStaffRatings in renderAdminDashboard function
     function renderAdminDashboard() {
       // Load staff accounts and table assignments
       loadStaffAccounts();
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
+      
+      // Try to sync pending ratings when admin accesses dashboard
+      setTimeout(() => syncPendingRatings(), 1000);
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
