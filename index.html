@@ -2861,10 +2861,18 @@
     }
     
     /* Admin Charts and Ratings */
-    #orders-chart, #ratings-chart {
+    #orders-chart {
       width: 100%;
       height: 200px;
       margin-bottom: 20px;
+    }
+    
+    #ratings-chart {
+      width: 100%;
+      height: 200px;
+      margin: 0;
+      padding: 0;
+      display: block;
     }
     
     /* Rating Cards Styling */
@@ -5379,7 +5387,7 @@
         nameAr: "سلطة سيزر",
         modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Crisp romaine lettuce with Caesar dressing, croutons, and parmesan cheese.",
-        descriptionAr: "خس روماني مقرمش مع صلصة سيزر، قطع خبز محمصة، وجبنة بارميزان.",
+        descriptionAr: "خس روماe�ي مقرمش مع صلصة سيزر، قطع خبز محمصة، وجبنة بارميزان.",
         price: 9.99,
         category: "salads",
         mainCategory: "food"
@@ -8953,7 +8961,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
           currentLanguage === 'ar' 
-            ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
+            ? 'لا يمكنك إدارة هذه الطاولة لأs�ها ليست مخصصة لك' 
             : 'You cannot manage this table as it is not assigned to you',
           'error'
         );
@@ -10284,7 +10292,7 @@
               : 'Order not found in database';
           } else if (error.code === 'network-request-failed') {
             errorMessage = currentLanguage === 'ar' 
-              ? 'خطأ في الاتصال بالشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى'
+              ? 'خطأ في الاتصال بالشبكة. يرجى التحقق من الاتصال والمحاوn�ة مرة أخرى'
               : 'Network connection error. Please check your connection and try again.';
           } else if (error.code === 'already-exists') {
             errorMessage = currentLanguage === 'ar' 
