@@ -2869,7 +2869,7 @@
     
     #ratings-chart {
       width: 100%;
-      height: 180px;
+      height: 200px;
       margin: 0;
       padding: 0;
       display: block;
@@ -4301,9 +4301,31 @@
                 </button>
               </div>
             </div>
-            <div style="margin: 0; padding: 0; line-height: 0; overflow: hidden;">
-              <canvas id="ratings-chart" height="180" style="margin: 0; padding: 0; display: block; vertical-align: top; height: 180px;"></canvas>
-              <div class="staff-ratings-list" id="staff-ratings-list" style="margin: 0; padding: 0; line-height: normal;">
+            <div style="margin: 0; padding: 0;">
+              <canvas id="ratings-chart" height="180" style="margin: 0; padding: 0; display: block;"></canvas>
+              <div class="ratings-legend" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin: 5px 0 10px 0; padding: 0;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <div style="width: 12px; height: 12px; background: rgba(244, 67, 54, 0.6); border-radius: 50%;"></div>
+                  <span style="font-size: 12px; color: var(--text-color);">1 Star</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <div style="width: 12px; height: 12px; background: rgba(255, 152, 0, 0.6); border-radius: 50%;"></div>
+                  <span style="font-size: 12px; color: var(--text-color);">2 Stars</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <div style="width: 12px; height: 12px; background: rgba(255, 235, 59, 0.6); border-radius: 50%;"></div>
+                  <span style="font-size: 12px; color: var(--text-color);">3 Stars</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <div style="width: 12px; height: 12px; background: rgba(156, 204, 101, 0.6); border-radius: 50%;"></div>
+                  <span style="font-size: 12px; color: var(--text-color);">4 Stars</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <div style="width: 12px; height: 12px; background: rgba(76, 175, 80, 0.6); border-radius: 50%;"></div>
+                  <span style="font-size: 12px; color: var(--text-color);">5 Stars</span>
+                </div>
+              </div>
+              <div class="staff-ratings-list" id="staff-ratings-list" style="margin: 0; padding: 0;">
                 <!-- Staff ratings will be displayed here -->
               </div>
             </div>
@@ -8961,7 +8983,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
           currentLanguage === 'ar' 
-            ? 'لا يمكنك إد �رة هذه الطاولة لأنها ليست مخصصة لك' 
+            ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
             : 'You cannot manage this table as it is not assigned to you',
           'error'
         );
