@@ -4419,16 +4419,16 @@
             <h3 id="statistics-title">STATISTICS</h3>
             <div class="stats-grid">
               <div class="stat-card">
-                <div class="stat-value" id="occupied-tables">0</div>
-                <div class="stat-label" id="occupied-tables-title">OCCUPIED TABLES</div>
+                <div class="stat-value" id="total-orders">0</div>
+                <div class="stat-label" id="total-orders-title">TOTAL ORDERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="pending-orders">0</div>
-                <div class="stat-label" id="pending-orders-title">PENDING ORDERS</div>
+                <div class="stat-value" id="avg-rating">0.0</div>
+                <div class="stat-label" id="avg-rating-title">AVG RATING</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="daily-revenue">$0</div>
-                <div class="stat-label" id="daily-revenue-title">DAILY REVENUE</div>
+                <div class="stat-value" id="low-ratings">0</div>
+                <div class="stat-label" id="low-ratings-title">LOW RATINGS</div>
               </div>
               <div class="stat-card">
                 <div class="stat-value" id="active-staff">0</div>
@@ -6007,7 +6007,7 @@
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
-          modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة النماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة n�لنماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
         } else if (progress <= 90) {
           newText = currentLanguage === 'ar' ? 'الاتصال بقاعدة البيانات...' : 'Connecting to Database...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ تهيئة العرض ثلاثي الأبعاد...' : 'Initializing AR Viewer...';
@@ -8293,7 +8293,6 @@
         }
         
         renderAdminDashboard();
-        updateDashboardStatistics(); // Update statistics when admin dashboard loads
       }
     }
     
@@ -9014,11 +9013,6 @@
         if (userType === 'staff' || userType === 'admin') {
           updateTablesDisplay();
           renderTablesOverview();
-          
-          // Update dashboard statistics if in admin view
-          if (userType === 'admin') {
-            updateDashboardStatistics();
-          }
         }
         
         // If we have Firebase connection, perform the backend updates in background
@@ -9188,11 +9182,6 @@
       // Update UI immediately
       updateTablesDisplay();
       renderTablesOverview();
-      
-      // Update dashboard statistics if in admin view
-      if (userType === 'admin') {
-        updateDashboardStatistics();
-      }
       
       // If the app is in Firebase mode, update the table status in Firebase
       if (db && typeof db.collection === 'function') {
@@ -11848,55 +11837,6 @@
       } catch (error) {
         console.error('Error during rating sync:', error);
       }
-    }
-    
-    // Function to update main dashboard statistics
-    function updateDashboardStatistics() {
-      // Calculate occupied tables
-      let occupiedTables = 0;
-      if (tableStatuses) {
-        Object.values(tableStatuses).forEach(status => {
-          if (status && status.status === 'occupied') {
-            occupiedTables++;
-          }
-        });
-      }
-      
-      // Calculate pending orders (orders with status 'pending' or 'preparing')
-      let pendingOrders = 0;
-      if (typeof loadOrders === 'function') {
-        // This would normally come from Firebase, but we'll simulate for now
-        pendingOrders = Math.floor(Math.random() * 8) + 2; // 2-10 pending orders
-      }
-      
-      // Calculate daily revenue (simulated based on completed orders)
-      let dailyRevenue = 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      // Simulate daily revenue calculation
-      if (occupiedTables > 0) {
-        dailyRevenue = occupiedTables * 45 + Math.floor(Math.random() * 500); // Average $45 per table + random amount
-      }
-      
-      // Calculate active staff (from staff assignments)
-      let activeStaff = 0;
-      if (staffAccounts && Array.isArray(staffAccounts)) {
-        activeStaff = staffAccounts.filter(staff => staff.status === 'active' || !staff.status).length;
-      } else {
-        activeStaff = 5; // Default active staff count
-      }
-      
-      // Update DOM elements
-      const occupiedTablesEl = document.getElementById('occupied-tables');
-      const pendingOrdersEl = document.getElementById('pending-orders');
-      const dailyRevenueEl = document.getElementById('daily-revenue');
-      const activeStaffEl = document.getElementById('active-staff');
-      
-      if (occupiedTablesEl) occupiedTablesEl.textContent = occupiedTables.toString();
-      if (pendingOrdersEl) pendingOrdersEl.textContent = pendingOrders.toString();
-      if (dailyRevenueEl) dailyRevenueEl.textContent = `$${dailyRevenue}`;
-      if (activeStaffEl) activeStaffEl.textContent = activeStaff.toString();
     }
     
     // Function to update ratings statistics and chart
