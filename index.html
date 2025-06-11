@@ -3950,11 +3950,11 @@
     
     /* Staff Ratings List */
     .staff-ratings-list {
-      margin-top: 15px;
-      max-height: 300px;
+      margin-top: 0;
+      max-height: 400px;
       overflow-y: auto;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      padding-top: 10px;
+      padding-top: 15px;
     }
     
     .rating-item {
@@ -11079,14 +11079,24 @@
       
       try {
         console.log('Attempting to submit rating...');
+        console.log('Current table number:', tableNumber);
+        console.log('Current order for rating:', currentOrderForRating);
+        
+        // Get the actual table number from various sources
+        const actualTableNumber = tableNumber || 
+                                  localStorage.getItem('userTableNumber') || 
+                                  localStorage.getItem('tableNumber');
+        
+        console.log('Actual table number resolved:', actualTableNumber);
         
         // Get feedback text safely
         const feedbackText = feedbackElement ? feedbackElement.value.trim() : '';
         
         // Get the assigned staff for this table
         let assignedStaffInfo = 'No Staff Assigned';
-        if (tableNumber) {
-          const assignedStaff = getStaffForTable(tableNumber);
+        if (actualTableNumber) {
+          const assignedStaff = getStaffForTable(actualTableNumber);
+          console.log('Assigned staff found:', assignedStaff);
           if (assignedStaff) {
             assignedStaffInfo = `${assignedStaff.name} (${assignedStaff.role})`;
           }
@@ -11095,12 +11105,12 @@
         // Create rating data with proper identification
         const ratingData = {
           orderId: currentOrderForRating,
-          guestId: currentOrderForRating ? `Order #${currentOrderForRating.slice(-6).toUpperCase()}` : (tableNumber ? `Table ${tableNumber} Guest` : 'Unknown Guest'),
+          guestId: currentOrderForRating ? `Order #${currentOrderForRating.slice(-6).toUpperCase()}` : (actualTableNumber ? `Table ${actualTableNumber} Guest` : 'Unknown Guest'),
           staffId: assignedStaffInfo,
           stars: currentRating,
           reason: feedbackText,
           timestamp: new Date().toISOString(),
-          tableNumber: tableNumber ? `Table ${tableNumber}` : 'Not Specified'
+          tableNumber: actualTableNumber ? `Table ${actualTableNumber}` : 'Not Specified'
         };
         
         console.log('Rating data to submit:', ratingData);
@@ -11185,12 +11195,15 @@
         console.error("Unexpected error in rating submission:", error);
         
         // If we reach here, something went wrong with the entire process
-        // Force save to local storage as final fallback
+        // Force save to local storage as final fallback using the same proper data
         try {
           const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
-          ratingData.localStorageTimestamp = Date.now();
-          ratingData.submissionStatus = 'emergency_backup';
-          localRatings.push(ratingData);
+          const emergencyRatingData = {
+            ...ratingData, // Use the properly formatted rating data
+            localStorageTimestamp: Date.now(),
+            submissionStatus: 'emergency_backup'
+          };
+          localRatings.push(emergencyRatingData);
           localStorage.setItem('pending_ratings', JSON.stringify(localRatings));
           
           console.log('Rating emergency backup completed:', ratingData);
@@ -11477,7 +11490,7 @@
               <div class="rating-time">${timeStr}${sourceTag}</div>
             </div>
             <div class="rating-guest">
-              <span class="label">${currentLanguage === 'ar' ? 'الضيف:' : 'Guest:'}</span>
+              <span class="label">${currentLanguage === 'ar' ? 'اl�ضيف:' : 'Guest:'}</span>
               <span class="value">${rating.guestId || 'N/A'}</span>
             </div>
             <div class="rating-staff">
@@ -12612,7 +12625,7 @@
           menu: {
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
             week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
-            month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
+            month: 'نمت شعبية فيتوتشيني ألفريn�و بنسبة 18٪ هذا الشهر',
             year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
           satisfaction: {
