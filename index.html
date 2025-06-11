@@ -2872,11 +2872,15 @@
       background: rgba(255, 255, 255, 0.08);
       border-radius: 12px;
       padding: 18px;
-      margin: 10px 0;
+      margin: 8px 0 0 0;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       border: 1px solid rgba(212, 175, 55, 0.3);
       transition: all 0.3s ease;
       position: relative;
+    }
+    
+    .rating-card:first-child {
+      margin-top: 0;
     }
     
     .rating-card:hover {
@@ -3972,13 +3976,43 @@
       flex: 1;
     }
     
-    /* Staff Ratings List */
+    /* Staff Ratings List - Fixed Vertical Spacing */
     .staff-ratings-list {
-      margin-top: 0;
-      margin-bottom: 0;
+      margin: 0 !important;
+      padding: 0 !important;
       max-height: 400px;
       overflow-y: auto;
-      padding: 0;
+      overflow-x: hidden;
+    }
+    
+    /* Responsive design for ratings section */
+    @media (max-width: 768px) {
+      .staff-ratings-list {
+        max-height: 300px;
+      }
+      
+      .rating-card {
+        padding: 15px;
+        margin: 6px 0 0 0;
+      }
+      
+      .rating-card .rating-info-row {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+    
+    /* RTL Layout Support */
+    [dir="rtl"] .staff-ratings-list {
+      direction: rtl;
+    }
+    
+    [dir="rtl"] .rating-card .rating-info-row {
+      direction: rtl;
+    }
+    
+    [dir="rtl"] .rating-card .rating-header {
+      direction: rtl;
     }
     
     .rating-item {
@@ -4279,8 +4313,8 @@
           </div>
           
           <div class="admin-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <h3 id="ratings-title">RATINGS</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+              <h3 id="ratings-title" style="margin: 0;">RATINGS</h3>
               <div style="display: flex; gap: 10px; align-items: center;">
                 <span id="ratings-count" style="font-size: 0.8rem; color: var(--gold);"></span>
                 <button onclick="refreshRatings()" style="background: var(--gold); color: var(--dark-green); border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
@@ -4288,7 +4322,7 @@
                 </button>
               </div>
             </div>
-            <canvas id="ratings-chart" height="200"></canvas>
+            <canvas id="ratings-chart" height="200" style="margin-bottom: 8px;"></canvas>
             
             <!-- Staff Ratings List -->
             <div class="staff-ratings-list" id="staff-ratings-list">
@@ -8210,7 +8244,7 @@
       
       // Change modal title to reflect guest mode
       const tableTitle = document.getElementById('table-number-title');
-      tableTitle.textContent = currentLanguage === 'ar' ? 'إدخال رقم الطاولة' : 'ENTER TABLE NUMBER';
+      tableTitle.textContent = currentLanguage === 'ar' ? ' �دخال رقم الطاولة' : 'ENTER TABLE NUMBER';
       
       // Fade out entire options container for a clean transition
       optionButtons.style.opacity = '0';
