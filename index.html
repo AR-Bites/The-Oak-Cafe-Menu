@@ -4423,12 +4423,12 @@
                 <div class="stat-label" id="total-orders-title">TOTAL ORDERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="avg-rating">0.0</div>
-                <div class="stat-label" id="avg-rating-title">AVG RATING</div>
+                <div class="stat-value" id="pending-orders">0</div>
+                <div class="stat-label" id="pending-orders-title">PENDING ORDERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="low-ratings">0</div>
-                <div class="stat-label" id="low-ratings-title">LOW RATINGS</div>
+                <div class="stat-value" id="occupied-tables-count">0</div>
+                <div class="stat-label" id="occupied-tables-title">OCCUPIED TABLES</div>
               </div>
               <div class="stat-card">
                 <div class="stat-value" id="active-staff">0</div>
@@ -4482,6 +4482,10 @@
             
             <!-- Ratings Summary Stats -->
             <div class="ratings-summary" id="ratings-summary">
+              <div class="rating-stat">
+                <span class="stat-number" id="avg-rating-display">0.0</span>
+                <span class="stat-label">Avg Rating</span>
+              </div>
               <div class="rating-stat">
                 <span class="stat-number" id="total-ratings-display">0</span>
                 <span class="stat-label">Total Reviews</span>
@@ -6007,7 +6011,7 @@
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
-          modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة n�لنماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة النماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
         } else if (progress <= 90) {
           newText = currentLanguage === 'ar' ? 'الاتصال بقاعدة البيانات...' : 'Connecting to Database...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ تهيئة العرض ثلاثي الأبعاد...' : 'Initializing AR Viewer...';
@@ -11842,11 +11846,13 @@
     // Function to update ratings statistics and chart
     function updateRatingsStatistics(ratings) {
       const totalRatings = ratings.length;
+      const avgRatingEl = document.getElementById('avg-rating-display');
       const totalRatingsEl = document.getElementById('total-ratings-display');
       const recentRatingsEl = document.getElementById('recent-ratings-display');
       const feedbackCountEl = document.getElementById('feedback-count-display');
       
       if (totalRatings === 0) {
+        if (avgRatingEl) avgRatingEl.textContent = '0.0';
         if (totalRatingsEl) totalRatingsEl.textContent = '0';
         if (recentRatingsEl) recentRatingsEl.textContent = '0';
         if (feedbackCountEl) feedbackCountEl.textContent = '0';
@@ -11854,6 +11860,7 @@
       }
       
       // Calculate statistics
+      let totalStars = 0;
       let recentRatingsCount = 0;
       let feedbackCount = 0;
       const ratingCounts = [0, 0, 0, 0, 0]; // 1-star to 5-star counts
@@ -11862,6 +11869,7 @@
       
       ratings.forEach(rating => {
         const stars = rating.stars || rating.rating || 0;
+        totalStars += stars;
         
         // Count ratings distribution
         if (stars >= 1 && stars <= 5) {
@@ -11880,7 +11888,10 @@
         }
       });
       
+      const avgRating = (totalStars / totalRatings).toFixed(1);
+      
       // Update DOM elements
+      if (avgRatingEl) avgRatingEl.textContent = avgRating;
       if (totalRatingsEl) totalRatingsEl.textContent = totalRatings.toString();
       if (recentRatingsEl) recentRatingsEl.textContent = recentRatingsCount.toString();
       if (feedbackCountEl) feedbackCountEl.textContent = feedbackCount.toString();
@@ -11952,12 +11963,48 @@
       setTimeout(() => syncPendingRatings(), 500);
     }
     
+    // Function to update operational statistics for admin dashboard
+    function updateOperationalStatistics() {
+      // Get all orders from local storage and count different metrics
+      const allOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      
+      // Calculate statistics
+      const totalOrders = allOrders.length;
+      const pendingOrders = allOrders.filter(order => 
+        ['pending', 'preparing'].includes(order.status)
+      ).length;
+      
+      // Count occupied tables from current orders
+      const occupiedTablesSet = new Set();
+      allOrders.forEach(order => {
+        if (['pending', 'preparing', 'ready'].includes(order.status)) {
+          occupiedTablesSet.add(order.tableNumber);
+        }
+      });
+      const occupiedTablesCount = occupiedTablesSet.size;
+      
+      // For demo purposes, show some active staff count
+      const activeStaff = 4; // This would come from actual staff management system
+      
+      // Update DOM elements
+      const totalOrdersEl = document.getElementById('total-orders');
+      const pendingOrdersEl = document.getElementById('pending-orders');
+      const occupiedTablesEl = document.getElementById('occupied-tables-count');
+      const activeStaffEl = document.getElementById('active-staff');
+      
+      if (totalOrdersEl) totalOrdersEl.textContent = totalOrders.toString();
+      if (pendingOrdersEl) pendingOrdersEl.textContent = pendingOrders.toString();
+      if (occupiedTablesEl) occupiedTablesEl.textContent = occupiedTablesCount.toString();
+      if (activeStaffEl) activeStaffEl.textContent = activeStaff.toString();
+    }
+
     // Add call to loadStaffRatings in renderAdminDashboard function
     function renderAdminDashboard() {
       // Load staff accounts and table assignments
       loadStaffAccounts();
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
+      updateOperationalStatistics(); // Update operational statistics
       
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
