@@ -2902,20 +2902,26 @@
       margin-right: 2px;
     }
     
+    .rating-card .rating-guest,
     .rating-card .rating-staff,
     .rating-card .rating-table {
       display: flex;
       margin-bottom: 6px;
+      align-items: center;
     }
     
     .rating-card .label {
       font-weight: bold;
-      width: 70px;
+      min-width: 80px;
       color: rgba(255, 255, 255, 0.85);
+      margin-right: 8px;
+      flex-shrink: 0;
     }
     
     .rating-card .value {
       color: var(--light-cream);
+      flex: 1;
+      word-wrap: break-word;
     }
     
     .rating-card .rating-feedback {
@@ -11077,15 +11083,24 @@
         // Get feedback text safely
         const feedbackText = feedbackElement ? feedbackElement.value.trim() : '';
         
-        // Create rating data
+        // Get the assigned staff for this table
+        let assignedStaffInfo = 'No Staff Assigned';
+        if (tableNumber) {
+          const assignedStaff = getStaffForTable(tableNumber);
+          if (assignedStaff) {
+            assignedStaffInfo = `${assignedStaff.name} (${assignedStaff.role})`;
+          }
+        }
+        
+        // Create rating data with proper identification
         const ratingData = {
           orderId: currentOrderForRating,
-          guestId: tableNumber ? `guest_table_${tableNumber}` : 'guest_unknown',
-          staffId: currentStaff || 'unassigned',
+          guestId: currentOrderForRating ? `Order #${currentOrderForRating.slice(-6).toUpperCase()}` : (tableNumber ? `Table ${tableNumber} Guest` : 'Unknown Guest'),
+          staffId: assignedStaffInfo,
           stars: currentRating,
           reason: feedbackText,
           timestamp: new Date().toISOString(),
-          tableNumber: tableNumber
+          tableNumber: tableNumber ? `Table ${tableNumber}` : 'Not Specified'
         };
         
         console.log('Rating data to submit:', ratingData);
