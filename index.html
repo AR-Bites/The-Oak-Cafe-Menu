@@ -10543,123 +10543,7 @@
       document.getElementById('rating-modal').style.display = 'none';
     }
     
-    function submitRating() {
-      if (currentRating === 0) {
-        showNotification(
-          currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
-          currentLanguage === 'ar' ? 'يرجى تحديد تقييم قبل الإرسال' : 'Please select a rating before submitting',
-          'warning'
-        );
-        return;
-      }
-      
-      // For ratings of 3 or less, feedback is required
-      if (currentRating <= 3) {
-        const feedbackText = document.getElementById('feedback-text').value.trim();
-        if (!feedbackText) {
-          // Show error message if no feedback is provided for low ratings
-          document.getElementById('feedback-required-message').style.display = 'block';
-          document.getElementById('feedback-text').focus();
-          
-          showNotification(
-            currentLanguage === 'ar' ? 'تعليقات مطلوبة' : 'Feedback Required',
-            currentLanguage === 'ar' 
-              ? 'يرجى تقديم تعليقات للتقييمات ذات 3 نجوم أو أقل' 
-              : 'Please provide feedback for ratings of 3 stars or less',
-            'warning'
-          );
-          return;
-        }
-      }
-      
-      const orderId = document.getElementById('rating-order-id').value;
-      const staffName = document.getElementById('rating-staff-name').value;
-      const feedback = document.getElementById('feedback-text').value.trim();
-      
-      // Create rating object matching the exact required structure
-      const ratingData = {
-        orderId: orderId,
-        guestId: `guest_table_${tableNumber}`, // Generate guest ID from table number
-        staffId: staffName, // Use staff name as staff ID for now
-        stars: currentRating,
-        reason: feedback || '', // Required for ratings 3 or below
-        timestamp: Date.now(), // Use timestamp as number
-        tableNumber: tableNumber,
-        fromLanguage: currentLanguage,
-        userType: 'guest',
-        isLowRating: currentRating <= 3
-      };
-      
-      // First disable the submit button to prevent double-submission
-      const submitButton = document.getElementById('submit-rating-btn');
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.style.opacity = '0.7';
-        submitButton.textContent = currentLanguage === 'ar' ? 'جاري الإرسال...' : 'SUBMITTING...';
-      }
-      
-      console.log(`Submitting rating for order ${orderId}: ${currentRating} stars`);
-    
-      // Save to ratings collection in Firebase
-      db.collection('ratings').add(ratingData)
-        .then((ratingRef) => {
-          console.log(`Rating saved with ID: ${ratingRef.id}`);
-          
-          // Update order with rating info
-          return db.collection('orders').doc(orderId).update({
-            rated: true,
-            rating: currentRating,
-            ratingId: ratingRef.id, // Store reference to the rating document
-            ratingTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        })
-        .then(() => {
-          console.log(`Order ${orderId} marked as rated`);
-          
-          // Close the rating dialog with animation
-          let ratingModalElement = document.getElementById('rating-modal');
-          if (ratingModalElement) {
-            ratingModalElement.style.opacity = '0';
-            setTimeout(() => {
-              ratingModalElement.style.display = 'none';
-              ratingModalElement.style.opacity = '1';
-            }, 300);
-          } else {
-            closeRatingDialog();
-          }
-          
-          // Show success notification
-          showNotification(
-            currentLanguage === 'ar' ? 'شكراً على تقييمك' : 'Thank You for Your Rating',
-            currentLanguage === 'ar' ? 'تم تسجيل تقييمك بنجاح' : 'Your feedback has been recorded successfully',
-            'success',
-            5000 // Show for 5 seconds
-          );
-          
-          // Reset form for next time
-          currentRating = 0;
-          const ratingStars = document.querySelectorAll(".rating-star");
-          ratingStars.forEach(star => star.classList.remove('active'));
-          document.getElementById('feedback-text').value = '';
-        })
-        .catch(error => {
-          console.error("Error saving rating:", error);
-          
-          // Re-enable the submit button if there was an error
-          if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.style.opacity = '1';
-            submitButton.textContent = currentLanguage === 'ar' ? 'إرسال' : 'SUBMIT';
-          }
-          
-          showNotification(
-            currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-            currentLanguage === 'ar' ? 'حدث خطأ أثناء حفظ تقييمك، يرجى المحاولة مرة أخرى' : 'There was an error saving your rating, please try again',
-            'error',
-            8000 // Show for 8 seconds to ensure user sees it
-          );
-        });
-    }
+
     
     // Function to clean up old completed orders (delete after 6 hours)
     async function cleanupCompletedOrders() {
@@ -11140,6 +11024,11 @@
     }
     
     async function submitRating() {
+      console.log('=== RATING SUBMISSION DEBUG ===');
+      console.log('Current rating:', currentRating);
+      console.log('Order for rating:', currentOrderForRating);
+      console.log('Feedback text:', ratingFeedback ? ratingFeedback.value : 'No feedback element found');
+      
       if (currentRating === 0) {
         showNotification(
           currentLanguage === 'ar' ? 'تقييم مطلوب' : 'Rating Required',
@@ -11148,21 +11037,69 @@
         );
         // Add focus animation to the rating stars
         const starsContainer = document.querySelector('.rating-stars');
-        starsContainer.classList.add('pulse-attention');
-        setTimeout(() => starsContainer.classList.remove('pulse-attention'), 1000);
+        if (starsContainer) {
+          starsContainer.classList.add('pulse-attention');
+          setTimeout(() => starsContainer.classList.remove('pulse-attention'), 1000);
+        }
         return;
       }
       
+      // Validate feedback for low ratings (3 or below)
+      if (currentRating <= 3) {
+        const feedbackValue = ratingFeedback ? ratingFeedback.value.trim() : '';
+        if (!feedbackValue) {
+          showNotification(
+            currentLanguage === 'ar' ? 'ملاحظات مطلوبة' : 'Feedback Required',
+            currentLanguage === 'ar' ? "يرجى تقديم ملاحظات للتقييمات المنخفضة" : "Please provide feedback for ratings of 3 stars or below",
+            'warning'
+          );
+          if (ratingFeedback) ratingFeedback.focus();
+          return;
+        }
+      }
+      
       try {
-        // Update order with rating
-        await db.collection('orders').doc(currentOrderForRating).update({
-          rating: currentRating,
-          feedback: ratingFeedback.value.trim(),
-          rated: true,
-          ratedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        console.log('Attempting to submit rating...');
         
-        // Show notification
+        // Get feedback text safely
+        const feedbackText = ratingFeedback ? ratingFeedback.value.trim() : '';
+        
+        // Create rating data
+        const ratingData = {
+          orderId: currentOrderForRating,
+          guestId: tableNumber ? `guest_table_${tableNumber}` : 'guest_unknown',
+          staffId: currentStaff || 'unassigned',
+          stars: currentRating,
+          reason: feedbackText,
+          timestamp: new Date().toISOString(),
+          tableNumber: tableNumber
+        };
+        
+        console.log('Rating data to submit:', ratingData);
+        
+        // Try to add to ratings collection
+        const ratingsCollection = db.collection('ratings');
+        await ratingsCollection.add(ratingData);
+        
+        // Also update the order with rating info
+        if (currentOrderForRating) {
+          try {
+            await db.collection('orders').doc(currentOrderForRating).update({
+              rating: currentRating,
+              feedback: feedbackText,
+              rated: true,
+              ratedAt: new Date().toISOString()
+            });
+            console.log('Order updated with rating successfully');
+          } catch (orderUpdateError) {
+            console.warn('Could not update order with rating info:', orderUpdateError);
+            // Continue anyway since rating was saved
+          }
+        }
+        
+        console.log('Rating submitted successfully');
+        
+        // Show success notification
         showNotification(
           currentLanguage === 'ar' ? 'شكراً لك!' : 'Thank You!',
           currentLanguage === 'ar' 
@@ -11172,11 +11109,14 @@
         );
         
         closeRatingModal();
+        
       } catch (error) {
         console.error("Error submitting rating:", error);
+        console.error("Error details:", error.message, error.code);
+        
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
-          currentLanguage === 'ar' ? "حدث خطأ أثناء تقديم التقييم" : "There was an error while submitting your rating",
+          currentLanguage === 'ar' ? "حدث خطأ أثناء تقديم التقييم. يرجى المحاولة مرة أخرى." : "There was an error submitting your rating. Please try again.",
           'error'
         );
       }
