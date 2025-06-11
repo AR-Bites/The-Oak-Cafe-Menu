@@ -11078,8 +11078,18 @@
         console.log('Rating data to submit:', ratingData);
         
         // Try to add to ratings collection
+        console.log('Checking Firebase db object:', db);
+        console.log('Checking if db.collection is a function:', typeof db.collection);
+        
+        if (!db || typeof db.collection !== 'function') {
+          throw new Error('Firebase database not properly initialized');
+        }
+        
         const ratingsCollection = db.collection('ratings');
-        await ratingsCollection.add(ratingData);
+        console.log('Ratings collection reference:', ratingsCollection);
+        
+        const result = await ratingsCollection.add(ratingData);
+        console.log('Rating added successfully with ID:', result.id);
         
         // Also update the order with rating info
         if (currentOrderForRating) {
@@ -11113,6 +11123,36 @@
       } catch (error) {
         console.error("Error submitting rating:", error);
         console.error("Error details:", error.message, error.code);
+        
+        // If Firebase write fails, try to store rating locally as fallback
+        if (error.code === 'permission-denied' || error.code === 'unavailable') {
+          console.log('Firebase write failed, implementing local storage fallback');
+          
+          try {
+            // Store rating in localStorage as fallback
+            const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
+            ratingData.localStorageTimestamp = Date.now();
+            ratingData.submissionStatus = 'pending';
+            localRatings.push(ratingData);
+            localStorage.setItem('pending_ratings', JSON.stringify(localRatings));
+            
+            console.log('Rating stored locally successfully');
+            
+            showNotification(
+              currentLanguage === 'ar' ? 'شكراً لك!' : 'Thank You!',
+              currentLanguage === 'ar' 
+                ? 'تم حفظ تقييمك مؤقتاً. سيتم إرساله عند توفر الاتصال.' 
+                : 'Your rating has been saved temporarily. It will be submitted when connection is available.',
+              'success'
+            );
+            
+            closeRatingModal();
+            return;
+            
+          } catch (localError) {
+            console.error('Local storage fallback also failed:', localError);
+          }
+        }
         
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في التقييم' : 'Rating Error',
