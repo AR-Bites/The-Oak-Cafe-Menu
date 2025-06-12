@@ -4081,9 +4081,9 @@
     .chart-legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 15px;
-      padding-top: 12px;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
       border-top: 1px solid rgba(212, 175, 55, 0.2);
     }
     
@@ -4091,18 +4091,15 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8);
     }
     
     .legend-color {
       width: 12px;
       height: 12px;
       border-radius: 2px;
-      display: inline-block;
-    }
-    
-    .legend-label {
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     /* Ratings Summary Stats */
@@ -4423,16 +4420,12 @@
                 <div class="stat-label" id="total-orders-title">TOTAL ORDERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="total-customers">0</div>
-                <div class="stat-label" id="total-customers-title">TOTAL CUSTOMERS</div>
+                <div class="stat-value" id="avg-rating">0.0</div>
+                <div class="stat-label" id="avg-rating-title">AVG RATING</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="avg-prep-time">15</div>
-                <div class="stat-label" id="avg-prep-time-title">AVERAGE PREP TIME (MINS)</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="table-turnover">75</div>
-                <div class="stat-label" id="table-turnover-title">TABLE TURNOVER RATE (%)</div>
+                <div class="stat-value" id="low-ratings">0</div>
+                <div class="stat-label" id="low-ratings-title">LOW RATINGS</div>
               </div>
               <div class="stat-card">
                 <div class="stat-value" id="active-staff">0</div>
@@ -4463,40 +4456,40 @@
               <div class="chart-legend">
                 <div class="legend-item">
                   <span class="legend-color" style="background: #f44336;"></span>
-                  <span class="legend-label">1 Star - Poor</span>
+                  <span>1 Star - Poor</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-color" style="background: #ff9800;"></span>
-                  <span class="legend-label">2 Stars - Fair</span>
+                  <span>2 Stars - Fair</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-color" style="background: #ffc107;"></span>
-                  <span class="legend-label">3 Stars - Good</span>
+                  <span>3 Stars - Good</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-color" style="background: #4caf50;"></span>
-                  <span class="legend-label">4 Stars - Very Good</span>
+                  <span>4 Stars - Great</span>
                 </div>
                 <div class="legend-item">
                   <span class="legend-color" style="background: #2196f3;"></span>
-                  <span class="legend-label">5 Stars - Excellent</span>
+                  <span>5 Stars - Excellent</span>
                 </div>
               </div>
             </div>
             
-            <!-- Ratings Summary Stats -->
-            <div class="ratings-summary" id="ratings-summary">
+            <!-- Restaurant Statistics -->
+            <div class="ratings-summary" id="restaurant-statistics">
               <div class="rating-stat">
-                <span class="stat-number" id="total-ratings-display">0</span>
-                <span class="stat-label">Total Reviews</span>
+                <span class="stat-number" id="total-customers-display">0</span>
+                <span class="stat-label">Total Customers</span>
               </div>
               <div class="rating-stat">
-                <span class="stat-number" id="recent-ratings-display">0</span>
-                <span class="stat-label">Today's Reviews</span>
+                <span class="stat-number" id="avg-prep-time-display">0</span>
+                <span class="stat-label">Average Prep Time (mins)</span>
               </div>
               <div class="rating-stat">
-                <span class="stat-number" id="feedback-count-display">0</span>
-                <span class="stat-label">With Feedback</span>
+                <span class="stat-number" id="table-turnover-display">0</span>
+                <span class="stat-label">Table Turnover Rate (%)</span>
               </div>
             </div>
             
@@ -6008,7 +6001,7 @@
         
         if (progress <= 35) {
           newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
-          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأب �اد...' : 'Loading 3D Models...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة النماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
@@ -11666,8 +11659,9 @@
           ratingsCountEl.textContent = `${allRatings.length} total (${localCount} local, ${cloudCount} cloud)`;
         }
         
-        // Update statistics
-        updateRatingsStatistics(allRatings);
+        // Update ratings chart and restaurant statistics
+        updateRatingsChart(allRatings);
+        updateRestaurantStatistics();
         
         if (allRatings.length === 0) {
           staffRatingsList.innerHTML = `
@@ -11843,58 +11837,58 @@
       }
     }
     
-    // Function to update ratings statistics and chart
-    function updateRatingsStatistics(ratings) {
-      const totalRatings = ratings.length;
-      const totalRatingsEl = document.getElementById('total-ratings-display');
-      const recentRatingsEl = document.getElementById('recent-ratings-display');
-      const feedbackCountEl = document.getElementById('feedback-count-display');
+    // Function to update restaurant statistics
+    function updateRestaurantStatistics() {
+      const totalCustomersEl = document.getElementById('total-customers-display');
+      const avgPrepTimeEl = document.getElementById('avg-prep-time-display');
+      const tableTurnoverEl = document.getElementById('table-turnover-display');
       
-      if (totalRatings === 0) {
-        if (totalRatingsEl) totalRatingsEl.textContent = '0';
-        if (recentRatingsEl) recentRatingsEl.textContent = '0';
-        if (feedbackCountEl) feedbackCountEl.textContent = '0';
-        return;
+      try {
+        // Calculate total customers from orders
+        const totalCustomers = allOrders.length;
+        
+        // Calculate average prep time from completed orders
+        const completedOrders = allOrders.filter(order => order.status === 'completed' || order.status === 'delivered');
+        let totalPrepTime = 0;
+        let validPrepTimes = 0;
+        
+        completedOrders.forEach(order => {
+          if (order.prepTime && order.prepTime > 0) {
+            totalPrepTime += order.prepTime;
+            validPrepTimes++;
+          } else if (order.orderTime && order.completedTime) {
+            // Calculate prep time from timestamps
+            const orderTime = new Date(order.orderTime);
+            const completedTime = new Date(order.completedTime);
+            const prepMinutes = (completedTime - orderTime) / (1000 * 60);
+            if (prepMinutes > 0 && prepMinutes < 300) { // Reasonable prep time (< 5 hours)
+              totalPrepTime += prepMinutes;
+              validPrepTimes++;
+            }
+          }
+        });
+        
+        const avgPrepTime = validPrepTimes > 0 ? Math.round(totalPrepTime / validPrepTimes) : 0;
+        
+        // Calculate table turnover rate (simplified: completed orders / total orders * 100)
+        const turnoverRate = totalCustomers > 0 ? Math.round((completedOrders.length / totalCustomers) * 100) : 0;
+        
+        // Update DOM elements
+        if (totalCustomersEl) totalCustomersEl.textContent = totalCustomers.toString();
+        if (avgPrepTimeEl) avgPrepTimeEl.textContent = avgPrepTime.toString();
+        if (tableTurnoverEl) tableTurnoverEl.textContent = `${turnoverRate}%`;
+        
+      } catch (error) {
+        console.error('Error calculating restaurant statistics:', error);
+        // Set default values on error
+        if (totalCustomersEl) totalCustomersEl.textContent = '0';
+        if (avgPrepTimeEl) avgPrepTimeEl.textContent = '0';
+        if (tableTurnoverEl) tableTurnoverEl.textContent = '0%';
       }
-      
-      // Calculate statistics
-      let recentRatingsCount = 0;
-      let feedbackCount = 0;
-      const ratingCounts = [0, 0, 0, 0, 0]; // 1-star to 5-star counts
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      ratings.forEach(rating => {
-        const stars = rating.stars || rating.rating || 0;
-        
-        // Count ratings distribution
-        if (stars >= 1 && stars <= 5) {
-          ratingCounts[stars - 1]++;
-        }
-        
-        // Count today's ratings
-        const ratingDate = new Date(rating.timestamp || rating.localStorageTimestamp || 0);
-        if (ratingDate >= today) {
-          recentRatingsCount++;
-        }
-        
-        // Count ratings with feedback
-        if (rating.reason || rating.feedback) {
-          feedbackCount++;
-        }
-      });
-      
-      // Update DOM elements
-      if (totalRatingsEl) totalRatingsEl.textContent = totalRatings.toString();
-      if (recentRatingsEl) recentRatingsEl.textContent = recentRatingsCount.toString();
-      if (feedbackCountEl) feedbackCountEl.textContent = feedbackCount.toString();
-      
-      // Update chart
-      updateRatingsChart(ratingCounts);
     }
     
     // Function to create/update ratings chart
-    function updateRatingsChart(ratingCounts) {
+    function updateRatingsChart(ratings) {
       const canvas = document.getElementById('ratings-chart');
       if (!canvas) return;
       
@@ -11904,6 +11898,16 @@
       
       // Clear canvas
       ctx.clearRect(0, 0, width, height);
+      
+      // Calculate rating distribution
+      const ratingCounts = [0, 0, 0, 0, 0]; // 1-star to 5-star counts
+      
+      ratings.forEach(rating => {
+        const stars = rating.stars || rating.rating || 0;
+        if (stars >= 1 && stars <= 5) {
+          ratingCounts[stars - 1]++;
+        }
+      });
       
       // Chart configuration
       const barWidth = 40;
@@ -11946,109 +11950,12 @@
       ctx.fillText('Ratings Distribution', 10, 20);
     }
     
-    // Function to update admin dashboard statistics with operational metrics
-    function updateAdminStatistics() {
-      if (!db || typeof db.collection !== 'function') {
-        // Set default values when Firebase is not available
-        document.getElementById('total-orders').textContent = '0';
-        document.getElementById('total-customers').textContent = '0';
-        document.getElementById('avg-prep-time').textContent = '15';
-        document.getElementById('table-turnover').textContent = '75';
-        document.getElementById('active-staff').textContent = '4';
-        return;
-      }
-      
-      // Get current date for today's calculations
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      // Calculate total orders
-      db.collection('orders').get()
-        .then(snapshot => {
-          const totalOrders = snapshot.size;
-          document.getElementById('total-orders').textContent = totalOrders;
-          
-          // Calculate total customers (unique table numbers from orders)
-          const uniqueTables = new Set();
-          let totalPrepTime = 0;
-          let completedOrders = 0;
-          let todayOrders = 0;
-          
-          snapshot.forEach(doc => {
-            const order = doc.data();
-            
-            // Count unique customers by table number
-            if (order.tableNumber) {
-              uniqueTables.add(order.tableNumber);
-            }
-            
-            // Calculate average prep time from completed orders
-            if (order.status === 'completed' && order.completedAt && order.createdAt) {
-              try {
-                const created = order.createdAt.toDate();
-                const completed = order.completedAt.toDate();
-                const prepTimeMinutes = (completed - created) / (1000 * 60);
-                if (prepTimeMinutes > 0 && prepTimeMinutes < 180) { // Reasonable prep time
-                  totalPrepTime += prepTimeMinutes;
-                  completedOrders++;
-                }
-              } catch (error) {
-                // Handle timestamp conversion errors
-              }
-            }
-            
-            // Count today's orders for turnover calculation
-            if (order.createdAt) {
-              try {
-                const orderDate = order.createdAt.toDate();
-                if (orderDate >= today) {
-                  todayOrders++;
-                }
-              } catch (error) {
-                // Handle timestamp conversion errors
-              }
-            }
-          });
-          
-          // Update total customers
-          document.getElementById('total-customers').textContent = uniqueTables.size;
-          
-          // Update average prep time
-          const avgPrepTime = completedOrders > 0 ? Math.round(totalPrepTime / completedOrders) : 15;
-          document.getElementById('avg-prep-time').textContent = avgPrepTime;
-          
-          // Calculate table turnover rate (simplified as orders per table today)
-          const turnoverRate = uniqueTables.size > 0 ? Math.round((todayOrders / uniqueTables.size) * 25) : 75;
-          document.getElementById('table-turnover').textContent = Math.min(turnoverRate, 100);
-        })
-        .catch(error => {
-          console.error('Error fetching orders for statistics:', error);
-          // Set default values on error
-          document.getElementById('total-orders').textContent = '0';
-          document.getElementById('total-customers').textContent = '0';
-        });
-      
-      // Count active staff
-      db.collection('staff')
-        .where('active', '==', true)
-        .get()
-        .then(staffSnapshot => {
-          document.getElementById('active-staff').textContent = staffSnapshot.size;
-        })
-        .catch(error => {
-          console.error('Error fetching active staff:', error);
-          document.getElementById('active-staff').textContent = '4';
-        });
-    }
-
     // Refresh ratings function for admin dashboard
     function refreshRatings() {
       console.log('Manual refresh of ratings triggered');
       if (typeof loadStaffRatings === 'function') {
         loadStaffRatings();
       }
-      // Also refresh admin statistics
-      updateAdminStatistics();
       // Also try to sync pending ratings
       setTimeout(() => syncPendingRatings(), 500);
     }
@@ -12060,15 +11967,15 @@
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
       
-      // Update admin statistics with operational metrics
-      updateAdminStatistics();
-      
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
         const totalOrders = snapshot.size;
+        let totalRating = 0;
+        let ratedOrders = 0;
+        let lowRatings = 0;
         
         // Prepare data for charts
         const orderStatusData = {
