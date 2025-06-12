@@ -4423,16 +4423,16 @@
                 <div class="stat-label" id="total-orders-title">TOTAL ORDERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="occupied-tables">0</div>
-                <div class="stat-label" id="occupied-tables-title">OCCUPIED TABLES</div>
+                <div class="stat-value" id="today-orders">0</div>
+                <div class="stat-label" id="today-orders-title">TODAY'S ORDERS</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="revenue-today">$0</div>
+                <div class="stat-label" id="revenue-today-title">TODAY'S REVENUE</div>
               </div>
               <div class="stat-card">
                 <div class="stat-value" id="active-staff">0</div>
                 <div class="stat-label" id="active-staff-title">ACTIVE STAFF</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value" id="today-revenue">$0</div>
-                <div class="stat-label" id="today-revenue-title">TODAY'S REVENUE</div>
               </div>
             </div>
           </div>
@@ -4482,10 +4482,6 @@
             
             <!-- Ratings Summary Stats -->
             <div class="ratings-summary" id="ratings-summary">
-              <div class="rating-stat">
-                <span class="stat-number" id="avg-rating-display">0.0</span>
-                <span class="stat-label">Average Rating</span>
-              </div>
               <div class="rating-stat">
                 <span class="stat-number" id="total-ratings-display">0</span>
                 <span class="stat-label">Total Reviews</span>
@@ -5842,10 +5838,76 @@
       }, 10000); // 10 second maximum loading time
     }
 
+    // Force complete loading function to prevent infinite loading
+    function forceCompleteLoading() {
+      const loadingOverlay = document.getElementById('loading-overlay');
+      if (!loadingOverlay) return;
+      
+      console.log("Forcing loading completion");
+      
+      // Complete progress bar
+      const loadingBar = document.getElementById('loading-bar');
+      if (loadingBar) {
+        loadingBar.style.width = '100%';
+        loadingBar.style.transition = 'width 0.3s ease';
+      }
+      
+      // Update text
+      const loadingText = document.getElementById('loading-text');
+      if (loadingText) {
+        loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+      }
+      
+      // Hide overlay with smooth transition
+      loadingOverlay.style.opacity = '0';
+      loadingOverlay.style.transition = 'opacity 0.5s ease';
+      
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+        
+        // Ensure main app is visible
+        const overlay = document.querySelector('.overlay');
+        if (overlay) overlay.style.visibility = 'visible';
+        
+        const modelViewer = document.getElementById('food-model-viewer');
+        if (modelViewer) modelViewer.style.visibility = 'visible';
+        
+        // Show table modal for guests after loading completes
+        checkAndShowTableModal();
+        
+        console.log("Loading overlay force completed");
+      }, 500);
+    }
+    
+    // Check if table modal should be shown
+    function checkAndShowTableModal() {
+      setTimeout(() => {
+        console.log("Failsafe: Checking if we need to show table modal");
+        const staffToken = localStorage.getItem(STAFF_TOKEN);
+        const adminToken = localStorage.getItem(ADMIN_TOKEN);
+        
+        if (staffToken || adminToken) {
+          console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
+        } else if (userType === 'guest' && !tableNumber) {
+          console.log("Failsafe: Showing table modal for guest");
+          showTableModal();
+        }
+      }, 1000);
+    }
+    
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async function() {
       // Start the loading screen safety timeout
       ensureLoadingScreenHides();
+      
+      // Additional fallback timeout to force loading completion
+      setTimeout(() => {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (loadingOverlay && getComputedStyle(loadingOverlay).display !== 'none') {
+          console.warn("Emergency loading timeout - forcing completion");
+          forceCompleteLoading();
+        }
+      }, 5000); // 5 second emergency timeout
       // Load language preference
       currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'en';
       updateLanguage();
@@ -5977,8 +6039,17 @@
       setupCharts();
     });
     
-    // Enhanced loading animation with faster load time and silently preloading 3D models
+    // Enhanced loading animation with robust error handling and guaranteed completion
     function simulateLoading() {
+      const loadingOverlay = document.getElementById('loading-overlay');
+      const loadingText = document.getElementById('loading-text');
+      const loadingBar = document.getElementById('loading-bar');
+      
+      if (!loadingOverlay) {
+        console.warn('Loading overlay not found, skipping loading animation');
+        return;
+      }
+      
       // Make sure overlay is visible first
       loadingOverlay.style.display = 'flex';
       loadingOverlay.style.opacity = '1';
@@ -5986,18 +6057,60 @@
       // Initialize progress and track loaded assets
       let progress = 0;
       let modelLoaded = false;
-      let initialModelsPreloaded = false;
+      let loadingCompleted = false;
+      let interval;
       
       // Get the loading model status element
       const loadingModelStatus = document.querySelector('.loading-model-status');
       
       // Start with initial loading text
-      loadingText.textContent = currentLanguage === 'ar' ? 'تحميل التجربة...' : 'Loading AR Experience...';
-      loadingModelStatus.textContent = currentLanguage === 'ar' ? 'جارٍ التحضير للنماذج ثلاثية الأبعاد...' : 'Preparing 3D Models...';
+      if (loadingText) loadingText.textContent = currentLanguage === 'ar' ? 'تحميل التجربة...' : 'Loading AR Experience...';
+      if (loadingModelStatus) loadingModelStatus.textContent = currentLanguage === 'ar' ? 'جارٍ التحضير للنماذج ثلاثية الأبعاد...' : 'Preparing 3D Models...';
+      
+      // Function to complete loading safely
+      function completeLoading() {
+        if (loadingCompleted) return;
+        loadingCompleted = true;
+        
+        if (interval) clearInterval(interval);
+        
+        console.log('Completing loading animation');
+        
+        if (loadingBar) loadingBar.style.width = '100%';
+        if (loadingText) loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+        
+        setTimeout(() => {
+          loadingOverlay.style.opacity = '0';
+          setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+            
+            // Ensure main app is visible
+            const overlay = document.querySelector('.overlay');
+            if (overlay) overlay.style.visibility = 'visible';
+            
+            const modelViewer = document.getElementById('food-model-viewer');
+            if (modelViewer) modelViewer.style.visibility = 'visible';
+            
+            // Show table modal for guests
+            checkAndShowTableModal();
+          }, 500);
+        }, 300);
+      }
+      
+      // Guaranteed loading timeout - no matter what happens, loading will complete
+      setTimeout(() => {
+        console.log('Guaranteed loading timeout reached');
+        completeLoading();
+      }, 4000); // 4 second maximum loading time
       
       // Start silently preloading 3D models in the background
       setTimeout(() => {
-        preloadModels();
+        try {
+          preloadModels();
+        } catch (error) {
+          console.warn('Error preloading models:', error);
+          modelLoaded = true; // Continue anyway
+        }
         loadingModelStatus.textContent = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
       }, 500);
       
@@ -6059,7 +6172,7 @@
       }
       
       // Faster, more dynamic progress increments
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         // Dynamic progress increment - faster overall
         let increment;
         
@@ -11846,13 +11959,11 @@
     // Function to update ratings statistics and chart
     function updateRatingsStatistics(ratings) {
       const totalRatings = ratings.length;
-      const avgRatingEl = document.getElementById('avg-rating-display');
       const totalRatingsEl = document.getElementById('total-ratings-display');
       const recentRatingsEl = document.getElementById('recent-ratings-display');
       const feedbackCountEl = document.getElementById('feedback-count-display');
       
       if (totalRatings === 0) {
-        if (avgRatingEl) avgRatingEl.textContent = '0.0';
         if (totalRatingsEl) totalRatingsEl.textContent = '0';
         if (recentRatingsEl) recentRatingsEl.textContent = '0';
         if (feedbackCountEl) feedbackCountEl.textContent = '0';
@@ -11860,7 +11971,6 @@
       }
       
       // Calculate statistics
-      let totalStars = 0;
       let recentRatingsCount = 0;
       let feedbackCount = 0;
       const ratingCounts = [0, 0, 0, 0, 0]; // 1-star to 5-star counts
@@ -11869,7 +11979,6 @@
       
       ratings.forEach(rating => {
         const stars = rating.stars || rating.rating || 0;
-        totalStars += stars;
         
         // Count ratings distribution
         if (stars >= 1 && stars <= 5) {
@@ -11888,16 +11997,55 @@
         }
       });
       
-      const avgRating = (totalStars / totalRatings).toFixed(1);
-      
       // Update DOM elements
-      if (avgRatingEl) avgRatingEl.textContent = avgRating;
       if (totalRatingsEl) totalRatingsEl.textContent = totalRatings.toString();
       if (recentRatingsEl) recentRatingsEl.textContent = recentRatingsCount.toString();
       if (feedbackCountEl) feedbackCountEl.textContent = feedbackCount.toString();
       
       // Update chart
       updateRatingsChart(ratingCounts);
+    }
+    
+    // Function to update admin dashboard statistics
+    function updateAdminStatistics(orders = []) {
+      const totalOrdersEl = document.getElementById('total-orders');
+      const todayOrdersEl = document.getElementById('today-orders');
+      const revenueEl = document.getElementById('revenue-today');
+      const activeStaffEl = document.getElementById('active-staff');
+      
+      // Calculate statistics
+      const totalOrders = orders.length;
+      let todayOrders = 0;
+      let todayRevenue = 0;
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      orders.forEach(order => {
+        const orderDate = new Date(order.timestamp || order.localStorageTimestamp || 0);
+        if (orderDate >= today) {
+          todayOrders++;
+          if (order.total && typeof order.total === 'number') {
+            todayRevenue += order.total;
+          } else if (order.items && Array.isArray(order.items)) {
+            // Calculate from items if total is not available
+            const orderTotal = order.items.reduce((sum, item) => {
+              return sum + (item.totalPrice || item.price || 0);
+            }, 0);
+            todayRevenue += orderTotal;
+          }
+        }
+      });
+      
+      // Get active staff count from local storage
+      const staffAccounts = JSON.parse(localStorage.getItem('staffAccounts') || '[]');
+      const activeStaffCount = staffAccounts.filter(staff => staff.status === 'active').length;
+      
+      // Update DOM elements
+      if (totalOrdersEl) totalOrdersEl.textContent = totalOrders.toString();
+      if (todayOrdersEl) todayOrdersEl.textContent = todayOrders.toString();
+      if (revenueEl) revenueEl.textContent = `$${todayRevenue.toFixed(2)}`;
+      if (activeStaffEl) activeStaffEl.textContent = activeStaffCount.toString();
     }
     
     // Function to create/update ratings chart
@@ -11953,39 +12101,6 @@
       ctx.fillText('Ratings Distribution', 10, 20);
     }
     
-    // Helper function to get occupied tables count
-    function getOccupiedTablesCount() {
-      try {
-        const tablesGrid = document.getElementById('tables-grid');
-        if (tablesGrid) {
-          const occupiedTableElements = tablesGrid.querySelectorAll('.table-item:not(.table-available)');
-          return occupiedTableElements.length;
-        }
-        return Math.floor(Math.random() * 8) + 2; // Fallback: 2-10 tables
-      } catch (error) {
-        return 0;
-      }
-    }
-    
-    // Helper function to calculate today's revenue
-    function calculateTodayRevenue(ordersSnapshot) {
-      let todayRevenue = 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      if (ordersSnapshot) {
-        ordersSnapshot.forEach(doc => {
-          const order = doc.data();
-          const orderDate = new Date(order.timestamp || order.createdAt || 0);
-          if (orderDate >= today && order.status === 'completed' && order.total) {
-            todayRevenue += parseFloat(order.total) || 0;
-          }
-        });
-      }
-      
-      return todayRevenue.toFixed(2);
-    }
-    
     // Refresh ratings function for admin dashboard
     function refreshRatings() {
       console.log('Manual refresh of ratings triggered');
@@ -11996,32 +12111,8 @@
       setTimeout(() => syncPendingRatings(), 500);
     }
     
-    // Initialize statistics with fallback data
-    function initializeStatistics() {
-      try {
-        // Set basic statistics
-        const totalOrdersEl = document.getElementById('total-orders');
-        if (totalOrdersEl) totalOrdersEl.textContent = '0';
-        
-        const occupiedTablesEl = document.getElementById('occupied-tables');
-        if (occupiedTablesEl) occupiedTablesEl.textContent = getOccupiedTablesCount();
-        
-        const activeStaffEl = document.getElementById('active-staff');
-        if (activeStaffEl) activeStaffEl.textContent = '4';
-        
-        const todayRevenueEl = document.getElementById('today-revenue');
-        if (todayRevenueEl) todayRevenueEl.textContent = '$0.00';
-        
-      } catch (error) {
-        console.log('Statistics initialization completed with fallbacks');
-      }
-    }
-    
     // Add call to loadStaffRatings in renderAdminDashboard function
     function renderAdminDashboard() {
-      // Initialize statistics first
-      initializeStatistics();
-      
       // Load staff accounts and table assignments
       loadStaffAccounts();
       loadTableAssignments();
@@ -12029,6 +12120,10 @@
       
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
+      
+      // Load and update admin statistics
+      const storedOrders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+      updateAdminStatistics(storedOrders);
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
@@ -13266,5 +13361,56 @@
       </div>
     </div>
   </div>
+
+  <!-- Emergency loading overlay removal script -->
+  <script>
+    // Multiple fallback mechanisms to ensure loading never gets stuck
+    
+    // Window load event - triggers when all resources are loaded
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        const loading = document.getElementById('loading-overlay');
+        if (loading && getComputedStyle(loading).display !== 'none') {
+          console.log('Window load: Removing loading overlay');
+          loading.style.opacity = '0';
+          loading.style.transition = 'opacity 0.5s ease';
+          setTimeout(() => {
+            loading.style.display = 'none';
+          }, 500);
+        }
+      }, 1000);
+    });
+    
+    // DOMContentLoaded fallback
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        const loading = document.getElementById('loading-overlay');
+        if (loading && getComputedStyle(loading).display !== 'none') {
+          console.log('DOMContentLoaded: Removing loading overlay');
+          loading.style.opacity = '0';
+          loading.style.transition = 'opacity 0.5s ease';
+          setTimeout(() => {
+            loading.style.display = 'none';
+          }, 500);
+        }
+      }, 3000);
+    });
+    
+    // Ultimate failsafe - removes loading after 6 seconds no matter what
+    setTimeout(() => {
+      const loading = document.getElementById('loading-overlay');
+      if (loading) {
+        console.log('Ultimate failsafe: Force removing loading overlay');
+        loading.style.display = 'none';
+        
+        // Ensure main content is visible
+        const overlay = document.querySelector('.overlay');
+        if (overlay) overlay.style.visibility = 'visible';
+        
+        const modelViewer = document.getElementById('food-model-viewer');
+        if (modelViewer) modelViewer.style.visibility = 'visible';
+      }
+    }, 6000);
+  </script>
 </body>
 </html>
