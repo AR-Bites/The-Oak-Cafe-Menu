@@ -4427,12 +4427,16 @@
                 <div class="stat-label" id="total-customers-title">TOTAL CUSTOMERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="avg-prep-time">0</div>
-                <div class="stat-label" id="avg-prep-time-title">AVG PREP TIME (MINS)</div>
+                <div class="stat-value" id="avg-prep-time">15</div>
+                <div class="stat-label" id="avg-prep-time-title">AVERAGE PREP TIME (MINS)</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="table-turnover">0</div>
-                <div class="stat-label" id="table-turnover-title">TABLE TURNOVER (%)</div>
+                <div class="stat-value" id="table-turnover">75</div>
+                <div class="stat-label" id="table-turnover-title">TABLE TURNOVER RATE (%)</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="active-staff">0</div>
+                <div class="stat-label" id="active-staff-title">ACTIVE STAFF</div>
               </div>
             </div>
           </div>
@@ -6004,7 +6008,7 @@
         
         if (progress <= 35) {
           newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
-          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأب �اد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة النماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
@@ -6145,82 +6149,66 @@
         
       }, 100); // Update at faster 100ms intervals
       
-      // Enhanced failsafe with Promise.race timeout wrapper
-      const hideLoading = () => {
-        const loading = document.querySelector(".loading-overlay");
-        if (loading) {
-          loading.style.opacity = "0";
-          setTimeout(() => loading.style.display = "none", 500);
-        }
-      };
-      
-      // Add DOMContentLoaded fallback with 3-second max wait
-      document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(hideLoading, 3000);
-      });
-      
-      // Add window load event listener for hiding loading overlay
-      window.addEventListener("load", hideLoading);
-      
       // Shorter failsafe: Ensure loading screen closes even if there are errors
       setTimeout(() => {
-        console.log("Loading timeout reached, forcing completion");
-        clearInterval(interval);
-        loadingBar.style.width = '100%';
-        hideLoading(); // Force hide loading overlay
-        
-        // Animated text update with enhanced animations
-        loadingText.style.opacity = '0';
-        
-        // Add a scaling effect to the cube grid animation
-        const cubeGrid = document.querySelector('.loading-cube-grid');
-        if (cubeGrid) {
-          cubeGrid.style.transform = 'scale(1.2)';
-          cubeGrid.style.transition = 'transform 0.5s ease-out';
-        }
-        
-        setTimeout(() => {
-          loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
-          loadingText.style.opacity = '1';
-          loadingText.style.fontSize = '1.3rem';
-          loadingText.style.color = '#FFDF70';
-          loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
+        if (loadingOverlay.style.display !== 'none') {
+          console.log("Loading timeout reached, forcing completion");
+          clearInterval(interval);
+          loadingBar.style.width = '100%';
           
-          // Add a pulsing effect to model status text
-          const loadingModelStatus = document.querySelector('.loading-model-status');
-          if (loadingModelStatus) {
-            loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
-            loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
-            loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
+          // Animated text update with enhanced animations
+          loadingText.style.opacity = '0';
+          
+          // Add a scaling effect to the cube grid animation
+          const cubeGrid = document.querySelector('.loading-cube-grid');
+          if (cubeGrid) {
+            cubeGrid.style.transform = 'scale(1.2)';
+            cubeGrid.style.transition = 'transform 0.5s ease-out';
           }
-        }, 200);
-        
-        setTimeout(() => {
-          loadingOverlay.style.opacity = '0';
+          
           setTimeout(() => {
-            loadingOverlay.style.display = 'none';
+            loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+            loadingText.style.opacity = '1';
+            loadingText.style.fontSize = '1.3rem';
+            loadingText.style.color = '#FFDF70';
+            loadingText.style.textShadow = '0 0 20px rgba(255, 223, 112, 0.7)';
             
-            // Ensure visibility of components
-            document.querySelector('.overlay').style.visibility = 'visible';
-            if (modelViewer) modelViewer.style.visibility = 'visible';
-            
-            // Check if we need to display the table modal in failsafe
-            console.log("Failsafe: Checking if we need to show table modal");
-            
-            // Skip for logged in staff/admin
-            if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-              console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
-            } else {
-              // Force showing the table modal for guests
-              console.log("Failsafe: Showing table modal for guests");
-              showTableModal();
+            // Add a pulsing effect to model status text
+            const loadingModelStatus = document.querySelector('.loading-model-status');
+            if (loadingModelStatus) {
+              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+              loadingModelStatus.style.color = 'rgba(212, 175, 55, 0.9)';
+              loadingModelStatus.style.animation = 'text-fade 1s infinite alternate';
             }
           }, 200);
-        }, 150);
-      }, 2500); // 2.5 seconds max load time for better UX
+          
+          setTimeout(() => {
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => {
+              loadingOverlay.style.display = 'none';
+              
+              // Ensure visibility of components
+              document.querySelector('.overlay').style.visibility = 'visible';
+              if (modelViewer) modelViewer.style.visibility = 'visible';
+              
+              // Check if we need to display the table modal in failsafe
+              console.log("Failsafe: Checking if we need to show table modal");
+              
+              // Skip for logged in staff/admin
+              if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
+              } else {
+                // Force showing the table modal for guests
+                console.log("Failsafe: Showing table modal for guests");
+                showTableModal();
+              }
+            }, 200);
+          }, 150);
+        }
+      }, 3500); // Reduced to 3.5 seconds max load time
     }
     
-    // Language support  
+    // Language support
     function toggleLanguage() {
       currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
       localStorage.setItem(LANGUAGE_KEY, currentLanguage);
@@ -6780,7 +6768,7 @@
           todayOption: "اليوم",
           weekOption: "هذا الأسبوع",
           monthOption: "هذا الشهر",
-          yearOption: "هذn� العام",
+          yearOption: "هذا العام",
           salesPerformance: "أداء المبيعات",
           topMenuItems: "أفضل عناصر القائمة",
           customerSatisfaction: "رضا العملاء",
@@ -11958,12 +11946,109 @@
       ctx.fillText('Ratings Distribution', 10, 20);
     }
     
+    // Function to update admin dashboard statistics with operational metrics
+    function updateAdminStatistics() {
+      if (!db || typeof db.collection !== 'function') {
+        // Set default values when Firebase is not available
+        document.getElementById('total-orders').textContent = '0';
+        document.getElementById('total-customers').textContent = '0';
+        document.getElementById('avg-prep-time').textContent = '15';
+        document.getElementById('table-turnover').textContent = '75';
+        document.getElementById('active-staff').textContent = '4';
+        return;
+      }
+      
+      // Get current date for today's calculations
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Calculate total orders
+      db.collection('orders').get()
+        .then(snapshot => {
+          const totalOrders = snapshot.size;
+          document.getElementById('total-orders').textContent = totalOrders;
+          
+          // Calculate total customers (unique table numbers from orders)
+          const uniqueTables = new Set();
+          let totalPrepTime = 0;
+          let completedOrders = 0;
+          let todayOrders = 0;
+          
+          snapshot.forEach(doc => {
+            const order = doc.data();
+            
+            // Count unique customers by table number
+            if (order.tableNumber) {
+              uniqueTables.add(order.tableNumber);
+            }
+            
+            // Calculate average prep time from completed orders
+            if (order.status === 'completed' && order.completedAt && order.createdAt) {
+              try {
+                const created = order.createdAt.toDate();
+                const completed = order.completedAt.toDate();
+                const prepTimeMinutes = (completed - created) / (1000 * 60);
+                if (prepTimeMinutes > 0 && prepTimeMinutes < 180) { // Reasonable prep time
+                  totalPrepTime += prepTimeMinutes;
+                  completedOrders++;
+                }
+              } catch (error) {
+                // Handle timestamp conversion errors
+              }
+            }
+            
+            // Count today's orders for turnover calculation
+            if (order.createdAt) {
+              try {
+                const orderDate = order.createdAt.toDate();
+                if (orderDate >= today) {
+                  todayOrders++;
+                }
+              } catch (error) {
+                // Handle timestamp conversion errors
+              }
+            }
+          });
+          
+          // Update total customers
+          document.getElementById('total-customers').textContent = uniqueTables.size;
+          
+          // Update average prep time
+          const avgPrepTime = completedOrders > 0 ? Math.round(totalPrepTime / completedOrders) : 15;
+          document.getElementById('avg-prep-time').textContent = avgPrepTime;
+          
+          // Calculate table turnover rate (simplified as orders per table today)
+          const turnoverRate = uniqueTables.size > 0 ? Math.round((todayOrders / uniqueTables.size) * 25) : 75;
+          document.getElementById('table-turnover').textContent = Math.min(turnoverRate, 100);
+        })
+        .catch(error => {
+          console.error('Error fetching orders for statistics:', error);
+          // Set default values on error
+          document.getElementById('total-orders').textContent = '0';
+          document.getElementById('total-customers').textContent = '0';
+        });
+      
+      // Count active staff
+      db.collection('staff')
+        .where('active', '==', true)
+        .get()
+        .then(staffSnapshot => {
+          document.getElementById('active-staff').textContent = staffSnapshot.size;
+        })
+        .catch(error => {
+          console.error('Error fetching active staff:', error);
+          document.getElementById('active-staff').textContent = '4';
+        });
+    }
+
     // Refresh ratings function for admin dashboard
     function refreshRatings() {
       console.log('Manual refresh of ratings triggered');
       if (typeof loadStaffRatings === 'function') {
         loadStaffRatings();
       }
+      // Also refresh admin statistics
+      updateAdminStatistics();
       // Also try to sync pending ratings
       setTimeout(() => syncPendingRatings(), 500);
     }
@@ -11975,15 +12060,15 @@
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
       
+      // Update admin statistics with operational metrics
+      updateAdminStatistics();
+      
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
       
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
         const totalOrders = snapshot.size;
-        let totalRating = 0;
-        let ratedOrders = 0;
-        let lowRatings = 0;
         
         // Prepare data for charts
         const orderStatusData = {
@@ -13144,74 +13229,6 @@
         });
       }
     }
-    
-    // Update business KPIs for statistics section
-    function updateBusinessKPIs() {
-      const orders = JSON.parse(localStorage.getItem('orders')) || [];
-      
-      // Total Orders (keep existing)
-      const totalOrders = orders.length;
-      
-      // Total Customers - count unique guests from orders
-      const uniqueGuests = new Set();
-      orders.forEach(order => {
-        if (order.guestId) uniqueGuests.add(order.guestId);
-        if (order.tableNumber) uniqueGuests.add(`table_${order.tableNumber}`);
-      });
-      const totalCustomers = Math.max(uniqueGuests.size, Math.floor(totalOrders * 0.7));
-      
-      // Average Prep Time - calculate from completed orders
-      const completedOrders = orders.filter(order => order.status === 'ready' || order.status === 'delivered');
-      let totalPrepTime = 0;
-      completedOrders.forEach(order => {
-        if (order.prepTime) {
-          totalPrepTime += order.prepTime;
-        } else {
-          // Estimate realistic prep time based on order complexity
-          const itemCount = order.items ? order.items.length : 1;
-          const estimatedTime = Math.min(45, Math.max(8, itemCount * 6 + Math.random() * 10));
-          totalPrepTime += estimatedTime;
-        }
-      });
-      const avgPrepTime = completedOrders.length > 0 ? Math.round(totalPrepTime / completedOrders.length) : 15;
-      
-      // Table Turnover Rate - percentage of tables that have been used today
-      const totalTables = 20;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const tablesUsedToday = new Set();
-      orders.forEach(order => {
-        const orderDate = new Date(order.timestamp || order.created_at || Date.now());
-        if (orderDate >= today && order.tableNumber) {
-          tablesUsedToday.add(order.tableNumber);
-        }
-      });
-      const tableTurnover = Math.round((tablesUsedToday.size / totalTables) * 100);
-      
-      // Update DOM elements safely
-      const updateElement = (id, value) => {
-        const element = document.getElementById(id);
-        if (element) element.textContent = value;
-      };
-      
-      updateElement('total-orders', totalOrders);
-      updateElement('total-customers', totalCustomers);
-      updateElement('avg-prep-time', avgPrepTime);
-      updateElement('table-turnover', tableTurnover);
-    }
-    
-    // Initialize business KPIs when dashboard loads
-    function initializeDashboard() {
-      setTimeout(() => {
-        updateBusinessKPIs();
-        // Update every 30 seconds
-        setInterval(updateBusinessKPIs, 30000);
-      }, 1000);
-    }
-    
-    // Call initialization when DOM is ready
-    document.addEventListener('DOMContentLoaded', initializeDashboard);
   </script>
   
 
