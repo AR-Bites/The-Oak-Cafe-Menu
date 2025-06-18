@@ -1604,11 +1604,33 @@
       
       .user-option-buttons {
         gap: 15px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        margin-top: 20px !important;
+        margin-bottom: 25px !important;
       }
       
       .guest-option, .staff-option {
-        min-height: 120px !important;
-        padding: 15px !important;
+        min-height: 80px !important;
+        padding: 20px !important;
+        width: 100% !important;
+        flex: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.1rem !important;
+        font-weight: bold !important;
+      }
+      
+      .option-icon {
+        font-size: 24px !important;
+        margin-right: 12px !important;
+        margin-bottom: 0 !important;
+      }
+      
+      .option-description {
+        display: none !important;
       }
     }
     
@@ -1754,10 +1776,12 @@
     }
     
     .user-option-buttons {
-      display: flex;
+      display: flex !important;
       gap: 15px;
       margin-top: 15px;
       margin-bottom: 20px;
+      visibility: visible !important;
+      opacity: 1 !important;
     }
     
     .guest-option, .staff-option {
@@ -6405,17 +6429,101 @@
                 } else {
                   // Force showing the table modal for guests with mobile failsafe
                   console.log("Showing table modal for guests");
+                  console.log("Mobile device detection:", window.innerWidth <= 480 ? "MOBILE" : "DESKTOP");
                   showTableModal();
                   
-                  // Mobile failsafe: Ensure modal is visible
+                  // Mobile failsafe: Ensure modal is visible with options
                   setTimeout(() => {
                     const modal = document.getElementById('table-number-modal');
-                    if (modal && modal.style.display === 'none') {
-                      console.log("Mobile failsafe: Forcing table modal display");
+                    const optionButtons = document.querySelector('.user-option-buttons');
+                    const modalContent = document.querySelector('.table-number-content');
+                    
+                    console.log("Mobile failsafe check:", {
+                      modal: !!modal,
+                      optionButtons: !!optionButtons,
+                      modalDisplay: modal?.style.display,
+                      optionsDisplay: optionButtons?.style.display,
+                      windowWidth: window.innerWidth
+                    });
+                    
+                    // Force modal display
+                    if (modal) {
                       modal.style.display = 'flex';
+                      modal.style.position = 'fixed';
+                      modal.style.top = '0';
+                      modal.style.left = '0';
+                      modal.style.width = '100vw';
+                      modal.style.height = '100vh';
+                      modal.style.zIndex = '1100';
+                      modal.classList.add('show');
+                      console.log("Mobile failsafe: Modal forced visible");
+                    }
+                    
+                    // Force modal content visibility
+                    if (modalContent) {
+                      modalContent.style.display = 'block';
+                      modalContent.style.visibility = 'visible';
+                      modalContent.style.opacity = '1';
+                      modalContent.style.position = 'relative';
+                      modalContent.style.zIndex = '1101';
+                    }
+                    
+                    // Force option buttons to be visible on mobile
+                    if (optionButtons) {
+                      optionButtons.style.display = 'flex';
+                      optionButtons.style.visibility = 'visible';
+                      optionButtons.style.opacity = '1';
+                      optionButtons.style.position = 'relative';
+                      optionButtons.style.zIndex = '1200';
+                      optionButtons.style.flexDirection = window.innerWidth <= 480 ? 'column' : 'row';
+                      optionButtons.style.gap = '15px';
+                      optionButtons.style.marginTop = '20px';
+                      optionButtons.style.marginBottom = '25px';
+                      console.log("Mobile failsafe: Option buttons forced visible");
+                    }
+                    
+                    // Force individual option elements
+                    const guestOption = document.querySelector('.guest-option');
+                    const staffOption = document.querySelector('.staff-option');
+                    
+                    [guestOption, staffOption].forEach((option, index) => {
+                      if (option) {
+                        option.style.display = 'flex';
+                        option.style.visibility = 'visible';
+                        option.style.opacity = '1';
+                        option.style.position = 'relative';
+                        option.style.zIndex = '1201';
+                        option.style.width = window.innerWidth <= 480 ? '100%' : 'auto';
+                        option.style.minHeight = '80px';
+                        option.style.padding = '20px';
+                        option.style.alignItems = 'center';
+                        option.style.justifyContent = 'center';
+                        option.style.fontSize = '1.1rem';
+                        option.style.fontWeight = 'bold';
+                        option.style.cursor = 'pointer';
+                        console.log(`Mobile: ${index === 0 ? 'Guest' : 'Staff'} option forced visible`);
+                      }
+                    });
+                  }, 500);
+                  
+                  // Additional delayed check for stubborn mobile devices
+                  setTimeout(() => {
+                    const modal = document.getElementById('table-number-modal');
+                    const optionButtons = document.querySelector('.user-option-buttons');
+                    
+                    if (modal && modal.style.display === 'none') {
+                      console.log("Secondary mobile failsafe: Re-forcing modal");
+                      modal.style.display = 'flex !important';
                       modal.classList.add('show');
                     }
-                  }, 500);
+                    
+                    if (optionButtons && optionButtons.style.display === 'none') {
+                      console.log("Secondary mobile failsafe: Re-forcing options");
+                      optionButtons.style.display = 'flex !important';
+                      optionButtons.style.visibility = 'visible !important';
+                      optionButtons.style.opacity = '1 !important';
+                    }
+                  }, 1500);
                 }
               }, 200); // Faster transition out
             }, 150); // Show success message briefly
