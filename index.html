@@ -6003,8 +6003,8 @@
     const occupiedTablesTitle = document.getElementById("occupied-tables-title");
     const adminDashboardTitle = document.getElementById("admin-dashboard-title");
     const totalOrdersTitle = document.getElementById("total-orders-title");
-    const avgRatingTitle = document.getElementById("avg-rating-title");
-    const lowRatingsTitle = document.getElementById("low-ratings-title");
+    const avgRatingTitle = document.getElementById("total-customers-title");
+    const lowRatingsTitle = document.getElementById("avg-prep-time-title");
     const activeStaffTitle = document.getElementById("active-staff-title");
     const statisticsTitle = document.getElementById("statistics-title");
     const ordersTitle = document.getElementById("orders-title");
@@ -11731,18 +11731,14 @@
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
         const totalOrders = snapshot.size;
-        const allOrders = [];
+        let totalRating = 0;
+        let ratedOrders = 0;
+        let lowRatings = 0;
         
-        // Convert snapshot to array for processing
-        snapshot.forEach(doc => {
-          allOrders.push(doc.data());
-        });
-        
-        // Calculate updated statistics
-        const updatedStats = calculateUpdatedStats(allOrders);
-        
-        // Update all statistics displays
-        updateStatsDisplay(totalOrders, updatedStats);
+        // Calculate new statistics
+        const uniqueCustomers = new Set();
+        let totalPrepTime = 0;
+        let ordersWithPrepTime = 0;
         
         // Prepare data for charts
         const orderStatusData = {
@@ -11785,8 +11781,8 @@
         
         // Update stats display
         document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('avg-rating').textContent = avgRating;
-        document.getElementById('low-ratings').textContent = lowRatings;
+        document.getElementById('total-customers').textContent = avgRating;
+        document.getElementById('avg-prep-time').textContent = lowRatings;
         
         // Count active staff
         db.collection('staff')
@@ -12444,8 +12440,8 @@
         
         // Update stats display
         document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('avg-rating').textContent = avgRating;
-        document.getElementById('low-ratings').textContent = lowRatings;
+        document.getElementById('total-customers').textContent = avgRating;
+        document.getElementById('avg-prep-time').textContent = lowRatings;
         
         // Count active staff
         db.collection('staff')
