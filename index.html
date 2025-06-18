@@ -6123,10 +6123,24 @@
             setupRealtimeListeners();
             startStaffHeartbeat();
             console.log('Admin heartbeat and listeners activated');
+            
+            // Force initial statistics load for admin
+            setTimeout(() => {
+              forceInitialStatisticsLoad();
+              // Additional force refresh for statistics display
+              setTimeout(() => {
+                refreshStatisticsAndOrders();
+              }, 1000);
+            }, 500);
           } else {
             setupStaffRealtimeListeners();
             startStaffHeartbeat();
             console.log('Staff heartbeat and listeners activated');
+            
+            // Force initial statistics load for staff too
+            setTimeout(() => {
+              forceInitialStatisticsLoad();
+            }, 500);
           }
           
           // Activate real-time staff monitoring for all users
@@ -6142,6 +6156,11 @@
           // Activate real-time staff monitoring for guests too (in case they log in later)
           setupRealTimeStaffMonitoring();
           console.log('Real-time staff monitoring activated for guest');
+          
+          // Load statistics for guests too (they can see basic stats)
+          setTimeout(() => {
+            forceInitialStatisticsLoad();
+          }, 1000);
         }, 500);
       }
       
@@ -11867,13 +11886,36 @@
       
       const avgPrepTime = ordersWithPrepTime > 0 ? Math.round(totalPrepTime / ordersWithPrepTime) : 0;
       
-      // Update statistics display
-      document.getElementById('total-orders').textContent = totalOrders;
-      document.getElementById('total-customers').textContent = uniqueCustomers.size;
-      document.getElementById('avg-prep-time').textContent = avgPrepTime;
+      // Update statistics display with force refresh
+      const totalOrdersElement = document.getElementById('total-orders');
+      const totalCustomersElement = document.getElementById('total-customers');
+      const avgPrepTimeElement = document.getElementById('avg-prep-time');
       
-      // Update active staff count
-      updateActiveStaffCount();
+      if (totalOrdersElement) {
+        totalOrdersElement.textContent = totalOrders;
+        totalOrdersElement.style.color = 'var(--gold)';
+        totalOrdersElement.style.fontWeight = 'bold';
+        console.log('✅ Updated Total Orders:', totalOrders);
+      }
+      
+      if (totalCustomersElement) {
+        totalCustomersElement.textContent = uniqueCustomers.size;
+        totalCustomersElement.style.color = 'var(--gold)';
+        totalCustomersElement.style.fontWeight = 'bold';
+        console.log('✅ Updated Total Customers:', uniqueCustomers.size);
+      }
+      
+      if (avgPrepTimeElement) {
+        avgPrepTimeElement.textContent = avgPrepTime;
+        avgPrepTimeElement.style.color = 'var(--gold)';
+        avgPrepTimeElement.style.fontWeight = 'bold';
+        console.log('✅ Updated Avg Prep Time:', avgPrepTime);
+      }
+      
+      // Update active staff count (but don't let it interfere with other stats)
+      setTimeout(() => {
+        updateActiveStaffCount();
+      }, 100);
       
       // Update charts
       updateOrdersChart(orderStatusData);
@@ -12417,81 +12459,24 @@
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
-    // Function to update staff count display in UI with force refresh
+    // Function to update ONLY Active Staff count - DO NOT touch other statistics
     function updateStaffCountDisplay(count, activeStaff = []) {
       try {
-        console.log('🔄 FORCING UI UPDATE - Active Staff Count:', count);
-        
-        // Force immediate DOM update with multiple targeting methods
-        setTimeout(() => {
-          // Method 1: Direct ID targeting with force refresh
-          const activeStaffElement = document.getElementById('active-staff');
-          if (activeStaffElement) {
-            activeStaffElement.textContent = count;
-            activeStaffElement.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
-            // Force repaint
-            activeStaffElement.style.display = 'none';
-            activeStaffElement.offsetHeight; // Trigger reflow
-            activeStaffElement.style.display = '';
-            console.log('✅ FORCE UPDATED active-staff element to:', count);
-          }
-          
-          // Method 2: Update all stat-value elements that contain Active Staff
-          const statValueElements = document.querySelectorAll('.stat-value');
-          statValueElements.forEach((element, index) => {
-            const nextElement = element.nextElementSibling;
-            if (nextElement && (nextElement.textContent.includes('ACTIVE STAFF') || nextElement.textContent.includes('النشطين'))) {
-              element.textContent = count;
-              element.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
-              // Force repaint
-              element.style.display = 'none';
-              element.offsetHeight; // Trigger reflow
-              element.style.display = '';
-              console.log('✅ FORCE UPDATED stat-value element (index:', index, ') to:', count);
-            }
-          });
-          
-          // Method 3: Search and update any element with "0" or low numbers that might be active staff
-          const allElements = document.querySelectorAll('*');
-          allElements.forEach(el => {
-            if (el.children.length === 0 && // Only leaf elements
-                el.textContent.trim() === '0' || 
-                el.textContent.trim() === '1' || 
-                el.textContent.trim() === '2' || 
-                el.textContent.trim() === '3' ||
-                el.textContent.trim() === '4') {
-              
-              // Check if this element is likely the active staff counter
-              const parent = el.parentElement;
-              const grandParent = parent ? parent.parentElement : null;
-              
-              if (parent && (
-                  parent.textContent.includes('ACTIVE STAFF') || 
-                  parent.textContent.includes('النشطين') ||
-                  (grandParent && (grandParent.textContent.includes('ACTIVE STAFF') || grandParent.textContent.includes('النشطين')))
-                )) {
-                el.textContent = count;
-                el.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
-                // Force repaint
-                el.style.display = 'none';
-                el.offsetHeight; // Trigger reflow
-                el.style.display = '';
-                console.log('✅ CONTEXT UPDATED element to:', count, 'parent text:', parent.textContent.substring(0, 50));
-              }
-            }
-          });
-          
-        }, 50); // Small delay to ensure DOM is ready
+        // ONLY update the Active Staff element by ID - never touch other stats
+        const activeStaffElement = document.getElementById('active-staff');
+        if (activeStaffElement) {
+          activeStaffElement.textContent = count;
+          activeStaffElement.style.color = 'var(--gold)';
+          activeStaffElement.style.fontWeight = 'bold';
+          activeStaffElement.style.fontSize = '1.5rem';
+          console.log('Updated Active Staff to:', count);
+        }
         
         // Update active staff details for admin
         updateActiveStaffDetails(activeStaff);
         
       } catch (error) {
         console.warn('Error updating active staff count:', error);
-        const activeStaffElement = document.getElementById('active-staff');
-        if (activeStaffElement) {
-          activeStaffElement.textContent = '1';
-        }
       }
     }
 
@@ -12577,11 +12562,54 @@
 
     // Function to refresh statistics and orders (fallback)
     function refreshStatisticsAndOrders() {
+      if (!db || typeof db.collection !== 'function') {
+        console.log('Firebase not available for statistics refresh');
+        return;
+      }
+      
+      console.log('🔄 Manually refreshing statistics and orders...');
       db.collection('orders').get().then(snapshot => {
+        console.log('📊 Retrieved', snapshot.size, 'orders for statistics');
         updateStatisticsFromSnapshot(snapshot);
         updateOrdersDisplay();
       }).catch(error => {
         console.warn('Error refreshing statistics:', error);
+      });
+    }
+    
+    // Force initial statistics load function
+    function forceInitialStatisticsLoad() {
+      console.log('🚀 Force loading initial statistics...');
+      
+      if (!db || typeof db.collection !== 'function') {
+        console.log('Firebase not available, cannot load statistics');
+        // Set default values
+        const totalOrdersElement = document.getElementById('total-orders');
+        const totalCustomersElement = document.getElementById('total-customers');
+        const avgPrepTimeElement = document.getElementById('avg-prep-time');
+        
+        if (totalOrdersElement) totalOrdersElement.textContent = '0';
+        if (totalCustomersElement) totalCustomersElement.textContent = '0';
+        if (avgPrepTimeElement) avgPrepTimeElement.textContent = '0';
+        return;
+      }
+      
+      db.collection('orders').get().then(snapshot => {
+        console.log('📊 Initial load: Retrieved', snapshot.size, 'orders');
+        updateStatisticsFromSnapshot(snapshot);
+        if (userType === 'admin') {
+          updateOrdersDisplay();
+        }
+      }).catch(error => {
+        console.warn('Error in initial statistics load:', error);
+        // Set default values on error
+        const totalOrdersElement = document.getElementById('total-orders');
+        const totalCustomersElement = document.getElementById('total-customers');
+        const avgPrepTimeElement = document.getElementById('avg-prep-time');
+        
+        if (totalOrdersElement) totalOrdersElement.textContent = '0';
+        if (totalCustomersElement) totalCustomersElement.textContent = '0';
+        if (avgPrepTimeElement) avgPrepTimeElement.textContent = '0';
       });
     }
 
