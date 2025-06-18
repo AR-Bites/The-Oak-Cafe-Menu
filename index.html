@@ -6128,6 +6128,10 @@
             startStaffHeartbeat();
             console.log('Staff heartbeat and listeners activated');
           }
+          
+          // Activate real-time staff monitoring for all users
+          setupRealTimeStaffMonitoring();
+          console.log('Real-time staff monitoring activated');
         }, 1500);
       } else {
         // Force showing the table number modal on initialization for guests
@@ -6135,6 +6139,9 @@
         // Delay slightly to ensure it's fully visible
         setTimeout(() => {
           showTableModal();
+          // Activate real-time staff monitoring for guests too (in case they log in later)
+          setupRealTimeStaffMonitoring();
+          console.log('Real-time staff monitoring activated for guest');
         }, 500);
       }
       
@@ -12164,6 +12171,88 @@
       }
     }
 
+    // Real-time Firebase listener for staff sessions
+    let staffSessionsListener = null;
+    
+    // Function to setup real-time active staff count monitoring
+    function setupRealTimeStaffMonitoring() {
+      if (!db || typeof db.collection !== 'function') {
+        console.log('Firebase not available, using polling fallback');
+        setInterval(updateFromLocalStorage, 10000); // Poll every 10 seconds
+        return;
+      }
+      
+      try {
+        console.log('🔄 Setting up real-time staff monitoring...');
+        
+        // Remove existing listener if any
+        if (staffSessionsListener) {
+          staffSessionsListener();
+          staffSessionsListener = null;
+        }
+        
+        // Setup real-time listener for staff sessions
+        staffSessionsListener = db.collection('staffSessions').onSnapshot(
+          (snapshot) => {
+            console.log('🔥 Real-time staff sessions update received');
+            processStaffSessionsSnapshot(snapshot);
+          },
+          (error) => {
+            console.warn('Staff sessions listener error:', error);
+            // Fallback to polling
+            setTimeout(updateFromLocalStorage, 1000);
+          }
+        );
+        
+        console.log('✅ Real-time staff monitoring active');
+        
+      } catch (error) {
+        console.warn('Failed to setup real-time monitoring:', error);
+        // Fallback to polling
+        setInterval(updateFromLocalStorage, 10000);
+      }
+    }
+    
+    // Process staff sessions snapshot for real-time updates
+    function processStaffSessionsSnapshot(snapshot) {
+      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const currentTime = Date.now();
+      const activeStaff = [];
+      
+      console.log('🔥 Processing', snapshot.size, 'staff sessions...');
+      
+      snapshot.forEach(doc => {
+        const staff = doc.data();
+        const timeSinceActivity = currentTime - staff.lastActivity;
+        
+        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+        
+        // Exclude admin users from staff count
+        if (staff.role === 'admin') {
+          console.log(`❌ Admin ${staff.name} excluded from staff count`);
+          return;
+        }
+        
+        // Count active non-admin staff within timeout period
+        if (staff.status === 'active' && 
+            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
+            staff.sessionId) {
+          
+          activeStaff.push({
+            username: staff.username,
+            name: staff.name,
+            role: staff.role,
+            lastActivity: staff.lastActivity,
+            sessionId: staff.sessionId
+          });
+          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role})`);
+        }
+      });
+      
+      console.log('🔥 Real-time Active Staff Count:', activeStaff.length);
+      updateStaffCountDisplay(activeStaff.length, activeStaff);
+    }
+    
     // Function to update active staff count with Firebase integration
     function updateActiveStaffCount() {
       try {
@@ -12328,38 +12417,71 @@
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
-    // Function to update staff count display in UI
+    // Function to update staff count display in UI with force refresh
     function updateStaffCountDisplay(count, activeStaff = []) {
       try {
-        // Method 1: Direct ID targeting
-        const activeStaffElement = document.getElementById('active-staff');
-        if (activeStaffElement) {
-          activeStaffElement.textContent = count;
-          activeStaffElement.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
-          console.log('✓ Updated active-staff element to:', count);
-        } else {
-          console.warn('active-staff element not found');
-        }
+        console.log('🔄 FORCING UI UPDATE - Active Staff Count:', count);
         
-        // Method 2: Query selector fallback
-        const statValueElements = document.querySelectorAll('.stat-value');
-        statValueElements.forEach((element, index) => {
-          if (element.nextElementSibling && element.nextElementSibling.textContent.includes('ACTIVE STAFF')) {
-            element.textContent = count;
-            element.style.color = 'var(--gold)';
-            console.log('✓ Updated stat-value element (index:', index, ') to:', count);
+        // Force immediate DOM update with multiple targeting methods
+        setTimeout(() => {
+          // Method 1: Direct ID targeting with force refresh
+          const activeStaffElement = document.getElementById('active-staff');
+          if (activeStaffElement) {
+            activeStaffElement.textContent = count;
+            activeStaffElement.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
+            // Force repaint
+            activeStaffElement.style.display = 'none';
+            activeStaffElement.offsetHeight; // Trigger reflow
+            activeStaffElement.style.display = '';
+            console.log('✅ FORCE UPDATED active-staff element to:', count);
           }
-        });
-        
-        // Method 3: Force DOM update for all potential active staff displays
-        const allActiveElements = document.querySelectorAll('[id*="active"], [class*="active"]');
-        allActiveElements.forEach(el => {
-          if (el.id === 'active-staff' || el.textContent === '0' || el.textContent === '1') {
-            el.textContent = count;
-            el.style.cssText = 'color: var(--gold) !important; font-weight: bold !important; font-size: 1.5rem !important;';
-            console.log('✓ Force updated element:', el.id || el.className, 'to:', count);
-          }
-        });
+          
+          // Method 2: Update all stat-value elements that contain Active Staff
+          const statValueElements = document.querySelectorAll('.stat-value');
+          statValueElements.forEach((element, index) => {
+            const nextElement = element.nextElementSibling;
+            if (nextElement && (nextElement.textContent.includes('ACTIVE STAFF') || nextElement.textContent.includes('النشطين'))) {
+              element.textContent = count;
+              element.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
+              // Force repaint
+              element.style.display = 'none';
+              element.offsetHeight; // Trigger reflow
+              element.style.display = '';
+              console.log('✅ FORCE UPDATED stat-value element (index:', index, ') to:', count);
+            }
+          });
+          
+          // Method 3: Search and update any element with "0" or low numbers that might be active staff
+          const allElements = document.querySelectorAll('*');
+          allElements.forEach(el => {
+            if (el.children.length === 0 && // Only leaf elements
+                el.textContent.trim() === '0' || 
+                el.textContent.trim() === '1' || 
+                el.textContent.trim() === '2' || 
+                el.textContent.trim() === '3' ||
+                el.textContent.trim() === '4') {
+              
+              // Check if this element is likely the active staff counter
+              const parent = el.parentElement;
+              const grandParent = parent ? parent.parentElement : null;
+              
+              if (parent && (
+                  parent.textContent.includes('ACTIVE STAFF') || 
+                  parent.textContent.includes('النشطين') ||
+                  (grandParent && (grandParent.textContent.includes('ACTIVE STAFF') || grandParent.textContent.includes('النشطين')))
+                )) {
+                el.textContent = count;
+                el.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
+                // Force repaint
+                el.style.display = 'none';
+                el.offsetHeight; // Trigger reflow
+                el.style.display = '';
+                console.log('✅ CONTEXT UPDATED element to:', count, 'parent text:', parent.textContent.substring(0, 50));
+              }
+            }
+          });
+          
+        }, 50); // Small delay to ensure DOM is ready
         
         // Update active staff details for admin
         updateActiveStaffDetails(activeStaff);
