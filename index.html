@@ -12229,109 +12229,108 @@
     
     // Fallback to localStorage
     function updateFromLocalStorage() {
+      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
       // Get staff activity from localStorage
       const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
       const currentTime = Date.now();
       const activeStaff = [];
       
       console.log('All staff activity data:', allStaffActivity);
+      
+      // Clean up old inactive sessions and test data
+      const cleanedActivity = {};
+      Object.entries(allStaffActivity).forEach(([username, staff]) => {
+        const timeSinceActivity = currentTime - staff.lastActivity;
+        const isTestSession = staff.sessionId && staff.sessionId.startsWith('TEST-');
         
-        // Clean up old inactive sessions and test data
-        const cleanedActivity = {};
-        Object.entries(allStaffActivity).forEach(([username, staff]) => {
-          const timeSinceActivity = currentTime - staff.lastActivity;
-          const isTestSession = staff.sessionId && staff.sessionId.startsWith('TEST-');
-          
-          // Remove all test sessions and demo sessions immediately
-          if (isTestSession || staff.sessionId.startsWith('DEMO-') || staff.name.includes('(Demo)')) {
-            console.log(`Removing test/demo session for ${staff.name}`);
-            return;
-          }
-          
-          // Keep only active sessions within timeout or recently offline sessions (for logging purposes)
-          if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
-            cleanedActivity[username] = staff;
-          } else if (staff.status === 'offline' && timeSinceActivity < (24 * 60 * 60 * 1000)) {
-            // Keep offline sessions for 24 hours for audit purposes
-            cleanedActivity[username] = staff;
-          } else if (staff.status === 'inactive' && timeSinceActivity < (2 * 60 * 60 * 1000)) {
-            // Keep inactive sessions for 2 hours
-            cleanedActivity[username] = staff;
-          }
-          // All other old sessions are discarded
-        });
-        
-        // Update localStorage with cleaned data
-        if (Object.keys(cleanedActivity).length !== Object.keys(allStaffActivity).length) {
-          localStorage.setItem('allStaffActivity', JSON.stringify(cleanedActivity));
-          console.log('Cleaned up old staff sessions, active data:', cleanedActivity);
+        // Remove all test sessions and demo sessions immediately
+        if (isTestSession || staff.sessionId.startsWith('DEMO-') || staff.name.includes('(Demo)')) {
+          console.log(`Removing test/demo session for ${staff.name}`);
+          return;
         }
         
-        // Filter active staff based on recent activity and status - EXCLUDE ADMIN
-        Object.values(cleanedActivity).forEach(staff => {
-          const timeSinceActivity = currentTime - staff.lastActivity;
-          console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
-          
-          // EXCLUDE ALL ADMIN USERS from staff count completely
-          if (staff.role === 'admin') {
-            console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
-            return; // Skip admin users entirely
-          }
-          
-          // Only count actual STAFF (non-admin) as active if:
-          // 1. Their status is 'active' (not 'offline' or 'inactive')
-          // 2. Their last activity was within the timeout period
-          // 3. They have a valid session
-          if (staff.status === 'active' && 
-              timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-              staff.sessionId) {
-            
-            // Double-check if this user is actually still logged in
-            const staffToken = localStorage.getItem(STAFF_TOKEN);
-            const currentSessionId = clientId;
-            
-            // For current session: check if this user has staff token
-            // For other sessions: assume they're valid active staff if recent
-            const isCurrentSession = staff.sessionId === currentSessionId;
-            const hasValidStaffToken = staffToken === 'true';
-            
-            if (isCurrentSession && hasValidStaffToken) {
-              // This is the current user and they have a valid staff token
-              activeStaff.push({
-                username: staff.username,
-                name: staff.name,
-                role: staff.role,
-                lastActivity: staff.lastActivity,
-                sessionId: staff.sessionId
-              });
-              console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
-            } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
-              // This is another active staff member from a different session
-              activeStaff.push({
-                username: staff.username,
-                name: staff.name,
-                role: staff.role,
-                lastActivity: staff.lastActivity,
-                sessionId: staff.sessionId
-              });
-              console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
-            } else {
-              console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
-            }
-          } else {
-            console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
-          }
-        });
-        
-        console.log('Active staff found:', activeStaff.length, activeStaff);
-        updateStaffCountDisplay(activeStaff.length, activeStaff);
+        // Keep only active sessions within timeout or recently offline sessions (for logging purposes)
+        if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
+          cleanedActivity[username] = staff;
+        } else if (staff.status === 'offline' && timeSinceActivity < (24 * 60 * 60 * 1000)) {
+          // Keep offline sessions for 24 hours for audit purposes
+          cleanedActivity[username] = staff;
+        } else if (staff.status === 'inactive' && timeSinceActivity < (2 * 60 * 60 * 1000)) {
+          // Keep inactive sessions for 2 hours
+          cleanedActivity[username] = staff;
+        }
+        // All other old sessions are discarded
+      });
+      
+      // Update localStorage with cleaned data
+      if (Object.keys(cleanedActivity).length !== Object.keys(allStaffActivity).length) {
+        localStorage.setItem('allStaffActivity', JSON.stringify(cleanedActivity));
+        console.log('Cleaned up old staff sessions, active data:', cleanedActivity);
       }
+      
+      // Filter active staff based on recent activity and status - EXCLUDE ADMIN
+      Object.values(cleanedActivity).forEach(staff => {
+        const timeSinceActivity = currentTime - staff.lastActivity;
+        console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+        
+        // EXCLUDE ALL ADMIN USERS from staff count completely
+        if (staff.role === 'admin') {
+          console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
+          return; // Skip admin users entirely
+        }
+        
+        // Only count actual STAFF (non-admin) as active if:
+        // 1. Their status is 'active' (not 'offline' or 'inactive')
+        // 2. Their last activity was within the timeout period
+        // 3. They have a valid session
+        if (staff.status === 'active' && 
+            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
+            staff.sessionId) {
+          
+          // Double-check if this user is actually still logged in
+          const staffToken = localStorage.getItem(STAFF_TOKEN);
+          const currentSessionId = clientId;
+          
+          // For current session: check if this user has staff token
+          // For other sessions: assume they're valid active staff if recent
+          const isCurrentSession = staff.sessionId === currentSessionId;
+          const hasValidStaffToken = staffToken === 'true';
+          
+          if (isCurrentSession && hasValidStaffToken) {
+            // This is the current user and they have a valid staff token
+            activeStaff.push({
+              username: staff.username,
+              name: staff.name,
+              role: staff.role,
+              lastActivity: staff.lastActivity,
+              sessionId: staff.sessionId
+            });
+            console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
+          } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
+            // This is another active staff member from a different session
+            activeStaff.push({
+              username: staff.username,
+              name: staff.name,
+              role: staff.role,
+              lastActivity: staff.lastActivity,
+              sessionId: staff.sessionId
+            });
+            console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
+          } else {
+            console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
+          }
+        } else {
+          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
+        }
+      });
+      
+      console.log('Active staff found:', activeStaff.length, activeStaff);
+      updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
     // Function to update staff count display in UI
     function updateStaffCountDisplay(count, activeStaff = []) {
       try {
-        
         // Method 1: Direct ID targeting
         const activeStaffElement = document.getElementById('active-staff');
         if (activeStaffElement) {
