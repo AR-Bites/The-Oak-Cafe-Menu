@@ -11905,6 +11905,24 @@
     const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
     const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
 
+    // Function to get current user info from localStorage
+    function getCurrentUserInfo() {
+      const staffToken = localStorage.getItem(STAFF_TOKEN);
+      const adminToken = localStorage.getItem(ADMIN_TOKEN);
+      const staffName = localStorage.getItem('staffName') || localStorage.getItem('adminName');
+      const staffRole = localStorage.getItem('staffRole') || 'admin';
+      
+      if (staffToken || adminToken) {
+        return {
+          username: localStorage.getItem('username') || staffName,
+          name: staffName,
+          role: staffRole,
+          token: staffToken || adminToken
+        };
+      }
+      return null;
+    }
+
     // Function to update staff activity status (with localStorage fallback)
     function updateStaffActivity() {
       const staffToken = localStorage.getItem(STAFF_TOKEN);
@@ -11937,24 +11955,35 @@
       }
     }
 
-    // Function to start staff heartbeat monitoring
+    // Function to start staff heartbeat monitoring  
     function startStaffHeartbeat() {
       if (activeStaffHeartbeat) {
         clearInterval(activeStaffHeartbeat);
       }
       
-      console.log('Starting staff heartbeat monitoring...');
+      console.log('Starting staff heartbeat monitoring for user type:', userType);
+      
+      // Get current user info from localStorage
+      const currentUser = getCurrentUserInfo();
+      if (!currentUser) {
+        console.warn('No current user info found, cannot start heartbeat');
+        return;
+      }
+      
+      console.log('Starting heartbeat for user:', currentUser.name, '(' + currentUser.role + ')');
       
       // Update activity immediately
       updateStaffActivity();
       
       // Trigger immediate active staff count update
       setTimeout(() => {
+        console.log('Triggering initial active staff count update...');
         updateActiveStaffCount();
       }, 1000);
       
       // Set up heartbeat interval
       activeStaffHeartbeat = setInterval(() => {
+        console.log('Heartbeat: Updating staff activity and count...');
         updateStaffActivity();
         updateActiveStaffCount(); // Update count on each heartbeat
       }, HEARTBEAT_INTERVAL);
@@ -11965,6 +11994,7 @@
       });
       
       resetStaffActivityTimeout();
+      console.log('Staff heartbeat monitoring started successfully');
     }
 
     // Function to reset staff activity timeout
@@ -12051,14 +12081,20 @@
     // Function to update active staff count and show details (localStorage-based)
     function updateActiveStaffCount() {
       try {
+        console.log('updateActiveStaffCount called...');
+        
         // Get staff activity from localStorage
         const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
         const currentTime = Date.now();
         const activeStaff = [];
         
+        console.log('All staff activity data:', allStaffActivity);
+        
         // Filter active staff based on recent activity
         Object.values(allStaffActivity).forEach(staff => {
           const timeSinceActivity = currentTime - staff.lastActivity;
+          console.log(`Checking staff ${staff.name}: status=${staff.status}, timeSince=${timeSinceActivity}ms, timeout=${STAFF_ACTIVITY_TIMEOUT}ms`);
+          
           if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
             activeStaff.push({
               username: staff.username,
@@ -12070,10 +12106,16 @@
           }
         });
         
+        console.log('Active staff found:', activeStaff.length, activeStaff);
+        
         // Update active staff count
         const activeStaffElement = document.getElementById('active-staff');
         if (activeStaffElement) {
-          activeStaffElement.textContent = activeStaff.length || 1;
+          const count = activeStaff.length || 1;
+          activeStaffElement.textContent = count;
+          console.log('Updated active staff element to:', count);
+        } else {
+          console.warn('active-staff element not found in DOM');
         }
         
         // Update active staff details for admin
