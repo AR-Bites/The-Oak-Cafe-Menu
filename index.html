@@ -4078,29 +4078,6 @@
       height: auto;
     }
     
-    /* Chart Legend */
-    .chart-legend {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-    }
-    
     /* Ratings Summary Stats */
     .ratings-summary {
       display: flex;
@@ -4452,43 +4429,21 @@
             <!-- Ratings Chart -->
             <div class="ratings-chart-container">
               <canvas id="ratings-chart" height="180"></canvas>
-              <div class="chart-legend">
-                <div class="legend-item">
-                  <div class="legend-color" style="background-color: #f44336;"></div>
-                  <span>1 Star (Poor)</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-color" style="background-color: #ff9800;"></div>
-                  <span>2 Stars (Fair)</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-color" style="background-color: #ffc107;"></div>
-                  <span>3 Stars (Good)</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-color" style="background-color: #4caf50;"></div>
-                  <span>4 Stars (Very Good)</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-color" style="background-color: #2196f3;"></div>
-                  <span>5 Stars (Excellent)</span>
-                </div>
-              </div>
             </div>
             
             <!-- Ratings Summary Stats -->
             <div class="ratings-summary" id="ratings-summary">
               <div class="rating-stat">
+                <span class="stat-number" id="avg-rating-display">0.0</span>
+                <span class="stat-label">Avg Rating</span>
+              </div>
+              <div class="rating-stat">
                 <span class="stat-number" id="total-ratings-display">0</span>
                 <span class="stat-label">Total Reviews</span>
               </div>
               <div class="rating-stat">
-                <span class="stat-number" id="pending-ratings-display">0</span>
-                <span class="stat-label">Pending Sync</span>
-              </div>
-              <div class="rating-stat">
-                <span class="stat-number" id="today-ratings-display">0</span>
-                <span class="stat-label">Today's Reviews</span>
+                <span class="stat-number" id="low-ratings-display">0</span>
+                <span class="stat-label">Low Ratings</span>
               </div>
             </div>
             
@@ -10563,7 +10518,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
           currentLanguage === 'ar' 
-            ? 'لا يمكنك إدارة هذه الطاولة ل �نها ليست مخصصة لك' 
+            ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
             : 'You cannot manage this table as it is not assigned to you',
           'error'
         );
@@ -11838,59 +11793,37 @@
     // Function to update ratings statistics and chart
     function updateRatingsStatistics(ratings) {
       const totalRatings = ratings.length;
+      const avgRatingEl = document.getElementById('avg-rating-display');
       const totalRatingsEl = document.getElementById('total-ratings-display');
-      const pendingRatingsEl = document.getElementById('pending-ratings-display');
-      const todayRatingsEl = document.getElementById('today-ratings-display');
+      const lowRatingsEl = document.getElementById('low-ratings-display');
       
       if (totalRatings === 0) {
+        if (avgRatingEl) avgRatingEl.textContent = '0.0';
         if (totalRatingsEl) totalRatingsEl.textContent = '0';
-        if (pendingRatingsEl) pendingRatingsEl.textContent = '0';
-        if (todayRatingsEl) todayRatingsEl.textContent = '0';
+        if (lowRatingsEl) lowRatingsEl.textContent = '0';
         return;
       }
       
       // Calculate statistics
+      let totalStars = 0;
+      let lowRatingsCount = 0;
       const ratingCounts = [0, 0, 0, 0, 0]; // 1-star to 5-star counts
-      let pendingCount = 0;
-      let todayCount = 0;
-      
-      const today = new Date();
-      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       
       ratings.forEach(rating => {
         const stars = rating.stars || rating.rating || 0;
-        
-        // Count by star rating
+        totalStars += stars;
+        if (stars <= 3) lowRatingsCount++;
         if (stars >= 1 && stars <= 5) {
           ratingCounts[stars - 1]++;
         }
-        
-        // Count pending ratings (local storage)
-        if (rating.source === 'local') {
-          pendingCount++;
-        }
-        
-        // Count today's ratings
-        let ratingDate;
-        if (rating.timestamp) {
-          if (typeof rating.timestamp === 'object' && rating.timestamp.toDate) {
-            ratingDate = rating.timestamp.toDate();
-          } else {
-            ratingDate = new Date(rating.timestamp);
-          }
-        } else if (rating.localStorageTimestamp) {
-          ratingDate = new Date(rating.localStorageTimestamp);
-        }
-        
-        if (ratingDate && ratingDate >= todayStart) {
-          todayCount++;
-        }
       });
       
+      const avgRating = (totalStars / totalRatings).toFixed(1);
+      
       // Update DOM elements
+      if (avgRatingEl) avgRatingEl.textContent = avgRating;
       if (totalRatingsEl) totalRatingsEl.textContent = totalRatings.toString();
-      if (pendingRatingsEl) pendingRatingsEl.textContent = pendingCount.toString();
-      if (todayRatingsEl) todayRatingsEl.textContent = todayCount.toString();
+      if (lowRatingsEl) lowRatingsEl.textContent = lowRatingsCount.toString();
       
       // Update chart
       updateRatingsChart(ratingCounts);
@@ -11917,6 +11850,7 @@
       // Colors for each star rating
       const colors = ['#f44336', '#ff9800', '#ffc107', '#4caf50', '#2196f3'];
       const labels = ['1★', '2★', '3★', '4★', '5★'];
+      const descriptions = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
       
       // Draw bars
       ratingCounts.forEach((count, index) => {
@@ -11947,6 +11881,30 @@
       ctx.font = 'bold 14px Arial';
       ctx.textAlign = 'left';
       ctx.fillText('Ratings Distribution', 10, 20);
+      
+      // Draw legend
+      const legendY = 35;
+      const legendItemWidth = 60;
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'left';
+      
+      colors.forEach((color, index) => {
+        const x = 10 + index * legendItemWidth;
+        
+        // Draw color box
+        ctx.fillStyle = color;
+        ctx.fillRect(x, legendY, 10, 10);
+        
+        // Draw star rating
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(labels[index], x + 15, legendY + 8);
+        
+        // Draw description below
+        ctx.fillStyle = '#cccccc';
+        ctx.font = '8px Arial';
+        ctx.fillText(descriptions[index], x + 15, legendY + 18);
+        ctx.font = '10px Arial'; // Reset font
+      });
     }
     
     // Refresh ratings function for admin dashboard
