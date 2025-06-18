@@ -6625,14 +6625,124 @@
               
               // Check if we need to display the table modal in failsafe
               console.log("Failsafe: Checking if we need to show table modal");
+              console.log("Mobile Debug: Screen width =", window.innerWidth);
+              console.log("Mobile Debug: Screen height =", window.innerHeight);
+              console.log("Mobile Debug: User agent =", navigator.userAgent);
               
               // Skip for logged in staff/admin
               if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
                 console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
               } else {
-                // Force showing the table modal for guests
+                // Force showing the table modal for guests with aggressive mobile support
                 console.log("Failsafe: Showing table modal for guests");
-                showTableModal();
+                
+                // Try normal function first
+                try {
+                  if (typeof showTableModal === 'function') {
+                    showTableModal();
+                    console.log("Mobile Debug: Normal showTableModal called");
+                  } else {
+                    throw new Error("showTableModal function not found");
+                  }
+                } catch (error) {
+                  console.log("Mobile Debug: Normal function failed, using aggressive fallback");
+                  
+                  // Aggressive mobile fallback
+                  const modal = document.getElementById('table-number-modal');
+                  if (modal) {
+                    // Force modal to display
+                    modal.style.cssText = `
+                      display: flex !important;
+                      position: fixed !important;
+                      top: 0 !important;
+                      left: 0 !important;
+                      width: 100vw !important;
+                      height: 100vh !important;
+                      z-index: 9999 !important;
+                      background: rgba(0, 0, 0, 0.9) !important;
+                      align-items: center !important;
+                      justify-content: center !important;
+                      visibility: visible !important;
+                      opacity: 1 !important;
+                    `;
+                    modal.classList.add('show');
+                    console.log("Mobile Debug: Modal forced visible with cssText");
+                    
+                    // Force content visibility
+                    const modalContent = modal.querySelector('.table-number-content');
+                    if (modalContent) {
+                      modalContent.style.cssText = `
+                        display: block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        position: relative !important;
+                        z-index: 10000 !important;
+                        background: white !important;
+                        padding: 30px !important;
+                        border-radius: 15px !important;
+                        max-width: 90vw !important;
+                        width: ${window.innerWidth <= 480 ? '90vw' : '400px'} !important;
+                      `;
+                      console.log("Mobile Debug: Modal content forced visible");
+                    }
+                    
+                    // Force option buttons
+                    const optionButtons = modal.querySelector('.user-option-buttons');
+                    if (optionButtons) {
+                      optionButtons.style.cssText = `
+                        display: flex !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        flex-direction: ${window.innerWidth <= 480 ? 'column' : 'row'} !important;
+                        gap: 15px !important;
+                        margin: 20px 0 !important;
+                        z-index: 10001 !important;
+                      `;
+                      console.log("Mobile Debug: Option buttons forced visible");
+                      
+                      // Force individual options
+                      const guestOption = optionButtons.querySelector('.guest-option');
+                      const staffOption = optionButtons.querySelector('.staff-option');
+                      
+                      [guestOption, staffOption].forEach((option, index) => {
+                        if (option) {
+                          option.style.cssText = `
+                            display: flex !important;
+                            visibility: visible !important;
+                            opacity: 1 !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            padding: 20px !important;
+                            min-height: 60px !important;
+                            background: ${index === 0 ? '#4CAF50' : '#2196F3'} !important;
+                            color: white !important;
+                            border-radius: 10px !important;
+                            cursor: pointer !important;
+                            font-size: 1.1rem !important;
+                            font-weight: bold !important;
+                            width: ${window.innerWidth <= 480 ? '100%' : 'auto'} !important;
+                            z-index: 10002 !important;
+                          `;
+                          console.log(`Mobile Debug: ${index === 0 ? 'Guest' : 'Staff'} option forced visible`);
+                        }
+                      });
+                    }
+                  }
+                }
+                
+                // Additional mobile-specific debug check
+                setTimeout(() => {
+                  const modal = document.getElementById('table-number-modal');
+                  const isVisible = modal && window.getComputedStyle(modal).display !== 'none';
+                  console.log("Mobile Debug: Modal visibility after 1 second =", isVisible);
+                  
+                  if (!isVisible && modal) {
+                    console.log("Mobile Debug: Modal still not visible, forcing again");
+                    modal.style.display = 'flex';
+                    modal.style.visibility = 'visible';
+                    modal.style.opacity = '1';
+                  }
+                }, 1000);
               }
             }, 200);
           }, 150);
@@ -14797,5 +14907,235 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // Mobile Detection and Failsafe System for Guest/Staff Selection Modal
+    function detectMobileDevice() {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobileByAgent = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(userAgent);
+      const isMobileBySize = window.innerWidth <= 768 || window.innerHeight <= 600;
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      
+      return isMobileByAgent || isMobileBySize || isTouchDevice;
+    }
+    
+    function forceMobileModalDisplay() {
+      const isMobile = detectMobileDevice();
+      const isGuest = !localStorage.getItem('staff_token') && !localStorage.getItem('admin_token');
+      
+      console.log("Mobile Debug - Detection results:", {
+        isMobile,
+        isGuest,
+        screenWidth: window.innerWidth,
+        screenHeight: window.innerHeight,
+        userAgent: navigator.userAgent.substring(0, 50) + "..."
+      });
+      
+      if (isMobile && isGuest) {
+        console.log("Mobile guest detected - implementing aggressive modal force");
+        
+        // Progressive attempts with increasing aggression
+        const attempts = [
+          () => {
+            // Attempt 1: Try normal function if available
+            if (typeof showTableModal === 'function') {
+              showTableModal();
+              console.log("Mobile: Normal showTableModal called");
+            }
+          },
+          () => {
+            // Attempt 2: Direct DOM manipulation
+            const modal = document.getElementById('table-number-modal');
+            if (modal) {
+              modal.style.display = 'flex';
+              modal.style.visibility = 'visible';
+              modal.style.opacity = '1';
+              modal.classList.add('show');
+              console.log("Mobile: Direct DOM manipulation applied");
+            }
+          },
+          () => {
+            // Attempt 3: Aggressive CSS override with maximum priority
+            const modal = document.getElementById('table-number-modal');
+            if (modal) {
+              // Force modal with highest priority CSS
+              modal.style.cssText = `
+                display: flex !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                z-index: 999999 !important;
+                background: rgba(0, 0, 0, 0.95) !important;
+                align-items: center !important;
+                justify-content: center !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+              `;
+              
+              // Force content visibility
+              const content = modal.querySelector('.table-number-content');
+              if (content) {
+                content.style.cssText = `
+                  display: block !important;
+                  visibility: visible !important;
+                  opacity: 1 !important;
+                  background: white !important;
+                  padding: 30px !important;
+                  border-radius: 15px !important;
+                  max-width: 90vw !important;
+                  width: ${window.innerWidth <= 480 ? '85vw' : '400px'} !important;
+                  z-index: 1000000 !important;
+                  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+                `;
+              }
+              
+              // Force buttons container
+              const buttons = modal.querySelector('.user-option-buttons');
+              if (buttons) {
+                buttons.style.cssText = `
+                  display: flex !important;
+                  visibility: visible !important;
+                  opacity: 1 !important;
+                  flex-direction: column !important;
+                  gap: 15px !important;
+                  margin: 20px 0 !important;
+                  z-index: 1000001 !important;
+                `;
+                
+                // Force individual options with enhanced mobile styling
+                const guestOption = buttons.querySelector('.guest-option');
+                const staffOption = buttons.querySelector('.staff-option');
+                
+                if (guestOption) {
+                  guestOption.style.cssText = `
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    padding: 20px !important;
+                    min-height: 60px !important;
+                    background: linear-gradient(45deg, #4CAF50, #66BB6A) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                    cursor: pointer !important;
+                    font-size: 1.1rem !important;
+                    font-weight: bold !important;
+                    width: 100% !important;
+                    z-index: 1000002 !important;
+                    border: 2px solid #4CAF50 !important;
+                    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3) !important;
+                    transition: all 0.3s ease !important;
+                  `;
+                }
+                
+                if (staffOption) {
+                  staffOption.style.cssText = `
+                    display: flex !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    padding: 20px !important;
+                    min-height: 60px !important;
+                    background: linear-gradient(45deg, #2196F3, #42A5F5) !important;
+                    color: white !important;
+                    border-radius: 12px !important;
+                    cursor: pointer !important;
+                    font-size: 1.1rem !important;
+                    font-weight: bold !important;
+                    width: 100% !important;
+                    z-index: 1000002 !important;
+                    border: 2px solid #2196F3 !important;
+                    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3) !important;
+                    transition: all 0.3s ease !important;
+                  `;
+                }
+              }
+              
+              console.log("Mobile: Aggressive CSS override applied with enhanced styling");
+            }
+          }
+        ];
+        
+        // Execute attempts with staggered timing
+        attempts.forEach((attempt, index) => {
+          setTimeout(attempt, index * 300);
+        });
+        
+        // Continuous monitoring with fallback recovery
+        let checkCount = 0;
+        const mobileCheckInterval = setInterval(() => {
+          checkCount++;
+          const modal = document.getElementById('table-number-modal');
+          const isVisible = modal && window.getComputedStyle(modal).display !== 'none';
+          
+          console.log(`Mobile check ${checkCount}: Modal visible = ${isVisible}`);
+          
+          if (!isVisible && modal && checkCount <= 25) {
+            console.log(`Mobile check ${checkCount}: Re-forcing modal visibility`);
+            
+            // Emergency override using setProperty for maximum compatibility
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('visibility', 'visible', 'important');
+            modal.style.setProperty('opacity', '1', 'important');
+            modal.style.setProperty('z-index', '999999', 'important');
+            modal.style.setProperty('position', 'fixed', 'important');
+            modal.style.setProperty('top', '0', 'important');
+            modal.style.setProperty('left', '0', 'important');
+            modal.style.setProperty('width', '100vw', 'important');
+            modal.style.setProperty('height', '100vh', 'important');
+          }
+          
+          if (checkCount >= 25 || isVisible) {
+            clearInterval(mobileCheckInterval);
+            if (isVisible) {
+              console.log("Mobile: Modal successfully forced visible after", checkCount, "attempts");
+            } else {
+              console.log("Mobile: Failed to force modal after 25 attempts - potential device compatibility issue");
+            }
+          }
+        }, 1000);
+      }
+    }
+    
+    // Initialize mobile detection system with multiple triggers
+    window.addEventListener('load', function() {
+      // Progressive checks for different loading states
+      setTimeout(forceMobileModalDisplay, 500);
+      setTimeout(forceMobileModalDisplay, 2000);
+      setTimeout(forceMobileModalDisplay, 4000);
+      setTimeout(forceMobileModalDisplay, 6000);
+    });
+    
+    // Additional triggers for orientation changes and resize events
+    window.addEventListener('orientationchange', function() {
+      setTimeout(forceMobileModalDisplay, 1000);
+    });
+    
+    window.addEventListener('resize', function() {
+      if (detectMobileDevice()) {
+        setTimeout(forceMobileModalDisplay, 500);
+      }
+    });
+    
+    // Touch-specific trigger for touch devices
+    document.addEventListener('touchstart', function() {
+      if (detectMobileDevice() && !localStorage.getItem('staff_token') && !localStorage.getItem('admin_token')) {
+        setTimeout(forceMobileModalDisplay, 200);
+      }
+    }, { once: true });
+    
+    // Page visibility change trigger for mobile devices returning from background
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden && detectMobileDevice()) {
+        setTimeout(forceMobileModalDisplay, 1000);
+      }
+    });
+    
+    console.log("Mobile detection and failsafe system initialized - comprehensive modal force enabled");
+  </script>
 </body>
 </html>
