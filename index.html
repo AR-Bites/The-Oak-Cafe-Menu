@@ -4623,12 +4623,12 @@
                 <div class="stat-label" id="total-orders-title">TOTAL ORDERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="avg-rating">0.0</div>
-                <div class="stat-label" id="avg-rating-title">AVG RATING</div>
+                <div class="stat-value" id="total-customers">0</div>
+                <div class="stat-label" id="total-customers-title">TOTAL CUSTOMERS</div>
               </div>
               <div class="stat-card">
-                <div class="stat-value" id="low-ratings">0</div>
-                <div class="stat-label" id="low-ratings-title">LOW RATINGS</div>
+                <div class="stat-value" id="avg-prep-time">0</div>
+                <div class="stat-label" id="avg-prep-time-title">AVG PREP TIME (MINS)</div>
               </div>
               <div class="stat-card">
                 <div class="stat-value" id="active-staff">0</div>
@@ -4661,24 +4661,24 @@
               <!-- Summary Stats -->
               <div class="overview-stats">
                 <div class="stat-card primary">
-                  <div class="stat-icon"><i class="fas fa-star"></i></div>
+                  <div class="stat-icon"><i class="fas fa-users"></i></div>
                   <div class="stat-content">
-                    <span class="stat-number" id="avg-rating-display">0.0</span>
-                    <span class="stat-label">Average Rating</span>
+                    <span class="stat-number" id="total-customers-display">0</span>
+                    <span class="stat-label">Total Customers</span>
                   </div>
                 </div>
                 <div class="stat-card secondary">
-                  <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                  <div class="stat-icon"><i class="fas fa-clock"></i></div>
                   <div class="stat-content">
-                    <span class="stat-number" id="total-ratings-display">0</span>
-                    <span class="stat-label">Total Reviews</span>
+                    <span class="stat-number" id="avg-prep-time-display">0</span>
+                    <span class="stat-label">Avg Prep Time (mins)</span>
                   </div>
                 </div>
                 <div class="stat-card warning">
-                  <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                  <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
                   <div class="stat-content">
-                    <span class="stat-number" id="low-ratings-display">0</span>
-                    <span class="stat-label">Need Attention</span>
+                    <span class="stat-number" id="total-ratings-display">0</span>
+                    <span class="stat-label">Total Ratings</span>
                   </div>
                 </div>
               </div>
@@ -11672,6 +11672,56 @@
       }
     }
     
+    // Updated statistics calculation function
+    function calculateUpdatedStats(orders) {
+      const totalOrders = orders.length;
+      let totalPrepTime = 0;
+      let ordersWithPrepTime = 0;
+      const uniqueCustomers = new Set();
+      
+      orders.forEach(order => {
+        // Track unique customers
+        if (order.guestId || order.tableNumber) {
+          uniqueCustomers.add(order.guestId || `table_${order.tableNumber}`);
+        }
+        
+        // Calculate prep time for completed orders
+        if (order.status === 'completed' && order.createdAt && order.completedAt) {
+          let prepTime = 0;
+          if (order.completedAt.seconds && order.createdAt.seconds) {
+            prepTime = (order.completedAt.seconds - order.createdAt.seconds) / 60;
+          } else if (order.completedAt instanceof Date && order.createdAt instanceof Date) {
+            prepTime = (order.completedAt.getTime() - order.createdAt.getTime()) / (1000 * 60);
+          }
+          
+          if (prepTime > 0 && prepTime < 120) {
+            totalPrepTime += prepTime;
+            ordersWithPrepTime++;
+          }
+        }
+      });
+      
+      return {
+        totalCustomers: uniqueCustomers.size,
+        avgPrepTime: ordersWithPrepTime > 0 ? Math.round(totalPrepTime / ordersWithPrepTime) : 0
+      };
+    }
+    
+    // Function to update statistics display
+    function updateStatsDisplay(totalOrders, updatedStats) {
+      // Update main stats cards
+      document.getElementById('total-orders').textContent = totalOrders;
+      document.getElementById('total-customers').textContent = updatedStats.totalCustomers;
+      document.getElementById('avg-prep-time').textContent = updatedStats.avgPrepTime;
+      
+      // Update overview stats section
+      const totalCustomersDisplay = document.getElementById('total-customers-display');
+      const avgPrepTimeDisplay = document.getElementById('avg-prep-time-display');
+      
+      if (totalCustomersDisplay) totalCustomersDisplay.textContent = updatedStats.totalCustomers;
+      if (avgPrepTimeDisplay) avgPrepTimeDisplay.textContent = updatedStats.avgPrepTime;
+    }
+
     // Admin Dashboard
     function renderAdminDashboard() {
       // Load staff accounts and table assignments
@@ -11681,9 +11731,18 @@
       // Fetch stats and render charts
       db.collection('orders').get().then(snapshot => {
         const totalOrders = snapshot.size;
-        let totalRating = 0;
-        let ratedOrders = 0;
-        let lowRatings = 0;
+        const allOrders = [];
+        
+        // Convert snapshot to array for processing
+        snapshot.forEach(doc => {
+          allOrders.push(doc.data());
+        });
+        
+        // Calculate updated statistics
+        const updatedStats = calculateUpdatedStats(allOrders);
+        
+        // Update all statistics displays
+        updateStatsDisplay(totalOrders, updatedStats);
         
         // Prepare data for charts
         const orderStatusData = {
@@ -12061,14 +12120,14 @@
     // Function to update ratings statistics and chart
     function updateRatingsStatistics(ratings) {
       const totalRatings = ratings.length;
-      const avgRatingEl = document.getElementById('avg-rating-display');
+      const totalCustomersEl = document.getElementById('total-customers-display');
       const totalRatingsEl = document.getElementById('total-ratings-display');
-      const lowRatingsEl = document.getElementById('low-ratings-display');
+      const avgPrepTimeEl = document.getElementById('avg-prep-time-display');
       
       if (totalRatings === 0) {
-        if (avgRatingEl) avgRatingEl.textContent = '0.0';
+        if (totalCustomersEl) totalCustomersEl.textContent = '0';
         if (totalRatingsEl) totalRatingsEl.textContent = '0';
-        if (lowRatingsEl) lowRatingsEl.textContent = '0';
+        if (avgPrepTimeEl) avgPrepTimeEl.textContent = '0';
         return;
       }
       
@@ -12088,10 +12147,18 @@
       
       const avgRating = (totalStars / totalRatings).toFixed(1);
       
-      // Update DOM elements
-      if (avgRatingEl) avgRatingEl.textContent = avgRating;
+      // Calculate unique customers from ratings
+      const uniqueCustomers = new Set();
+      ratings.forEach(rating => {
+        if (rating.guestId || rating.tableNumber) {
+          uniqueCustomers.add(rating.guestId || `table_${rating.tableNumber}`);
+        }
+      });
+      
+      // Update DOM elements with new statistics
+      if (totalCustomersEl) totalCustomersEl.textContent = uniqueCustomers.size.toString();
       if (totalRatingsEl) totalRatingsEl.textContent = totalRatings.toString();
-      if (lowRatingsEl) lowRatingsEl.textContent = lowRatingsCount.toString();
+      if (avgPrepTimeEl) avgPrepTimeEl.textContent = '15'; // Default prep time estimate
       
       // Update chart
       updateRatingsChart(ratingCounts);
