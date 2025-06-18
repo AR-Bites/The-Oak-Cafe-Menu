@@ -4015,107 +4015,334 @@
       direction: rtl;
     }
     
-    /* Ratings Header Design */
-    .ratings-header {
+    /* Redesigned Ratings Panel */
+    .ratings-panel {
+      background: linear-gradient(135deg, rgba(26, 58, 47, 0.95), rgba(40, 80, 60, 0.95));
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 16px;
+      padding: 0;
+      overflow: hidden;
+    }
+    
+    /* Ratings Header Section */
+    .ratings-header-section {
+      background: rgba(212, 175, 55, 0.1);
+      padding: 20px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .ratings-title-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid rgba(212, 175, 55, 0.3);
     }
     
-    .ratings-header h3 {
+    .ratings-title-row h3 {
       margin: 0;
       color: var(--light-cream);
-      font-size: 1.2rem;
-      font-weight: 600;
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     
-    .ratings-controls {
+    .ratings-title-row h3 i {
+      color: var(--gold);
+      font-size: 1.2rem;
+    }
+    
+    .header-controls {
       display: flex;
       gap: 12px;
       align-items: center;
     }
     
-    .ratings-count {
-      font-size: 0.85rem;
+    .count-badge {
+      background: rgba(212, 175, 55, 0.2);
       color: var(--gold);
-      font-weight: 500;
-      background: rgba(212, 175, 55, 0.1);
-      padding: 4px 8px;
-      border-radius: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(212, 175, 55, 0.3);
     }
     
-    .refresh-btn {
+    .action-btn {
       background: var(--gold);
       color: var(--dark-green);
       border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.8rem;
+      padding: 8px 12px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
-      font-weight: 500;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
     }
     
-    .refresh-btn:hover {
+    .action-btn:hover {
       background: #e6c063;
-      transform: translateY(-1px);
-    }
-    
-    /* Ratings Chart Container */
-    .ratings-chart-container {
-      margin: 15px 0;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 8px;
-      border: 1px solid rgba(212, 175, 55, 0.1);
-    }
-    
-    #ratings-chart {
-      max-width: 100%;
-      height: auto;
-    }
-    
-    /* Ratings Summary Stats */
-    .ratings-summary {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: rgba(212, 175, 55, 0.05);
-      border-radius: 10px;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    
-    .rating-stat {
-      flex: 1;
-      text-align: center;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    
-    .rating-stat:hover {
-      background: rgba(255, 255, 255, 0.08);
       transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+    }
+    
+    /* Ratings Overview Grid */
+    .ratings-overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 20px;
+    }
+    
+    /* Overview Stats */
+    .overview-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+    
+    .stat-card.primary {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+      border-color: rgba(76, 175, 80, 0.3);
+    }
+    
+    .stat-card.secondary {
+      background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+      border-color: rgba(33, 150, 243, 0.3);
+    }
+    
+    .stat-card.warning {
+      background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05));
+      border-color: rgba(255, 152, 0, 0.3);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    
+    .stat-card.primary .stat-icon {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+    }
+    
+    .stat-card.secondary .stat-icon {
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196F3;
+    }
+    
+    .stat-card.warning .stat-icon {
+      background: rgba(255, 152, 0, 0.2);
+      color: #FF9800;
+    }
+    
+    .stat-content {
+      flex: 1;
     }
     
     .stat-number {
       display: block;
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: var(--gold);
-      margin-bottom: 5px;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--light-cream);
+      margin-bottom: 2px;
+      line-height: 1;
     }
     
     .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: rgba(255, 255, 255, 0.7);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+    
+    /* Chart Container */
+    .chart-container {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    .chart-header {
+      margin-bottom: 15px;
+    }
+    
+    .chart-header h4 {
+      margin: 0;
+      color: var(--gold);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    #ratings-chart {
+      width: 100%;
+      max-width: 100%;
+    }
+    
+    /* Ratings List Section */
+    .ratings-list-section {
+      padding: 20px;
+      border-top: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .section-header h4 {
+      margin: 0;
+      color: var(--light-cream);
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .section-header h4 i {
+      color: var(--gold);
+    }
+    
+    .filter-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .filter-select {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--light-cream);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .filter-select option {
+      background: var(--dark-green);
+      color: var(--light-cream);
+    }
+    
+    .ratings-list-container {
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+    
+    /* Custom Scrollbar */
+    .ratings-list-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .ratings-list-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+    }
+    
+    .ratings-list-container::-webkit-scrollbar-thumb {
+      background: rgba(212, 175, 55, 0.4);
+      border-radius: 3px;
+    }
+    
+    .ratings-list-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(212, 175, 55, 0.6);
+    }
+    
+    /* Responsive Design for Ratings Panel */
+    @media (max-width: 1024px) {
+      .ratings-overview-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .overview-stats {
+        order: 2;
+      }
+      
+      .chart-container {
+        order: 1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .ratings-panel {
+        border-radius: 12px;
+      }
+      
+      .ratings-header-section {
+        padding: 15px;
+      }
+      
+      .ratings-title-row {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      
+      .ratings-overview-grid {
+        padding: 15px;
+        gap: 15px;
+      }
+      
+      .overview-stats {
+        gap: 12px;
+      }
+      
+      .stat-card {
+        padding: 12px;
+        gap: 12px;
+      }
+      
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+      
+      .stat-number {
+        font-size: 1.6rem;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+      
+      .ratings-list-container {
+        max-height: 400px;
+      }
     }
     
     .rating-item {
@@ -4415,41 +4642,75 @@
             <canvas id="orders-chart" height="200"></canvas>
           </div>
           
-          <div class="admin-panel">
-            <div class="ratings-header">
-              <h3 id="ratings-title">RATINGS</h3>
-              <div class="ratings-controls">
-                <span id="ratings-count" class="ratings-count"></span>
-                <button onclick="refreshRatings()" class="refresh-btn">
-                  <i class="fas fa-sync-alt"></i> Refresh
-                </button>
+          <div class="admin-panel ratings-panel">
+            <!-- Ratings Header with Controls -->
+            <div class="ratings-header-section">
+              <div class="ratings-title-row">
+                <h3 id="ratings-title"><i class="fas fa-star"></i> Customer Ratings</h3>
+                <div class="header-controls">
+                  <span id="ratings-count" class="count-badge"></span>
+                  <button onclick="refreshRatings()" class="action-btn refresh-btn">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                </div>
               </div>
             </div>
             
-            <!-- Ratings Chart -->
-            <div class="ratings-chart-container">
-              <canvas id="ratings-chart" height="180"></canvas>
+            <!-- Ratings Overview Grid -->
+            <div class="ratings-overview-grid">
+              <!-- Summary Stats -->
+              <div class="overview-stats">
+                <div class="stat-card primary">
+                  <div class="stat-icon"><i class="fas fa-star"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-number" id="avg-rating-display">0.0</span>
+                    <span class="stat-label">Average Rating</span>
+                  </div>
+                </div>
+                <div class="stat-card secondary">
+                  <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-number" id="total-ratings-display">0</span>
+                    <span class="stat-label">Total Reviews</span>
+                  </div>
+                </div>
+                <div class="stat-card warning">
+                  <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                  <div class="stat-content">
+                    <span class="stat-number" id="low-ratings-display">0</span>
+                    <span class="stat-label">Need Attention</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Ratings Chart -->
+              <div class="chart-container">
+                <div class="chart-header">
+                  <h4>Rating Distribution</h4>
+                </div>
+                <canvas id="ratings-chart" height="160"></canvas>
+              </div>
             </div>
             
-            <!-- Ratings Summary Stats -->
-            <div class="ratings-summary" id="ratings-summary">
-              <div class="rating-stat">
-                <span class="stat-number" id="avg-rating-display">0.0</span>
-                <span class="stat-label">Avg Rating</span>
+            <!-- Ratings List Section -->
+            <div class="ratings-list-section">
+              <div class="section-header">
+                <h4><i class="fas fa-list"></i> Recent Reviews</h4>
+                <div class="filter-controls">
+                  <select id="rating-filter" class="filter-select">
+                    <option value="all">All Ratings</option>
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
+                    <option value="low">Low Ratings (≤3)</option>
+                  </select>
+                </div>
               </div>
-              <div class="rating-stat">
-                <span class="stat-number" id="total-ratings-display">0</span>
-                <span class="stat-label">Total Reviews</span>
+              <div class="ratings-list-container" id="staff-ratings-list">
+                <!-- Rating cards will be displayed here -->
               </div>
-              <div class="rating-stat">
-                <span class="stat-number" id="low-ratings-display">0</span>
-                <span class="stat-label">Low Ratings</span>
-              </div>
-            </div>
-            
-            <!-- Staff Ratings List -->
-            <div class="staff-ratings-list" id="staff-ratings-list">
-              <!-- Staff ratings will be displayed here -->
             </div>
           </div>
         </div>
@@ -11613,8 +11874,9 @@
           ratingsCountEl.textContent = `${allRatings.length} total (${localCount} local, ${cloudCount} cloud)`;
         }
         
-        // Update statistics
+        // Update statistics and setup filter
         updateRatingsStatistics(allRatings);
+        setupRatingFilter(allRatings);
         
         if (allRatings.length === 0) {
           staffRatingsList.innerHTML = `
@@ -11904,6 +12166,57 @@
         ctx.font = '8px Arial';
         ctx.fillText(descriptions[index], x + 15, legendY + 18);
         ctx.font = '10px Arial'; // Reset font
+      });
+    }
+    
+    // Setup rating filter functionality
+    function setupRatingFilter(allRatings) {
+      const filterSelect = document.getElementById('rating-filter');
+      if (!filterSelect) return;
+      
+      filterSelect.addEventListener('change', function() {
+        const filterValue = this.value;
+        filterRatings(allRatings, filterValue);
+      });
+    }
+    
+    // Filter ratings based on selected criteria
+    function filterRatings(allRatings, filterValue) {
+      let filteredRatings = allRatings;
+      
+      if (filterValue !== 'all') {
+        if (filterValue === 'low') {
+          filteredRatings = allRatings.filter(rating => rating.stars <= 3);
+        } else {
+          const targetStars = parseInt(filterValue);
+          filteredRatings = allRatings.filter(rating => rating.stars === targetStars);
+        }
+      }
+      
+      displayFilteredRatings(filteredRatings);
+    }
+    
+    // Display filtered ratings
+    function displayFilteredRatings(ratings) {
+      const staffRatingsList = document.getElementById('staff-ratings-list');
+      if (!staffRatingsList) return;
+      
+      if (ratings.length === 0) {
+        staffRatingsList.innerHTML = `
+          <div class="empty-list" style="text-align: center; padding: 30px 20px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 20px 0;">
+            <i class="fas fa-filter" style="font-size: 3rem; color: rgba(212, 175, 55, 0.3); margin-bottom: 15px;"></i>
+            <h4 style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 8px;">No Matching Ratings</h4>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin: 0;">Try adjusting your filter criteria</p>
+          </div>
+        `;
+        return;
+      }
+      
+      staffRatingsList.innerHTML = '';
+      ratings.forEach((rating, index) => {
+        console.log(`Added rating card ${index + 1}:`, rating);
+        const ratingCard = createRatingCard(rating, index + 1);
+        staffRatingsList.appendChild(ratingCard);
       });
     }
     
