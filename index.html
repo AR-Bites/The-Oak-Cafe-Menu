@@ -8593,7 +8593,7 @@
           const cancelButton = document.getElementById('cancel-table-btn');
           
           if (confirmButton) {
-            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد وإتمام الطلب' : 'CONFIRM & PLACE ORDER';
+            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد  �إتمام الطلب' : 'CONFIRM & PLACE ORDER';
           }
           
           if (cancelButton) {
@@ -11962,38 +11962,7 @@
         
         console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
         
-        // TEST: Temporarily add sample staff activities for verification
-        if (activityData.role === 'admin' && !localStorage.getItem('testStaffAdded')) {
-          console.log('🧪 Adding test staff for verification...');
-          
-          // Add sample active staff members for testing
-          const testStaff = {
-            'john': {
-              username: 'john',
-              name: 'John Smith',
-              role: 'chef',
-              lastActivity: Date.now(),
-              status: 'active',
-              sessionId: 'TEST-CHEF-SESSION'
-            },
-            'ahmad': {
-              username: 'ahmad', 
-              name: 'Ahmad Mohammed',
-              role: 'manager',
-              lastActivity: Date.now(),
-              status: 'active',
-              sessionId: 'TEST-MANAGER-SESSION'
-            }
-          };
-          
-          const currentActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
-          Object.assign(currentActivity, testStaff);
-          localStorage.setItem('allStaffActivity', JSON.stringify(currentActivity));
-          localStorage.setItem('testStaffAdded', 'true');
-          
-          console.log('🧪 Test staff added, updating count...');
-          updateActiveStaffCount();
-        }
+
         
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
@@ -12146,10 +12115,17 @@
         
         console.log('All staff activity data:', allStaffActivity);
         
-        // Clean up old inactive sessions first
+        // Clean up old inactive sessions and test data
         const cleanedActivity = {};
         Object.entries(allStaffActivity).forEach(([username, staff]) => {
           const timeSinceActivity = currentTime - staff.lastActivity;
+          const isTestSession = staff.sessionId && staff.sessionId.startsWith('TEST-');
+          
+          // Remove all test sessions immediately
+          if (isTestSession) {
+            console.log(`Removing test session for ${staff.name}`);
+            return;
+          }
           
           // Keep only active sessions within timeout or recently offline sessions (for logging purposes)
           if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
@@ -12193,9 +12169,12 @@
             const staffToken = localStorage.getItem(STAFF_TOKEN);
             const currentSessionId = clientId;
             
-            // Only count if they have a staff token or different valid session
-            if ((staff.sessionId === currentSessionId && staffToken) || 
-                (staff.sessionId !== currentSessionId)) {
+            // Only count if they have a valid session and are actually logged in
+            const isCurrentSession = staff.sessionId === currentSessionId;
+            const hasValidStaffToken = staffToken === 'true';
+            const isTestSession = staff.sessionId.startsWith('TEST-');
+            
+            if ((isCurrentSession && hasValidStaffToken) || (!isCurrentSession && !isTestSession)) {
               activeStaff.push({
                 username: staff.username,
                 name: staff.name,
@@ -12205,7 +12184,7 @@
               });
               console.log(`✅ Counting staff member: ${staff.name} (${staff.role})`);
             } else {
-              console.log(`❌ Staff ${staff.name} session invalid, not counting`);
+              console.log(`❌ Staff ${staff.name} session invalid or test data, not counting`);
             }
           } else {
             console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
@@ -14046,7 +14025,7 @@
           menu: {
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
             week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
-            month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
+            month: 'نمت شعبية فيتوتشيني أ �فريدو بنسبة 18٪ هذا الشهر',
             year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
           satisfaction: {
