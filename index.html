@@ -1562,8 +1562,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       background: rgba(0,0,0,0.85);
       z-index: 1100;
       justify-content: center;
@@ -1572,10 +1572,6 @@
       transition: opacity 0.3s ease;
       padding: 15px;
       overflow-y: auto;
-    }
-    
-    .table-number-modal.show {
-      display: flex !important;
     }
     
     .table-number-content {
@@ -1591,47 +1587,6 @@
       max-height: 85vh;
       overflow-y: auto;
       margin: auto;
-      position: relative;
-    }
-    
-    @media (max-width: 480px) {
-      .table-number-content {
-        max-width: 95vw;
-        padding: 20px;
-        margin: 10px;
-        max-height: 90vh;
-      }
-      
-      .user-option-buttons {
-        gap: 15px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        margin-top: 20px !important;
-        margin-bottom: 25px !important;
-      }
-      
-      .guest-option, .staff-option {
-        min-height: 80px !important;
-        padding: 20px !important;
-        width: 100% !important;
-        flex: none !important;
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 1.1rem !important;
-        font-weight: bold !important;
-      }
-      
-      .option-icon {
-        font-size: 24px !important;
-        margin-right: 12px !important;
-        margin-bottom: 0 !important;
-      }
-      
-      .option-description {
-        display: none !important;
-      }
     }
     
     @keyframes modalFadeIn {
@@ -1776,12 +1731,10 @@
     }
     
     .user-option-buttons {
-      display: flex !important;
+      display: flex;
       gap: 15px;
       margin-top: 15px;
       margin-bottom: 20px;
-      visibility: visible !important;
-      opacity: 1 !important;
     }
     
     .guest-option, .staff-option {
@@ -6170,29 +6123,11 @@
             setupRealtimeListeners();
             startStaffHeartbeat();
             console.log('Admin heartbeat and listeners activated');
-            
-            // Force initial statistics load for admin
-            setTimeout(() => {
-              forceInitialStatisticsLoad();
-              // Additional force refresh for statistics display
-              setTimeout(() => {
-                refreshStatisticsAndOrders();
-              }, 1000);
-            }, 500);
           } else {
             setupStaffRealtimeListeners();
             startStaffHeartbeat();
             console.log('Staff heartbeat and listeners activated');
-            
-            // Force initial statistics load for staff too
-            setTimeout(() => {
-              forceInitialStatisticsLoad();
-            }, 500);
           }
-          
-          // Activate real-time staff monitoring for all users
-          setupRealTimeStaffMonitoring();
-          console.log('Real-time staff monitoring activated');
         }, 1500);
       } else {
         // Force showing the table number modal on initialization for guests
@@ -6200,14 +6135,6 @@
         // Delay slightly to ensure it's fully visible
         setTimeout(() => {
           showTableModal();
-          // Activate real-time staff monitoring for guests too (in case they log in later)
-          setupRealTimeStaffMonitoring();
-          console.log('Real-time staff monitoring activated for guest');
-          
-          // Load statistics for guests too (they can see basic stats)
-          setTimeout(() => {
-            forceInitialStatisticsLoad();
-          }, 1000);
         }, 500);
       }
       
@@ -6414,63 +6341,23 @@
               setTimeout(() => {
                 loadingOverlay.style.display = 'none';
                 
-                // Make sure all components are visible with error handling
-                try {
-                  const overlay = document.querySelector('.overlay');
-                  if (overlay) overlay.style.visibility = 'visible';
-                  if (modelViewer) modelViewer.style.visibility = 'visible';
-                } catch (error) {
-                  console.log('Error setting component visibility:', error);
-                }
+                // Make sure all components are visible
+                document.querySelector('.overlay').style.visibility = 'visible';
+                if (modelViewer) modelViewer.style.visibility = 'visible';
                 
-                // Show table number modal immediately after loading with error handling
-                try {
-                  console.log("Checking tableNumber value:", tableNumber);
-                  console.log("User type on completion:", userType);
-                  
-                  // Check if we have a staff/admin token and skip the modal if we do
-                  if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                    console.log("Staff/Admin already logged in, not showing table modal");
-                  } else {
-                    // Force showing the table modal for guests with mobile failsafe
-                    console.log("Showing table modal for guests");
-                    console.log("Mobile device detection:", window.innerWidth <= 480 ? "MOBILE" : "DESKTOP");
-                    
-                    // Ensure showTableModal function exists before calling
-                    if (typeof showTableModal === 'function') {
-                      showTableModal();
-                    } else {
-                      console.error("showTableModal function not found");
-                      // Force show modal manually as fallback
-                      const modal = document.getElementById('table-number-modal');
-                      if (modal) {
-                        modal.style.display = 'flex';
-                        modal.classList.add('show');
-                      }
-                    }
-                  }
-                } catch (error) {
-                  console.error("Error in loading completion:", error);
-                  // Fallback: Force show modal for guests
-                  try {
-                    const modal = document.getElementById('table-number-modal');
-                    if (modal && !localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
-                      modal.style.display = 'flex';
-                      modal.classList.add('show');
-                    }
-                  } catch (fallbackError) {
-                    console.error("Fallback modal show failed:", fallbackError);
-                  }
-                }
+                // Show table number modal immediately after loading
+                // But skip it for logged in staff/admin
+                console.log("Checking tableNumber value:", tableNumber);
+                console.log("User type on completion:", userType);
                 
-                // Simple mobile check - show table modal for guests
-                setTimeout(() => {
-                  const modal = document.getElementById('table-number-modal');
-                  if (modal && !localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
-                    modal.style.display = 'flex';
-                    modal.classList.add('show');
-                  }
-                }, 100);
+                // Check if we have a staff/admin token and skip the modal if we do
+                if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
+                  console.log("Staff/Admin already logged in, not showing table modal");
+                } else {
+                  // Force showing the table modal for guests
+                  console.log("Showing table modal for guests");
+                  showTableModal();
+                }
               }, 200); // Faster transition out
             }, 150); // Show success message briefly
           } else {
@@ -6526,12 +6413,15 @@
               document.querySelector('.overlay').style.visibility = 'visible';
               if (modelViewer) modelViewer.style.visibility = 'visible';
               
-              // Check if we need to display the table modal
+              // Check if we need to display the table modal in failsafe
+              console.log("Failsafe: Checking if we need to show table modal");
+              
+              // Skip for logged in staff/admin
               if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                console.log("Staff/Admin already logged in, not showing table modal");
+                console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
               } else {
-                // Show table modal for guests
-                console.log("Showing table modal for guests");
+                // Force showing the table modal for guests
+                console.log("Failsafe: Showing table modal for guests");
                 showTableModal();
               }
             }, 200);
@@ -6565,20 +6455,40 @@
       
       // Wait for animation before clearing everything
       setTimeout(() => {
-        // Get current user info before clearing
+        // IMMEDIATE SESSION INVALIDATION - Mark staff as offline in Firebase and localStorage
         const currentUser = getCurrentUserInfo();
-        
-        // Set staff as offline/inactive immediately on logout
-        if (currentUser && currentUser.username) {
-          setStaffOffline(currentUser.username);
+        if (currentUser) {
+          console.log(`🔴 LOGOUT: Immediately invalidating session for ${currentUser.name}`);
+          
+          // Mark as offline in Firebase immediately
+          if (db && typeof db.collection === 'function') {
+            db.collection('staffSessions').doc(currentUser.username).update({
+              status: 'offline',
+              lastActivity: Date.now(),
+              sessionEnded: Date.now()
+            }).then(() => {
+              console.log(`✅ Firebase session invalidated for ${currentUser.name}`);
+            }).catch(error => {
+              console.log('Firebase logout update failed:', error);
+            });
+          }
+          
+          // Mark as offline in localStorage immediately
+          const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+          if (allStaffActivity[currentUser.username]) {
+            allStaffActivity[currentUser.username].status = 'offline';
+            allStaffActivity[currentUser.username].lastActivity = Date.now();
+            allStaffActivity[currentUser.username].sessionEnded = Date.now();
+            localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
+            console.log(`✅ LocalStorage session invalidated for ${currentUser.name}`);
+          }
+          
+          // Trigger immediate staff count update
+          updateActiveStaffCount();
         }
         
-        // Stop staff heartbeat tracking and clear timeouts
+        // Stop staff heartbeat tracking before logout
         stopStaffHeartbeat();
-        if (inactivityTimeout) {
-          clearTimeout(inactivityTimeout);
-          inactivityTimeout = null;
-        }
         
         // Clear auth tokens
         localStorage.removeItem(STAFF_TOKEN);
@@ -8695,7 +8605,6 @@
     // Load table number if valid
     function showTableModal(fromCartAction = false) {
       tableNumberModal.style.display = 'flex';
-      tableNumberModal.classList.add('show');
       
       // Enhanced message if coming from cart action
       if (fromCartAction) {
@@ -9623,7 +9532,6 @@
       // Reset UI elements after a short delay
       setTimeout(() => {
         tableNumberModal.style.display = 'none';
-        tableNumberModal.classList.remove('show');
         tableNumberModal.style.opacity = '1'; // Reset opacity for next time
         
         // Reset input field and buttons
@@ -11984,36 +11892,13 @@
       
       const avgPrepTime = ordersWithPrepTime > 0 ? Math.round(totalPrepTime / ordersWithPrepTime) : 0;
       
-      // Update statistics display with force refresh
-      const totalOrdersElement = document.getElementById('total-orders');
-      const totalCustomersElement = document.getElementById('total-customers');
-      const avgPrepTimeElement = document.getElementById('avg-prep-time');
+      // Update statistics display
+      document.getElementById('total-orders').textContent = totalOrders;
+      document.getElementById('total-customers').textContent = uniqueCustomers.size;
+      document.getElementById('avg-prep-time').textContent = avgPrepTime;
       
-      if (totalOrdersElement) {
-        totalOrdersElement.textContent = totalOrders;
-        totalOrdersElement.style.color = 'var(--gold)';
-        totalOrdersElement.style.fontWeight = 'bold';
-        console.log('✅ Updated Total Orders:', totalOrders);
-      }
-      
-      if (totalCustomersElement) {
-        totalCustomersElement.textContent = uniqueCustomers.size;
-        totalCustomersElement.style.color = 'var(--gold)';
-        totalCustomersElement.style.fontWeight = 'bold';
-        console.log('✅ Updated Total Customers:', uniqueCustomers.size);
-      }
-      
-      if (avgPrepTimeElement) {
-        avgPrepTimeElement.textContent = avgPrepTime;
-        avgPrepTimeElement.style.color = 'var(--gold)';
-        avgPrepTimeElement.style.fontWeight = 'bold';
-        console.log('✅ Updated Avg Prep Time:', avgPrepTime);
-      }
-      
-      // Update active staff count (but don't let it interfere with other stats)
-      setTimeout(() => {
-        updateActiveStaffCount();
-      }, 100);
+      // Update active staff count
+      updateActiveStaffCount();
       
       // Update charts
       updateOrdersChart(orderStatusData);
@@ -12052,9 +11937,7 @@
     // Real-time active staff tracking system
     let activeStaffHeartbeat = null;
     let staffActivityTimeout = null;
-    let inactivityTimeout = null;
-    const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
-    const INACTIVITY_LOGOUT_TIMEOUT = 10 * 60 * 1000; // 10 minutes auto logout
+    const STAFF_ACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes of inactivity  
     const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
 
     // Function to get current user info from localStorage
@@ -12224,14 +12107,12 @@
       }, HEARTBEAT_INTERVAL);
       
       // Reset activity timeout on user interaction
-      ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'].forEach(eventType => {
+      ['click', 'keypress', 'scroll', 'mousemove'].forEach(eventType => {
         document.addEventListener(eventType, resetStaffActivityTimeout, { passive: true });
-        document.addEventListener(eventType, trackUserActivity, { passive: true });
       });
       
       resetStaffActivityTimeout();
-      resetInactivityTimeout();
-      console.log('Staff heartbeat monitoring started successfully with 10-minute auto-logout');
+      console.log('Staff heartbeat monitoring started successfully');
     }
 
     // Function to reset staff activity timeout
@@ -12246,7 +12127,7 @@
       }, STAFF_ACTIVITY_TIMEOUT);
     }
 
-    // Function to mark staff as inactive
+    // Function to mark staff as inactive and handle auto-logout after 10 minutes
     function markStaffInactive() {
       const staffToken = localStorage.getItem(STAFF_TOKEN);
       const adminToken = localStorage.getItem(ADMIN_TOKEN);
@@ -12254,77 +12135,68 @@
       
       if (staffToken || adminToken) {
         const username = localStorage.getItem('username') || staffName;
+        console.log(`⚠️ INACTIVITY TIMEOUT: ${staffName} has been inactive for 10 minutes - invalidating session`);
         
-        // Update localStorage activity status
-        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
-        if (allStaffActivity[username]) {
-          allStaffActivity[username].status = 'inactive';
-          allStaffActivity[username].lastActivity = Date.now();
-          localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
-        }
-        
-        // Update Firebase staff session
+        // AUTOMATIC LOGOUT AFTER 10 MINUTES OF INACTIVITY
+        // Mark as offline in Firebase immediately
         if (db && typeof db.collection === 'function') {
           db.collection('staffSessions').doc(username).update({
-            status: 'inactive',
-            lastActivity: Date.now()
-          }).catch(error => {
-            console.log('Firebase inactive update failed, using localStorage');
-          });
-        }
-      }
-    }
-    
-    // Function to set staff as offline when they logout
-    function setStaffOffline(username) {
-      if (username) {
-        // Update localStorage immediately
-        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
-        if (allStaffActivity[username]) {
-          allStaffActivity[username].status = 'inactive';
-          allStaffActivity[username].lastActivity = Date.now();
-          localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
-        }
-        
-        // Update Firebase staff session
-        if (db && typeof db.collection === 'function') {
-          db.collection('staffSessions').doc(username).update({
-            status: 'inactive',
+            status: 'offline',
             lastActivity: Date.now(),
-            loggedOut: true
+            sessionEnded: Date.now(),
+            reason: 'inactivity_timeout'
+          }).then(() => {
+            console.log(`✅ Firebase session auto-invalidated for ${staffName} due to inactivity`);
           }).catch(error => {
-            console.log('Firebase logout update failed, using localStorage');
+            console.log('Firebase inactivity logout failed:', error);
           });
         }
+        
+        // Mark as offline in localStorage immediately
+        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+        if (allStaffActivity[username]) {
+          allStaffActivity[username].status = 'offline';
+          allStaffActivity[username].lastActivity = Date.now();
+          allStaffActivity[username].sessionEnded = Date.now();
+          allStaffActivity[username].reason = 'inactivity_timeout';
+          localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
+          console.log(`✅ LocalStorage session auto-invalidated for ${staffName} due to inactivity`);
+        }
+        
+        // Clear auth tokens to log them out automatically
+        localStorage.removeItem(STAFF_TOKEN);
+        localStorage.removeItem(ADMIN_TOKEN);
+        localStorage.removeItem("staffName");
+        localStorage.removeItem("staffRole");
+        localStorage.removeItem("username");
+        
+        // Stop heartbeat monitoring
+        stopStaffHeartbeat();
+        
+        // Trigger immediate staff count update
+        updateActiveStaffCount();
+        
+        // Show inactivity notification
+        showNotification(
+          'Session Expired',
+          'You have been logged out due to 10 minutes of inactivity. Please log in again.',
+          'warning'
+        );
+        
+        // Reset to login screen
+        userType = null;
+        localStorage.removeItem(USER_TYPE_KEY);
+        
+        // Hide dashboards and show table modal
+        document.getElementById('guest-interface').style.display = 'none';
+        document.getElementById('staff-dashboard').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'none';
+        
+        // Show table modal for re-authentication
+        setTimeout(() => {
+          showTableModal();
+        }, 1000);
       }
-    }
-    
-    // Function to reset inactivity timeout
-    function resetInactivityTimeout() {
-      if (inactivityTimeout) {
-        clearTimeout(inactivityTimeout);
-      }
-      
-      // Only set timeout for staff/admin users
-      const staffToken = localStorage.getItem(STAFF_TOKEN);
-      const adminToken = localStorage.getItem(ADMIN_TOKEN);
-      
-      if (staffToken === 'true' || adminToken === 'true') {
-        inactivityTimeout = setTimeout(() => {
-          console.log('⏰ Auto-logout due to 10 minutes inactivity');
-          const currentUser = getCurrentUserInfo();
-          if (currentUser) {
-            setStaffOffline(currentUser.username);
-          }
-          logoutStaff();
-        }, INACTIVITY_LOGOUT_TIMEOUT);
-      }
-    }
-    
-    // Function to track user activity and reset timeout
-    function trackUserActivity() {
-      resetInactivityTimeout();
-      updateStaffActivity();
     }
 
     // Function to stop staff heartbeat when logging out
@@ -12367,88 +12239,6 @@
       }
     }
 
-    // Real-time Firebase listener for staff sessions
-    let staffSessionsListener = null;
-    
-    // Function to setup real-time active staff count monitoring
-    function setupRealTimeStaffMonitoring() {
-      if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available, using polling fallback');
-        setInterval(updateFromLocalStorage, 10000); // Poll every 10 seconds
-        return;
-      }
-      
-      try {
-        console.log('🔄 Setting up real-time staff monitoring...');
-        
-        // Remove existing listener if any
-        if (staffSessionsListener) {
-          staffSessionsListener();
-          staffSessionsListener = null;
-        }
-        
-        // Setup real-time listener for staff sessions
-        staffSessionsListener = db.collection('staffSessions').onSnapshot(
-          (snapshot) => {
-            console.log('🔥 Real-time staff sessions update received');
-            processStaffSessionsSnapshot(snapshot);
-          },
-          (error) => {
-            console.warn('Staff sessions listener error:', error);
-            // Fallback to polling
-            setTimeout(updateFromLocalStorage, 1000);
-          }
-        );
-        
-        console.log('✅ Real-time staff monitoring active');
-        
-      } catch (error) {
-        console.warn('Failed to setup real-time monitoring:', error);
-        // Fallback to polling
-        setInterval(updateFromLocalStorage, 10000);
-      }
-    }
-    
-    // Process staff sessions snapshot for real-time updates
-    function processStaffSessionsSnapshot(snapshot) {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-      const currentTime = Date.now();
-      const activeStaff = [];
-      
-      console.log('🔥 Processing', snapshot.size, 'staff sessions...');
-      
-      snapshot.forEach(doc => {
-        const staff = doc.data();
-        const timeSinceActivity = currentTime - staff.lastActivity;
-        
-        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
-        
-        // Exclude admin users from staff count
-        if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count`);
-          return;
-        }
-        
-        // Count active non-admin staff within timeout period
-        if (staff.status === 'active' && 
-            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-            staff.sessionId) {
-          
-          activeStaff.push({
-            username: staff.username,
-            name: staff.name,
-            role: staff.role,
-            lastActivity: staff.lastActivity,
-            sessionId: staff.sessionId
-          });
-          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role})`);
-        }
-      });
-      
-      console.log('🔥 Real-time Active Staff Count:', activeStaff.length);
-      updateStaffCountDisplay(activeStaff.length, activeStaff);
-    }
-    
     // Function to update active staff count with Firebase integration
     function updateActiveStaffCount() {
       try {
@@ -12468,7 +12258,7 @@
     
     // Query Firebase for active staff sessions
     function queryFirebaseStaffSessions() {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const STAFF_ACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
       const currentTime = Date.now();
       
       db.collection('staffSessions').get()
@@ -12485,6 +12275,23 @@
             if (staff.role === 'admin') {
               console.log(`❌ Admin ${staff.name} excluded from staff count`);
               return;
+            }
+            
+            // REAL-TIME SESSION VALIDATION - Auto-invalidate inactive sessions
+            if (staff.status === 'active' && timeSinceActivity >= STAFF_ACTIVITY_TIMEOUT) {
+              // Staff has been inactive for more than 10 minutes - invalidate their session
+              console.log(`⚠️ AUTO-LOGOUT: ${staff.name} inactive for ${Math.floor(timeSinceActivity/60000)} minutes - invalidating session`);
+              
+              db.collection('staffSessions').doc(staff.username).update({
+                status: 'offline',
+                lastActivity: Date.now(),
+                sessionEnded: Date.now(),
+                reason: 'auto_timeout'
+              }).catch(error => {
+                console.log('Firebase auto-logout failed:', error);
+              });
+              
+              return; // Skip counting this staff member
             }
             
             // Count active non-admin staff within timeout period
@@ -12613,24 +12420,48 @@
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
-    // Function to update ONLY Active Staff count - DO NOT touch other statistics
+    // Function to update staff count display in UI
     function updateStaffCountDisplay(count, activeStaff = []) {
       try {
-        // ONLY update the Active Staff element by ID - never touch other stats
+        // Method 1: Direct ID targeting
         const activeStaffElement = document.getElementById('active-staff');
         if (activeStaffElement) {
           activeStaffElement.textContent = count;
-          activeStaffElement.style.color = 'var(--gold)';
-          activeStaffElement.style.fontWeight = 'bold';
-          activeStaffElement.style.fontSize = '1.5rem';
-          console.log('Updated Active Staff to:', count);
+          activeStaffElement.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
+          console.log('✓ Updated active-staff element to:', count);
+        } else {
+          console.warn('active-staff element not found');
         }
+        
+        // Method 2: Query selector fallback
+        const statValueElements = document.querySelectorAll('.stat-value');
+        statValueElements.forEach((element, index) => {
+          if (element.nextElementSibling && element.nextElementSibling.textContent.includes('ACTIVE STAFF')) {
+            element.textContent = count;
+            element.style.color = 'var(--gold)';
+            console.log('✓ Updated stat-value element (index:', index, ') to:', count);
+          }
+        });
+        
+        // Method 3: Force DOM update for all potential active staff displays
+        const allActiveElements = document.querySelectorAll('[id*="active"], [class*="active"]');
+        allActiveElements.forEach(el => {
+          if (el.id === 'active-staff' || el.textContent === '0' || el.textContent === '1') {
+            el.textContent = count;
+            el.style.cssText = 'color: var(--gold) !important; font-weight: bold !important; font-size: 1.5rem !important;';
+            console.log('✓ Force updated element:', el.id || el.className, 'to:', count);
+          }
+        });
         
         // Update active staff details for admin
         updateActiveStaffDetails(activeStaff);
         
       } catch (error) {
         console.warn('Error updating active staff count:', error);
+        const activeStaffElement = document.getElementById('active-staff');
+        if (activeStaffElement) {
+          activeStaffElement.textContent = '1';
+        }
       }
     }
 
@@ -12716,54 +12547,11 @@
 
     // Function to refresh statistics and orders (fallback)
     function refreshStatisticsAndOrders() {
-      if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available for statistics refresh');
-        return;
-      }
-      
-      console.log('🔄 Manually refreshing statistics and orders...');
       db.collection('orders').get().then(snapshot => {
-        console.log('📊 Retrieved', snapshot.size, 'orders for statistics');
         updateStatisticsFromSnapshot(snapshot);
         updateOrdersDisplay();
       }).catch(error => {
         console.warn('Error refreshing statistics:', error);
-      });
-    }
-    
-    // Force initial statistics load function
-    function forceInitialStatisticsLoad() {
-      console.log('🚀 Force loading initial statistics...');
-      
-      if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available, cannot load statistics');
-        // Set default values
-        const totalOrdersElement = document.getElementById('total-orders');
-        const totalCustomersElement = document.getElementById('total-customers');
-        const avgPrepTimeElement = document.getElementById('avg-prep-time');
-        
-        if (totalOrdersElement) totalOrdersElement.textContent = '0';
-        if (totalCustomersElement) totalCustomersElement.textContent = '0';
-        if (avgPrepTimeElement) avgPrepTimeElement.textContent = '0';
-        return;
-      }
-      
-      db.collection('orders').get().then(snapshot => {
-        console.log('📊 Initial load: Retrieved', snapshot.size, 'orders');
-        updateStatisticsFromSnapshot(snapshot);
-        if (userType === 'admin') {
-          updateOrdersDisplay();
-        }
-      }).catch(error => {
-        console.warn('Error in initial statistics load:', error);
-        // Set default values on error
-        const totalOrdersElement = document.getElementById('total-orders');
-        const totalCustomersElement = document.getElementById('total-customers');
-        const avgPrepTimeElement = document.getElementById('avg-prep-time');
-        
-        if (totalOrdersElement) totalOrdersElement.textContent = '0';
-        if (totalCustomersElement) totalCustomersElement.textContent = '0';
-        if (avgPrepTimeElement) avgPrepTimeElement.textContent = '0';
       });
     }
 
@@ -14627,8 +14415,6 @@
         });
       }
     }
-    
-
   </script>
   
 
@@ -14699,7 +14485,5 @@
       </div>
     </div>
   </div>
-
-
 </body>
 </html>
