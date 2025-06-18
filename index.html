@@ -1562,8 +1562,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       background: rgba(0,0,0,0.85);
       z-index: 1100;
       justify-content: center;
@@ -1572,6 +1572,10 @@
       transition: opacity 0.3s ease;
       padding: 15px;
       overflow-y: auto;
+    }
+    
+    .table-number-modal.show {
+      display: flex !important;
     }
     
     .table-number-content {
@@ -1587,6 +1591,25 @@
       max-height: 85vh;
       overflow-y: auto;
       margin: auto;
+      position: relative;
+    }
+    
+    @media (max-width: 480px) {
+      .table-number-content {
+        max-width: 95vw;
+        padding: 20px;
+        margin: 10px;
+        max-height: 90vh;
+      }
+      
+      .user-option-buttons {
+        gap: 15px !important;
+      }
+      
+      .guest-option, .staff-option {
+        min-height: 120px !important;
+        padding: 15px !important;
+      }
     }
     
     @keyframes modalFadeIn {
@@ -6380,9 +6403,19 @@
                 if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
                   console.log("Staff/Admin already logged in, not showing table modal");
                 } else {
-                  // Force showing the table modal for guests
+                  // Force showing the table modal for guests with mobile failsafe
                   console.log("Showing table modal for guests");
                   showTableModal();
+                  
+                  // Mobile failsafe: Ensure modal is visible
+                  setTimeout(() => {
+                    const modal = document.getElementById('table-number-modal');
+                    if (modal && modal.style.display === 'none') {
+                      console.log("Mobile failsafe: Forcing table modal display");
+                      modal.style.display = 'flex';
+                      modal.classList.add('show');
+                    }
+                  }, 500);
                 }
               }, 200); // Faster transition out
             }, 150); // Show success message briefly
@@ -6481,8 +6514,20 @@
       
       // Wait for animation before clearing everything
       setTimeout(() => {
-        // Stop staff heartbeat tracking before logout
+        // Get current user info before clearing
+        const currentUser = getCurrentUserInfo();
+        
+        // Set staff as offline/inactive immediately on logout
+        if (currentUser && currentUser.username) {
+          setStaffOffline(currentUser.username);
+        }
+        
+        // Stop staff heartbeat tracking and clear timeouts
         stopStaffHeartbeat();
+        if (inactivityTimeout) {
+          clearTimeout(inactivityTimeout);
+          inactivityTimeout = null;
+        }
         
         // Clear auth tokens
         localStorage.removeItem(STAFF_TOKEN);
@@ -8599,6 +8644,7 @@
     // Load table number if valid
     function showTableModal(fromCartAction = false) {
       tableNumberModal.style.display = 'flex';
+      tableNumberModal.classList.add('show');
       
       // Enhanced message if coming from cart action
       if (fromCartAction) {
@@ -9526,6 +9572,7 @@
       // Reset UI elements after a short delay
       setTimeout(() => {
         tableNumberModal.style.display = 'none';
+        tableNumberModal.classList.remove('show');
         tableNumberModal.style.opacity = '1'; // Reset opacity for next time
         
         // Reset input field and buttons
@@ -11050,7 +11097,7 @@
                 
                 // Reset label to optional for higher ratings
                 document.getElementById('feedback-label').textContent = 
-                  currentLanguage === 'ar' ? 'تعليقات (اخ �ياري)' : 'FEEDBACK (OPTIONAL)';
+                  currentLanguage === 'ar' ? 'تعليقات (اختياري)' : 'FEEDBACK (OPTIONAL)';
               }
             });
           });
@@ -11954,7 +12001,9 @@
     // Real-time active staff tracking system
     let activeStaffHeartbeat = null;
     let staffActivityTimeout = null;
+    let inactivityTimeout = null;
     const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
+    const INACTIVITY_LOGOUT_TIMEOUT = 10 * 60 * 1000; // 10 minutes auto logout
     const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
 
     // Function to get current user info from localStorage
@@ -12124,12 +12173,14 @@
       }, HEARTBEAT_INTERVAL);
       
       // Reset activity timeout on user interaction
-      ['click', 'keypress', 'scroll', 'mousemove'].forEach(eventType => {
+      ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'].forEach(eventType => {
         document.addEventListener(eventType, resetStaffActivityTimeout, { passive: true });
+        document.addEventListener(eventType, trackUserActivity, { passive: true });
       });
       
       resetStaffActivityTimeout();
-      console.log('Staff heartbeat monitoring started successfully');
+      resetInactivityTimeout();
+      console.log('Staff heartbeat monitoring started successfully with 10-minute auto-logout');
     }
 
     // Function to reset staff activity timeout
@@ -12161,16 +12212,68 @@
           localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
         }
         
-        // Try Firebase but use localStorage as primary
+        // Update Firebase staff session
         if (db && typeof db.collection === 'function') {
-          db.collection('staffActivity').doc(username).update({
+          db.collection('staffSessions').doc(username).update({
             status: 'inactive',
-            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+            lastActivity: Date.now()
           }).catch(error => {
             console.log('Firebase inactive update failed, using localStorage');
           });
         }
       }
+    }
+    
+    // Function to set staff as offline when they logout
+    function setStaffOffline(username) {
+      if (username) {
+        // Update localStorage immediately
+        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+        if (allStaffActivity[username]) {
+          allStaffActivity[username].status = 'inactive';
+          allStaffActivity[username].lastActivity = Date.now();
+          localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
+        }
+        
+        // Update Firebase staff session
+        if (db && typeof db.collection === 'function') {
+          db.collection('staffSessions').doc(username).update({
+            status: 'inactive',
+            lastActivity: Date.now(),
+            loggedOut: true
+          }).catch(error => {
+            console.log('Firebase logout update failed, using localStorage');
+          });
+        }
+      }
+    }
+    
+    // Function to reset inactivity timeout
+    function resetInactivityTimeout() {
+      if (inactivityTimeout) {
+        clearTimeout(inactivityTimeout);
+      }
+      
+      // Only set timeout for staff/admin users
+      const staffToken = localStorage.getItem(STAFF_TOKEN);
+      const adminToken = localStorage.getItem(ADMIN_TOKEN);
+      
+      if (staffToken === 'true' || adminToken === 'true') {
+        inactivityTimeout = setTimeout(() => {
+          console.log('⏰ Auto-logout due to 10 minutes inactivity');
+          const currentUser = getCurrentUserInfo();
+          if (currentUser) {
+            setStaffOffline(currentUser.username);
+          }
+          logoutUser();
+        }, INACTIVITY_LOGOUT_TIMEOUT);
+      }
+    }
+    
+    // Function to track user activity and reset timeout
+    function trackUserActivity() {
+      resetInactivityTimeout();
+      updateStaffActivity();
     }
 
     // Function to stop staff heartbeat when logging out
