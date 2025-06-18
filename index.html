@@ -11899,70 +11899,76 @@
         staffRatingsList.innerHTML = '';
         
         allRatings.forEach((rating, index) => {
-          const ratingCard = document.createElement('div');
-          const stars = rating.stars || rating.rating || 0;
-          const isLowRating = stars <= 3;
-          ratingCard.className = isLowRating ? 'rating-card low-rating' : 'rating-card';
-          
-          // Format timestamp
-          let timeStr = '';
-          if (rating.timestamp) {
-            if (typeof rating.timestamp === 'object' && rating.timestamp.toDate) {
-              timeStr = rating.timestamp.toDate().toLocaleString();
-            } else {
-              timeStr = new Date(rating.timestamp).toLocaleString();
-            }
-          } else if (rating.localStorageTimestamp) {
-            timeStr = new Date(rating.localStorageTimestamp).toLocaleString();
-          }
-          
-          // Generate stars HTML
-          let starsHtml = '';
-          for (let i = 1; i <= 5; i++) {
-            if (i <= stars) {
-              starsHtml += '<i class="fas fa-star"></i>';
-            } else {
-              starsHtml += '<i class="far fa-star"></i>';
-            }
-          }
-          
-          const sourceTag = rating.source === 'local' ? 
-            `<span style="background:#ff6b6b;color:white;padding:2px 6px;border-radius:3px;font-size:10px;margin-left:8px;">${currentLanguage === 'ar' ? 'محلي' : 'LOCAL'}</span>` : 
-            `<span style="background:#4CAF50;color:white;padding:2px 6px;border-radius:3px;font-size:10px;margin-left:8px;">${currentLanguage === 'ar' ? 'سحابي' : 'CLOUD'}</span>`;
-          
-          ratingCard.innerHTML = `
-            <div class="rating-header">
-              <div class="rating-stars-display">${starsHtml}</div>
-              <div class="rating-time">${timeStr}${sourceTag}</div>
-            </div>
-            <div class="rating-details">
-              <div class="rating-info-row">
-                <div class="rating-guest">
-                  <span class="label">${currentLanguage === 'ar' ? 'رقم الطلب:' : 'Order ID:'}</span>
-                  <span class="value order-id">${rating.guestId || rating.orderId || 'N/A'}</span>
-                </div>
-                <div class="rating-table">
-                  <span class="label">${currentLanguage === 'ar' ? 'الطاولة:' : 'Table:'}</span>
-                  <span class="value">${rating.tableNumber || 'N/A'}</span>
-                </div>
-              </div>
-              <div class="rating-staff">
-                <span class="label">${currentLanguage === 'ar' ? 'الموظف المسؤول:' : 'Assigned Staff:'}</span>
-                <span class="value staff-name">${rating.staffId || rating.staffName || 'No Staff Assigned'}</span>
-              </div>
-            </div>
-            ${(rating.reason || rating.feedback) ? `
-              <div class="rating-feedback">
-                <div class="feedback-label">${currentLanguage === 'ar' ? 'ملاحظات العميل:' : 'Customer Feedback:'}</div>
-                <div class="feedback-text">${rating.reason || rating.feedback}</div>
-              </div>
-            ` : ''}
-          `;
-          
-          staffRatingsList.appendChild(ratingCard);
           console.log(`Added rating card ${index + 1}:`, rating);
+          const ratingCard = createRatingCard(rating, index + 1);
+          staffRatingsList.appendChild(ratingCard);
         });
       }
+      
+      // Create rating card function
+      window.createRatingCard = function(rating, index) {
+        const ratingCard = document.createElement('div');
+        const stars = rating.stars || rating.rating || 0;
+        const isLowRating = stars <= 3;
+        ratingCard.className = isLowRating ? 'rating-card low-rating' : 'rating-card';
+        
+        // Format timestamp
+        let timeStr = '';
+        if (rating.timestamp) {
+          if (typeof rating.timestamp === 'object' && rating.timestamp.toDate) {
+            timeStr = rating.timestamp.toDate().toLocaleString();
+          } else {
+            timeStr = new Date(rating.timestamp).toLocaleString();
+          }
+        } else if (rating.localStorageTimestamp) {
+          timeStr = new Date(rating.localStorageTimestamp).toLocaleString();
+        }
+        
+        // Generate stars HTML
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= stars) {
+            starsHtml += '<i class="fas fa-star"></i>';
+          } else {
+            starsHtml += '<i class="far fa-star"></i>';
+          }
+        }
+        
+        const sourceTag = rating.source === 'local' ? 
+          `<span style="background:#ff6b6b;color:white;padding:2px 6px;border-radius:3px;font-size:10px;margin-left:8px;">LOCAL</span>` : 
+          `<span style="background:#4CAF50;color:white;padding:2px 6px;border-radius:3px;font-size:10px;margin-left:8px;">CLOUD</span>`;
+        
+        ratingCard.innerHTML = `
+          <div class="rating-header">
+            <div class="rating-stars-display">${starsHtml}</div>
+            <div class="rating-time">${timeStr}${sourceTag}</div>
+          </div>
+          <div class="rating-details">
+            <div class="rating-info-row">
+              <div class="rating-guest">
+                <span class="label">Order ID:</span>
+                <span class="value order-id">${rating.guestId || rating.orderId || 'N/A'}</span>
+              </div>
+              <div class="rating-table">
+                <span class="label">Table:</span>
+                <span class="value">${rating.tableNumber || 'N/A'}</span>
+              </div>
+            </div>
+            <div class="rating-staff">
+              <span class="label">Assigned Staff:</span>
+              <span class="value staff-name">${rating.staffId || rating.staffName || 'No Staff Assigned'}</span>
+            </div>
+          </div>
+          ${(rating.reason || rating.feedback) ? `
+            <div class="rating-feedback">
+              <div class="feedback-label">Customer Feedback:</div>
+              <div class="feedback-text">${rating.reason || rating.feedback}</div>
+            </div>
+          ` : ''}
+        `;
+        
+        return ratingCard;
+      };
       
       // Try to load Firebase ratings if available
       if (db && typeof db.collection === 'function') {
@@ -12187,16 +12193,28 @@
       allStoredRatings = allRatings;
       console.log('Filter setup with', allRatings.length, 'ratings');
       
-      // Add event listener to filter dropdown
-      const filterSelect = document.getElementById('rating-filter');
-      if (filterSelect) {
-        filterSelect.addEventListener('change', function(e) {
-          console.log('Filter dropdown changed to:', e.target.value);
-          filterRatingsByValue(e.target.value);
-        });
-        console.log('Event listener added to filter dropdown');
-      } else {
-        console.log('ERROR: Filter dropdown not found');
+      // Add event listener to filter dropdown with multiple methods
+      setTimeout(() => {
+        const filterSelect = document.getElementById('rating-filter');
+        if (filterSelect) {
+          // Clear any existing listeners
+          filterSelect.removeEventListener('change', handleFilterChange);
+          
+          // Add new listener
+          filterSelect.addEventListener('change', handleFilterChange);
+          console.log('Event listener added to filter dropdown');
+          
+          // Test the filter immediately
+          console.log('Testing filter with all ratings...');
+          updateRatingsList(allStoredRatings);
+        } else {
+          console.log('ERROR: Filter dropdown not found');
+        }
+      }, 500);
+      
+      function handleFilterChange(e) {
+        console.log('DROPDOWN CHANGED TO:', e.target.value);
+        filterRatingsByValue(e.target.value);
       }
     }
     
@@ -12205,6 +12223,7 @@
       console.log('=== FILTER FUNCTION CALLED ===');
       console.log('Filter value:', filterValue);
       console.log('Available ratings:', allStoredRatings.length);
+      console.log('Raw ratings data:', allStoredRatings);
       
       if (!allStoredRatings || allStoredRatings.length === 0) {
         console.log('No ratings available');
@@ -12214,24 +12233,47 @@
       let filtered = allStoredRatings;
       
       if (filterValue === 'low') {
-        filtered = allStoredRatings.filter(r => r.stars <= 3);
+        console.log('Filtering for low ratings (<=3)');
+        filtered = allStoredRatings.filter(r => {
+          console.log('Rating stars:', r.stars, typeof r.stars, 'Is low?', r.stars <= 3);
+          return r.stars <= 3;
+        });
       } else if (filterValue !== 'all') {
         const stars = parseInt(filterValue);
-        filtered = allStoredRatings.filter(r => r.stars == stars);
+        console.log('Filtering for', stars, 'star ratings');
+        filtered = allStoredRatings.filter(r => {
+          console.log('Rating stars:', r.stars, typeof r.stars, 'Matches', stars, '?', r.stars == stars);
+          return r.stars == stars;
+        });
       }
       
-      console.log('Filtered to', filtered.length, 'ratings');
+      console.log('Filtered results:', filtered.length, 'ratings');
+      console.log('Filtered data:', filtered);
       updateRatingsList(filtered);
+    }
+    
+    // Test function to manually trigger filters
+    window.testFilter = function(value) {
+      console.log('Manual test filter called with:', value);
+      filterRatingsByValue(value);
     }
     
     // Update the ratings list display
     function updateRatingsList(ratings) {
-      const container = document.getElementById('staff-ratings-list');
-      if (!container) return;
+      console.log('=== UPDATING RATINGS LIST ===');
+      console.log('Ratings to display:', ratings.length);
       
+      const container = document.getElementById('staff-ratings-list');
+      if (!container) {
+        console.log('ERROR: Container not found!');
+        return;
+      }
+      
+      console.log('Clearing container...');
       container.innerHTML = '';
       
       if (ratings.length === 0) {
+        console.log('No ratings to show, displaying empty message');
         container.innerHTML = `
           <div style="text-align: center; padding: 40px; color: #ccc; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0;">
             <i class="fas fa-filter" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5;"></i>
@@ -12242,10 +12284,23 @@
         return;
       }
       
+      console.log('Creating rating cards...');
       ratings.forEach((rating, index) => {
-        const card = createRatingCard(rating, index + 1);
-        if (card) container.appendChild(card);
+        console.log('Processing rating', index + 1, ':', rating);
+        try {
+          const card = createRatingCard(rating, index + 1);
+          if (card) {
+            container.appendChild(card);
+            console.log('Card', index + 1, 'added successfully');
+          } else {
+            console.log('Card', index + 1, 'creation failed - card is null');
+          }
+        } catch (error) {
+          console.error('Error creating card', index + 1, ':', error);
+        }
       });
+      
+      console.log('Final container children count:', container.children.length);
     }
     
 
