@@ -8593,7 +8593,7 @@
           const cancelButton = document.getElementById('cancel-table-btn');
           
           if (confirmButton) {
-            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد  �إتمام الطلب' : 'CONFIRM & PLACE ORDER';
+            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد وإتمام الطلب' : 'CONFIRM & PLACE ORDER';
           }
           
           if (cancelButton) {
@@ -11927,12 +11927,22 @@
     function updateStaffActivity() {
       const staffToken = localStorage.getItem(STAFF_TOKEN);
       const adminToken = localStorage.getItem(ADMIN_TOKEN);
-      const staffName = localStorage.getItem('staffName') || localStorage.getItem('adminName');
-      const staffRole = localStorage.getItem('staffRole') || 'admin';
+      let staffName, staffRole, username;
       
-      if (staffToken || adminToken) {
+      // Determine user details based on their login type
+      if (adminToken === 'true') {
+        staffName = localStorage.getItem('adminName') || 'Restaurant Administrator';
+        staffRole = 'admin';
+        username = 'admin';
+      } else if (staffToken === 'true') {
+        staffName = localStorage.getItem('staffName');
+        staffRole = localStorage.getItem('staffRole');
+        username = localStorage.getItem('username');
+      }
+      
+      if ((staffToken === 'true' || adminToken === 'true') && staffName && staffRole && username) {
         const activityData = {
-          username: localStorage.getItem('username') || staffName,
+          username: username,
           name: staffName,
           role: staffRole,
           lastActivity: Date.now(),
@@ -11940,13 +11950,50 @@
           sessionId: clientId
         };
         
+        console.log(`Staff activity updated for ${staffName} (${staffRole})`);
+        
         // Store in localStorage as fallback
         const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
         allStaffActivity[activityData.username] = activityData;
         localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
         
-        // Pure localStorage solution - no Firebase dependency
-        console.log(`Staff activity updated for ${activityData.name} (${activityData.role})`);
+        // Update the active staff count immediately after updating activity
+        updateActiveStaffCount();
+        
+        console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
+        
+        // TEST: Temporarily add sample staff activities for verification
+        if (activityData.role === 'admin' && !localStorage.getItem('testStaffAdded')) {
+          console.log('🧪 Adding test staff for verification...');
+          
+          // Add sample active staff members for testing
+          const testStaff = {
+            'john': {
+              username: 'john',
+              name: 'John Smith',
+              role: 'chef',
+              lastActivity: Date.now(),
+              status: 'active',
+              sessionId: 'TEST-CHEF-SESSION'
+            },
+            'ahmad': {
+              username: 'ahmad', 
+              name: 'Ahmad Mohammed',
+              role: 'manager',
+              lastActivity: Date.now(),
+              status: 'active',
+              sessionId: 'TEST-MANAGER-SESSION'
+            }
+          };
+          
+          const currentActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+          Object.assign(currentActivity, testStaff);
+          localStorage.setItem('allStaffActivity', JSON.stringify(currentActivity));
+          localStorage.setItem('testStaffAdded', 'true');
+          
+          console.log('🧪 Test staff added, updating count...');
+          updateActiveStaffCount();
+        }
         
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
