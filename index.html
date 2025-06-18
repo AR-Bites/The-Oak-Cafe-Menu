@@ -4697,7 +4697,7 @@
               <div class="section-header">
                 <h4><i class="fas fa-list"></i> Recent Reviews</h4>
                 <div class="filter-controls">
-                  <select id="rating-filter" class="filter-select" onchange="handleRatingFilterChange(this.value)">
+                  <select id="rating-filter" class="filter-select" onchange="filterRatingsByValue(this.value)">
                     <option value="all">All Ratings</option>
                     <option value="5">5 Stars</option>
                     <option value="4">4 Stars</option>
@@ -12100,162 +12100,173 @@
       const width = canvas.width = canvas.offsetWidth;
       const height = canvas.height;
       
-      // Clear canvas
+      // Clear canvas with subtle background
       ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+      ctx.fillRect(0, 0, width, height);
       
-      // Simple chart configuration
-      const barWidth = Math.min(50, (width - 100) / 5);
-      const barSpacing = Math.min(30, (width - 100) / 8);
-      const maxBarHeight = height - 80;
+      // Chart configuration
+      const barWidth = Math.min(60, (width - 120) / 5);
+      const barSpacing = Math.min(25, (width - 120) / 8);
+      const maxBarHeight = height - 90;
       const maxValue = Math.max(...ratingCounts, 1);
       const startX = (width - (5 * barWidth + 4 * barSpacing)) / 2;
       
-      // Clean color palette
-      const colors = ['#e53e3e', '#fd9726', '#fbc02d', '#38a169', '#3182ce'];
+      // Professional color scheme
+      const colors = [
+        '#dc2626', // Red for 1 star
+        '#ea580c', // Orange for 2 star  
+        '#d97706', // Amber for 3 star
+        '#16a34a', // Green for 4 star
+        '#2563eb'  // Blue for 5 star
+      ];
       const labels = ['1★', '2★', '3★', '4★', '5★'];
       const descriptions = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
       
-      // Draw title
+      // Draw title with better styling
       ctx.fillStyle = '#d4af37';
-      ctx.font = 'bold 18px Arial';
+      ctx.font = 'bold 20px Arial';
       ctx.textAlign = 'left';
-      ctx.fillText('Rating Distribution', 15, 25);
+      ctx.fillText('Rating Distribution', 20, 30);
       
-      // Draw bars
+      // Draw bars with improved styling
       ratingCounts.forEach((count, index) => {
         const x = startX + index * (barWidth + barSpacing);
-        const barHeight = Math.max((count / maxValue) * (maxBarHeight - 50), 5);
-        const y = height - barHeight - 55;
+        const barHeight = Math.max((count / maxValue) * (maxBarHeight - 60), 6);
+        const y = height - barHeight - 65;
         
-        // Draw main bar
-        ctx.fillStyle = colors[index];
+        // Draw bar shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(x + 2, y + 2, barWidth, barHeight);
+        
+        // Draw main bar with gradient effect
+        const gradient = ctx.createLinearGradient(x, y, x, y + barHeight);
+        gradient.addColorStop(0, colors[index]);
+        gradient.addColorStop(1, colors[index] + '80');
+        ctx.fillStyle = gradient;
         ctx.fillRect(x, y, barWidth, barHeight);
         
-        // Draw bar border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.lineWidth = 1;
+        // Draw bar highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.fillRect(x, y, barWidth, Math.max(barHeight * 0.4, 3));
+        
+        // Draw clean border
+        ctx.strokeStyle = colors[index];
+        ctx.lineWidth = 2;
         ctx.strokeRect(x, y, barWidth, barHeight);
         
         // Draw star label below bar
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 14px Arial';
+        ctx.font = 'bold 16px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(labels[index], x + barWidth/2, y + barHeight + 18);
+        ctx.fillText(labels[index], x + barWidth/2, y + barHeight + 20);
         
-        // Draw count above bar
+        // Draw count above bar with background
         if (count > 0) {
+          const countText = count.toString();
+          const textWidth = ctx.measureText(countText).width;
+          
+          // Background for count
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+          ctx.fillRect(x + barWidth/2 - textWidth/2 - 4, y - 20, textWidth + 8, 16);
+          
+          // Count text
           ctx.fillStyle = '#ffffff';
           ctx.font = 'bold 12px Arial';
           ctx.textAlign = 'center';
-          ctx.fillText(count.toString(), x + barWidth/2, y - 8);
+          ctx.fillText(countText, x + barWidth/2, y - 8);
         }
       });
       
-      // Draw clean legend below chart
-      const legendY = height - 30;
-      const legendSpacing = (width - 40) / 5;
+      // Draw enhanced legend below chart
+      const legendY = height - 35;
+      const legendSpacing = Math.max((width - 60) / 5, 80);
       
       colors.forEach((color, index) => {
-        const x = 20 + index * legendSpacing;
+        const x = 30 + index * legendSpacing;
         
-        // Draw color indicator
+        // Draw color indicator with better styling
         ctx.fillStyle = color;
-        ctx.fillRect(x, legendY, 14, 14);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fillRect(x, legendY, 16, 16);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = 1;
-        ctx.strokeRect(x, legendY, 14, 14);
+        ctx.strokeRect(x, legendY, 16, 16);
+        
+        // Add highlight to indicator
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fillRect(x, legendY, 16, 8);
         
         // Draw star rating
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 10px Arial';
+        ctx.font = 'bold 11px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText(labels[index], x + 18, legendY + 9);
+        ctx.fillText(labels[index], x + 20, legendY + 10);
         
         // Draw description
-        ctx.fillStyle = '#cccccc';
-        ctx.font = '8px Arial';
-        ctx.fillText(descriptions[index], x + 18, legendY + 20);
+        ctx.fillStyle = '#d0d0d0';
+        ctx.font = '9px Arial';
+        ctx.fillText(descriptions[index], x + 20, legendY + 22);
       });
     }
     
     // Global variable to store current ratings for filtering
-    let currentRatingsData = [];
+    let allStoredRatings = [];
     
     // Setup rating filter functionality
     function setupRatingFilter(allRatings) {
-      currentRatingsData = allRatings; // Store ratings for filtering
-      console.log('Rating filter setup complete with', allRatings.length, 'ratings');
+      allStoredRatings = allRatings;
+      console.log('Filter setup with', allRatings.length, 'ratings');
     }
     
-    // Global function for rating filter change
-    window.handleRatingFilterChange = function(filterValue) {
-      console.log('Filter changed to:', filterValue);
-      console.log('Current ratings data length:', currentRatingsData.length);
+    // Simple filter function
+    window.filterRatingsByValue = function(filterValue) {
+      console.log('Filtering by:', filterValue);
       
-      if (!currentRatingsData || currentRatingsData.length === 0) {
-        console.log('No ratings data available for filtering');
+      if (!allStoredRatings || allStoredRatings.length === 0) {
+        console.log('No ratings to filter');
         return;
       }
       
-      let filteredRatings = [...currentRatingsData];
+      let filtered = allStoredRatings;
       
-      if (filterValue !== 'all') {
-        if (filterValue === 'low') {
-          filteredRatings = currentRatingsData.filter(rating => {
-            const stars = parseInt(rating.stars);
-            return stars <= 3;
-          });
-        } else {
-          const targetStars = parseInt(filterValue);
-          filteredRatings = currentRatingsData.filter(rating => {
-            const stars = parseInt(rating.stars);
-            return stars === targetStars;
-          });
-        }
+      if (filterValue === 'low') {
+        filtered = allStoredRatings.filter(r => r.stars <= 3);
+      } else if (filterValue !== 'all') {
+        const stars = parseInt(filterValue);
+        filtered = allStoredRatings.filter(r => r.stars == stars);
       }
       
-      console.log('Filtered ratings count:', filteredRatings.length);
-      displayFilteredRatings(filteredRatings);
+      console.log('Found', filtered.length, 'matching ratings');
+      showFilteredRatings(filtered);
     }
     
-
-    
-    // Display filtered ratings
-    function displayFilteredRatings(ratings) {
-      const staffRatingsList = document.getElementById('staff-ratings-list');
-      if (!staffRatingsList) {
-        console.log('Staff ratings list container not found');
-        return;
-      }
+    // Display filtered results
+    function showFilteredRatings(ratings) {
+      const container = document.getElementById('staff-ratings-list');
+      if (!container) return;
       
-      console.log('Displaying', ratings.length, 'filtered ratings');
+      container.innerHTML = '';
       
       if (ratings.length === 0) {
-        staffRatingsList.innerHTML = `
-          <div class="empty-list" style="text-align: center; padding: 30px 20px; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0; border: 1px solid rgba(212, 175, 55, 0.2);">
-            <i class="fas fa-filter" style="font-size: 2.5rem; color: rgba(212, 175, 55, 0.4); margin-bottom: 15px;"></i>
-            <h4 style="color: rgba(255,255,255,0.8); font-size: 1.1rem; margin-bottom: 8px; font-weight: 600;">No Matching Ratings</h4>
-            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 0;">Try selecting a different filter option</p>
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #ccc; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0;">
+            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+            <h3>No ratings found</h3>
+            <p>Try a different filter option</p>
           </div>
         `;
         return;
       }
       
-      // Clear and rebuild the list
-      staffRatingsList.innerHTML = '';
       ratings.forEach((rating, index) => {
-        try {
-          const ratingCard = createRatingCard(rating, index + 1);
-          if (ratingCard) {
-            staffRatingsList.appendChild(ratingCard);
-          }
-        } catch (error) {
-          console.error('Error creating rating card:', error, rating);
-        }
+        const card = createRatingCard(rating, index + 1);
+        if (card) container.appendChild(card);
       });
-      
-      console.log('Successfully displayed', ratings.length, 'rating cards');
     }
+    
+
+    
+
     
     // Refresh ratings function for admin dashboard
     function refreshRatings() {
