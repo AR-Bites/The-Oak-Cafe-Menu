@@ -6118,12 +6118,15 @@
         
         // Set up real-time listeners for existing logged-in users
         setTimeout(() => {
+          console.log('Setting up listeners for existing user type:', userType);
           if (userType === 'admin') {
             setupRealtimeListeners();
             startStaffHeartbeat();
+            console.log('Admin heartbeat and listeners activated');
           } else {
             setupStaffRealtimeListeners();
             startStaffHeartbeat();
+            console.log('Staff heartbeat and listeners activated');
           }
         }, 1500);
       } else {
@@ -9532,7 +9535,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'سلة فارغة' : 'Empty Cart',
           currentLanguage === 'ar' 
-            ? 'الرجاء إضافة أصناف إل � سلتك أولاً'
+            ? 'الرجاء إضافة أصناف إلى سلتك أولاً'
             : 'Please add items to your cart first',
           'info'
         );
@@ -11772,13 +11775,10 @@
         }, 10000); // Update every 10 seconds
       });
 
-      // Listen for staff activity changes
-      db.collection('staffActivity').onSnapshot(snapshot => {
-        console.log('Staff activity updated, refreshing active staff count...');
+      // Set up periodic update for active staff count (since Firebase permissions are limited)
+      setInterval(() => {
         updateActiveStaffCount();
-      }, error => {
-        console.warn('Staff activity real-time listener error:', error);
-      });
+      }, 30000); // Update every 30 seconds
     }
 
     // Function to update statistics from orders snapshot
@@ -11905,7 +11905,7 @@
     const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
     const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
 
-    // Function to update staff activity status
+    // Function to update staff activity status (with localStorage fallback)
     function updateStaffActivity() {
       const staffToken = localStorage.getItem(STAFF_TOKEN);
       const adminToken = localStorage.getItem(ADMIN_TOKEN);
@@ -11917,17 +11917,23 @@
           username: localStorage.getItem('username') || staffName,
           name: staffName,
           role: staffRole,
-          lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+          lastActivity: Date.now(),
           status: 'active',
-          userAgent: navigator.userAgent.substring(0, 100),
           sessionId: clientId
         };
         
-        // Update staff activity in Firebase
-        db.collection('staffActivity').doc(activityData.username).set(activityData)
-          .catch(error => {
-            console.warn('Error updating staff activity:', error);
-          });
+        // Store in localStorage as fallback
+        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+        allStaffActivity[activityData.username] = activityData;
+        localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
+        
+        // Pure localStorage solution - no Firebase dependency
+        console.log(`Staff activity updated for ${activityData.name} (${activityData.role})`);
+        
+        // Broadcast to other tabs/windows if needed
+        window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
+          detail: activityData 
+        }));
       }
     }
 
@@ -11937,12 +11943,20 @@
         clearInterval(activeStaffHeartbeat);
       }
       
+      console.log('Starting staff heartbeat monitoring...');
+      
       // Update activity immediately
       updateStaffActivity();
+      
+      // Trigger immediate active staff count update
+      setTimeout(() => {
+        updateActiveStaffCount();
+      }, 1000);
       
       // Set up heartbeat interval
       activeStaffHeartbeat = setInterval(() => {
         updateStaffActivity();
+        updateActiveStaffCount(); // Update count on each heartbeat
       }, HEARTBEAT_INTERVAL);
       
       // Reset activity timeout on user interaction
@@ -11974,12 +11988,23 @@
       if (staffToken || adminToken) {
         const username = localStorage.getItem('username') || staffName;
         
-        db.collection('staffActivity').doc(username).update({
-          status: 'inactive',
-          lastActivity: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(error => {
-          console.warn('Error marking staff inactive:', error);
-        });
+        // Update localStorage activity status
+        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+        if (allStaffActivity[username]) {
+          allStaffActivity[username].status = 'inactive';
+          allStaffActivity[username].lastActivity = Date.now();
+          localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
+        }
+        
+        // Try Firebase but use localStorage as primary
+        if (db && typeof db.collection === 'function') {
+          db.collection('staffActivity').doc(username).update({
+            status: 'inactive',
+            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(error => {
+            console.log('Firebase inactive update failed, using localStorage');
+          });
+        }
       }
     }
 
@@ -12003,53 +12028,57 @@
       if (staffToken || adminToken) {
         const username = localStorage.getItem('username') || staffName;
         
-        db.collection('staffActivity').doc(username).update({
-          status: 'offline',
-          lastActivity: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(error => {
-          console.warn('Error marking staff offline:', error);
-        });
+        // Remove from localStorage activity
+        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+        if (allStaffActivity[username]) {
+          allStaffActivity[username].status = 'offline';
+          allStaffActivity[username].lastActivity = Date.now();
+          localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
+        }
+        
+        // Try Firebase but don't depend on it
+        if (db && typeof db.collection === 'function') {
+          db.collection('staffActivity').doc(username).update({
+            status: 'offline',
+            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(error => {
+            console.log('Firebase offline update failed, using localStorage');
+          });
+        }
       }
     }
 
-    // Function to update active staff count and show details
+    // Function to update active staff count and show details (localStorage-based)
     function updateActiveStaffCount() {
       try {
-        // Get active staff from Firebase activity tracking
-        db.collection('staffActivity')
-          .where('status', '==', 'active')
-          .where('lastActivity', '>=', new Date(Date.now() - STAFF_ACTIVITY_TIMEOUT))
-          .get()
-          .then(snapshot => {
-            const activeStaff = [];
-            snapshot.forEach(doc => {
-              const staff = doc.data();
-              activeStaff.push({
-                username: staff.username,
-                name: staff.name,
-                role: staff.role,
-                lastActivity: staff.lastActivity
-              });
+        // Get staff activity from localStorage
+        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+        const currentTime = Date.now();
+        const activeStaff = [];
+        
+        // Filter active staff based on recent activity
+        Object.values(allStaffActivity).forEach(staff => {
+          const timeSinceActivity = currentTime - staff.lastActivity;
+          if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
+            activeStaff.push({
+              username: staff.username,
+              name: staff.name,
+              role: staff.role,
+              lastActivity: staff.lastActivity,
+              sessionId: staff.sessionId
             });
-            
-            // Update active staff count
-            const activeStaffElement = document.getElementById('active-staff');
-            if (activeStaffElement) {
-              activeStaffElement.textContent = activeStaff.length;
-            }
-            
-            // Update active staff details for admin
-            updateActiveStaffDetails(activeStaff);
-          })
-          .catch(error => {
-            console.warn('Error getting active staff:', error);
-            // Fallback count
-            const activeStaffElement = document.getElementById('active-staff');
-            if (activeStaffElement) {
-              activeStaffElement.textContent = '1';
-            }
-          });
-          
+          }
+        });
+        
+        // Update active staff count
+        const activeStaffElement = document.getElementById('active-staff');
+        if (activeStaffElement) {
+          activeStaffElement.textContent = activeStaff.length || 1;
+        }
+        
+        // Update active staff details for admin
+        updateActiveStaffDetails(activeStaff);
+        
       } catch (error) {
         console.warn('Error updating active staff count:', error);
         const activeStaffElement = document.getElementById('active-staff');
@@ -12098,12 +12127,17 @@
           `;
         } else {
           const staffHTML = activeStaff.map(staff => {
-            const lastActivityTime = staff.lastActivity?.toDate ? 
-              staff.lastActivity.toDate().toLocaleTimeString() : 'Just now';
+            const lastActivityTime = typeof staff.lastActivity === 'number' ? 
+              new Date(staff.lastActivity).toLocaleTimeString() : 'Just now';
             
             const roleIcon = staff.role === 'admin' ? 'fa-crown' : 
                            staff.role === 'manager' ? 'fa-user-tie' : 
                            staff.role === 'chef' ? 'fa-utensils' : 'fa-user';
+            
+            const timeSinceActivity = Date.now() - staff.lastActivity;
+            const activityStatus = timeSinceActivity < 60000 ? 'Just now' : 
+                                 timeSinceActivity < 300000 ? `${Math.floor(timeSinceActivity/60000)}m ago` : 
+                                 lastActivityTime;
             
             return `
               <div style="
@@ -12123,7 +12157,7 @@
                 </div>
                 <small style="color: var(--green); font-size: 0.8rem;">
                   <i class="fas fa-circle" style="color: var(--green); font-size: 0.6rem; margin-right: 4px;"></i>
-                  ${lastActivityTime}
+                  ${activityStatus}
                 </small>
               </div>
             `;
