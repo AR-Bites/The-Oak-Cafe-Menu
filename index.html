@@ -12190,34 +12190,58 @@
     
     // Simple filter function
     window.filterRatingsByValue = function(filterValue) {
-      console.log('Filtering by:', filterValue);
+      console.log('=== FILTER TRIGGERED ===');
+      console.log('Filter value:', filterValue);
+      console.log('Total stored ratings:', allStoredRatings.length);
+      console.log('All ratings data:', allStoredRatings);
       
       if (!allStoredRatings || allStoredRatings.length === 0) {
-        console.log('No ratings to filter');
+        console.log('ERROR: No ratings data available for filtering');
         return;
       }
       
-      let filtered = allStoredRatings;
+      let filtered = [];
       
-      if (filterValue === 'low') {
-        filtered = allStoredRatings.filter(r => r.stars <= 3);
-      } else if (filterValue !== 'all') {
-        const stars = parseInt(filterValue);
-        filtered = allStoredRatings.filter(r => r.stars == stars);
+      if (filterValue === 'all') {
+        filtered = allStoredRatings;
+        console.log('Showing all ratings');
+      } else if (filterValue === 'low') {
+        filtered = allStoredRatings.filter(rating => {
+          const stars = parseInt(rating.stars);
+          console.log('Rating stars:', stars, 'Include in low?', stars <= 3);
+          return stars <= 3;
+        });
+        console.log('Low ratings filter applied');
+      } else {
+        const targetStars = parseInt(filterValue);
+        console.log('Looking for ratings with', targetStars, 'stars');
+        filtered = allStoredRatings.filter(rating => {
+          const stars = parseInt(rating.stars);
+          console.log('Rating has', stars, 'stars, matches target?', stars === targetStars);
+          return stars === targetStars;
+        });
+        console.log('Specific star filter applied for', targetStars, 'stars');
       }
       
-      console.log('Found', filtered.length, 'matching ratings');
+      console.log('Final filtered results:', filtered.length, 'ratings');
+      console.log('Filtered data:', filtered);
       showFilteredRatings(filtered);
     }
     
     // Display filtered results
     function showFilteredRatings(ratings) {
+      console.log('=== SHOWING FILTERED RATINGS ===');
       const container = document.getElementById('staff-ratings-list');
-      if (!container) return;
+      if (!container) {
+        console.log('ERROR: Container not found');
+        return;
+      }
       
+      console.log('Container found, clearing content');
       container.innerHTML = '';
       
       if (ratings.length === 0) {
+        console.log('No ratings to display, showing empty message');
         container.innerHTML = `
           <div style="text-align: center; padding: 40px; color: #ccc; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0;">
             <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
@@ -12228,10 +12252,22 @@
         return;
       }
       
+      console.log('Creating', ratings.length, 'rating cards');
       ratings.forEach((rating, index) => {
-        const card = createRatingCard(rating, index + 1);
-        if (card) container.appendChild(card);
+        try {
+          console.log('Creating card for rating', index + 1, ':', rating);
+          const card = createRatingCard(rating, index + 1);
+          if (card) {
+            container.appendChild(card);
+            console.log('Card added successfully');
+          } else {
+            console.log('Card creation failed');
+          }
+        } catch (error) {
+          console.error('Error creating card:', error);
+        }
       });
+      console.log('All cards processed');
     }
     
 
