@@ -12100,134 +12100,81 @@
       const width = canvas.width = canvas.offsetWidth;
       const height = canvas.height;
       
-      // Clear canvas with subtle gradient background
+      // Clear canvas
       ctx.clearRect(0, 0, width, height);
-      const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-      bgGradient.addColorStop(0, 'rgba(26, 58, 47, 0.05)');
-      bgGradient.addColorStop(1, 'rgba(40, 80, 60, 0.05)');
-      ctx.fillStyle = bgGradient;
-      ctx.fillRect(0, 0, width, height);
       
-      // Enhanced chart configuration
-      const barWidth = Math.min(45, (width - 80) / 5);
-      const barSpacing = Math.min(20, (width - 80) / 10);
-      const maxBarHeight = height - 90;
+      // Simple chart configuration
+      const barWidth = Math.min(50, (width - 100) / 5);
+      const barSpacing = Math.min(30, (width - 100) / 8);
+      const maxBarHeight = height - 80;
       const maxValue = Math.max(...ratingCounts, 1);
       const startX = (width - (5 * barWidth + 4 * barSpacing)) / 2;
       
-      // Enhanced color palette with gradients
-      const colorScheme = [
-        { main: '#f44336', light: '#ff6b5b', shadow: '#d32f2f', glow: 'rgba(244, 67, 54, 0.3)' },
-        { main: '#ff9800', light: '#ffb74d', shadow: '#f57c00', glow: 'rgba(255, 152, 0, 0.3)' },
-        { main: '#ffc107', light: '#ffca28', shadow: '#ffa000', glow: 'rgba(255, 193, 7, 0.3)' },
-        { main: '#4caf50', light: '#66bb6a', shadow: '#388e3c', glow: 'rgba(76, 175, 80, 0.3)' },
-        { main: '#2196f3', light: '#42a5f5', shadow: '#1976d2', glow: 'rgba(33, 150, 243, 0.3)' }
-      ];
+      // Clean color palette
+      const colors = ['#e53e3e', '#fd9726', '#fbc02d', '#38a169', '#3182ce'];
       const labels = ['1★', '2★', '3★', '4★', '5★'];
       const descriptions = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
       
-      // Draw enhanced bars with 3D effect
+      // Draw title
+      ctx.fillStyle = '#d4af37';
+      ctx.font = 'bold 18px Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText('Rating Distribution', 15, 25);
+      
+      // Draw bars
       ratingCounts.forEach((count, index) => {
         const x = startX + index * (barWidth + barSpacing);
-        const barHeight = Math.max((count / maxValue) * (maxBarHeight - 60), 4);
-        const y = height - barHeight - 75;
+        const barHeight = Math.max((count / maxValue) * (maxBarHeight - 50), 5);
+        const y = height - barHeight - 55;
         
-        // Draw bar shadow for 3D effect
-        ctx.fillStyle = colorScheme[index].shadow;
-        ctx.fillRect(x + 3, y + 3, barWidth, barHeight);
-        
-        // Draw main bar with gradient
-        const barGradient = ctx.createLinearGradient(x, y, x, y + barHeight);
-        barGradient.addColorStop(0, colorScheme[index].light);
-        barGradient.addColorStop(0.5, colorScheme[index].main);
-        barGradient.addColorStop(1, colorScheme[index].shadow);
-        ctx.fillStyle = barGradient;
+        // Draw main bar
+        ctx.fillStyle = colors[index];
         ctx.fillRect(x, y, barWidth, barHeight);
         
-        // Draw bar highlight
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.fillRect(x, y, barWidth, Math.max(barHeight * 0.3, 2));
-        
         // Draw bar border
-        ctx.strokeStyle = colorScheme[index].shadow;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, barWidth, barHeight);
         
-        // Draw enhanced star label with glow
-        ctx.save();
-        ctx.shadowColor = colorScheme[index].glow;
-        ctx.shadowBlur = 4;
-        ctx.fillStyle = '#d4af37';
+        // Draw star label below bar
+        ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(labels[index], x + barWidth/2, y + barHeight + 20);
-        ctx.restore();
+        ctx.fillText(labels[index], x + barWidth/2, y + barHeight + 18);
         
-        // Draw count above bar with enhanced styling
+        // Draw count above bar
         if (count > 0) {
-          const countText = count.toString();
-          ctx.font = 'bold 11px Arial';
-          const textMetrics = ctx.measureText(countText);
-          const textWidth = textMetrics.width;
-          
-          // Draw count background with rounded corners effect
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-          ctx.fillRect(x + barWidth/2 - textWidth/2 - 4, y - 22, textWidth + 8, 16);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-          ctx.fillRect(x + barWidth/2 - textWidth/2 - 4, y - 22, textWidth + 8, 8);
-          
-          // Draw count text with subtle glow
-          ctx.save();
-          ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
-          ctx.shadowBlur = 1;
           ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 12px Arial';
           ctx.textAlign = 'center';
-          ctx.fillText(countText, x + barWidth/2, y - 10);
-          ctx.restore();
+          ctx.fillText(count.toString(), x + barWidth/2, y - 8);
         }
       });
       
-      // Draw enhanced title with golden glow
-      ctx.save();
-      ctx.shadowColor = 'rgba(212, 175, 55, 0.5)';
-      ctx.shadowBlur = 3;
-      ctx.fillStyle = '#d4af37';
-      ctx.font = 'bold 16px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText('Rating Distribution', 15, 25);
-      ctx.restore();
+      // Draw clean legend below chart
+      const legendY = height - 30;
+      const legendSpacing = (width - 40) / 5;
       
-      // Draw enhanced legend with better spacing
-      const legendY = height - 40;
-      const legendSpacing = Math.min((width - 40) / 5, 80);
-      
-      colorScheme.forEach((scheme, index) => {
+      colors.forEach((color, index) => {
         const x = 20 + index * legendSpacing;
         
-        // Draw enhanced color indicator with gradient
-        const indicatorGradient = ctx.createLinearGradient(x, legendY, x + 12, legendY + 12);
-        indicatorGradient.addColorStop(0, scheme.light);
-        indicatorGradient.addColorStop(1, scheme.main);
-        ctx.fillStyle = indicatorGradient;
-        ctx.fillRect(x, legendY, 12, 12);
-        
-        // Add subtle border and highlight
-        ctx.strokeStyle = scheme.shadow;
+        // Draw color indicator
+        ctx.fillStyle = color;
+        ctx.fillRect(x, legendY, 14, 14);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.lineWidth = 1;
-        ctx.strokeRect(x, legendY, 12, 12);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.fillRect(x, legendY, 12, 6);
+        ctx.strokeRect(x, legendY, 14, 14);
         
-        // Draw star rating with enhanced styling
+        // Draw star rating
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 10px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText(labels[index], x + 16, legendY + 8);
+        ctx.fillText(labels[index], x + 18, legendY + 9);
         
-        // Draw description with better contrast
-        ctx.fillStyle = '#e0e0e0';
+        // Draw description
+        ctx.fillStyle = '#cccccc';
         ctx.font = '8px Arial';
-        ctx.fillText(descriptions[index], x + 16, legendY + 20);
+        ctx.fillText(descriptions[index], x + 18, legendY + 20);
       });
     }
     
@@ -12243,36 +12190,35 @@
     // Global function for rating filter change
     window.handleRatingFilterChange = function(filterValue) {
       console.log('Filter changed to:', filterValue);
-      console.log('Current ratings data:', currentRatingsData);
-      filterRatings(currentRatingsData, filterValue);
-    }
-    
-    // Filter ratings based on selected criteria
-    function filterRatings(allRatings, filterValue) {
-      console.log('Filtering ratings:', filterValue, 'from', allRatings.length, 'total ratings');
-      let filteredRatings = allRatings;
+      console.log('Current ratings data length:', currentRatingsData.length);
+      
+      if (!currentRatingsData || currentRatingsData.length === 0) {
+        console.log('No ratings data available for filtering');
+        return;
+      }
+      
+      let filteredRatings = [...currentRatingsData];
       
       if (filterValue !== 'all') {
         if (filterValue === 'low') {
-          filteredRatings = allRatings.filter(rating => {
+          filteredRatings = currentRatingsData.filter(rating => {
             const stars = parseInt(rating.stars);
             return stars <= 3;
           });
-          console.log('Low ratings filter applied, found:', filteredRatings.length, 'ratings');
         } else {
           const targetStars = parseInt(filterValue);
-          filteredRatings = allRatings.filter(rating => {
+          filteredRatings = currentRatingsData.filter(rating => {
             const stars = parseInt(rating.stars);
             return stars === targetStars;
           });
-          console.log(`${targetStars} star filter applied, found:`, filteredRatings.length, 'ratings');
         }
-      } else {
-        console.log('Showing all ratings:', filteredRatings.length);
       }
       
+      console.log('Filtered ratings count:', filteredRatings.length);
       displayFilteredRatings(filteredRatings);
     }
+    
+
     
     // Display filtered ratings
     function displayFilteredRatings(ratings) {
@@ -12286,20 +12232,29 @@
       
       if (ratings.length === 0) {
         staffRatingsList.innerHTML = `
-          <div class="empty-list" style="text-align: center; padding: 30px 20px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 20px 0;">
-            <i class="fas fa-filter" style="font-size: 3rem; color: rgba(212, 175, 55, 0.3); margin-bottom: 15px;"></i>
-            <h4 style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 8px;">No Matching Ratings</h4>
-            <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin: 0;">Try adjusting your filter criteria</p>
+          <div class="empty-list" style="text-align: center; padding: 30px 20px; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0; border: 1px solid rgba(212, 175, 55, 0.2);">
+            <i class="fas fa-filter" style="font-size: 2.5rem; color: rgba(212, 175, 55, 0.4); margin-bottom: 15px;"></i>
+            <h4 style="color: rgba(255,255,255,0.8); font-size: 1.1rem; margin-bottom: 8px; font-weight: 600;">No Matching Ratings</h4>
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin: 0;">Try selecting a different filter option</p>
           </div>
         `;
         return;
       }
       
+      // Clear and rebuild the list
       staffRatingsList.innerHTML = '';
       ratings.forEach((rating, index) => {
-        const ratingCard = createRatingCard(rating, index + 1);
-        staffRatingsList.appendChild(ratingCard);
+        try {
+          const ratingCard = createRatingCard(rating, index + 1);
+          if (ratingCard) {
+            staffRatingsList.appendChild(ratingCard);
+          }
+        } catch (error) {
+          console.error('Error creating rating card:', error, rating);
+        }
       });
+      
+      console.log('Successfully displayed', ratings.length, 'rating cards');
     }
     
     // Refresh ratings function for admin dashboard
