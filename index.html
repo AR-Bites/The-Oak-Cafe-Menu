@@ -12114,23 +12114,23 @@
       const labels = ['1★', '2★', '3★', '4★', '5★'];
       const descriptions = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
       
-      // Draw bars
+      // Draw bars (adjust spacing to make room for legend below)
       ratingCounts.forEach((count, index) => {
         const x = 30 + index * (barWidth + barSpacing);
-        const barHeight = (count / maxValue) * maxBarHeight;
-        const y = height - barHeight - 20;
+        const barHeight = (count / maxValue) * (maxBarHeight - 60); // Leave space for legend
+        const y = height - barHeight - 80; // Move bars up to make room for legend
         
         // Draw bar
         ctx.fillStyle = colors[index];
         ctx.fillRect(x, y, barWidth, barHeight);
         
-        // Draw label
+        // Draw star label below bar (above legend)
         ctx.fillStyle = '#d4af37';
         ctx.font = '12px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(labels[index], x + barWidth/2, height - 5);
+        ctx.fillText(labels[index], x + barWidth/2, y + barHeight + 15);
         
-        // Draw count
+        // Draw count above bar
         if (count > 0) {
           ctx.fillStyle = 'white';
           ctx.font = 'bold 10px Arial';
@@ -12144,8 +12144,8 @@
       ctx.textAlign = 'left';
       ctx.fillText('Ratings Distribution', 10, 20);
       
-      // Draw legend
-      const legendY = 35;
+      // Draw legend below the chart
+      const legendY = height - 50;
       const legendItemWidth = 60;
       ctx.font = '10px Arial';
       ctx.textAlign = 'left';
