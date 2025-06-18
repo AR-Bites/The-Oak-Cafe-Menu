@@ -6455,38 +6455,6 @@
       
       // Wait for animation before clearing everything
       setTimeout(() => {
-        // IMMEDIATE SESSION INVALIDATION - Mark staff as offline in Firebase and localStorage
-        const currentUser = getCurrentUserInfo();
-        if (currentUser) {
-          console.log(`🔴 LOGOUT: Immediately invalidating session for ${currentUser.name}`);
-          
-          // Mark as offline in Firebase immediately
-          if (db && typeof db.collection === 'function') {
-            db.collection('staffSessions').doc(currentUser.username).update({
-              status: 'offline',
-              lastActivity: Date.now(),
-              sessionEnded: Date.now()
-            }).then(() => {
-              console.log(`✅ Firebase session invalidated for ${currentUser.name}`);
-            }).catch(error => {
-              console.log('Firebase logout update failed:', error);
-            });
-          }
-          
-          // Mark as offline in localStorage immediately
-          const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
-          if (allStaffActivity[currentUser.username]) {
-            allStaffActivity[currentUser.username].status = 'offline';
-            allStaffActivity[currentUser.username].lastActivity = Date.now();
-            allStaffActivity[currentUser.username].sessionEnded = Date.now();
-            localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
-            console.log(`✅ LocalStorage session invalidated for ${currentUser.name}`);
-          }
-          
-          // Trigger immediate staff count update
-          updateActiveStaffCount();
-        }
-        
         // Stop staff heartbeat tracking before logout
         stopStaffHeartbeat();
         
@@ -8250,8 +8218,23 @@
           userType = 'staff';
           localStorage.setItem(USER_TYPE_KEY, 'staff');
           
-          // Immediately update staff activity on login
+          // Immediately update staff activity on login and mark as active in Firebase
           updateStaffActivity();
+          
+          // Mark staff as active in Firebase immediately
+          if (db && typeof db.collection === 'function') {
+            db.collection('staffActivity').doc(account.username).set({
+              username: account.username,
+              name: account.name,
+              role: account.role,
+              status: 'active',
+              lastActivity: Date.now(),
+              sessionId: clientId,
+              deviceInfo: navigator.userAgent.substring(0, 50)
+            }, { merge: true }).catch(error => {
+              console.log('Firebase login update failed, using localStorage');
+            });
+          }
           
           // Set up real-time listeners for staff dashboard
           setTimeout(() => {
@@ -11937,7 +11920,7 @@
     // Real-time active staff tracking system
     let activeStaffHeartbeat = null;
     let staffActivityTimeout = null;
-    const STAFF_ACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes of inactivity  
+    const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
     const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
 
     // Function to get current user info from localStorage
@@ -11958,8 +11941,8 @@
       return null;
     }
 
-    // Function to update staff activity status (with localStorage fallback)
-    function updateStaffActivity() {
+    // Real-time Firebase staff activity tracking
+    async function updateStaffActivity() {
       const staffToken = localStorage.getItem(STAFF_TOKEN);
       const adminToken = localStorage.getItem(ADMIN_TOKEN);
       let staffName, staffRole, username;
@@ -11982,86 +11965,39 @@
           role: staffRole,
           lastActivity: Date.now(),
           status: 'active',
-          sessionId: clientId
+          sessionId: clientId,
+          deviceInfo: navigator.userAgent.substring(0, 50),
+          lastHeartbeat: Date.now()
         };
         
         console.log(`Staff activity updated for ${staffName} (${staffRole})`);
         
-        // Store in Firebase for real-time staff tracking
+        // Store in Firebase for real-time tracking
         if (db && typeof db.collection === 'function') {
           try {
-            db.collection('staffSessions').doc(activityData.username).set(activityData, { merge: true })
-              .then(() => {
-                console.log(`✅ Staff session stored in Firebase for ${staffName}`);
-              })
-              .catch(error => {
-                console.log('Firebase staff session update failed:', error);
-              });
+            await db.collection('staffActivity').doc(username).set(activityData, { merge: true });
+            console.log(`✅ Staff session stored in Firebase for ${staffName}`);
           } catch (error) {
-            console.log('Firebase not available for staff tracking');
+            console.error('Error updating Firebase staff activity:', error);
+            // Fallback to localStorage
+            const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+            allStaffActivity[activityData.username] = activityData;
+            localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
           }
+        } else {
+          // Fallback to localStorage if Firebase unavailable
+          const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+          allStaffActivity[activityData.username] = activityData;
+          localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
         }
-        
-        // TEST: Add sample staff sessions for verification (admin only)
-        if (activityData.role === 'admin' && !localStorage.getItem('staffSessionsCreated')) {
-          createTestStaffSessions();
-          localStorage.setItem('staffSessionsCreated', 'true');
-        }
-        
-        // Store in localStorage as fallback
-        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
-        allStaffActivity[activityData.username] = activityData;
-        localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
-        
-        // Update the active staff count immediately after updating activity
-        updateActiveStaffCount();
         
         console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
         
-        // Broadcast to other tabs/windows if needed
+        // Broadcast to other tabs/windows
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
           detail: activityData 
         }));
       }
-    }
-    
-    // Function to create test staff sessions in Firebase for demonstration
-    function createTestStaffSessions() {
-      if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available for test staff creation');
-        return;
-      }
-      
-      const testStaffSessions = [
-        {
-          username: 'john',
-          name: 'John Smith',
-          role: 'chef',
-          lastActivity: Date.now(),
-          status: 'active',
-          sessionId: 'REAL-CHEF-' + Date.now()
-        },
-        {
-          username: 'ahmad',
-          name: 'Ahmad Mohammed', 
-          role: 'manager',
-          lastActivity: Date.now(),
-          status: 'active',
-          sessionId: 'REAL-MANAGER-' + Date.now()
-        }
-      ];
-      
-      testStaffSessions.forEach(staff => {
-        db.collection('staffSessions').doc(staff.username).set(staff, { merge: true })
-          .then(() => {
-            console.log(`✅ Test staff session created for ${staff.name}`);
-          })
-          .catch(error => {
-            console.log(`Failed to create test session for ${staff.name}:`, error);
-          });
-      });
-      
-      console.log('🔧 Created test staff sessions - active staff count should update');
     }
 
     // Function to start staff heartbeat monitoring  
@@ -12127,7 +12063,7 @@
       }, STAFF_ACTIVITY_TIMEOUT);
     }
 
-    // Function to mark staff as inactive and handle auto-logout after 10 minutes
+    // Function to mark staff as inactive
     function markStaffInactive() {
       const staffToken = localStorage.getItem(STAFF_TOKEN);
       const adminToken = localStorage.getItem(ADMIN_TOKEN);
@@ -12135,67 +12071,24 @@
       
       if (staffToken || adminToken) {
         const username = localStorage.getItem('username') || staffName;
-        console.log(`⚠️ INACTIVITY TIMEOUT: ${staffName} has been inactive for 10 minutes - invalidating session`);
         
-        // AUTOMATIC LOGOUT AFTER 10 MINUTES OF INACTIVITY
-        // Mark as offline in Firebase immediately
-        if (db && typeof db.collection === 'function') {
-          db.collection('staffSessions').doc(username).update({
-            status: 'offline',
-            lastActivity: Date.now(),
-            sessionEnded: Date.now(),
-            reason: 'inactivity_timeout'
-          }).then(() => {
-            console.log(`✅ Firebase session auto-invalidated for ${staffName} due to inactivity`);
-          }).catch(error => {
-            console.log('Firebase inactivity logout failed:', error);
-          });
-        }
-        
-        // Mark as offline in localStorage immediately
+        // Update localStorage activity status
         const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
         if (allStaffActivity[username]) {
-          allStaffActivity[username].status = 'offline';
+          allStaffActivity[username].status = 'inactive';
           allStaffActivity[username].lastActivity = Date.now();
-          allStaffActivity[username].sessionEnded = Date.now();
-          allStaffActivity[username].reason = 'inactivity_timeout';
           localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
-          console.log(`✅ LocalStorage session auto-invalidated for ${staffName} due to inactivity`);
         }
         
-        // Clear auth tokens to log them out automatically
-        localStorage.removeItem(STAFF_TOKEN);
-        localStorage.removeItem(ADMIN_TOKEN);
-        localStorage.removeItem("staffName");
-        localStorage.removeItem("staffRole");
-        localStorage.removeItem("username");
-        
-        // Stop heartbeat monitoring
-        stopStaffHeartbeat();
-        
-        // Trigger immediate staff count update
-        updateActiveStaffCount();
-        
-        // Show inactivity notification
-        showNotification(
-          'Session Expired',
-          'You have been logged out due to 10 minutes of inactivity. Please log in again.',
-          'warning'
-        );
-        
-        // Reset to login screen
-        userType = null;
-        localStorage.removeItem(USER_TYPE_KEY);
-        
-        // Hide dashboards and show table modal
-        document.getElementById('guest-interface').style.display = 'none';
-        document.getElementById('staff-dashboard').style.display = 'none';
-        document.getElementById('admin-dashboard').style.display = 'none';
-        
-        // Show table modal for re-authentication
-        setTimeout(() => {
-          showTableModal();
-        }, 1000);
+        // Try Firebase but use localStorage as primary
+        if (db && typeof db.collection === 'function') {
+          db.collection('staffActivity').doc(username).update({
+            status: 'inactive',
+            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(error => {
+            console.log('Firebase inactive update failed, using localStorage');
+          });
+        }
       }
     }
 
@@ -12227,107 +12120,117 @@
           localStorage.setItem('allStaffActivity', JSON.stringify(allStaffActivity));
         }
         
-        // Try Firebase but don't depend on it
+        // Immediately update Firebase when staff log out
         if (db && typeof db.collection === 'function') {
-          db.collection('staffActivity').doc(username).update({
+          db.collection('staffActivity').doc(username).set({
+            username: username,
+            name: staffName,
+            role: localStorage.getItem('staffRole') || 'admin',
             status: 'offline',
-            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+            lastActivity: Date.now(),
+            sessionId: clientId,
+            logoutTime: Date.now()
+          }, { merge: true }).then(() => {
+            console.log(`✅ Staff ${staffName} marked offline in Firebase`);
+            updateActiveStaffCount(); // Immediately update count after logout
           }).catch(error => {
             console.log('Firebase offline update failed, using localStorage');
           });
+        } else {
+          updateActiveStaffCount(); // Update count even if Firebase unavailable
         }
       }
     }
 
-    // Function to update active staff count with Firebase integration
-    function updateActiveStaffCount() {
+    // Real-time Firebase staff activity tracking with session management
+    async function updateActiveStaffCount() {
       try {
         console.log('updateActiveStaffCount called...');
         
-        // Try Firebase first for real-time staff tracking
+        const currentTime = Date.now();
+        const STAFF_ACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+        const activeStaff = [];
+        
+        // Use Firebase for real-time tracking
         if (db && typeof db.collection === 'function') {
-          queryFirebaseStaffSessions();
+          try {
+            const staffSnapshot = await db.collection('staffActivity').get();
+            
+            for (const doc of staffSnapshot.docs) {
+              const staff = doc.data();
+              const timeSinceActivity = currentTime - staff.lastActivity;
+              
+              console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+              
+              // Exclude admin from staff count
+              if (staff.role === 'admin') {
+                console.log(`❌ Admin ${staff.name} excluded from staff count`);
+                continue;
+              }
+              
+              // Auto-logout staff who have been inactive for more than 10 minutes
+              if (staff.status === 'active' && timeSinceActivity >= STAFF_ACTIVITY_TIMEOUT) {
+                await db.collection('staffActivity').doc(staff.username).update({
+                  status: 'inactive',
+                  lastActivity: currentTime
+                });
+                console.log(`🔄 Auto-logout: ${staff.name} marked inactive after ${timeSinceActivity}ms`);
+                continue;
+              }
+              
+              // Count only active staff within timeout
+              if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
+                activeStaff.push(staff);
+                console.log(`✅ Firebase: Counting active staff ${staff.name} (${staff.role})`);
+              }
+            }
+            
+            console.log('Firebase Active Staff Count:', activeStaff.length);
+            
+          } catch (firebaseError) {
+            console.error('Firebase staff query failed, using localStorage fallback:', firebaseError);
+            return updateStaffCountFromLocalStorage();
+          }
         } else {
-          updateFromLocalStorage();
+          return updateStaffCountFromLocalStorage();
         }
+        
+        // Update UI with Firebase data
+        updateStaffCountUI(activeStaff.length);
+        return;
+        
       } catch (error) {
-        console.log('Error in staff count update:', error);
-        updateFromLocalStorage();
+        console.error('Error in updateActiveStaffCount:', error);
+        updateStaffCountFromLocalStorage();
       }
     }
     
-    // Query Firebase for active staff sessions
-    function queryFirebaseStaffSessions() {
-      const STAFF_ACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
-      const currentTime = Date.now();
+    // UI update function
+    function updateStaffCountUI(count) {
+      const activeStaffElement = document.getElementById('active-staff');
+      if (activeStaffElement) {
+        activeStaffElement.textContent = count;
+        activeStaffElement.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
+        console.log('✓ Updated active-staff element to:', count);
+      }
       
-      db.collection('staffSessions').get()
-        .then(querySnapshot => {
-          const activeStaff = [];
-          
-          querySnapshot.forEach(doc => {
-            const staff = doc.data();
-            const timeSinceActivity = currentTime - staff.lastActivity;
-            
-            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
-            
-            // Exclude admin users from staff count
-            if (staff.role === 'admin') {
-              console.log(`❌ Admin ${staff.name} excluded from staff count`);
-              return;
-            }
-            
-            // REAL-TIME SESSION VALIDATION - Auto-invalidate inactive sessions
-            if (staff.status === 'active' && timeSinceActivity >= STAFF_ACTIVITY_TIMEOUT) {
-              // Staff has been inactive for more than 10 minutes - invalidate their session
-              console.log(`⚠️ AUTO-LOGOUT: ${staff.name} inactive for ${Math.floor(timeSinceActivity/60000)} minutes - invalidating session`);
-              
-              db.collection('staffSessions').doc(staff.username).update({
-                status: 'offline',
-                lastActivity: Date.now(),
-                sessionEnded: Date.now(),
-                reason: 'auto_timeout'
-              }).catch(error => {
-                console.log('Firebase auto-logout failed:', error);
-              });
-              
-              return; // Skip counting this staff member
-            }
-            
-            // Count active non-admin staff within timeout period
-            if (staff.status === 'active' && 
-                timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-                staff.sessionId) {
-              
-              activeStaff.push({
-                username: staff.username,
-                name: staff.name,
-                role: staff.role,
-                lastActivity: staff.lastActivity,
-                sessionId: staff.sessionId
-              });
-              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role})`);
-            }
-          });
-          
-          console.log('Firebase Active Staff Count:', activeStaff.length);
-          updateStaffCountDisplay(activeStaff.length, activeStaff);
-        })
-        .catch(error => {
-          console.log('Firebase staff query failed, using localStorage:', error);
-          updateFromLocalStorage();
-        });
+      const statValueElements = document.querySelectorAll('.stat-value');
+      statValueElements.forEach((element, index) => {
+        if (index === 3) {
+          element.textContent = count;
+          console.log('✓ Updated stat-value element (index:', index, ') to:', count);
+        }
+      });
     }
     
-    // Fallback to localStorage
-    function updateFromLocalStorage() {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-      // Get staff activity from localStorage
+    // Fallback localStorage method
+    function updateStaffCountFromLocalStorage() {
+      console.log('Using localStorage fallback for staff count...');
+      
+      const STAFF_ACTIVITY_TIMEOUT = 10 * 60 * 1000;
       const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
       const currentTime = Date.now();
       const activeStaff = [];
-      
-      console.log('All staff activity data:', allStaffActivity);
       
       // Clean up old inactive sessions and test data
       const cleanedActivity = {};
@@ -12341,17 +12244,10 @@
           return;
         }
         
-        // Keep only active sessions within timeout or recently offline sessions (for logging purposes)
+        // Keep only active sessions within timeout
         if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
           cleanedActivity[username] = staff;
-        } else if (staff.status === 'offline' && timeSinceActivity < (24 * 60 * 60 * 1000)) {
-          // Keep offline sessions for 24 hours for audit purposes
-          cleanedActivity[username] = staff;
-        } else if (staff.status === 'inactive' && timeSinceActivity < (2 * 60 * 60 * 1000)) {
-          // Keep inactive sessions for 2 hours
-          cleanedActivity[username] = staff;
         }
-        // All other old sessions are discarded
       });
       
       // Update localStorage with cleaned data
@@ -12360,109 +12256,32 @@
         console.log('Cleaned up old staff sessions, active data:', cleanedActivity);
       }
       
-      // Filter active staff based on recent activity and status - EXCLUDE ADMIN
+      // Filter active staff - EXCLUDE ADMIN
       Object.values(cleanedActivity).forEach(staff => {
         const timeSinceActivity = currentTime - staff.lastActivity;
         console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
         
-        // EXCLUDE ALL ADMIN USERS from staff count completely
+        // EXCLUDE ALL ADMIN USERS from staff count
         if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
-          return; // Skip admin users entirely
+          console.log(`❌ Admin ${staff.name} excluded from staff count`);
+          return;
         }
         
-        // Only count actual STAFF (non-admin) as active if:
-        // 1. Their status is 'active' (not 'offline' or 'inactive')
-        // 2. Their last activity was within the timeout period
-        // 3. They have a valid session
-        if (staff.status === 'active' && 
-            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-            staff.sessionId) {
-          
-          // Double-check if this user is actually still logged in
-          const staffToken = localStorage.getItem(STAFF_TOKEN);
-          const currentSessionId = clientId;
-          
-          // For current session: check if this user has staff token
-          // For other sessions: assume they're valid active staff if recent
-          const isCurrentSession = staff.sessionId === currentSessionId;
-          const hasValidStaffToken = staffToken === 'true';
-          
-          if (isCurrentSession && hasValidStaffToken) {
-            // This is the current user and they have a valid staff token
-            activeStaff.push({
-              username: staff.username,
-              name: staff.name,
-              role: staff.role,
-              lastActivity: staff.lastActivity,
-              sessionId: staff.sessionId
-            });
-            console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
-          } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
-            // This is another active staff member from a different session
-            activeStaff.push({
-              username: staff.username,
-              name: staff.name,
-              role: staff.role,
-              lastActivity: staff.lastActivity,
-              sessionId: staff.sessionId
-            });
-            console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
-          } else {
-            console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
-          }
-        } else {
-          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
+        // Count only active non-admin staff
+        if (staff.status === 'active' && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
+          activeStaff.push({
+            username: staff.username,
+            name: staff.name,
+            role: staff.role,
+            lastActivity: staff.lastActivity,
+            sessionId: staff.sessionId
+          });
+          console.log(`✅ Counting active staff member: ${staff.name} (${staff.role})`);
         }
       });
       
-      console.log('Active staff found:', activeStaff.length, activeStaff);
-      updateStaffCountDisplay(activeStaff.length, activeStaff);
-    }
-    
-    // Function to update staff count display in UI
-    function updateStaffCountDisplay(count, activeStaff = []) {
-      try {
-        // Method 1: Direct ID targeting
-        const activeStaffElement = document.getElementById('active-staff');
-        if (activeStaffElement) {
-          activeStaffElement.textContent = count;
-          activeStaffElement.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
-          console.log('✓ Updated active-staff element to:', count);
-        } else {
-          console.warn('active-staff element not found');
-        }
-        
-        // Method 2: Query selector fallback
-        const statValueElements = document.querySelectorAll('.stat-value');
-        statValueElements.forEach((element, index) => {
-          if (element.nextElementSibling && element.nextElementSibling.textContent.includes('ACTIVE STAFF')) {
-            element.textContent = count;
-            element.style.color = 'var(--gold)';
-            console.log('✓ Updated stat-value element (index:', index, ') to:', count);
-          }
-        });
-        
-        // Method 3: Force DOM update for all potential active staff displays
-        const allActiveElements = document.querySelectorAll('[id*="active"], [class*="active"]');
-        allActiveElements.forEach(el => {
-          if (el.id === 'active-staff' || el.textContent === '0' || el.textContent === '1') {
-            el.textContent = count;
-            el.style.cssText = 'color: var(--gold) !important; font-weight: bold !important; font-size: 1.5rem !important;';
-            console.log('✓ Force updated element:', el.id || el.className, 'to:', count);
-          }
-        });
-        
-        // Update active staff details for admin
-        updateActiveStaffDetails(activeStaff);
-        
-      } catch (error) {
-        console.warn('Error updating active staff count:', error);
-        const activeStaffElement = document.getElementById('active-staff');
-        if (activeStaffElement) {
-          activeStaffElement.textContent = '1';
-        }
-      }
+      // Update UI
+      updateStaffCountUI(activeStaff.length);
     }
 
     // Function to update active staff details for admin view
