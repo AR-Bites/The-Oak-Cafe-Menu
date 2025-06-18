@@ -8593,7 +8593,7 @@
           const cancelButton = document.getElementById('cancel-table-btn');
           
           if (confirmButton) {
-            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد وإتمام الطلب' : 'CONFIRM & PLACE ORDER';
+            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد  �إتمام الطلب' : 'CONFIRM & PLACE ORDER';
           }
           
           if (cancelButton) {
@@ -11978,6 +11978,15 @@
       // Trigger immediate active staff count update
       setTimeout(() => {
         console.log('Triggering initial active staff count update...');
+        console.log('Current userType:', userType);
+        console.log('Current page visibility:', document.hidden ? 'hidden' : 'visible');
+        
+        // Check if we're in admin dashboard
+        const adminDashboard = document.querySelector('.admin-dashboard');
+        const statsCards = document.querySelector('.stats-cards');
+        console.log('Admin dashboard found:', !!adminDashboard);
+        console.log('Stats cards found:', !!statsCards);
+        
         updateActiveStaffCount();
       }, 1000);
       
@@ -12108,15 +12117,38 @@
         
         console.log('Active staff found:', activeStaff.length, activeStaff);
         
-        // Update active staff count
+        // Update active staff count - Multiple approaches for reliability
+        const count = activeStaff.length;
+        
+        // Method 1: Direct ID targeting
         const activeStaffElement = document.getElementById('active-staff');
         if (activeStaffElement) {
-          const count = activeStaff.length || 1;
           activeStaffElement.textContent = count;
-          console.log('Updated active staff element to:', count);
+          activeStaffElement.innerHTML = `<strong style="color: var(--gold); font-size: 1.5rem;">${count}</strong>`;
+          console.log('✓ Updated active-staff element to:', count);
         } else {
-          console.warn('active-staff element not found in DOM');
+          console.warn('active-staff element not found');
         }
+        
+        // Method 2: Query selector fallback
+        const statValueElements = document.querySelectorAll('.stat-value');
+        statValueElements.forEach((element, index) => {
+          if (element.nextElementSibling && element.nextElementSibling.textContent.includes('ACTIVE STAFF')) {
+            element.textContent = count;
+            element.style.color = 'var(--gold)';
+            console.log('✓ Updated stat-value element (index:', index, ') to:', count);
+          }
+        });
+        
+        // Method 3: Force DOM update for all potential active staff displays
+        const allActiveElements = document.querySelectorAll('[id*="active"], [class*="active"]');
+        allActiveElements.forEach(el => {
+          if (el.id === 'active-staff' || el.textContent === '0' || el.textContent === '1') {
+            el.textContent = count;
+            el.style.cssText = 'color: var(--gold) !important; font-weight: bold !important; font-size: 1.5rem !important;';
+            console.log('✓ Force updated element:', el.id || el.className, 'to:', count);
+          }
+        });
         
         // Update active staff details for admin
         updateActiveStaffDetails(activeStaff);
