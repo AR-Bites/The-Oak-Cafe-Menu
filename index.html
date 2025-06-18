@@ -10521,7 +10521,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'جارٍ الإلغاء' : 'Cancelling',
           currentLanguage === 'ar' 
-            ? `جارٍ إلغاء الطلب...` 
+            ? `جo�رٍ إلغاء الطلب...` 
             : `Cancelling order...`,
           'info',
           1500 // Auto-hide after 1.5 seconds
@@ -12568,7 +12568,13 @@
         // ONLY update the Active Staff element by ID - never touch other stats
         const activeStaffElement = document.getElementById('active-staff');
         if (activeStaffElement) {
-          activeStaffElement.textContent = count;
+          if (count > 0 && activeStaff.length > 0) {
+            // Show count with staff names
+            const staffNames = activeStaff.map(staff => staff.name || staff.username).join(', ');
+            activeStaffElement.innerHTML = `${count} <span style="font-size: 0.8rem; font-weight: normal; opacity: 0.8; display: block; margin-top: 2px;">(${staffNames})</span>`;
+          } else {
+            activeStaffElement.textContent = count;
+          }
           activeStaffElement.style.color = 'var(--gold)';
           activeStaffElement.style.fontWeight = 'bold';
           activeStaffElement.style.fontSize = '1.5rem';
