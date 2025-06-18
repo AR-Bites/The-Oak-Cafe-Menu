@@ -12097,8 +12097,15 @@
       if (!canvas) return;
       
       const ctx = canvas.getContext('2d');
-      const width = canvas.width = canvas.offsetWidth;
-      const height = canvas.height;
+      // Set high DPI for crisp rendering
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      
+      const width = rect.width;
+      const height = rect.height;
       
       // Clear canvas with subtle background
       ctx.clearRect(0, 0, width, height);
@@ -12106,9 +12113,9 @@
       ctx.fillRect(0, 0, width, height);
       
       // Chart configuration
-      const barWidth = Math.min(60, (width - 120) / 5);
-      const barSpacing = Math.min(25, (width - 120) / 8);
-      const maxBarHeight = height - 90;
+      const barWidth = Math.min(70, (width - 100) / 5);
+      const barSpacing = Math.min(30, (width - 100) / 8);
+      const maxBarHeight = height - 60;
       const maxValue = Math.max(...ratingCounts, 1);
       const startX = (width - (5 * barWidth + 4 * barSpacing)) / 2;
       
@@ -12121,22 +12128,15 @@
         '#2563eb'  // Blue for 5 star
       ];
       const labels = ['1★', '2★', '3★', '4★', '5★'];
-      const descriptions = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
-      
-      // Draw title with better styling
-      ctx.fillStyle = '#d4af37';
-      ctx.font = 'bold 20px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText('Rating Distribution', 20, 30);
       
       // Draw bars with improved styling
       ratingCounts.forEach((count, index) => {
         const x = startX + index * (barWidth + barSpacing);
-        const barHeight = Math.max((count / maxValue) * (maxBarHeight - 60), 6);
-        const y = height - barHeight - 65;
+        const barHeight = Math.max((count / maxValue) * (maxBarHeight - 40), 8);
+        const y = height - barHeight - 40;
         
-        // Draw bar shadow
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        // Draw bar shadow for depth
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
         ctx.fillRect(x + 2, y + 2, barWidth, barHeight);
         
         // Draw main bar with gradient effect
@@ -12146,66 +12146,36 @@
         ctx.fillStyle = gradient;
         ctx.fillRect(x, y, barWidth, barHeight);
         
-        // Draw bar highlight
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-        ctx.fillRect(x, y, barWidth, Math.max(barHeight * 0.4, 3));
+        // Draw bar highlight for 3D effect
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.fillRect(x, y, barWidth, Math.max(barHeight * 0.3, 4));
         
         // Draw clean border
         ctx.strokeStyle = colors[index];
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.strokeRect(x, y, barWidth, barHeight);
         
         // Draw star label below bar
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px Arial';
+        ctx.font = 'bold 18px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText(labels[index], x + barWidth/2, y + barHeight + 20);
+        ctx.fillText(labels[index], x + barWidth/2, y + barHeight + 25);
         
-        // Draw count above bar with background
+        // Draw count above bar with styled background
         if (count > 0) {
           const countText = count.toString();
+          ctx.font = 'bold 14px Arial';
           const textWidth = ctx.measureText(countText).width;
           
-          // Background for count
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-          ctx.fillRect(x + barWidth/2 - textWidth/2 - 4, y - 20, textWidth + 8, 16);
+          // Rounded background for count
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+          ctx.fillRect(x + barWidth/2 - textWidth/2 - 6, y - 22, textWidth + 12, 18);
           
           // Count text
           ctx.fillStyle = '#ffffff';
-          ctx.font = 'bold 12px Arial';
           ctx.textAlign = 'center';
           ctx.fillText(countText, x + barWidth/2, y - 8);
         }
-      });
-      
-      // Draw enhanced legend below chart
-      const legendY = height - 35;
-      const legendSpacing = Math.max((width - 60) / 5, 80);
-      
-      colors.forEach((color, index) => {
-        const x = 30 + index * legendSpacing;
-        
-        // Draw color indicator with better styling
-        ctx.fillStyle = color;
-        ctx.fillRect(x, legendY, 16, 16);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x, legendY, 16, 16);
-        
-        // Add highlight to indicator
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.fillRect(x, legendY, 16, 8);
-        
-        // Draw star rating
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 11px Arial';
-        ctx.textAlign = 'left';
-        ctx.fillText(labels[index], x + 20, legendY + 10);
-        
-        // Draw description
-        ctx.fillStyle = '#d0d0d0';
-        ctx.font = '9px Arial';
-        ctx.fillText(descriptions[index], x + 20, legendY + 22);
       });
     }
     
