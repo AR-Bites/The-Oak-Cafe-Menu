@@ -8218,6 +8218,9 @@
           userType = 'staff';
           localStorage.setItem(USER_TYPE_KEY, 'staff');
           
+          // Immediately update staff activity on login
+          updateStaffActivity();
+          
           // Set up real-time listeners for staff dashboard
           setTimeout(() => {
             setupStaffRealtimeListeners();
@@ -11962,31 +11965,7 @@
         
         console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
         
-        // QUICK TEST: If admin is active and no staff are logged in, simulate a staff login for demonstration
-        if (activityData.role === 'admin') {
-          const currentActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
-          const hasRealStaff = Object.values(currentActivity).some(staff => 
-            staff.role !== 'admin' && 
-            !staff.sessionId.startsWith('TEST-') &&
-            (Date.now() - staff.lastActivity) < STAFF_ACTIVITY_TIMEOUT
-          );
-          
-          // If no real staff are active, add one for demonstration
-          if (!hasRealStaff && !localStorage.getItem('demoStaffAdded')) {
-            console.log('🔧 Adding demo active staff for verification...');
-            currentActivity['john_demo'] = {
-              username: 'john',
-              name: 'John Smith (Demo)',
-              role: 'chef',
-              lastActivity: Date.now(),
-              status: 'active',
-              sessionId: 'DEMO-CHEF-' + Date.now()
-            };
-            localStorage.setItem('allStaffActivity', JSON.stringify(currentActivity));
-            localStorage.setItem('demoStaffAdded', 'true');
-            updateActiveStaffCount();
-          }
-        }
+
         
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
@@ -12145,9 +12124,9 @@
           const timeSinceActivity = currentTime - staff.lastActivity;
           const isTestSession = staff.sessionId && staff.sessionId.startsWith('TEST-');
           
-          // Remove all test sessions immediately
-          if (isTestSession) {
-            console.log(`Removing test session for ${staff.name}`);
+          // Remove all test sessions and demo sessions immediately
+          if (isTestSession || staff.sessionId.startsWith('DEMO-') || staff.name.includes('(Demo)')) {
+            console.log(`Removing test/demo session for ${staff.name}`);
             return;
           }
           
