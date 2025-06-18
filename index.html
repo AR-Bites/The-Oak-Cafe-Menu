@@ -6859,8 +6859,8 @@
           orders: "ORDERS",
           ratings: "RATINGS",
           totalOrders: "TOTAL ORDERS",
-          avgRating: "AVG RATING",
-          lowRatings: "LOW RATINGS",
+          totalCustomers: "TOTAL CUSTOMERS",
+          avgPrepTime: "AVG PREP TIME (MINS)",
           activeStaff: "ACTIVE STAFF",
           staffManagement: "STAFF MANAGEMENT",
           staffAccounts: "STAFF ACCOUNTS", 
@@ -6932,8 +6932,8 @@
           orders: "الطلبات",
           ratings: "التقييمات",
           totalOrders: "إجمالي الطلبات",
-          avgRating: "متوسط التقييم",
-          lowRatings: "التقييمات المنخفضة",
+          totalCustomers: "إجمالي العملاء",
+          avgPrepTime: "متوسط وقت التحضير (دقائق)",
           activeStaff: "الموظفين النشطين",
           staffManagement: "إدارة الموظفين",
           staffAccounts: "حسابات الموظفين", 
@@ -7086,8 +7086,8 @@
         ordersTitle.textContent = t.orders;
         ratingsTitle.textContent = t.ratings;
         totalOrdersTitle.textContent = t.totalOrders;
-        avgRatingTitle.textContent = t.avgRating;
-        lowRatingsTitle.textContent = t.lowRatings;
+        avgRatingTitle.textContent = t.totalCustomers;
+        lowRatingsTitle.textContent = t.avgPrepTime;
         activeStaffTitle.textContent = t.activeStaff;
         
         // Update staff management section titles
@@ -11781,8 +11781,8 @@
         
         // Update stats display
         document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('total-customers').textContent = avgRating;
-        document.getElementById('avg-prep-time').textContent = lowRatings;
+        document.getElementById('total-customers').textContent = uniqueCustomers.size;
+        document.getElementById('avg-prep-time').textContent = avgPrepTime;
         
         // Count active staff
         db.collection('staff')
@@ -12432,8 +12432,8 @@
         
         // Update stats display
         document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('total-customers').textContent = avgRating;
-        document.getElementById('avg-prep-time').textContent = lowRatings;
+        document.getElementById('total-customers').textContent = uniqueCustomers.size;
+        document.getElementById('avg-prep-time').textContent = avgPrepTime;
         
         // Count active staff
         db.collection('staff')
@@ -13410,7 +13410,7 @@
           },
           marketing: {
             day: 'اليوم أنفق مستخدمو قائمة الواقع المعزز 22٪ أكثر من مستخدمي القائمة العادية',
-            week: 'تصور قائمة الواقع المعزز يزيد متوسط قيمة الطلب بنسبة 18٪ هذا الأسبوع',
+            week: 'تصور قائمة الواقع المعزز يزيد متوسط قs�مة الطلب بنسبة 18٪ هذا الأسبوع',
             month: 'زادت الإحالات من وسائل التواصل الاجتماعي بنسبة 15٪ هذا الشهر',
             year: 'أدى تصور قائمة الواقع المعزز إلى زيادة بنسبة 25٪ في طلبات الحلويات سنويًا'
           }
