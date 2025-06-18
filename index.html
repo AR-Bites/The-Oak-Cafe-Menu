@@ -8593,7 +8593,7 @@
           const cancelButton = document.getElementById('cancel-table-btn');
           
           if (confirmButton) {
-            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد وإتمام الطلب' : 'CONFIRM & PLACE ORDER';
+            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد  �إتمام الطلب' : 'CONFIRM & PLACE ORDER';
           }
           
           if (cancelButton) {
@@ -12123,12 +12123,18 @@
           console.log('Cleaned up old staff sessions, active data:', cleanedActivity);
         }
         
-        // Filter active staff based on recent activity and status
+        // Filter active staff based on recent activity and status - EXCLUDE ADMIN
         Object.values(cleanedActivity).forEach(staff => {
           const timeSinceActivity = currentTime - staff.lastActivity;
-          console.log(`Checking staff ${staff.name}: status=${staff.status}, timeSince=${timeSinceActivity}ms, timeout=${STAFF_ACTIVITY_TIMEOUT}ms`);
+          console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
           
-          // Only count staff as active if:
+          // EXCLUDE ALL ADMIN USERS from staff count completely
+          if (staff.role === 'admin') {
+            console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
+            return; // Skip admin users entirely
+          }
+          
+          // Only count actual STAFF (non-admin) as active if:
           // 1. Their status is 'active' (not 'offline' or 'inactive')
           // 2. Their last activity was within the timeout period
           // 3. They have a valid session
@@ -12138,11 +12144,11 @@
             
             // Double-check if this user is actually still logged in
             const staffToken = localStorage.getItem(STAFF_TOKEN);
-            const adminToken = localStorage.getItem(ADMIN_TOKEN);
             const currentSessionId = clientId;
             
-            // If this is the current user's session or we have valid tokens, count them
-            if (staff.sessionId === currentSessionId || staffToken || adminToken) {
+            // Only count if they have a staff token or different valid session
+            if ((staff.sessionId === currentSessionId && staffToken) || 
+                (staff.sessionId !== currentSessionId)) {
               activeStaff.push({
                 username: staff.username,
                 name: staff.name,
@@ -12150,11 +12156,12 @@
                 lastActivity: staff.lastActivity,
                 sessionId: staff.sessionId
               });
+              console.log(`✅ Counting staff member: ${staff.name} (${staff.role})`);
             } else {
-              console.log(`Staff ${staff.name} session ${staff.sessionId} is no longer valid, not counting as active`);
+              console.log(`❌ Staff ${staff.name} session invalid, not counting`);
             }
           } else {
-            console.log(`Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
+            console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
           }
         });
         
