@@ -12169,28 +12169,53 @@
       });
     }
     
+    // Global variable to store current ratings for filtering
+    let currentRatingsData = [];
+    
     // Setup rating filter functionality
     function setupRatingFilter(allRatings) {
+      currentRatingsData = allRatings; // Store ratings for filtering
       const filterSelect = document.getElementById('rating-filter');
-      if (!filterSelect) return;
+      if (!filterSelect) {
+        console.log('Rating filter select not found');
+        return;
+      }
       
-      filterSelect.addEventListener('change', function() {
-        const filterValue = this.value;
-        filterRatings(allRatings, filterValue);
-      });
+      // Remove existing event listeners
+      filterSelect.removeEventListener('change', handleFilterChange);
+      filterSelect.addEventListener('change', handleFilterChange);
+      console.log('Rating filter setup complete with', allRatings.length, 'ratings');
+    }
+    
+    // Handle filter change event
+    function handleFilterChange(event) {
+      const filterValue = event.target.value;
+      console.log('Filter changed to:', filterValue);
+      filterRatings(currentRatingsData, filterValue);
     }
     
     // Filter ratings based on selected criteria
     function filterRatings(allRatings, filterValue) {
+      console.log('Filtering ratings:', filterValue, 'from', allRatings.length, 'total ratings');
       let filteredRatings = allRatings;
       
       if (filterValue !== 'all') {
         if (filterValue === 'low') {
-          filteredRatings = allRatings.filter(rating => rating.stars <= 3);
+          filteredRatings = allRatings.filter(rating => {
+            const stars = parseInt(rating.stars);
+            return stars <= 3;
+          });
+          console.log('Low ratings filter applied, found:', filteredRatings.length, 'ratings');
         } else {
           const targetStars = parseInt(filterValue);
-          filteredRatings = allRatings.filter(rating => rating.stars === targetStars);
+          filteredRatings = allRatings.filter(rating => {
+            const stars = parseInt(rating.stars);
+            return stars === targetStars;
+          });
+          console.log(`${targetStars} star filter applied, found:`, filteredRatings.length, 'ratings');
         }
+      } else {
+        console.log('Showing all ratings:', filteredRatings.length);
       }
       
       displayFilteredRatings(filteredRatings);
@@ -12199,7 +12224,12 @@
     // Display filtered ratings
     function displayFilteredRatings(ratings) {
       const staffRatingsList = document.getElementById('staff-ratings-list');
-      if (!staffRatingsList) return;
+      if (!staffRatingsList) {
+        console.log('Staff ratings list container not found');
+        return;
+      }
+      
+      console.log('Displaying', ratings.length, 'filtered ratings');
       
       if (ratings.length === 0) {
         staffRatingsList.innerHTML = `
@@ -12214,7 +12244,6 @@
       
       staffRatingsList.innerHTML = '';
       ratings.forEach((rating, index) => {
-        console.log(`Added rating card ${index + 1}:`, rating);
         const ratingCard = createRatingCard(rating, index + 1);
         staffRatingsList.appendChild(ratingCard);
       });
