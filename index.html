@@ -4661,24 +4661,24 @@
               <!-- Summary Stats -->
               <div class="overview-stats">
                 <div class="stat-card primary">
-                  <div class="stat-icon"><i class="fas fa-users"></i></div>
+                  <div class="stat-icon"><i class="fas fa-star"></i></div>
                   <div class="stat-content">
-                    <span class="stat-number" id="total-customers-display">0</span>
-                    <span class="stat-label">Total Customers</span>
+                    <span class="stat-number" id="avg-rating-display">0.0</span>
+                    <span class="stat-label">Average Rating</span>
                   </div>
                 </div>
                 <div class="stat-card secondary">
-                  <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                  <div class="stat-icon"><i class="fas fa-comments"></i></div>
                   <div class="stat-content">
-                    <span class="stat-number" id="avg-prep-time-display">0</span>
-                    <span class="stat-label">Avg Prep Time (mins)</span>
+                    <span class="stat-number" id="total-ratings-display">0</span>
+                    <span class="stat-label">Total Reviews</span>
                   </div>
                 </div>
                 <div class="stat-card warning">
-                  <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                  <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
                   <div class="stat-content">
-                    <span class="stat-number" id="total-ratings-display">0</span>
-                    <span class="stat-label">Total Ratings</span>
+                    <span class="stat-number" id="low-ratings-display">0</span>
+                    <span class="stat-label">Need Attention</span>
                   </div>
                 </div>
               </div>
@@ -12116,14 +12116,14 @@
     // Function to update ratings statistics and chart
     function updateRatingsStatistics(ratings) {
       const totalRatings = ratings.length;
-      const totalCustomersEl = document.getElementById('total-customers-display');
+      const avgRatingEl = document.getElementById('avg-rating-display');
       const totalRatingsEl = document.getElementById('total-ratings-display');
-      const avgPrepTimeEl = document.getElementById('avg-prep-time-display');
+      const lowRatingsEl = document.getElementById('low-ratings-display');
       
       if (totalRatings === 0) {
-        if (totalCustomersEl) totalCustomersEl.textContent = '0';
+        if (avgRatingEl) avgRatingEl.textContent = '0.0';
         if (totalRatingsEl) totalRatingsEl.textContent = '0';
-        if (avgPrepTimeEl) avgPrepTimeEl.textContent = '0';
+        if (lowRatingsEl) lowRatingsEl.textContent = '0';
         return;
       }
       
@@ -12143,18 +12143,10 @@
       
       const avgRating = (totalStars / totalRatings).toFixed(1);
       
-      // Calculate unique customers from ratings
-      const uniqueCustomers = new Set();
-      ratings.forEach(rating => {
-        if (rating.guestId || rating.tableNumber) {
-          uniqueCustomers.add(rating.guestId || `table_${rating.tableNumber}`);
-        }
-      });
-      
-      // Update DOM elements with new statistics
-      if (totalCustomersEl) totalCustomersEl.textContent = uniqueCustomers.size.toString();
+      // Update DOM elements
+      if (avgRatingEl) avgRatingEl.textContent = avgRating;
       if (totalRatingsEl) totalRatingsEl.textContent = totalRatings.toString();
-      if (avgPrepTimeEl) avgPrepTimeEl.textContent = '15'; // Default prep time estimate
+      if (lowRatingsEl) lowRatingsEl.textContent = lowRatingsCount.toString();
       
       // Update chart
       updateRatingsChart(ratingCounts);
