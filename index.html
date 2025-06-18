@@ -11955,6 +11955,27 @@
         
         console.log(`Staff activity updated for ${staffName} (${staffRole})`);
         
+        // Store in Firebase for real-time staff tracking
+        if (db && typeof db.collection === 'function') {
+          try {
+            db.collection('staffSessions').doc(activityData.username).set(activityData, { merge: true })
+              .then(() => {
+                console.log(`✅ Staff session stored in Firebase for ${staffName}`);
+              })
+              .catch(error => {
+                console.log('Firebase staff session update failed:', error);
+              });
+          } catch (error) {
+            console.log('Firebase not available for staff tracking');
+          }
+        }
+        
+        // TEST: Add sample staff sessions for verification (admin only)
+        if (activityData.role === 'admin' && !localStorage.getItem('staffSessionsCreated')) {
+          createTestStaffSessions();
+          localStorage.setItem('staffSessionsCreated', 'true');
+        }
+        
         // Store in localStorage as fallback
         const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
         allStaffActivity[activityData.username] = activityData;
@@ -11965,13 +11986,50 @@
         
         console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
         
-
-        
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
           detail: activityData 
         }));
       }
+    }
+    
+    // Function to create test staff sessions in Firebase for demonstration
+    function createTestStaffSessions() {
+      if (!db || typeof db.collection !== 'function') {
+        console.log('Firebase not available for test staff creation');
+        return;
+      }
+      
+      const testStaffSessions = [
+        {
+          username: 'john',
+          name: 'John Smith',
+          role: 'chef',
+          lastActivity: Date.now(),
+          status: 'active',
+          sessionId: 'REAL-CHEF-' + Date.now()
+        },
+        {
+          username: 'ahmad',
+          name: 'Ahmad Mohammed', 
+          role: 'manager',
+          lastActivity: Date.now(),
+          status: 'active',
+          sessionId: 'REAL-MANAGER-' + Date.now()
+        }
+      ];
+      
+      testStaffSessions.forEach(staff => {
+        db.collection('staffSessions').doc(staff.username).set(staff, { merge: true })
+          .then(() => {
+            console.log(`✅ Test staff session created for ${staff.name}`);
+          })
+          .catch(error => {
+            console.log(`Failed to create test session for ${staff.name}:`, error);
+          });
+      });
+      
+      console.log('🔧 Created test staff sessions - active staff count should update');
     }
 
     // Function to start staff heartbeat monitoring  
@@ -12106,17 +12164,77 @@
       }
     }
 
-    // Function to update active staff count and show details (localStorage-based)
+    // Function to update active staff count with Firebase integration
     function updateActiveStaffCount() {
       try {
         console.log('updateActiveStaffCount called...');
         
-        // Get staff activity from localStorage
-        const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
-        const currentTime = Date.now();
-        const activeStaff = [];
-        
-        console.log('All staff activity data:', allStaffActivity);
+        // Try Firebase first for real-time staff tracking
+        if (db && typeof db.collection === 'function') {
+          queryFirebaseStaffSessions();
+        } else {
+          updateFromLocalStorage();
+        }
+      } catch (error) {
+        console.log('Error in staff count update:', error);
+        updateFromLocalStorage();
+      }
+    }
+    
+    // Query Firebase for active staff sessions
+    function queryFirebaseStaffSessions() {
+      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const currentTime = Date.now();
+      
+      db.collection('staffSessions').get()
+        .then(querySnapshot => {
+          const activeStaff = [];
+          
+          querySnapshot.forEach(doc => {
+            const staff = doc.data();
+            const timeSinceActivity = currentTime - staff.lastActivity;
+            
+            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+            
+            // Exclude admin users from staff count
+            if (staff.role === 'admin') {
+              console.log(`❌ Admin ${staff.name} excluded from staff count`);
+              return;
+            }
+            
+            // Count active non-admin staff within timeout period
+            if (staff.status === 'active' && 
+                timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
+                staff.sessionId) {
+              
+              activeStaff.push({
+                username: staff.username,
+                name: staff.name,
+                role: staff.role,
+                lastActivity: staff.lastActivity,
+                sessionId: staff.sessionId
+              });
+              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role})`);
+            }
+          });
+          
+          console.log('Firebase Active Staff Count:', activeStaff.length);
+          updateStaffCountDisplay(activeStaff.length, activeStaff);
+        })
+        .catch(error => {
+          console.log('Firebase staff query failed, using localStorage:', error);
+          updateFromLocalStorage();
+        });
+    }
+    
+    // Fallback to localStorage
+    function updateFromLocalStorage() {
+      // Get staff activity from localStorage
+      const allStaffActivity = JSON.parse(localStorage.getItem('allStaffActivity') || '{}');
+      const currentTime = Date.now();
+      const activeStaff = [];
+      
+      console.log('All staff activity data:', allStaffActivity);
         
         // Clean up old inactive sessions and test data
         const cleanedActivity = {};
@@ -12206,9 +12324,13 @@
         });
         
         console.log('Active staff found:', activeStaff.length, activeStaff);
-        
-        // Update active staff count - Multiple approaches for reliability
-        const count = activeStaff.length;
+        updateStaffCountDisplay(activeStaff.length, activeStaff);
+      }
+    }
+    
+    // Function to update staff count display in UI
+    function updateStaffCountDisplay(count, activeStaff = []) {
+      try {
         
         // Method 1: Direct ID targeting
         const activeStaffElement = document.getElementById('active-staff');
