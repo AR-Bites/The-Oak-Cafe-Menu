@@ -6120,8 +6120,10 @@
         setTimeout(() => {
           if (userType === 'admin') {
             setupRealtimeListeners();
+            startStaffHeartbeat();
           } else {
             setupStaffRealtimeListeners();
+            startStaffHeartbeat();
           }
         }, 1500);
       } else {
@@ -6450,11 +6452,15 @@
       
       // Wait for animation before clearing everything
       setTimeout(() => {
+        // Stop staff heartbeat tracking before logout
+        stopStaffHeartbeat();
+        
         // Clear auth tokens
         localStorage.removeItem(STAFF_TOKEN);
         localStorage.removeItem(ADMIN_TOKEN);
         localStorage.removeItem("staffName");
         localStorage.removeItem("staffRole");
+        localStorage.removeItem("username");
         localStorage.removeItem(TABLE_NUMBER_KEY);
         
         // Set user type back to initial state
@@ -8197,16 +8203,23 @@
           localStorage.setItem(USER_TYPE_KEY, 'admin');
           
           // Set up real-time listeners for admin dashboard
-          setTimeout(() => setupRealtimeListeners(), 1000);
+          setTimeout(() => {
+            setupRealtimeListeners();
+            startStaffHeartbeat();
+          }, 1000);
         } else {
           localStorage.setItem(STAFF_TOKEN, 'true');
           localStorage.setItem('staffName', account.name);
           localStorage.setItem('staffRole', account.role);
+          localStorage.setItem('username', account.username);
           userType = 'staff';
           localStorage.setItem(USER_TYPE_KEY, 'staff');
           
           // Set up real-time listeners for staff dashboard
-          setTimeout(() => setupStaffRealtimeListeners(), 1000);
+          setTimeout(() => {
+            setupStaffRealtimeListeners();
+            startStaffHeartbeat();
+          }, 1000);
         }
         
         return { 
@@ -9327,7 +9340,7 @@
               showNotification(
                 currentLanguage === 'ar' ? 'تحذير' : 'Warning',
                 currentLanguage === 'ar' 
-                  ? 'تم تحرير الطاولة  �حليًا ولكن قد لا تتم مزامنة التغييرات مع الخادم'
+                  ? 'تم تحرير الطاولة محليًا ولكن قد لا تتم مزامنة التغييرات مع الخادم'
                   : 'Table freed locally but changes may not sync with server',
                 'warning'
               );
@@ -9519,7 +9532,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'سلة فارغة' : 'Empty Cart',
           currentLanguage === 'ar' 
-            ? 'الرجاء إضافة أصناف إلى سلتك أولاً'
+            ? 'الرجاء إضافة أصناف إل � سلتك أولاً'
             : 'Please add items to your cart first',
           'info'
         );
@@ -11759,12 +11772,12 @@
         }, 10000); // Update every 10 seconds
       });
 
-      // Listen for staff changes
-      db.collection('staff').onSnapshot(snapshot => {
-        console.log('Staff collection updated, refreshing active staff count...');
+      // Listen for staff activity changes
+      db.collection('staffActivity').onSnapshot(snapshot => {
+        console.log('Staff activity updated, refreshing active staff count...');
         updateActiveStaffCount();
       }, error => {
-        console.warn('Staff real-time listener error:', error);
+        console.warn('Staff activity real-time listener error:', error);
       });
     }
 
@@ -11886,58 +11899,237 @@
       });
     }
 
-    // Function to update active staff count
+    // Real-time active staff tracking system
+    let activeStaffHeartbeat = null;
+    let staffActivityTimeout = null;
+    const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
+    const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
+
+    // Function to update staff activity status
+    function updateStaffActivity() {
+      const staffToken = localStorage.getItem(STAFF_TOKEN);
+      const adminToken = localStorage.getItem(ADMIN_TOKEN);
+      const staffName = localStorage.getItem('staffName') || localStorage.getItem('adminName');
+      const staffRole = localStorage.getItem('staffRole') || 'admin';
+      
+      if (staffToken || adminToken) {
+        const activityData = {
+          username: localStorage.getItem('username') || staffName,
+          name: staffName,
+          role: staffRole,
+          lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+          status: 'active',
+          userAgent: navigator.userAgent.substring(0, 100),
+          sessionId: clientId
+        };
+        
+        // Update staff activity in Firebase
+        db.collection('staffActivity').doc(activityData.username).set(activityData)
+          .catch(error => {
+            console.warn('Error updating staff activity:', error);
+          });
+      }
+    }
+
+    // Function to start staff heartbeat monitoring
+    function startStaffHeartbeat() {
+      if (activeStaffHeartbeat) {
+        clearInterval(activeStaffHeartbeat);
+      }
+      
+      // Update activity immediately
+      updateStaffActivity();
+      
+      // Set up heartbeat interval
+      activeStaffHeartbeat = setInterval(() => {
+        updateStaffActivity();
+      }, HEARTBEAT_INTERVAL);
+      
+      // Reset activity timeout on user interaction
+      ['click', 'keypress', 'scroll', 'mousemove'].forEach(eventType => {
+        document.addEventListener(eventType, resetStaffActivityTimeout, { passive: true });
+      });
+      
+      resetStaffActivityTimeout();
+    }
+
+    // Function to reset staff activity timeout
+    function resetStaffActivityTimeout() {
+      if (staffActivityTimeout) {
+        clearTimeout(staffActivityTimeout);
+      }
+      
+      staffActivityTimeout = setTimeout(() => {
+        // Mark staff as inactive after timeout
+        markStaffInactive();
+      }, STAFF_ACTIVITY_TIMEOUT);
+    }
+
+    // Function to mark staff as inactive
+    function markStaffInactive() {
+      const staffToken = localStorage.getItem(STAFF_TOKEN);
+      const adminToken = localStorage.getItem(ADMIN_TOKEN);
+      const staffName = localStorage.getItem('staffName') || localStorage.getItem('adminName');
+      
+      if (staffToken || adminToken) {
+        const username = localStorage.getItem('username') || staffName;
+        
+        db.collection('staffActivity').doc(username).update({
+          status: 'inactive',
+          lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(error => {
+          console.warn('Error marking staff inactive:', error);
+        });
+      }
+    }
+
+    // Function to stop staff heartbeat when logging out
+    function stopStaffHeartbeat() {
+      if (activeStaffHeartbeat) {
+        clearInterval(activeStaffHeartbeat);
+        activeStaffHeartbeat = null;
+      }
+      
+      if (staffActivityTimeout) {
+        clearTimeout(staffActivityTimeout);
+        staffActivityTimeout = null;
+      }
+      
+      // Mark as offline when logging out
+      const staffToken = localStorage.getItem(STAFF_TOKEN);
+      const adminToken = localStorage.getItem(ADMIN_TOKEN);
+      const staffName = localStorage.getItem('staffName') || localStorage.getItem('adminName');
+      
+      if (staffToken || adminToken) {
+        const username = localStorage.getItem('username') || staffName;
+        
+        db.collection('staffActivity').doc(username).update({
+          status: 'offline',
+          lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(error => {
+          console.warn('Error marking staff offline:', error);
+        });
+      }
+    }
+
+    // Function to update active staff count and show details
     function updateActiveStaffCount() {
-      // Since we don't have a staff collection, calculate from accounts and current sessions
       try {
-        let activeCount = 0;
-        
-        // Check if admin is logged in
-        if (localStorage.getItem(ADMIN_TOKEN)) {
-          activeCount++;
-        }
-        
-        // Check if staff is logged in (current session)
-        if (localStorage.getItem(STAFF_TOKEN)) {
-          activeCount++;
-        }
-        
-        // Add estimated active staff based on recent orders (fallback logic)
-        db.collection('orders')
-          .where('updatedAt', '>=', new Date(Date.now() - 24 * 60 * 60 * 1000)) // Last 24 hours
+        // Get active staff from Firebase activity tracking
+        db.collection('staffActivity')
+          .where('status', '==', 'active')
+          .where('lastActivity', '>=', new Date(Date.now() - STAFF_ACTIVITY_TIMEOUT))
           .get()
           .then(snapshot => {
-            const recentStaffSet = new Set();
+            const activeStaff = [];
             snapshot.forEach(doc => {
-              const order = doc.data();
-              if (order.assignedStaff && order.assignedStaff.username) {
-                recentStaffSet.add(order.assignedStaff.username);
-              }
+              const staff = doc.data();
+              activeStaff.push({
+                username: staff.username,
+                name: staff.name,
+                role: staff.role,
+                lastActivity: staff.lastActivity
+              });
             });
             
-            // Use the higher count between current sessions and recent activity
-            const totalActiveStaff = Math.max(activeCount, recentStaffSet.size, 1);
-            
+            // Update active staff count
             const activeStaffElement = document.getElementById('active-staff');
             if (activeStaffElement) {
-              activeStaffElement.textContent = totalActiveStaff;
+              activeStaffElement.textContent = activeStaff.length;
             }
+            
+            // Update active staff details for admin
+            updateActiveStaffDetails(activeStaff);
           })
           .catch(error => {
-            console.warn('Error calculating active staff from orders:', error);
-            // Fallback to basic count
+            console.warn('Error getting active staff:', error);
+            // Fallback count
             const activeStaffElement = document.getElementById('active-staff');
             if (activeStaffElement) {
-              activeStaffElement.textContent = Math.max(activeCount, 1);
+              activeStaffElement.textContent = '1';
             }
           });
           
       } catch (error) {
         console.warn('Error updating active staff count:', error);
-        // Fallback to showing at least 1 active staff
         const activeStaffElement = document.getElementById('active-staff');
         if (activeStaffElement) {
           activeStaffElement.textContent = '1';
+        }
+      }
+    }
+
+    // Function to update active staff details for admin view
+    function updateActiveStaffDetails(activeStaff) {
+      // Only show details in admin dashboard
+      if (userType !== 'admin') return;
+      
+      let activeStaffDetailsElement = document.getElementById('active-staff-details');
+      
+      // Create the details element if it doesn't exist
+      if (!activeStaffDetailsElement) {
+        const statsContainer = document.querySelector('.stats-cards');
+        if (statsContainer) {
+          const detailsHTML = `
+            <div class="active-staff-details" id="active-staff-details" style="
+              margin-top: 15px; 
+              padding: 15px; 
+              background: rgba(255,255,255,0.05); 
+              border-radius: 8px;
+              border-left: 4px solid var(--gold);
+            ">
+              <h4 style="color: var(--gold); margin: 0 0 10px 0; font-size: 0.9rem;">
+                <i class="fas fa-users"></i> Active Staff Members
+              </h4>
+              <div id="staff-list" style="max-height: 150px; overflow-y: auto;"></div>
+            </div>
+          `;
+          statsContainer.insertAdjacentHTML('afterend', detailsHTML);
+          activeStaffDetailsElement = document.getElementById('active-staff-details');
+        }
+      }
+      
+      if (activeStaffDetailsElement) {
+        const staffListElement = document.getElementById('staff-list');
+        
+        if (activeStaff.length === 0) {
+          staffListElement.innerHTML = `
+            <p style="color: #ccc; font-style: italic; margin: 0;">No active staff members</p>
+          `;
+        } else {
+          const staffHTML = activeStaff.map(staff => {
+            const lastActivityTime = staff.lastActivity?.toDate ? 
+              staff.lastActivity.toDate().toLocaleTimeString() : 'Just now';
+            
+            const roleIcon = staff.role === 'admin' ? 'fa-crown' : 
+                           staff.role === 'manager' ? 'fa-user-tie' : 
+                           staff.role === 'chef' ? 'fa-utensils' : 'fa-user';
+            
+            return `
+              <div style="
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center;
+                padding: 8px;
+                margin: 5px 0;
+                background: rgba(255,255,255,0.03);
+                border-radius: 5px;
+                border-left: 3px solid var(--green);
+              ">
+                <div>
+                  <i class="fas ${roleIcon}" style="color: var(--gold); margin-right: 8px;"></i>
+                  <span style="color: var(--light-cream); font-weight: 500;">${staff.name}</span>
+                  <small style="color: #aaa; margin-left: 8px;">(${staff.role})</small>
+                </div>
+                <small style="color: var(--green); font-size: 0.8rem;">
+                  <i class="fas fa-circle" style="color: var(--green); font-size: 0.6rem; margin-right: 4px;"></i>
+                  ${lastActivityTime}
+                </small>
+              </div>
+            `;
+          }).join('');
+          
+          staffListElement.innerHTML = staffHTML;
         }
       }
     }
