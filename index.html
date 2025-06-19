@@ -9755,7 +9755,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الطلب' : 'Order Error',
           currentLanguage === 'ar' 
-            ? 'حدث خطأ أثl�اء تقديم طلبك. يرجى المحاولة مرة أخرى.'
+            ? 'حدث خطأ أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.'
             : error.message || 'There was an error placing your order. Please try again.',
           'error'
         );
@@ -12862,11 +12862,43 @@
           }]
         },
         options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: 'rgba(255, 255, 255, 0.9)',
+                font: {
+                  size: 14,
+                  weight: 'bold'
+                }
+              }
+            }
+          },
           scales: {
+            x: {
+              ticks: {
+                color: 'rgba(255, 255, 255, 0.9)',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
             y: {
               beginAtZero: true,
               ticks: {
-                precision: 0
+                precision: 0,
+                color: 'rgba(255, 255, 255, 0.9)',
+                font: {
+                  size: 12,
+                  weight: 'bold'
+                }
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
               }
             }
           }
@@ -12898,6 +12930,20 @@
             ],
             borderWidth: 1
           }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: 'rgba(255, 255, 255, 0.9)',
+                font: {
+                  size: 14,
+                  weight: 'bold'
+                }
+              }
+            }
+          }
         }
       });
     }
