@@ -792,6 +792,7 @@
     
     .orders-list {
       margin-top: 15px;
+      color: rgba(255, 255, 255, 0.9);
     }
     
     /* Assigned staff info styling */
@@ -822,6 +823,7 @@
       padding: 12px;
       margin-bottom: 12px;
       border-left: 3px solid var(--gold);
+      color: rgba(255, 255, 255, 0.95);
     }
     
     .order-header {
@@ -830,6 +832,7 @@
       margin-bottom: 8px;
       flex-wrap: wrap;
       gap: 5px;
+      color: rgba(255, 255, 255, 0.95);
     }
     
     .order-id {
@@ -915,6 +918,7 @@
       justify-content: space-between;
       margin-bottom: 5px;
       font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.9);
     }
     
     .order-actions {
@@ -9751,7 +9755,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الطلب' : 'Order Error',
           currentLanguage === 'ar' 
-            ? 'حدث خطأ أثناء تقديم طلبك. يرجى المحاولة مرة أخرى.'
+            ? 'حدث خطأ أثl�اء تقديم طلبك. يرجى المحاولة مرة أخرى.'
             : error.message || 'There was an error placing your order. Please try again.',
           'error'
         );
@@ -10521,7 +10525,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'جارٍ الإلغاء' : 'Cancelling',
           currentLanguage === 'ar' 
-            ? `جo�رٍ إلغاء الطلب...` 
+            ? `جارٍ إلغاء الطلب...` 
             : `Cancelling order...`,
           'info',
           1500 // Auto-hide after 1.5 seconds
