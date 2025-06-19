@@ -8800,6 +8800,7 @@
         }
         
         renderAdminDashboard();
+        updateLanguage(); // Ensure categories are properly translated
       }
     }
     
@@ -14104,6 +14105,9 @@
       // Show selected tab
       document.getElementById(`${tabName}-content`).classList.add('active');
       document.getElementById(`${tabName}-tab`).classList.add('active');
+      
+      // Update language for all elements when switching tabs
+      updateLanguage();
       
       // If analytics tab is selected, initialize the analytics charts
       if (tabName === 'analytics') {
