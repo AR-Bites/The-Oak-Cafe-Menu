@@ -1598,6 +1598,111 @@
       position: relative;
     }
     
+    /* Mobile Responsiveness for Admin Dashboard */
+    @media (max-width: 768px) {
+      .admin-dashboard {
+        padding: 10px;
+      }
+      
+      .admin-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+      }
+      
+      .admin-header h2 {
+        font-size: 1.2rem;
+      }
+      
+      .admin-tabs {
+        flex-direction: column;
+        gap: 5px;
+        padding: 0 10px;
+      }
+      
+      .admin-tab {
+        font-size: 0.85rem;
+        padding: 10px 15px;
+        text-align: center;
+      }
+      
+      .admin-panels {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      
+      .admin-panel {
+        padding: 12px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      
+      .stat-card {
+        padding: 10px;
+      }
+      
+      .stat-value {
+        font-size: 1.2rem;
+      }
+      
+      .stat-label {
+        font-size: 0.65rem;
+      }
+      
+      /* Chart containers for mobile */
+      #orders-chart, #ratings-chart {
+        max-height: 200px !important;
+      }
+      
+      .ratings-overview-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      
+      .overview-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .ratings-list {
+        max-height: 250px;
+      }
+      
+      .rating-card {
+        padding: 10px;
+      }
+      
+      /* Analytics cards for mobile */
+      .analytics-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+      }
+      
+      .analytics-card {
+        margin-bottom: 10px;
+      }
+      
+      .analytics-card-body {
+        min-height: 150px;
+      }
+      
+      /* Staff management for mobile */
+      .staff-accounts-container {
+        gap: 15px;
+      }
+      
+      .staff-list {
+        max-height: 200px;
+      }
+      
+      .add-staff-form {
+        padding: 10px;
+      }
+    }
+    
     @media (max-width: 480px) {
       .table-number-content {
         max-width: 95vw;
@@ -1613,6 +1718,54 @@
       .guest-option, .staff-option {
         min-height: 120px !important;
         padding: 15px !important;
+      }
+      
+      /* Extra small screens - single column stats */
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      
+      .overview-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .admin-header h2 {
+        font-size: 1.1rem;
+      }
+      
+      .admin-tabs {
+        padding: 0 5px;
+      }
+      
+      .admin-tab {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+      }
+      
+      .admin-panel {
+        padding: 10px;
+      }
+      
+      .stat-value {
+        font-size: 1.1rem;
+      }
+      
+      .stat-label {
+        font-size: 0.6rem;
+      }
+      
+      #orders-chart, #ratings-chart {
+        max-height: 180px !important;
+      }
+      
+      .ratings-list {
+        max-height: 200px;
+      }
+      
+      .rating-card {
+        padding: 8px;
+        font-size: 0.85rem;
       }
     }
     
@@ -3091,6 +3244,25 @@
       border-radius: 12px;
       padding: 15px;
       border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    /* Chart container optimization */
+    .chart-container {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 200px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .chart-container {
+        height: 180px;
+      }
     }
     
     .admin-panel-title {
@@ -4666,7 +4838,9 @@
           
           <div class="admin-panel">
             <h3 id="orders-title">ORDERS</h3>
-            <canvas id="orders-chart" height="200"></canvas>
+            <div class="chart-container">
+              <canvas id="orders-chart"></canvas>
+            </div>
           </div>
           
           <div class="admin-panel ratings-panel">
@@ -4774,7 +4948,9 @@
                 </div>
               </div>
               <div class="analytics-card-body">
-                <canvas id="sales-performance-chart" height="250"></canvas>
+                <div class="chart-container">
+                  <canvas id="sales-performance-chart"></canvas>
+                </div>
               </div>
               <div class="analytics-insight">
                 <i class="fas fa-lightbulb"></i>
@@ -4793,7 +4969,9 @@
                 </div>
               </div>
               <div class="analytics-card-body">
-                <canvas id="menu-performance-chart" height="200"></canvas>
+                <div class="chart-container">
+                  <canvas id="menu-performance-chart"></canvas>
+                </div>
               </div>
               <div class="analytics-insight">
                 <i class="fas fa-lightbulb"></i>
@@ -4812,7 +4990,9 @@
                 </div>
               </div>
               <div class="analytics-card-body">
-                <canvas id="satisfaction-chart" height="200"></canvas>
+                <div class="chart-container">
+                  <canvas id="satisfaction-chart"></canvas>
+                </div>
               </div>
               <div class="analytics-insight">
                 <i class="fas fa-lightbulb"></i>
@@ -4831,7 +5011,9 @@
                 </div>
               </div>
               <div class="analytics-card-body">
-                <canvas id="table-utilization-chart" height="200"></canvas>
+                <div class="chart-container">
+                  <canvas id="table-utilization-chart"></canvas>
+                </div>
               </div>
               <div class="analytics-insight">
                 <i class="fas fa-lightbulb"></i>
@@ -4850,7 +5032,9 @@
                 </div>
               </div>
               <div class="analytics-card-body">
-                <canvas id="staff-performance-chart" height="200"></canvas>
+                <div class="chart-container">
+                  <canvas id="staff-performance-chart"></canvas>
+                </div>
               </div>
               <div class="analytics-insight">
                 <i class="fas fa-lightbulb"></i>
@@ -4869,7 +5053,9 @@
                 </div>
               </div>
               <div class="analytics-card-body">
-                <canvas id="marketing-chart" height="200"></canvas>
+                <div class="chart-container">
+                  <canvas id="marketing-chart"></canvas>
+                </div>
               </div>
               <div class="analytics-insight">
                 <i class="fas fa-lightbulb"></i>
@@ -12863,12 +13049,13 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: {
               labels: {
                 color: 'rgba(255, 255, 255, 0.9)',
                 font: {
-                  size: 14,
+                  size: window.innerWidth < 768 ? 10 : 14,
                   weight: 'bold'
                 }
               }
@@ -12879,9 +13066,10 @@
               ticks: {
                 color: 'rgba(255, 255, 255, 0.9)',
                 font: {
-                  size: 12,
+                  size: window.innerWidth < 768 ? 9 : 12,
                   weight: 'bold'
-                }
+                },
+                maxRotation: window.innerWidth < 480 ? 45 : 0
               },
               grid: {
                 color: 'rgba(255, 255, 255, 0.1)'
@@ -12893,7 +13081,7 @@
                 precision: 0,
                 color: 'rgba(255, 255, 255, 0.9)',
                 font: {
-                  size: 12,
+                  size: window.innerWidth < 768 ? 9 : 12,
                   weight: 'bold'
                 }
               },
@@ -12933,14 +13121,16 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: {
               labels: {
                 color: 'rgba(255, 255, 255, 0.9)',
                 font: {
-                  size: 14,
+                  size: window.innerWidth < 768 ? 10 : 14,
                   weight: 'bold'
-                }
+                },
+                padding: window.innerWidth < 480 ? 10 : 20
               }
             }
           }
