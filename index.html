@@ -8474,50 +8474,117 @@
     async function authenticateStaff(username, password) {
       console.log("Authenticating staff with username:", username);
       
-      // Find matching account
-      const account = accounts.find(acc => acc.username === username && acc.password === password);
-      
-      if (account) {
-        console.log("Staff authentication successful for:", account.name);
+      try {
+        // First check Firebase database for the staff account
+        const staffRef = ref(database, `staff/${username}`);
+        const snapshot = await get(staffRef);
         
-        // Set localStorage values
-        if (account.role === 'admin') {
-          localStorage.setItem(ADMIN_TOKEN, 'true');
-          localStorage.setItem('adminName', account.name);
-          userType = 'admin';
-          localStorage.setItem(USER_TYPE_KEY, 'admin');
-          
-          // Set up real-time listeners for admin dashboard
-          setTimeout(() => {
-            setupRealtimeListeners();
-            startStaffHeartbeat();
-          }, 1000);
-        } else {
-          localStorage.setItem(STAFF_TOKEN, 'true');
-          localStorage.setItem('staffName', account.name);
-          localStorage.setItem('staffRole', account.role);
-          localStorage.setItem('username', account.username);
-          userType = 'staff';
-          localStorage.setItem(USER_TYPE_KEY, 'staff');
-          
-          // Immediately update staff activity on login
-          updateStaffActivity();
-          
-          // Set up real-time listeners for staff dashboard
-          setTimeout(() => {
-            setupStaffRealtimeListeners();
-            startStaffHeartbeat();
-          }, 1000);
+        let account = null;
+        
+        if (snapshot.exists()) {
+          const firebaseAccount = snapshot.val();
+          if (firebaseAccount.password === password) {
+            account = firebaseAccount;
+            console.log("✅ Firebase authentication successful for:", account.name);
+          }
         }
         
-        return { 
-          success: true, 
-          name: account.name, 
-          role: account.role 
-        };
-      } else {
-        console.log("Staff authentication failed");
-        return { success: false };
+        // Fallback to local accounts array if not found in Firebase
+        if (!account) {
+          account = accounts.find(acc => acc.username === username && acc.password === password);
+          if (account) {
+            console.log("✅ Local authentication successful for:", account.name);
+          }
+        }
+        
+        if (account) {
+          console.log("Staff authentication successful for:", account.name);
+          
+          // Set localStorage values
+          if (account.role === 'admin') {
+            localStorage.setItem(ADMIN_TOKEN, 'true');
+            localStorage.setItem('adminName', account.name);
+            userType = 'admin';
+            localStorage.setItem(USER_TYPE_KEY, 'admin');
+            
+            // Set up real-time listeners for admin dashboard
+            setTimeout(() => {
+              setupRealtimeListeners();
+              startStaffHeartbeat();
+            }, 1000);
+          } else {
+            localStorage.setItem(STAFF_TOKEN, 'true');
+            localStorage.setItem('staffName', account.name);
+            localStorage.setItem('staffRole', account.role);
+            localStorage.setItem('username', account.username);
+            userType = 'staff';
+            localStorage.setItem(USER_TYPE_KEY, 'staff');
+            
+            // Immediately update staff activity on login
+            updateStaffActivity();
+            
+            // Set up real-time listeners for staff dashboard
+            setTimeout(() => {
+              setupStaffRealtimeListeners();
+              startStaffHeartbeat();
+            }, 1000);
+          }
+          
+          return { 
+            success: true, 
+            name: account.name, 
+            role: account.role 
+          };
+        } else {
+          console.log("❌ Staff authentication failed - invalid credentials");
+          return { success: false };
+        }
+        
+      } catch (error) {
+        console.error("❌ Error during Firebase authentication:", error);
+        
+        // Fallback to local authentication if Firebase fails
+        const account = accounts.find(acc => acc.username === username && acc.password === password);
+        
+        if (account) {
+          console.log("✅ Fallback local authentication successful for:", account.name);
+          
+          // Set localStorage values
+          if (account.role === 'admin') {
+            localStorage.setItem(ADMIN_TOKEN, 'true');
+            localStorage.setItem('adminName', account.name);
+            userType = 'admin';
+            localStorage.setItem(USER_TYPE_KEY, 'admin');
+            
+            setTimeout(() => {
+              setupRealtimeListeners();
+              startStaffHeartbeat();
+            }, 1000);
+          } else {
+            localStorage.setItem(STAFF_TOKEN, 'true');
+            localStorage.setItem('staffName', account.name);
+            localStorage.setItem('staffRole', account.role);
+            localStorage.setItem('username', account.username);
+            userType = 'staff';
+            localStorage.setItem(USER_TYPE_KEY, 'staff');
+            
+            updateStaffActivity();
+            
+            setTimeout(() => {
+              setupStaffRealtimeListeners();
+              startStaffHeartbeat();
+            }, 1000);
+          }
+          
+          return { 
+            success: true, 
+            name: account.name, 
+            role: account.role 
+          };
+        } else {
+          console.log("❌ Staff authentication failed");
+          return { success: false };
+        }
       }
     }
     
@@ -13744,52 +13811,129 @@
     }
     
     // Load staff accounts into the UI
-    function loadStaffAccounts() {
+    async function loadStaffAccounts() {
       const staffListElement = document.getElementById('staff-accounts-list');
       const staffDropdown = document.getElementById('staff-assignment');
       
-      if (staffListElement) {
-        staffListElement.innerHTML = '';
+      try {
+        // Load staff from Firebase database
+        const staffRef = ref(database, 'staff');
+        const snapshot = await get(staffRef);
         
-        accounts.forEach(staff => {
-          if (staff.role !== 'admin') { // Don't show admin in the list
-            const staffItem = document.createElement('div');
-            staffItem.className = 'staff-account-item';
-            staffItem.innerHTML = `
-              <div class="staff-account-info">
-                <div class="staff-account-name">${staff.name}</div>
-                <div class="staff-account-username">@${staff.username}</div>
-                <div class="staff-account-role">${staff.role.toUpperCase()}</div>
-              </div>
-              <div class="staff-account-actions">
-                <button class="staff-action-btn edit-staff-btn" onclick="editStaffAccount('${staff.username}')">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="staff-action-btn delete-staff-btn" onclick="deleteStaffAccount('${staff.username}')">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
-              </div>
-            `;
-            staffListElement.appendChild(staffItem);
-          }
-        });
-      }
-      
-      if (staffDropdown) {
-        // Clear all options except the first one
-        while (staffDropdown.options.length > 1) {
-          staffDropdown.remove(1);
+        let allStaff = [];
+        
+        if (snapshot.exists()) {
+          const firebaseStaff = snapshot.val();
+          Object.keys(firebaseStaff).forEach(username => {
+            const staff = firebaseStaff[username];
+            if (staff && staff.username) {
+              allStaff.push(staff);
+            }
+          });
+          console.log('✅ Loaded', allStaff.length, 'staff accounts from Firebase');
         }
         
-        // Add staff options to dropdown
-        accounts.forEach(staff => {
-          if (staff.role !== 'admin') { // Don't include admin in assignments
-            const option = document.createElement('option');
-            option.value = staff.username;
-            option.textContent = `${staff.name} (${staff.role})`;
-            staffDropdown.appendChild(option);
+        // Merge with local accounts for fallback
+        const localStaff = accounts.filter(staff => 
+          !allStaff.some(firebaseStaff => firebaseStaff.username === staff.username)
+        );
+        allStaff = [...allStaff, ...localStaff];
+        
+        // Update the local accounts array with merged data
+        accounts.length = 0;
+        accounts.push(...allStaff);
+        
+        if (staffListElement) {
+          staffListElement.innerHTML = '';
+          
+          allStaff.forEach(staff => {
+            if (staff.role !== 'admin') { // Don't show admin in the list
+              const staffItem = document.createElement('div');
+              staffItem.className = 'staff-account-item';
+              staffItem.innerHTML = `
+                <div class="staff-account-info">
+                  <div class="staff-account-name">${staff.name}</div>
+                  <div class="staff-account-username">@${staff.username}</div>
+                  <div class="staff-account-role">${staff.role.toUpperCase()}</div>
+                </div>
+                <div class="staff-account-actions">
+                  <button class="staff-action-btn edit-staff-btn" onclick="editStaffAccount('${staff.username}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="staff-action-btn delete-staff-btn" onclick="deleteStaffAccount('${staff.username}')">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              `;
+              staffListElement.appendChild(staffItem);
+            }
+          });
+        }
+        
+        if (staffDropdown) {
+          // Clear all options except the first one
+          while (staffDropdown.options.length > 1) {
+            staffDropdown.remove(1);
           }
-        });
+          
+          // Add staff options to dropdown
+          allStaff.forEach(staff => {
+            if (staff.role !== 'admin') { // Don't include admin in assignments
+              const option = document.createElement('option');
+              option.value = staff.username;
+              option.textContent = `${staff.name} (${staff.role})`;
+              staffDropdown.appendChild(option);
+            }
+          });
+        }
+        
+      } catch (error) {
+        console.error('❌ Error loading staff accounts from Firebase:', error);
+        
+        // Fallback to local accounts if Firebase fails
+        if (staffListElement) {
+          staffListElement.innerHTML = '';
+          
+          accounts.forEach(staff => {
+            if (staff.role !== 'admin') { // Don't show admin in the list
+              const staffItem = document.createElement('div');
+              staffItem.className = 'staff-account-item';
+              staffItem.innerHTML = `
+                <div class="staff-account-info">
+                  <div class="staff-account-name">${staff.name}</div>
+                  <div class="staff-account-username">@${staff.username}</div>
+                  <div class="staff-account-role">${staff.role.toUpperCase()}</div>
+                </div>
+                <div class="staff-account-actions">
+                  <button class="staff-action-btn edit-staff-btn" onclick="editStaffAccount('${staff.username}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="staff-action-btn delete-staff-btn" onclick="deleteStaffAccount('${staff.username}')">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              `;
+              staffListElement.appendChild(staffItem);
+            }
+          });
+        }
+        
+        if (staffDropdown) {
+          // Clear all options except the first one
+          while (staffDropdown.options.length > 1) {
+            staffDropdown.remove(1);
+          }
+          
+          // Add staff options to dropdown
+          accounts.forEach(staff => {
+            if (staff.role !== 'admin') { // Don't include admin in assignments
+              const option = document.createElement('option');
+              option.value = staff.username;
+              option.textContent = `${staff.name} (${staff.role})`;
+              staffDropdown.appendChild(option);
+            }
+          });
+        }
       }
     }
     
@@ -13826,7 +13970,7 @@
     }
     
     // Function to add a new staff account
-    function addStaffAccount() {
+    async function addStaffAccount() {
       const username = document.getElementById('new-staff-username').value.trim();
       const name = document.getElementById('new-staff-name').value.trim();
       const password = document.getElementById('new-staff-password').value.trim();
@@ -13843,18 +13987,38 @@
         return;
       }
       
-      // Add new staff account
-      accounts.push({ username, name, password, role });
-      
-      // Update UI
-      loadStaffAccounts();
-      
-      // Clear form
-      document.getElementById('new-staff-username').value = '';
-      document.getElementById('new-staff-name').value = '';
-      document.getElementById('new-staff-password').value = '';
-      
-      showNotification('Staff account added successfully', 'success');
+      try {
+        // Add new staff account to Firebase
+        const newStaffData = { 
+          username, 
+          name, 
+          password, 
+          role,
+          status: 'inactive',
+          lastActivity: new Date().toISOString(),
+          createdAt: new Date().toISOString()
+        };
+        
+        await set(ref(database, `staff/${username}`), newStaffData);
+        
+        // Add to local accounts array
+        accounts.push(newStaffData);
+        
+        // Update UI
+        loadStaffAccounts();
+        
+        // Clear form
+        document.getElementById('new-staff-username').value = '';
+        document.getElementById('new-staff-name').value = '';
+        document.getElementById('new-staff-password').value = '';
+        
+        showNotification('Staff account added successfully and synced to database', 'success');
+        console.log('✅ New staff account created:', username, 'Role:', role);
+        
+      } catch (error) {
+        console.error('❌ Error adding staff account to Firebase:', error);
+        showNotification('Error adding staff account to database', 'error');
+      }
     }
     
     // Function to edit a staff account
@@ -13867,28 +14031,50 @@
     }
     
     // Function to delete a staff account
-    function deleteStaffAccount(username) {
+    async function deleteStaffAccount(username) {
       const confirmDelete = confirm(`Are you sure you want to delete the staff account for ${username}?`);
       if (!confirmDelete) return;
       
-      // Remove from accounts array
-      const index = accounts.findIndex(staff => staff.username === username);
-      if (index !== -1) {
-        accounts.splice(index, 1);
-      }
-      
-      // Remove any table assignments for this staff
-      for (let i = tableAssignments.length - 1; i >= 0; i--) {
-        if (tableAssignments[i].staffUsername === username) {
-          tableAssignments.splice(i, 1);
+      try {
+        // Remove from Firebase database
+        await remove(ref(database, `staff/${username}`));
+        
+        // Remove from local accounts array
+        const index = accounts.findIndex(staff => staff.username === username);
+        if (index !== -1) {
+          accounts.splice(index, 1);
         }
+        
+        // Remove any table assignments for this staff
+        for (let i = tableAssignments.length - 1; i >= 0; i--) {
+          if (tableAssignments[i].staffUsername === username) {
+            tableAssignments.splice(i, 1);
+          }
+        }
+        
+        // Also remove from Firebase table assignments if they exist
+        const tableAssignmentsRef = ref(database, 'tableAssignments');
+        const snapshot = await get(tableAssignmentsRef);
+        if (snapshot.exists()) {
+          const assignments = snapshot.val();
+          Object.keys(assignments).forEach(async (key) => {
+            if (assignments[key].staffUsername === username) {
+              await remove(ref(database, `tableAssignments/${key}`));
+            }
+          });
+        }
+        
+        // Update UI
+        loadStaffAccounts();
+        loadTableAssignments();
+        
+        showNotification('Staff account deleted successfully from database', 'success');
+        console.log('✅ Staff account deleted from Firebase:', username);
+        
+      } catch (error) {
+        console.error('❌ Error deleting staff account from Firebase:', error);
+        showNotification('Error deleting staff account from database', 'error');
       }
-      
-      // Update UI
-      loadStaffAccounts();
-      loadTableAssignments();
-      
-      showNotification('Staff account deleted successfully', 'success');
     }
     
     // Function to assign a table range to a staff member
