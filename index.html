@@ -8475,17 +8475,16 @@
       console.log("Authenticating staff with username:", username);
       
       try {
-        // First check Firebase database for the staff account
-        const staffRef = ref(database, `staff/${username}`);
-        const snapshot = await get(staffRef);
+        // First check Firestore database for the staff account
+        const staffDoc = await db.collection('staff').doc(username).get();
         
         let account = null;
         
-        if (snapshot.exists()) {
-          const firebaseAccount = snapshot.val();
+        if (staffDoc.exists) {
+          const firebaseAccount = staffDoc.data();
           if (firebaseAccount.password === password) {
             account = firebaseAccount;
-            console.log("✅ Firebase authentication successful for:", account.name);
+            console.log("✅ Firestore authentication successful for:", account.name);
           }
         }
         
@@ -13816,21 +13815,19 @@
       const staffDropdown = document.getElementById('staff-assignment');
       
       try {
-        // Load staff from Firebase database
-        const staffRef = ref(database, 'staff');
-        const snapshot = await get(staffRef);
+        // Load staff from Firestore database
+        const staffSnapshot = await db.collection('staff').get();
         
         let allStaff = [];
         
-        if (snapshot.exists()) {
-          const firebaseStaff = snapshot.val();
-          Object.keys(firebaseStaff).forEach(username => {
-            const staff = firebaseStaff[username];
+        if (!staffSnapshot.empty) {
+          staffSnapshot.forEach(doc => {
+            const staff = doc.data();
             if (staff && staff.username) {
               allStaff.push(staff);
             }
           });
-          console.log('✅ Loaded', allStaff.length, 'staff accounts from Firebase');
+          console.log('✅ Loaded', allStaff.length, 'staff accounts from Firestore');
         }
         
         // Merge with local accounts for fallback
@@ -13988,18 +13985,18 @@
       }
       
       try {
-        // Add new staff account to Firebase
+        // Add new staff account to Firestore
         const newStaffData = { 
           username, 
           name, 
           password, 
           role,
           status: 'inactive',
-          lastActivity: new Date().toISOString(),
-          createdAt: new Date().toISOString()
+          lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        await set(ref(database, `staff/${username}`), newStaffData);
+        await db.collection('staff').doc(username).set(newStaffData);
         
         // Add to local accounts array
         accounts.push(newStaffData);
@@ -14016,8 +14013,15 @@
         console.log('✅ New staff account created:', username, 'Role:', role);
         
       } catch (error) {
-        console.error('❌ Error adding staff account to Firebase:', error);
-        showNotification('Error adding staff account to database', 'error');
+        console.error('❌ Error adding staff account to Firestore:', error);
+        console.error('Error details:', error.message);
+        
+        // Fallback: Add to local accounts array even if Firestore fails
+        const fallbackStaffData = { username, name, password, role };
+        accounts.push(fallbackStaffData);
+        loadStaffAccounts();
+        
+        showNotification('Staff account added locally (database sync may be limited)', 'warning');
       }
     }
     
@@ -14036,8 +14040,8 @@
       if (!confirmDelete) return;
       
       try {
-        // Remove from Firebase database
-        await remove(ref(database, `staff/${username}`));
+        // Remove from Firestore database
+        await db.collection('staff').doc(username).delete();
         
         // Remove from local accounts array
         const index = accounts.findIndex(staff => staff.username === username);
@@ -14052,17 +14056,14 @@
           }
         }
         
-        // Also remove from Firebase table assignments if they exist
-        const tableAssignmentsRef = ref(database, 'tableAssignments');
-        const snapshot = await get(tableAssignmentsRef);
-        if (snapshot.exists()) {
-          const assignments = snapshot.val();
-          Object.keys(assignments).forEach(async (key) => {
-            if (assignments[key].staffUsername === username) {
-              await remove(ref(database, `tableAssignments/${key}`));
-            }
-          });
-        }
+        // Also remove from Firestore table assignments if they exist
+        const assignmentsSnapshot = await db.collection('tableAssignments')
+          .where('staffUsername', '==', username)
+          .get();
+        
+        assignmentsSnapshot.forEach(async (doc) => {
+          await doc.ref.delete();
+        });
         
         // Update UI
         loadStaffAccounts();
