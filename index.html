@@ -14275,11 +14275,17 @@
     
     // Create new discount
     async function applyDiscount() {
+      console.log('🔹 Create Discount button clicked!');
+      
       const codeInput = document.getElementById('discount-code-input');
       const percentInput = document.getElementById('discount-percent');
       
+      console.log('🔹 Input elements found:', codeInput, percentInput);
+      
       const code = codeInput.value.trim().toUpperCase();
       const percent = parseInt(percentInput.value);
+      
+      console.log('🔹 Input values:', { code, percent });
       
       if (!code) {
         showNotification(
@@ -14311,71 +14317,62 @@
         return;
       }
       
+      const discountData = {
+        code: code,
+        percentage: percent,
+        createdAt: new Date().toISOString(),
+        createdBy: currentUserName || 'admin',
+        isActive: true,
+        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
+      
+      // Try to save to Firestore first, but don't let it block the functionality
       try {
-        const discountData = {
-          code: code,
-          percentage: percent,
-          createdAt: new Date().toISOString(),
-          createdBy: currentUserName || 'admin',
-          isActive: true
-        };
-        
-        // Save to Firestore
-        const docRef = await db.collection('discounts').add(discountData);
-        console.log('✅ Discount saved to Firestore with ID:', docRef.id);
-        
-        // Add to local array with Firestore ID
-        discountData.id = docRef.id;
-        activeDiscounts.push(discountData);
-        
-        // Clear inputs
-        codeInput.value = '';
-        percentInput.value = '10';
-        
-        // Update display
-        loadDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created',
-          currentLanguage === 'ar' ? 
-            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}%` : 
-            `Discount code ${code} created with ${percent}% off`,
-          'success'
-        );
-        
+        if (db && typeof db.collection === 'function') {
+          const docRef = await db.collection('discounts').add(discountData);
+          console.log('✅ Discount saved to Firestore with ID:', docRef.id);
+          discountData.id = docRef.id; // Update with Firestore ID
+          discountData.source = 'firestore';
+        } else {
+          console.log('Firestore not available, using local storage only');
+          discountData.source = 'local';
+        }
       } catch (error) {
         console.error('❌ Error saving discount to Firestore:', error);
-        
-        // Fallback: Add to local array only
-        const fallbackData = {
-          code: code,
-          percentage: percent,
-          createdAt: new Date().toISOString(),
-          createdBy: currentUserName || 'admin',
-          isActive: true,
-          id: `local_${Date.now()}`
-        };
-        
-        activeDiscounts.push(fallbackData);
-        loadDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'خصم محلي' : 'Discount Created Locally',
-          currentLanguage === 'ar' ? 
-            'تم إنشاء الخصم محلياً (قد تكون المزامنة محدودة)' : 
-            'Discount created locally (database sync may be limited)',
-          'warning'
-        );
+        console.log('Continuing with local storage');
+        discountData.source = 'local';
       }
+      
+      // Always add to local array (this ensures the button always works)
+      activeDiscounts.push(discountData);
+      
+      // Clear inputs
+      codeInput.value = '';
+      percentInput.value = '10';
+      
+      // Update display
+      displayDiscountsList();
+      
+      // Show appropriate success message
+      const messageType = discountData.source === 'firestore' ? 'success' : 'warning';
+      const title = currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created';
+      const message = discountData.source === 'firestore' ? 
+        (currentLanguage === 'ar' ? 
+          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
+          `Discount code ${code} created with ${percent}% off and saved to database`) :
+        (currentLanguage === 'ar' ? 
+          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% محلياً` : 
+          `Discount code ${code} created with ${percent}% off locally`);
+      
+      showNotification(title, message, messageType);
     }
     
     // Load discounts from Firestore
     async function loadDiscountsList() {
       try {
-        // Load from Firestore
+        // Load from Firestore (simplified query without orderBy to avoid index issues)
         const discountsSnapshot = await db.collection('discounts')
           .where('isActive', '==', true)
-          .orderBy('createdAt', 'desc')
           .get();
         
         activeDiscounts = [];
@@ -14386,15 +14383,23 @@
             discount.id = doc.id;
             activeDiscounts.push(discount);
           });
+          
+          // Sort locally by creation date
+          activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           console.log('✅ Loaded', activeDiscounts.length, 'discounts from Firestore');
         }
         
       } catch (error) {
         console.error('❌ Error loading discounts from Firestore:', error);
-        // Keep existing local discounts
+        console.error('Error details:', error.code, error.message);
+        
+        // Initialize empty array if no local discounts exist
+        if (!activeDiscounts || activeDiscounts.length === 0) {
+          activeDiscounts = [];
+        }
       }
       
-      // Update UI
+      // Always update UI regardless of Firestore success/failure
       displayDiscountsList();
     }
     
