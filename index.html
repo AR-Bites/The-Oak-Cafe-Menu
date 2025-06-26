@@ -5394,6 +5394,14 @@
     let db;
     let isOfflineMode = false; // Use Firebase by default
     
+    // Global listener tracking to prevent duplicates
+    let activeListeners = {
+      orders: null,
+      staff: null,
+      tables: null,
+      ratings: null
+    };
+    
     // Firebase permissions debug - these rules should be applied in Firebase console
     const recommendedFirebaseRules = `
     rules_version = '2';
@@ -5648,8 +5656,9 @@
               const ordersRef = db.collection('orders');
               await ordersRef.limit(1).get();
               
-              // Setup real-time listener for occupied tables based on orders
-              ordersRef.onSnapshot(snapshot => {
+              // Setup real-time listener for occupied tables based on orders (prevent duplicates)
+              if (!activeListeners.orders) {
+                activeListeners.orders = ordersRef.onSnapshot(snapshot => {
                 try {
                   if (!snapshot.empty) {
                     // Update occupiedTables based on orders
@@ -5703,9 +5712,10 @@
                 } catch (err) {
                   console.error("Error processing orders snapshot:", err);
                 }
-              }, err => {
-                console.error("Error in orders snapshot listener:", err);
-              });
+                }, err => {
+                  console.error("Error in orders snapshot listener:", err);
+                });
+              }
               
             } catch (err) {
               console.error("Error setting up orders collection:", err);
@@ -12113,18 +12123,20 @@
 
     // Set up real-time listeners for live updates
     function setupRealtimeListeners() {
-      // Listen for real-time updates to orders collection
-      db.collection('orders').onSnapshot(snapshot => {
+      // Listen for real-time updates to orders collection (prevent duplicates)
+      if (!activeListeners.orders) {
+        activeListeners.orders = db.collection('orders').onSnapshot(snapshot => {
         // Orders collection updated, refreshing statistics and orders display
         updateStatisticsFromSnapshot(snapshot);
         updateOrdersDisplay();
-      }, error => {
-        console.warn('Orders real-time listener error:', error);
-        // Fallback to periodic updates if real-time fails (disabled to reduce console spam)
-        // setInterval(() => {
-        //   refreshStatisticsAndOrders();
-        // }, 10000); // Update every 10 seconds
-      });
+        }, error => {
+          console.warn('Orders real-time listener error:', error);
+          // Fallback to periodic updates if real-time fails (disabled to reduce console spam)
+          // setInterval(() => {
+          //   refreshStatisticsAndOrders();
+          // }, 10000); // Update every 10 seconds
+        });
+      }
 
       // Set up periodic update for active staff count (disabled to reduce console spam)
       // setInterval(() => {
@@ -12248,29 +12260,33 @@
     function setupStaffRealtimeListeners() {
       console.log('Setting up real-time listeners for staff dashboard...');
       
-      // Listen for real-time updates to orders collection
-      db.collection('orders').onSnapshot(snapshot => {
-        // Staff dashboard: Orders collection updated, refreshing display
-        updateOrdersDisplay();
-        fetchOrders(); // Update table details
-      }, error => {
-        console.warn('Staff orders real-time listener error:', error);
-        // Fallback to periodic updates if real-time fails (disabled to reduce console spam)
-        // setInterval(() => {
-        //   updateOrdersDisplay();
-        //   fetchOrders();
-        // }, 15000); // Update every 15 seconds for staff
-      });
+      // Listen for real-time updates to orders collection (prevent duplicates)
+      if (!activeListeners.orders) {
+        activeListeners.orders = db.collection('orders').onSnapshot(snapshot => {
+          // Staff dashboard: Orders collection updated, refreshing display
+          updateOrdersDisplay();
+          fetchOrders(); // Update table details
+        }, error => {
+          console.warn('Staff orders real-time listener error:', error);
+          // Fallback to periodic updates if real-time fails (disabled to reduce console spam)
+          // setInterval(() => {
+          //   updateOrdersDisplay();
+          //   fetchOrders();
+          // }, 15000); // Update every 15 seconds for staff
+        });
+      }
 
-      // Also listen for table status changes
-      db.collection('tableStatus').onSnapshot(snapshot => {
-        console.log('Staff dashboard: Table status updated, refreshing tables display...');
-        if (typeof updateTablesDisplay === 'function') {
-          updateTablesDisplay();
-        }
-      }, error => {
-        console.warn('Staff table status real-time listener error:', error);
-      });
+      // Also listen for table status changes (prevent duplicates)
+      if (!activeListeners.tables) {
+        activeListeners.tables = db.collection('tableStatus').onSnapshot(snapshot => {
+          console.log('Staff dashboard: Table status updated, refreshing tables display...');
+          if (typeof updateTablesDisplay === 'function') {
+            updateTablesDisplay();
+          }
+        }, error => {
+          console.warn('Staff table status real-time listener error:', error);
+        });
+      }
     }
 
     // Real-time active staff tracking system
@@ -12538,7 +12554,7 @@
           if (currentUser) {
             setStaffOffline(currentUser.username);
           }
-          logoutUser();
+          logoutStaff();
         }, INACTIVITY_LOGOUT_TIMEOUT);
       }
     }
@@ -13754,9 +13770,17 @@
         };
         
         const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
+        const uniqueCustomers = new Set(); // Fix for undefined uniqueCustomers error
         
         snapshot.forEach(doc => {
           const order = doc.data();
+          
+          // Track unique customers
+          if (order.guestId) {
+            uniqueCustomers.add(order.guestId);
+          } else if (order.tableNumber) {
+            uniqueCustomers.add(`table_${order.tableNumber}`);
+          }
           
           // Count by status
           if (orderStatusData.hasOwnProperty(order.status)) {
@@ -15269,6 +15293,7 @@
         });
       }
     }
+    });
   </script>
   
 
