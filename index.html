@@ -9103,7 +9103,7 @@
           guestOption.onclick = function() { showGuestOption(); };
           guestOption.innerHTML = `
             <i class="fas fa-utensils option-icon"></i>
-            <span id="guest-option-text">${currentLanguage === 'ar' ? 'أنا ضيف' : 'I\'m a Guest'}</span>
+            <span id="guest-option-text">${currentLanguage === 'ar' ? 'أنا b�يف' : 'I\'m a Guest'}</span>
             <div class="option-description" id="guest-option-desc">
               ${currentLanguage === 'ar' 
                 ? 'حدد هذا إذا كنت تتناول الطعام وتحتاج إلى طلب من طاولتك' 
@@ -12123,16 +12123,12 @@
         updateOrdersDisplay();
       }, error => {
         console.warn('Orders real-time listener error:', error);
-        // Fallback to periodic updates if real-time fails
-        setInterval(() => {
-          refreshStatisticsAndOrders();
-        }, 10000); // Update every 10 seconds
+        // DISABLED: Periodic updates - was causing excessive database usage
+        console.log('Periodic statistics updates DISABLED - was causing 26K+ database operations');
       });
 
-      // Set up periodic update for active staff count (since Firebase permissions are limited)
-      setInterval(() => {
-        updateActiveStaffCount();
-      }, 30000); // Update every 30 seconds
+      // DISABLED: Periodic active staff count updates - was causing excessive database usage
+      console.log('Periodic active staff count updates DISABLED - was causing 26K+ database operations');
     }
 
     // Function to update statistics from orders snapshot
@@ -12258,11 +12254,8 @@
         fetchOrders(); // Update table details
       }, error => {
         console.warn('Staff orders real-time listener error:', error);
-        // Fallback to periodic updates if real-time fails
-        setInterval(() => {
-          updateOrdersDisplay();
-          fetchOrders();
-        }, 15000); // Update every 15 seconds for staff
+        // DISABLED: Periodic order updates - was causing excessive database usage
+        console.log('Periodic order updates DISABLED - was causing 26K+ database operations');
       });
 
       // Also listen for table status changes
@@ -12331,20 +12324,8 @@
         
         console.log(`Staff activity updated for ${staffName} (${staffRole})`);
         
-        // Store in Firebase for real-time staff tracking
-        if (db && typeof db.collection === 'function') {
-          try {
-            db.collection('staffSessions').doc(activityData.username).set(activityData, { merge: true })
-              .then(() => {
-                console.log(`✅ Staff session stored in Firebase for ${staffName}`);
-              })
-              .catch(error => {
-                console.log('Firebase staff session update failed:', error);
-              });
-          } catch (error) {
-            console.log('Firebase not available for staff tracking');
-          }
-        }
+        // DISABLED: Firebase writes - was causing excessive database usage
+        console.log('Firebase staff session writes DISABLED - was causing 26K+ database operations');
         
         // TEST: Add sample staff sessions for verification (admin only)
         if (activityData.role === 'admin' && !localStorage.getItem('staffSessionsCreated')) {
@@ -12408,57 +12389,10 @@
       console.log('🔧 Created test staff sessions - active staff count should update');
     }
 
-    // Function to start staff heartbeat monitoring  
+    // DISABLED: Staff heartbeat monitoring - was causing excessive database usage
     function startStaffHeartbeat() {
-      if (activeStaffHeartbeat) {
-        clearInterval(activeStaffHeartbeat);
-      }
-      
-      console.log('Starting staff heartbeat monitoring for user type:', userType);
-      
-      // Get current user info from localStorage
-      const currentUser = getCurrentUserInfo();
-      if (!currentUser) {
-        console.warn('No current user info found, cannot start heartbeat');
-        return;
-      }
-      
-      console.log('Starting heartbeat for user:', currentUser.name, '(' + currentUser.role + ')');
-      
-      // Update activity immediately
-      updateStaffActivity();
-      
-      // Trigger immediate active staff count update
-      setTimeout(() => {
-        console.log('Triggering initial active staff count update...');
-        console.log('Current userType:', userType);
-        console.log('Current page visibility:', document.hidden ? 'hidden' : 'visible');
-        
-        // Check if we're in admin dashboard
-        const adminDashboard = document.querySelector('.admin-dashboard');
-        const statsCards = document.querySelector('.stats-cards');
-        console.log('Admin dashboard found:', !!adminDashboard);
-        console.log('Stats cards found:', !!statsCards);
-        
-        updateActiveStaffCount();
-      }, 1000);
-      
-      // Set up heartbeat interval
-      activeStaffHeartbeat = setInterval(() => {
-        console.log('Heartbeat: Updating staff activity and count...');
-        updateStaffActivity();
-        updateActiveStaffCount(); // Update count on each heartbeat
-      }, HEARTBEAT_INTERVAL);
-      
-      // Reset activity timeout on user interaction
-      ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'].forEach(eventType => {
-        document.addEventListener(eventType, resetStaffActivityTimeout, { passive: true });
-        document.addEventListener(eventType, trackUserActivity, { passive: true });
-      });
-      
-      resetStaffActivityTimeout();
-      resetInactivityTimeout();
-      console.log('Staff heartbeat monitoring started successfully with 10-minute auto-logout');
+      console.log('Staff heartbeat monitoring DISABLED - was causing 26K+ database operations');
+      return; // Exit early to prevent excessive database usage
     }
 
     // Function to reset staff activity timeout
@@ -12597,106 +12531,28 @@
     // Real-time Firebase listener for staff sessions
     let staffSessionsListener = null;
     
-    // Function to setup real-time active staff count monitoring
+    // DISABLED: Real-time staff monitoring - was causing excessive database usage
     function setupRealTimeStaffMonitoring() {
-      if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available, using polling fallback');
-        setInterval(updateFromLocalStorage, 10000); // Poll every 10 seconds
-        return;
-      }
-      
-      try {
-        console.log('🔄 Setting up real-time staff monitoring...');
-        
-        // Remove existing listener if any
-        if (staffSessionsListener) {
-          staffSessionsListener();
-          staffSessionsListener = null;
-        }
-        
-        // Setup real-time listener for staff sessions
-        staffSessionsListener = db.collection('staffSessions').onSnapshot(
-          (snapshot) => {
-            console.log('🔥 Real-time staff sessions update received');
-            processStaffSessionsSnapshot(snapshot);
-          },
-          (error) => {
-            console.warn('Staff sessions listener error:', error);
-            // Fallback to polling
-            setTimeout(updateFromLocalStorage, 1000);
-          }
-        );
-        
-        console.log('✅ Real-time staff monitoring active');
-        
-      } catch (error) {
-        console.warn('Failed to setup real-time monitoring:', error);
-        // Fallback to polling
-        setInterval(updateFromLocalStorage, 10000);
-      }
+      console.log('Real-time staff monitoring DISABLED - was causing 26K+ database operations');
+      return; // Exit early to prevent excessive database usage
     }
     
-    // Process staff sessions snapshot for real-time updates
+    // DISABLED: Process staff sessions snapshot - was causing excessive database usage
     function processStaffSessionsSnapshot(snapshot) {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-      const currentTime = Date.now();
-      const activeStaff = [];
-      
-      console.log('🔥 Processing', snapshot.size, 'staff sessions...');
-      
-      snapshot.forEach(doc => {
-        const staff = doc.data();
-        const timeSinceActivity = currentTime - staff.lastActivity;
-        
-        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
-        
-        // Exclude admin users from staff count
-        if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count`);
-          return;
-        }
-        
-        // Count active non-admin staff within timeout period
-        if (staff.status === 'active' && 
-            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-            staff.sessionId) {
-          
-          activeStaff.push({
-            username: staff.username,
-            name: staff.name,
-            role: staff.role,
-            lastActivity: staff.lastActivity,
-            sessionId: staff.sessionId
-          });
-          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role})`);
-        }
-      });
-      
-      console.log('🔥 Real-time Active Staff Count:', activeStaff.length);
-      updateStaffCountDisplay(activeStaff.length, activeStaff);
+      console.log('processStaffSessionsSnapshot DISABLED - was causing 26K+ database operations');
+      return; // Exit early to prevent excessive database usage
     }
     
-    // Function to update active staff count with Firebase integration
+    // DISABLED: Function to update active staff count - was causing excessive database usage
     function updateActiveStaffCount() {
-      try {
-        console.log('updateActiveStaffCount called...');
-        
-        // Try Firebase first for real-time staff tracking
-        if (db && typeof db.collection === 'function') {
-          queryFirebaseStaffSessions();
-        } else {
-          updateFromLocalStorage();
-        }
-      } catch (error) {
-        console.log('Error in staff count update:', error);
-        updateFromLocalStorage();
-      }
+      console.log('updateActiveStaffCount DISABLED - was causing 26K+ database operations');
+      return; // Exit early to prevent excessive database usage
     }
     
-    // Query Firebase for active staff sessions
+    // DISABLED: Query Firebase for active staff sessions - was causing excessive database usage
     function queryFirebaseStaffSessions() {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-      const currentTime = Date.now();
+      console.log('queryFirebaseStaffSessions DISABLED - was causing 26K+ database operations');
+      return; // Exit early to prevent excessive database usage
       
       db.collection('staffSessions').get()
         .then(querySnapshot => {
