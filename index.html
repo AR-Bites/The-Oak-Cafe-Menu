@@ -12129,10 +12129,10 @@
         }, 10000); // Update every 10 seconds
       });
 
-      // Set up periodic update for active staff count (since Firebase permissions are limited)
+      // Set up periodic update for active staff count (reduced frequency to minimize Firebase operations)
       setInterval(() => {
         updateActiveStaffCount();
-      }, 30000); // Update every 30 seconds
+      }, 180000); // Update every 3 minutes to reduce database reads
     }
 
     // Function to update statistics from orders snapshot
@@ -12220,21 +12220,33 @@
         totalOrdersElement.textContent = totalOrders;
         totalOrdersElement.style.color = 'var(--gold)';
         totalOrdersElement.style.fontWeight = 'bold';
-        console.log('✅ Updated Total Orders:', totalOrders);
+        // Only log statistics updates every 2 minutes to reduce console spam
+        const lastStatsLogTime = localStorage.getItem('lastStatsLogTime') || 0;
+        const currentTime = Date.now();
+        if (currentTime - lastStatsLogTime > 120000) { // 2 minutes
+          console.log('✅ Updated Total Orders:', totalOrders);
+          localStorage.setItem('lastStatsLogTime', currentTime);
+        }
       }
       
       if (totalCustomersElement) {
         totalCustomersElement.textContent = uniqueCustomers.size;
         totalCustomersElement.style.color = 'var(--gold)';
         totalCustomersElement.style.fontWeight = 'bold';
-        console.log('✅ Updated Total Customers:', uniqueCustomers.size);
+        const lastStatsLogTime = localStorage.getItem('lastStatsLogTime') || 0;
+        if (Date.now() - lastStatsLogTime <= 1000) { // Only log if we just logged orders
+          console.log('✅ Updated Total Customers:', uniqueCustomers.size);
+        }
       }
       
       if (avgPrepTimeElement) {
         avgPrepTimeElement.textContent = avgPrepTime;
         avgPrepTimeElement.style.color = 'var(--gold)';
         avgPrepTimeElement.style.fontWeight = 'bold';
-        console.log('✅ Updated Avg Prep Time:', avgPrepTime);
+        const lastStatsLogTime = localStorage.getItem('lastStatsLogTime') || 0;
+        if (Date.now() - lastStatsLogTime <= 1000) { // Only log if we just logged orders
+          console.log('✅ Updated Avg Prep Time:', avgPrepTime);
+        }
       }
       
       // Update active staff count (but don't let it interfere with other stats)
@@ -12282,7 +12294,7 @@
     let inactivityTimeout = null;
     const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
     const INACTIVITY_LOGOUT_TIMEOUT = 10 * 60 * 1000; // 10 minutes auto logout
-    const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
+    const HEARTBEAT_INTERVAL = 120 * 1000; // Send heartbeat every 2 minutes to reduce Firebase operations
 
     // Function to get current user info from localStorage
     function getCurrentUserInfo() {
@@ -12360,7 +12372,13 @@
         // Update the active staff count immediately after updating activity
         updateActiveStaffCount();
         
-        console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
+        // Only log activity tracking once per minute to reduce console spam
+        const lastLogTime = localStorage.getItem('lastActivityLogTime') || 0;
+        const currentTime = Date.now();
+        if (currentTime - lastLogTime > 60000) { // 1 minute
+          console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
+          localStorage.setItem('lastActivityLogTime', currentTime);
+        }
         
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
@@ -12747,7 +12765,14 @@
       const currentTime = Date.now();
       const activeStaff = [];
       
-      console.log('All staff activity data:', allStaffActivity);
+      // Reduce console spam by limiting staff activity logging
+      const lastStaffLogTime = localStorage.getItem('lastStaffActivityLogTime') || 0;
+      const shouldLogStaffActivity = (currentTime - lastStaffLogTime) > 300000; // 5 minutes
+      
+      if (shouldLogStaffActivity) {
+        console.log('All staff activity data:', allStaffActivity);
+        localStorage.setItem('lastStaffActivityLogTime', currentTime);
+      }
       
       // Clean up old inactive sessions and test data
       const cleanedActivity = {};
@@ -12757,7 +12782,9 @@
         
         // Remove all test sessions and demo sessions immediately
         if (isTestSession || staff.sessionId.startsWith('DEMO-') || staff.name.includes('(Demo)')) {
-          console.log(`Removing test/demo session for ${staff.name}`);
+          if (shouldLogStaffActivity) {
+            console.log(`Removing test/demo session for ${staff.name}`);
+          }
           return;
         }
         
@@ -12783,11 +12810,17 @@
       // Filter active staff based on recent activity and status - EXCLUDE ADMIN
       Object.values(cleanedActivity).forEach(staff => {
         const timeSinceActivity = currentTime - staff.lastActivity;
-        console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+        
+        // Only log staff checking every 5 minutes to reduce console spam
+        if (shouldLogStaffActivity) {
+          console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+        }
         
         // EXCLUDE ALL ADMIN USERS from staff count completely
         if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
+          if (shouldLogStaffActivity) {
+            console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
+          }
           return; // Skip admin users entirely
         }
         
@@ -12817,7 +12850,9 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
+            if (shouldLogStaffActivity) {
+              console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
+            }
           } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
             // This is another active staff member from a different session
             activeStaff.push({
@@ -12827,16 +12862,24 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
+            if (shouldLogStaffActivity) {
+              console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
+            }
           } else {
-            console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
+            if (shouldLogStaffActivity) {
+              console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
+            }
           }
         } else {
-          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
+          if (shouldLogStaffActivity) {
+            console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
+          }
         }
       });
       
-      console.log('Active staff found:', activeStaff.length, activeStaff);
+      if (shouldLogStaffActivity) {
+        console.log('Active staff found:', activeStaff.length, activeStaff);
+      }
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
