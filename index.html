@@ -5144,7 +5144,7 @@
               <label for="discount-percent">DISCOUNT PERCENTAGE</label>
               <input type="number" id="discount-percent" min="5" max="50" value="10">
             </div>
-            <button onclick="applyDiscount()" id="apply-discount-btn" class="confirm-btn">CREATE DISCOUNT</button>
+            <button onclick="createDiscount()" id="apply-discount-btn" class="confirm-btn">CREATE DISCOUNT</button>
           </div>
         </div>
       </div>
@@ -13753,8 +13753,8 @@
     
     // Add call to loadStaffRatings in renderAdminDashboard function
     function renderAdminDashboard() {
-      // Load staff accounts and table assignments
-      loadStaffAccounts();
+      // Load staff accounts and table assignments (Firebase disabled)
+      // loadStaffAccounts(); // Disabled to prevent Firebase errors
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
       loadDiscountsList(); // Load discounts management
@@ -13762,67 +13762,35 @@
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
       
-      // Fetch stats and render charts
-      db.collection('orders').get().then(snapshot => {
-        const totalOrders = snapshot.size;
-        let totalRating = 0;
-        let ratedOrders = 0;
-        let lowRatings = 0;
-        
-        // Prepare data for charts
-        const orderStatusData = {
-          pending: 0,
-          preparing: 0,
-          ready: 0,
-          completed: 0,
-          cancelled: 0
-        };
-        
-        const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
-        
-        snapshot.forEach(doc => {
-          const order = doc.data();
-          
-          // Count by status
-          if (orderStatusData.hasOwnProperty(order.status)) {
-            orderStatusData[order.status]++;
-          }
-          
-          // Track ratings
-          if (order.rating) {
-            totalRating += order.rating;
-            ratedOrders++;
-            
-            // Count low ratings (1-2 stars)
-            if (order.rating <= 2) {
-              lowRatings++;
-            }
-            
-            // Update rating distribution
-            if (order.rating >= 1 && order.rating <= 5) {
-              ratingDistribution[order.rating - 1]++;
-            }
-          }
-        });
-        
-        // Calculate average rating
-        const avgRating = ratedOrders > 0 ? (totalRating / ratedOrders).toFixed(1) : '0.0';
-        
-        // Update stats display
-        document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('total-customers').textContent = new Set(orders.map(order => order.guestId || order.tableNumber || 'Unknown')).size;
-        document.getElementById('avg-prep-time').textContent = avgPrepTime;
-        
-        // Set static active staff count (Firebase disabled)
-        const activeStaffElement = document.getElementById('active-staff');
-        if (activeStaffElement) {
-          activeStaffElement.textContent = '0';
-        }
-        
-        // Update charts
-        updateOrdersChart(orderStatusData);
-        updateRatingsChart(ratingDistribution);
-      });
+      // Set static values (Firebase disabled to prevent errors)
+      const totalOrders = 0;
+      const avgPrepTime = '0';
+      
+      // Prepare static data for charts
+      const orderStatusData = {
+        pending: 0,
+        preparing: 0,
+        ready: 0,
+        completed: 0,
+        cancelled: 0
+      };
+      
+      const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
+      
+      // Update stats display with static values
+      document.getElementById('total-orders').textContent = totalOrders;
+      document.getElementById('total-customers').textContent = 0;
+      document.getElementById('avg-prep-time').textContent = avgPrepTime;
+      
+      // Set static active staff count
+      const activeStaffElement = document.getElementById('active-staff');
+      if (activeStaffElement) {
+        activeStaffElement.textContent = '0';
+      }
+      
+      // Update charts with static data
+      updateOrdersChart(orderStatusData);
+      updateRatingsChart(ratingDistribution);
     }
     
     // Load staff accounts into the UI
@@ -14290,8 +14258,8 @@
     
     // Create new discount (renamed to match HTML form call)
     function createDiscount() {
-      const codeInput = document.getElementById('discount-code');
-      const percentInput = document.getElementById('discount-percentage');
+      const codeInput = document.getElementById('discount-code-input');
+      const percentInput = document.getElementById('discount-percent');
       
       const code = codeInput.value.trim().toUpperCase();
       const percent = parseInt(percentInput.value);
@@ -14349,8 +14317,8 @@
         codeInput.value = '';
         percentInput.value = '10';
         
-        // Update display
-        displayDiscountsList();
+        // Update display immediately
+        updateDiscountDisplay();
         
         showNotification(
           currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created',
@@ -14368,6 +14336,57 @@
         );
       }
     }
+
+    // Function to update discount display
+    function updateDiscountDisplay() {
+      const discountsList = document.getElementById('active-discounts-list');
+      if (!discountsList) return;
+      
+      discountsList.innerHTML = '';
+      
+      if (activeDiscounts.length === 0) {
+        discountsList.innerHTML = '<p class="no-discounts-message">No active discount codes</p>';
+        return;
+      }
+      
+      activeDiscounts.forEach(discount => {
+        const discountItem = document.createElement('div');
+        discountItem.className = 'discount-item';
+        discountItem.innerHTML = `
+          <div class="discount-info">
+            <span class="discount-code">${discount.code}</span>
+            <span class="discount-percentage">${discount.percentage}% OFF</span>
+            <span class="discount-date">Created: ${new Date(discount.createdAt).toLocaleDateString()}</span>
+          </div>
+          <button onclick="deleteDiscount('${discount.id}')" class="delete-discount-btn">
+            ${currentLanguage === 'ar' ? 'حذف' : 'DELETE'}
+          </button>
+        `;
+        discountsList.appendChild(discountItem);
+      });
+    }
+
+    // Function to delete discount
+    function deleteDiscount(discountId) {
+      const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+      const updatedDiscounts = localDiscounts.map(d => 
+        d.id === discountId ? {...d, isActive: false} : d
+      );
+      localStorage.setItem('local_discounts', JSON.stringify(updatedDiscounts));
+      
+      const index = activeDiscounts.findIndex(d => d.id === discountId);
+      if (index > -1) {
+        activeDiscounts.splice(index, 1);
+      }
+      
+      updateDiscountDisplay();
+      
+      showNotification(
+        currentLanguage === 'ar' ? 'تم حذف الخصم' : 'Discount Deleted',
+        currentLanguage === 'ar' ? 'تم حذف رمز الخصم بنجاح' : 'Discount code deleted successfully',
+        'success'
+      );
+    }
     
     // Load discounts from local storage only (Firebase disabled)
     function loadDiscountsList() {
@@ -14380,10 +14399,10 @@
         activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         
         // Update UI
-        displayDiscountsList();
+        updateDiscountDisplay();
       } catch (error) {
         activeDiscounts = [];
-        displayDiscountsList();
+        updateDiscountDisplay();
       }
     }
     
