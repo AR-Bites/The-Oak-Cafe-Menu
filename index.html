@@ -12329,14 +12329,14 @@
           sessionId: clientId
         };
         
-        console.log(`Staff activity updated for ${staffName} (${staffRole})`);
+        // Staff activity updated
         
         // Store in Firebase for real-time staff tracking
         if (db && typeof db.collection === 'function') {
           try {
             db.collection('staffSessions').doc(activityData.username).set(activityData, { merge: true })
               .then(() => {
-                console.log(`✅ Staff session stored in Firebase for ${staffName}`);
+                // Staff session stored in Firebase
               })
               .catch(error => {
                 console.log('Firebase staff session update failed:', error);
@@ -12360,7 +12360,7 @@
         // Update the active staff count immediately after updating activity
         updateActiveStaffCount();
         
-        console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
+        // Activity tracked
         
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
@@ -12781,11 +12781,11 @@
       // Filter active staff based on recent activity and status - EXCLUDE ADMIN
       Object.values(cleanedActivity).forEach(staff => {
         const timeSinceActivity = currentTime - staff.lastActivity;
-        console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+        // Staff activity check in progress
         
         // EXCLUDE ALL ADMIN USERS from staff count completely
         if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
+          // Admin excluded from staff count
           return; // Skip admin users entirely
         }
         
@@ -12815,7 +12815,7 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
+            // Current staff member counted
           } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
             // This is another active staff member from a different session
             activeStaff.push({
@@ -12825,16 +12825,16 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
+            // Other active staff member counted
           } else {
-            console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
+            // Staff member not counted
           }
         } else {
-          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
+          // Staff member filtered out
         }
       });
       
-      console.log('Active staff found:', activeStaff.length, activeStaff);
+      // Active staff count determined
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
@@ -12854,7 +12854,7 @@
           activeStaffElement.style.color = 'var(--gold)';
           activeStaffElement.style.fontWeight = 'bold';
           activeStaffElement.style.fontSize = '1.5rem';
-          console.log('Updated Active Staff to:', count);
+          // Staff count display updated
         }
         
         // Update active staff details for admin
@@ -14273,100 +14273,109 @@
     
     // Create new discount
     async function applyDiscount() {
-      console.log('🔹 Create Discount button clicked!');
-      
-      const codeInput = document.getElementById('discount-code-input');
-      const percentInput = document.getElementById('discount-percent');
-      
-      if (!codeInput || !percentInput) {
-        console.error('❌ Input elements not found!');
-        showNotification('Error', 'Input fields not found', 'error');
-        return;
-      }
-      
-      const code = codeInput.value.trim().toUpperCase();
-      const percent = parseInt(percentInput.value);
-      
-      console.log('🔹 Input values:', { code, percent });
-      
-      if (!code) {
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
-          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
-          'error'
-        );
-        codeInput.focus();
-        return;
-      }
-      
-      if (!percent || percent < 5 || percent > 50) {
-        showNotification(
-          currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
-          currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
-          'error'
-        );
-        percentInput.focus();
-        return;
-      }
-      
-      // Check if code already exists
-      if (activeDiscounts.some(d => d.code === code)) {
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
-          currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
-          'error'
-        );
-        return;
-      }
-      
-      const discountData = {
-        code: code,
-        percentage: percent,
-        createdAt: new Date().toISOString(),
-        createdBy: currentUserName || 'admin',
-        isActive: true,
-        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      };
-      
-      // Try to save to Firestore first, but don't let it block the functionality
       try {
-        if (db && typeof db.collection === 'function') {
-          const docRef = await db.collection('discounts').add(discountData);
-          console.log('✅ Discount saved to Firestore with ID:', docRef.id);
-          discountData.id = docRef.id; // Update with Firestore ID
-          discountData.source = 'firestore';
-        } else {
-          console.log('Firestore not available, using local storage only');
+        console.log('🔹 Create Discount button clicked!');
+        
+        const codeInput = document.getElementById('discount-code-input');
+        const percentInput = document.getElementById('discount-percent');
+        
+        if (!codeInput || !percentInput) {
+          console.error('❌ Input elements not found!');
+          showNotification('Error', 'Input fields not found', 'error');
+          return;
+        }
+        
+        const code = codeInput.value.trim().toUpperCase();
+        const percent = parseInt(percentInput.value);
+        
+        console.log('🔹 Input values:', { code, percent });
+        
+        if (!code) {
+          showNotification(
+            currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
+            currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
+            'error'
+          );
+          codeInput.focus();
+          return;
+        }
+        
+        if (!percent || percent < 5 || percent > 50) {
+          showNotification(
+            currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
+            currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
+            'error'
+          );
+          percentInput.focus();
+          return;
+        }
+        
+        // Check if code already exists
+        if (activeDiscounts.some(d => d.code === code)) {
+          showNotification(
+            currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
+            currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
+            'error'
+          );
+          return;
+        }
+        
+        const discountData = {
+          code: code,
+          percentage: percent,
+          createdAt: new Date().toISOString(),
+          createdBy: currentUserName || 'admin',
+          isActive: true,
+          id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        };
+        
+        // Try to save to Firestore first, but don't let it block the functionality
+        try {
+          if (db && typeof db.collection === 'function') {
+            const docRef = await db.collection('discounts').add(discountData);
+            console.log('✅ Discount saved to Firestore with ID:', docRef.id);
+            discountData.id = docRef.id; // Update with Firestore ID
+            discountData.source = 'firestore';
+          } else {
+            console.log('Firestore not available, using local storage only');
+            discountData.source = 'local';
+          }
+        } catch (error) {
+          console.error('❌ Error saving discount to Firestore:', error);
+          console.log('Continuing with local storage');
           discountData.source = 'local';
         }
+        
+        // Always add to local array (this ensures the button always works)
+        activeDiscounts.push(discountData);
+        
+        // Clear inputs
+        codeInput.value = '';
+        percentInput.value = '10';
+        
+        // Update display
+        displayDiscountsList();
+        
+        // Show appropriate success message
+        const messageType = discountData.source === 'firestore' ? 'success' : 'warning';
+        const title = currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created';
+        const message = discountData.source === 'firestore' ? 
+          (currentLanguage === 'ar' ? 
+            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
+            `Discount code ${code} created with ${percent}% off and saved to database`) :
+          (currentLanguage === 'ar' ? 
+            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% محلياً` : 
+            `Discount code ${code} created with ${percent}% off locally`);
+        
+        showNotification(title, message, messageType);
       } catch (error) {
-        console.error('❌ Error saving discount to Firestore:', error);
-        console.log('Continuing with local storage');
-        discountData.source = 'local';
+        console.error('❌ Error in applyDiscount function:', error);
+        showNotification(
+          currentLanguage === 'ar' ? 'خطأ' : 'Error',
+          currentLanguage === 'ar' ? 'حدث خطأ أثناء إنشاء الخصم' : 'An error occurred while creating the discount',
+          'error'
+        );
       }
-      
-      // Always add to local array (this ensures the button always works)
-      activeDiscounts.push(discountData);
-      
-      // Clear inputs
-      codeInput.value = '';
-      percentInput.value = '10';
-      
-      // Update display
-      displayDiscountsList();
-      
-      // Show appropriate success message
-      const messageType = discountData.source === 'firestore' ? 'success' : 'warning';
-      const title = currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created';
-      const message = discountData.source === 'firestore' ? 
-        (currentLanguage === 'ar' ? 
-          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
-          `Discount code ${code} created with ${percent}% off and saved to database`) :
-        (currentLanguage === 'ar' ? 
-          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% محلياً` : 
-          `Discount code ${code} created with ${percent}% off locally`);
-      
-      showNotification(title, message, messageType);
     }
     
     // Load discounts from Firestore
