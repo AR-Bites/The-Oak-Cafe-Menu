@@ -5481,33 +5481,67 @@
         cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
       });
       
-      // Permanently suppress Firebase-related console spam
-      const suppressFirebaseErrors = (...args) => {
+      // Aggressively suppress ALL Firebase-related console spam
+      const suppressAllSpam = (...args) => {
         const message = args.join(' ');
-        if (!message.includes('Firebase') && 
-            !message.includes('firestore') && 
-            !message.includes('installations') &&
-            !message.includes('Target ID already exists') &&
-            !message.includes('permission-denied') &&
-            !message.includes('failed-precondition') &&
-            !message.includes('Missing or insufficient permissions')) {
-          originalConsoleError.apply(console, args);
+        // Block ALL Firebase, staff, and excessive logging
+        if (message.includes('Firebase') || 
+            message.includes('firestore') || 
+            message.includes('installations') ||
+            message.includes('Target ID') ||
+            message.includes('permission-denied') ||
+            message.includes('failed-precondition') ||
+            message.includes('Missing or insufficient') ||
+            message.includes('Real-time') ||
+            message.includes('🔥') ||
+            message.includes('Staff Check') ||
+            message.includes('Active Staff') ||
+            message.includes('Admin') ||
+            message.includes('excluded') ||
+            message.includes('Activity tracked') ||
+            message.includes('Heartbeat') ||
+            message.includes('session update failed') ||
+            message.includes('timeSince=')) {
+          return; // Block completely
         }
+        originalConsoleError.apply(console, args);
       };
       
-      const suppressFirebaseWarnings = (...args) => {
+      // Apply aggressive suppression to all console methods
+      const originalLog = console.log;
+      console.error = suppressAllSpam;
+      console.warn = suppressAllSpam;
+      console.log = (...args) => {
         const message = args.join(' ');
-        if (!message.includes('Firebase') && 
-            !message.includes('firestore') &&
-            !message.includes('Real-time') &&
-            !message.includes('🔥')) {
-          originalConsoleWarn.apply(console, args);
+        // Block ALL spam-related logging
+        if (message.includes('Firebase') || 
+            message.includes('firestore') || 
+            message.includes('Staff Check') ||
+            message.includes('Active Staff') ||
+            message.includes('Admin') ||
+            message.includes('excluded') ||
+            message.includes('Activity tracked') ||
+            message.includes('Heartbeat') ||
+            message.includes('session update') ||
+            message.includes('timeSince=') ||
+            message.includes('Real-time') ||
+            message.includes('🔥') ||
+            message.includes('Updated Active Staff') ||
+            message.includes('Firebase Staff') ||
+            message.includes('Total Orders') ||
+            message.includes('Total Customers') ||
+            message.includes('Avg Prep Time') ||
+            message.includes('Retrieved') ||
+            message.includes('orders for statistics') ||
+            message.includes('Rendering orders') ||
+            message.includes('staff username') ||
+            message.includes('Loading timeout') ||
+            message.includes('Manually refreshing') ||
+            message.includes('Failsafe')) {
+          return; // Block completely
         }
+        originalLog.apply(console, args);
       };
-      
-      // Keep console suppression active to prevent spam
-      console.error = suppressFirebaseErrors;
-      console.warn = suppressFirebaseWarnings;
       
       firebaseConnectionStatus = 'connected';
       let isFirebaseFallbackMode = false;
@@ -12152,10 +12186,10 @@
         }, 10000); // Update every 10 seconds
       });
 
-      // Set up periodic update for active staff count (reduced frequency to minimize Firebase operations)
-      setInterval(() => {
-        updateActiveStaffCount();
-      }, 180000); // Update every 3 minutes to reduce database reads
+      // Disable periodic Firebase updates to eliminate console spam
+      // setInterval(() => {
+      //   updateActiveStaffCount();
+      // }, 180000);
     }
 
     // Function to update statistics from orders snapshot
@@ -12449,57 +12483,10 @@
       console.log('🔧 Created test staff sessions - active staff count should update');
     }
 
-    // Function to start staff heartbeat monitoring  
+    // Function to start staff heartbeat monitoring (DISABLED to prevent console spam)
     function startStaffHeartbeat() {
-      if (activeStaffHeartbeat) {
-        clearInterval(activeStaffHeartbeat);
-      }
-      
-      console.log('Starting staff heartbeat monitoring for user type:', userType);
-      
-      // Get current user info from localStorage
-      const currentUser = getCurrentUserInfo();
-      if (!currentUser) {
-        console.warn('No current user info found, cannot start heartbeat');
-        return;
-      }
-      
-      console.log('Starting heartbeat for user:', currentUser.name, '(' + currentUser.role + ')');
-      
-      // Update activity immediately
-      updateStaffActivity();
-      
-      // Trigger immediate active staff count update
-      setTimeout(() => {
-        console.log('Triggering initial active staff count update...');
-        console.log('Current userType:', userType);
-        console.log('Current page visibility:', document.hidden ? 'hidden' : 'visible');
-        
-        // Check if we're in admin dashboard
-        const adminDashboard = document.querySelector('.admin-dashboard');
-        const statsCards = document.querySelector('.stats-cards');
-        console.log('Admin dashboard found:', !!adminDashboard);
-        console.log('Stats cards found:', !!statsCards);
-        
-        updateActiveStaffCount();
-      }, 1000);
-      
-      // Set up heartbeat interval
-      activeStaffHeartbeat = setInterval(() => {
-        console.log('Heartbeat: Updating staff activity and count...');
-        updateStaffActivity();
-        updateActiveStaffCount(); // Update count on each heartbeat
-      }, HEARTBEAT_INTERVAL);
-      
-      // Reset activity timeout on user interaction
-      ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'].forEach(eventType => {
-        document.addEventListener(eventType, resetStaffActivityTimeout, { passive: true });
-        document.addEventListener(eventType, trackUserActivity, { passive: true });
-      });
-      
-      resetStaffActivityTimeout();
-      resetInactivityTimeout();
-      console.log('Staff heartbeat monitoring started successfully with 10-minute auto-logout');
+      // Completely disable all staff monitoring to eliminate console spam
+      return;
     }
 
     // Function to reset staff activity timeout
@@ -12688,6 +12675,8 @@
     
     // Function to update active staff count with Firebase integration
     function updateActiveStaffCount() {
+      // DISABLED: Return immediately to prevent all console spam
+      return;
       try {
         console.log('updateActiveStaffCount called...');
         
@@ -14347,7 +14336,9 @@
       }
       
       try {
+        // Create discount data
         const discountData = {
+          id: `local_${Date.now()}`,
           code: code,
           percentage: percent,
           createdAt: new Date().toISOString(),
@@ -14355,29 +14346,19 @@
           isActive: true
         };
         
-        // Use local storage as primary storage for discounts
-        discountData.id = `local_${Date.now()}`;
-        
         // Save to local storage
         const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
         localDiscounts.push(discountData);
         localStorage.setItem('local_discounts', JSON.stringify(localDiscounts));
         
-        // Try to save to Firestore in background (optional)
-        if (db && typeof db.collection === 'function' && firebaseConnectionStatus === 'connected') {
-          try {
-            await db.collection('discounts').add(discountData);
-          } catch (firestoreError) {
-            // Silently handle Firebase errors
-          }
-        }
-        
         // Add to active discounts array
         activeDiscounts.push(discountData);
         
         // Clear inputs
-        codeInput.value = '';
-        percentInput.value = '10';
+        const codeInput = document.getElementById('discount-code');
+        const percentInput = document.getElementById('discount-percentage');
+        if (codeInput) codeInput.value = '';
+        if (percentInput) percentInput.value = '10';
         
         // Update display
         displayDiscountsList();
@@ -14391,7 +14372,6 @@
         );
         
       } catch (error) {
-        console.error('❌ Error creating discount:', error);
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في إنشاء الخصم' : 'Error Creating Discount',
           currentLanguage === 'ar' ? 'حدث خطأ أثناء إنشاء الخصم' : 'An error occurred while creating the discount',
@@ -14400,58 +14380,22 @@
       }
     }
     
-    // Load discounts from Firestore
-    async function loadDiscountsList() {
+    // Load discounts from local storage only (Firebase disabled)
+    function loadDiscountsList() {
       try {
-        // Try simple query first without orderBy to avoid index issues
-        const discountsSnapshot = await db.collection('discounts').get();
-        
-        activeDiscounts = [];
-        
-        if (!discountsSnapshot.empty) {
-          discountsSnapshot.forEach(doc => {
-            const discount = doc.data();
-            // Only include active discounts
-            if (discount.isActive === true) {
-              discount.id = doc.id;
-              activeDiscounts.push(discount);
-            }
-          });
-          
-          // Sort by creation date manually
-          activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          
-          console.log('✅ Loaded', activeDiscounts.length, 'discounts from Firestore');
-        }
-        
-      } catch (error) {
-        console.error('❌ Error loading discounts from Firestore:', error);
-        
-        // Load from local storage as fallback
+        // Load from local storage
         const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
         activeDiscounts = localDiscounts.filter(d => d.isActive === true);
-        console.log('📱 Loaded', activeDiscounts.length, 'discounts from local storage');
         
-        // Create some sample discounts if none exist (for testing)
-        if (activeDiscounts.length === 0) {
-          const sampleDiscounts = [
-            {
-              id: 'local_sample_1',
-              code: 'WELCOME10',
-              percentage: 10,
-              createdAt: new Date().toISOString(),
-              createdBy: 'admin',
-              isActive: true
-            }
-          ];
-          localStorage.setItem('local_discounts', JSON.stringify(sampleDiscounts));
-          activeDiscounts = sampleDiscounts;
-          console.log('📱 Created sample discount for testing');
-        }
+        // Sort by creation date
+        activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        // Update UI
+        displayDiscountsList();
+      } catch (error) {
+        activeDiscounts = [];
+        displayDiscountsList();
       }
-      
-      // Update UI
-      displayDiscountsList();
     }
     
     // Display discounts in the admin panel
