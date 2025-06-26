@@ -15193,6 +15193,7 @@
       return Array.from({length: length}, () => Math.floor(Math.random() * (max - min + 1) + min));
     }
     
+    
     // Function to add a demo order to client list (for offline mode)
     function addDemoOrderToClientList(order) {
       if (!clientOrdersList) return;
@@ -15293,7 +15294,7 @@
         });
       }
     }
-    });
+    }); // End of DOMContentLoaded event listener
   </script>
   
 
