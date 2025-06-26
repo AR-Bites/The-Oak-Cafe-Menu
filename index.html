@@ -12445,7 +12445,7 @@
       
       // Set up heartbeat interval
       activeStaffHeartbeat = setInterval(() => {
-        console.log('Heartbeat: Updating staff activity and count...');
+        // Staff activity update in progress
         updateStaffActivity();
         updateActiveStaffCount(); // Update count on each heartbeat
       }, HEARTBEAT_INTERVAL);
@@ -12617,7 +12617,7 @@
         // Setup real-time listener for staff sessions
         staffSessionsListener = db.collection('staffSessions').onSnapshot(
           (snapshot) => {
-            console.log('🔥 Real-time staff sessions update received');
+            // Reduced logging to prevent console spam
             processStaffSessionsSnapshot(snapshot);
           },
           (error) => {
@@ -12642,17 +12642,16 @@
       const currentTime = Date.now();
       const activeStaff = [];
       
-      console.log('🔥 Processing', snapshot.size, 'staff sessions...');
+      // Processing staff sessions silently
       
       snapshot.forEach(doc => {
         const staff = doc.data();
         const timeSinceActivity = currentTime - staff.lastActivity;
         
-        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+        // Logging disabled to prevent console spam
         
         // Exclude admin users from staff count
         if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count`);
           return;
         }
         
@@ -12668,18 +12667,18 @@
             lastActivity: staff.lastActivity,
             sessionId: staff.sessionId
           });
-          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role})`);
+          // Active staff tracked silently
         }
       });
       
-      console.log('🔥 Real-time Active Staff Count:', activeStaff.length);
+      // Active staff count updated silently
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
     // Function to update active staff count with Firebase integration
     function updateActiveStaffCount() {
       try {
-        console.log('updateActiveStaffCount called...');
+        // Staff count update in progress
         
         // Try Firebase first for real-time staff tracking
         if (db && typeof db.collection === 'function') {
@@ -12706,11 +12705,10 @@
             const staff = doc.data();
             const timeSinceActivity = currentTime - staff.lastActivity;
             
-            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+            // Logging disabled to prevent console spam
             
             // Exclude admin users from staff count
             if (staff.role === 'admin') {
-              console.log(`❌ Admin ${staff.name} excluded from staff count`);
               return;
             }
             
@@ -12726,11 +12724,11 @@
                 lastActivity: staff.lastActivity,
                 sessionId: staff.sessionId
               });
-              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role})`);
+              // Firebase staff active tracking silently
             }
           });
           
-          console.log('Firebase Active Staff Count:', activeStaff.length);
+          // Firebase staff count updated silently
           updateStaffCountDisplay(activeStaff.length, activeStaff);
         })
         .catch(error => {
@@ -14280,7 +14278,11 @@
       const codeInput = document.getElementById('discount-code-input');
       const percentInput = document.getElementById('discount-percent');
       
-      console.log('🔹 Input elements found:', codeInput, percentInput);
+      if (!codeInput || !percentInput) {
+        console.error('❌ Input elements not found!');
+        showNotification('Error', 'Input fields not found', 'error');
+        return;
+      }
       
       const code = codeInput.value.trim().toUpperCase();
       const percent = parseInt(percentInput.value);
