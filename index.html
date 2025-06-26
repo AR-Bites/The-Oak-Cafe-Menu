@@ -5394,14 +5394,6 @@
     let db;
     let isOfflineMode = false; // Use Firebase by default
     
-    // Global listener tracking to prevent duplicates
-    let activeListeners = {
-      orders: null,
-      staff: null,
-      tables: null,
-      ratings: null
-    };
-    
     // Firebase permissions debug - these rules should be applied in Firebase console
     const recommendedFirebaseRules = `
     rules_version = '2';
@@ -5540,7 +5532,7 @@
               timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
             
-            // Attempted to create initial collections
+            console.log("Attempted to create initial collections");
           } catch (err) {
             console.error("Failed to create initial collections:", err);
           }
@@ -5656,9 +5648,8 @@
               const ordersRef = db.collection('orders');
               await ordersRef.limit(1).get();
               
-              // Setup real-time listener for occupied tables based on orders (prevent duplicates)
-              if (!activeListeners.orders) {
-                activeListeners.orders = ordersRef.onSnapshot(snapshot => {
+              // Setup real-time listener for occupied tables based on orders
+              ordersRef.onSnapshot(snapshot => {
                 try {
                   if (!snapshot.empty) {
                     // Update occupiedTables based on orders
@@ -5712,10 +5703,9 @@
                 } catch (err) {
                   console.error("Error processing orders snapshot:", err);
                 }
-                }, err => {
-                  console.error("Error in orders snapshot listener:", err);
-                });
-              }
+              }, err => {
+                console.error("Error in orders snapshot listener:", err);
+              });
               
             } catch (err) {
               console.error("Error setting up orders collection:", err);
@@ -5729,7 +5719,7 @@
             setupOrdersCollection()
           ]);
           
-          // Firebase initialization completed
+          console.log("Firebase initialization completed");
       
       // Hide loading screen after Firebase is ready
       hideLoadingScreen();
@@ -6312,7 +6302,8 @@
       const savedUserTableNumber = localStorage.getItem('userTableNumber');
       const expiry = localStorage.getItem(TABLE_EXPIRY_KEY);
       
-      // Table numbers checked in storage
+      console.log("Table number in storage:", savedTableNumber);
+      console.log("User table number in storage:", savedUserTableNumber);
       
       if (savedTableNumber && expiry && new Date(expiry) > new Date()) {
         tableNumber = parseInt(savedTableNumber, 10);
@@ -6332,7 +6323,7 @@
       const adminLoggedIn = localStorage.getItem(ADMIN_TOKEN);
       
       if (staffLoggedIn || adminLoggedIn) {
-        // Staff/Admin already logged in, bypassing table modal
+        console.log("Staff/Admin already logged in, bypassing table modal");
         // Set user type based on existing token
         userType = adminLoggedIn ? 'admin' : 'staff';
         localStorage.setItem(USER_TYPE_KEY, userType);
@@ -6340,11 +6331,11 @@
         
         // Set up real-time listeners for existing logged-in users
         setTimeout(() => {
-          // Setting up listeners for existing user type
+          console.log('Setting up listeners for existing user type:', userType);
           if (userType === 'admin') {
             setupRealtimeListeners();
             startStaffHeartbeat();
-            // Admin heartbeat and listeners activated
+            console.log('Admin heartbeat and listeners activated');
             
             // Force initial statistics load for admin
             setTimeout(() => {
@@ -6367,7 +6358,7 @@
           
           // Activate real-time staff monitoring for all users
           setupRealTimeStaffMonitoring();
-          // Real-time staff monitoring activated
+          console.log('Real-time staff monitoring activated');
         }, 1500);
       } else {
         // Force showing the table number modal on initialization for guests
@@ -6377,7 +6368,7 @@
           showTableModal();
           // Activate real-time staff monitoring for guests too (in case they log in later)
           setupRealTimeStaffMonitoring();
-          // Real-time staff monitoring activated for guest
+          console.log('Real-time staff monitoring activated for guest');
           
           // Load statistics for guests too (they can see basic stats)
           setTimeout(() => {
@@ -6632,7 +6623,7 @@
       // Shorter failsafe: Ensure loading screen closes even if there are errors
       setTimeout(() => {
         if (loadingOverlay.style.display !== 'none') {
-          // Loading timeout reached
+          console.log("Loading timeout reached, forcing completion");
           clearInterval(interval);
           loadingBar.style.width = '100%';
           
@@ -6672,11 +6663,11 @@
               if (modelViewer) modelViewer.style.visibility = 'visible';
               
               // Check if we need to display the table modal in failsafe
-              // Failsafe: Checking table modal
+              console.log("Failsafe: Checking if we need to show table modal");
               
               // Skip for logged in staff/admin
               if (localStorage.getItem(STAFF_TOKEN) || localStorage.getItem(ADMIN_TOKEN)) {
-                // Failsafe: Staff/Admin already logged in
+                console.log("Failsafe: Staff/Admin already logged in, not showing table modal");
               } else {
                 // Force showing the table modal for guests
                 console.log("Failsafe: Showing table modal for guests");
@@ -7602,11 +7593,11 @@
         if (exactModelMatch) {
           // Set the model path to the exact match
           item.modelSrc = `/models/${exactModelMatch}`;
-          // Model mapped successfully
+          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
         } else {
           // No exact match found, clear model src
           item.modelSrc = null;
-          // No model available
+          console.log(`No model available for: ${item.name}`);
         }
       });
       
@@ -7622,7 +7613,7 @@
       // Preload only available models
       availableModels.forEach(modelName => {
         const modelPath = `/models/${modelName}`;
-        // Preloading model
+        console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
         preloader.setAttribute('src', modelPath);
@@ -7837,7 +7828,7 @@
         }, 3000);
       } else {
         // No matching model found, hide the model container
-        // No model available, hiding 3D viewer
+        console.log(`No model available for ${item.name}, hiding 3D viewer`);
         modelContainer.style.display = 'none';
         modelLoadingIndicator.style.display = 'none';
       }
@@ -8825,7 +8816,9 @@
     }
     
     function checkAuthState() {
-      // Checking auth state and tokens
+      console.log("Checking auth state. Current userType:", userType);
+      console.log("Staff token:", localStorage.getItem(STAFF_TOKEN));
+      console.log("Admin token:", localStorage.getItem(ADMIN_TOKEN));
       
       // Reset UI
       guestBtn.classList.remove('active');
@@ -10197,7 +10190,7 @@
         tableDetails = tableDetailsObj;
         
       } catch (error) {
-        // Error fetching orders
+        console.error("Error fetching orders:", error);
       }
     }
     
@@ -10209,7 +10202,7 @@
     }
 
     function renderOrders(retryAttempt = 0) {
-      // Rendering orders
+      console.log(`Rendering orders (retry attempt: ${retryAttempt})`);
       const ordersList = document.getElementById('orders-list');
       
       // Show loading indicator
@@ -10241,7 +10234,7 @@
           try {
             // Get the current staff username
             const staffUsername = localStorage.getItem('username');
-            // Staff username determined
+            console.log("Current staff username for tables:", staffUsername);
             
             // For manager role - show all orders
             if (localStorage.getItem('staffRole') === 'manager' || userType === 'admin') {
@@ -10459,11 +10452,11 @@
           });
         })
         .catch((error) => {
-          // Error fetching orders
+          console.error("Error fetching orders:", error);
           
           // If this is not the final retry attempt, try again
           if (retryAttempt < MAX_RETRIES) {
-            // Retrying order fetch
+            console.log(`Retrying order fetch (attempt ${retryAttempt + 1} of ${MAX_RETRIES})...`);
             setTimeout(() => {
               renderOrders(retryAttempt + 1);
             }, 1000); // Wait 1 second before retrying
@@ -10497,7 +10490,7 @@
       
       // Get current staff username if we're in staff view
       const currentStaffUsername = userType === 'staff' ? localStorage.getItem('username') : null;
-      // Staff username determined for tables
+      console.log("Current staff username for tables:", currentStaffUsername);
       
       // Filter for tables assigned to current staff member if we're in staff view
       let tablesToShow = [];
@@ -12123,25 +12116,23 @@
 
     // Set up real-time listeners for live updates
     function setupRealtimeListeners() {
-      // Listen for real-time updates to orders collection (prevent duplicates)
-      if (!activeListeners.orders) {
-        activeListeners.orders = db.collection('orders').onSnapshot(snapshot => {
-        // Orders collection updated, refreshing statistics and orders display
+      // Listen for real-time updates to orders collection
+      db.collection('orders').onSnapshot(snapshot => {
+        console.log('Orders collection updated, refreshing statistics and orders display...');
         updateStatisticsFromSnapshot(snapshot);
         updateOrdersDisplay();
-        }, error => {
-          console.warn('Orders real-time listener error:', error);
-          // Fallback to periodic updates if real-time fails (disabled to reduce console spam)
-          // setInterval(() => {
-          //   refreshStatisticsAndOrders();
-          // }, 10000); // Update every 10 seconds
-        });
-      }
+      }, error => {
+        console.warn('Orders real-time listener error:', error);
+        // Fallback to periodic updates if real-time fails
+        setInterval(() => {
+          refreshStatisticsAndOrders();
+        }, 10000); // Update every 10 seconds
+      });
 
-      // Set up periodic update for active staff count (disabled to reduce console spam)
-      // setInterval(() => {
-      //   updateActiveStaffCount();
-      // }, 30000); // Update every 30 seconds
+      // Set up periodic update for active staff count (since Firebase permissions are limited)
+      setInterval(() => {
+        updateActiveStaffCount();
+      }, 30000); // Update every 30 seconds
     }
 
     // Function to update statistics from orders snapshot
@@ -12229,21 +12220,21 @@
         totalOrdersElement.textContent = totalOrders;
         totalOrdersElement.style.color = 'var(--gold)';
         totalOrdersElement.style.fontWeight = 'bold';
-        // Total orders updated
+        console.log('✅ Updated Total Orders:', totalOrders);
       }
       
       if (totalCustomersElement) {
         totalCustomersElement.textContent = uniqueCustomers.size;
         totalCustomersElement.style.color = 'var(--gold)';
         totalCustomersElement.style.fontWeight = 'bold';
-        // Total customers updated
+        console.log('✅ Updated Total Customers:', uniqueCustomers.size);
       }
       
       if (avgPrepTimeElement) {
         avgPrepTimeElement.textContent = avgPrepTime;
         avgPrepTimeElement.style.color = 'var(--gold)';
         avgPrepTimeElement.style.fontWeight = 'bold';
-        // Average prep time updated
+        console.log('✅ Updated Avg Prep Time:', avgPrepTime);
       }
       
       // Update active staff count (but don't let it interfere with other stats)
@@ -12260,33 +12251,29 @@
     function setupStaffRealtimeListeners() {
       console.log('Setting up real-time listeners for staff dashboard...');
       
-      // Listen for real-time updates to orders collection (prevent duplicates)
-      if (!activeListeners.orders) {
-        activeListeners.orders = db.collection('orders').onSnapshot(snapshot => {
-          // Staff dashboard: Orders collection updated, refreshing display
+      // Listen for real-time updates to orders collection
+      db.collection('orders').onSnapshot(snapshot => {
+        console.log('Staff dashboard: Orders collection updated, refreshing display...');
+        updateOrdersDisplay();
+        fetchOrders(); // Update table details
+      }, error => {
+        console.warn('Staff orders real-time listener error:', error);
+        // Fallback to periodic updates if real-time fails
+        setInterval(() => {
           updateOrdersDisplay();
-          fetchOrders(); // Update table details
-        }, error => {
-          console.warn('Staff orders real-time listener error:', error);
-          // Fallback to periodic updates if real-time fails (disabled to reduce console spam)
-          // setInterval(() => {
-          //   updateOrdersDisplay();
-          //   fetchOrders();
-          // }, 15000); // Update every 15 seconds for staff
-        });
-      }
+          fetchOrders();
+        }, 15000); // Update every 15 seconds for staff
+      });
 
-      // Also listen for table status changes (prevent duplicates)
-      if (!activeListeners.tables) {
-        activeListeners.tables = db.collection('tableStatus').onSnapshot(snapshot => {
-          console.log('Staff dashboard: Table status updated, refreshing tables display...');
-          if (typeof updateTablesDisplay === 'function') {
-            updateTablesDisplay();
-          }
-        }, error => {
-          console.warn('Staff table status real-time listener error:', error);
-        });
-      }
+      // Also listen for table status changes
+      db.collection('tableStatus').onSnapshot(snapshot => {
+        console.log('Staff dashboard: Table status updated, refreshing tables display...');
+        if (typeof updateTablesDisplay === 'function') {
+          updateTablesDisplay();
+        }
+      }, error => {
+        console.warn('Staff table status real-time listener error:', error);
+      });
     }
 
     // Real-time active staff tracking system
@@ -12342,17 +12329,17 @@
           sessionId: clientId
         };
         
-        // Staff activity updated
+        console.log(`Staff activity updated for ${staffName} (${staffRole})`);
         
         // Store in Firebase for real-time staff tracking
         if (db && typeof db.collection === 'function') {
           try {
             db.collection('staffSessions').doc(activityData.username).set(activityData, { merge: true })
               .then(() => {
-                // Staff session stored in Firebase
+                console.log(`✅ Staff session stored in Firebase for ${staffName}`);
               })
               .catch(error => {
-                // Firebase staff session update failed
+                console.log('Firebase staff session update failed:', error);
               });
           } catch (error) {
             console.log('Firebase not available for staff tracking');
@@ -12373,7 +12360,7 @@
         // Update the active staff count immediately after updating activity
         updateActiveStaffCount();
         
-        // Activity tracked
+        console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
         
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
@@ -12427,7 +12414,7 @@
         clearInterval(activeStaffHeartbeat);
       }
       
-      // Starting staff heartbeat monitoring
+      console.log('Starting staff heartbeat monitoring for user type:', userType);
       
       // Get current user info from localStorage
       const currentUser = getCurrentUserInfo();
@@ -12436,27 +12423,29 @@
         return;
       }
       
-      // Starting heartbeat for user
+      console.log('Starting heartbeat for user:', currentUser.name, '(' + currentUser.role + ')');
       
       // Update activity immediately
       updateStaffActivity();
       
       // Trigger immediate active staff count update
       setTimeout(() => {
-        // Triggering initial active staff count update
-        // Current userType and page visibility checked
+        console.log('Triggering initial active staff count update...');
+        console.log('Current userType:', userType);
+        console.log('Current page visibility:', document.hidden ? 'hidden' : 'visible');
         
         // Check if we're in admin dashboard
         const adminDashboard = document.querySelector('.admin-dashboard');
         const statsCards = document.querySelector('.stats-cards');
-        // Admin dashboard and stats cards checked
+        console.log('Admin dashboard found:', !!adminDashboard);
+        console.log('Stats cards found:', !!statsCards);
         
         updateActiveStaffCount();
       }, 1000);
       
       // Set up heartbeat interval
       activeStaffHeartbeat = setInterval(() => {
-        // Staff activity update in progress
+        console.log('Heartbeat: Updating staff activity and count...');
         updateStaffActivity();
         updateActiveStaffCount(); // Update count on each heartbeat
       }, HEARTBEAT_INTERVAL);
@@ -12469,7 +12458,7 @@
       
       resetStaffActivityTimeout();
       resetInactivityTimeout();
-      // Staff heartbeat monitoring started successfully with 10-minute auto-logout
+      console.log('Staff heartbeat monitoring started successfully with 10-minute auto-logout');
     }
 
     // Function to reset staff activity timeout
@@ -12507,7 +12496,7 @@
             status: 'inactive',
             lastActivity: Date.now()
           }).catch(error => {
-            // Firebase inactive update failed, using localStorage
+            console.log('Firebase inactive update failed, using localStorage');
           });
         }
       }
@@ -12554,7 +12543,7 @@
           if (currentUser) {
             setStaffOffline(currentUser.username);
           }
-          logoutStaff();
+          logoutUser();
         }, INACTIVITY_LOGOUT_TIMEOUT);
       }
     }
@@ -12612,12 +12601,12 @@
     function setupRealTimeStaffMonitoring() {
       if (!db || typeof db.collection !== 'function') {
         console.log('Firebase not available, using polling fallback');
-        // setInterval(updateFromLocalStorage, 10000); // Poll every 10 seconds (disabled to reduce console spam)
+        setInterval(updateFromLocalStorage, 10000); // Poll every 10 seconds
         return;
       }
       
       try {
-        // Setting up real-time staff monitoring
+        console.log('🔄 Setting up real-time staff monitoring...');
         
         // Remove existing listener if any
         if (staffSessionsListener) {
@@ -12628,7 +12617,7 @@
         // Setup real-time listener for staff sessions
         staffSessionsListener = db.collection('staffSessions').onSnapshot(
           (snapshot) => {
-            // Reduced logging to prevent console spam
+            console.log('🔥 Real-time staff sessions update received');
             processStaffSessionsSnapshot(snapshot);
           },
           (error) => {
@@ -12638,12 +12627,12 @@
           }
         );
         
-        // Real-time staff monitoring active
+        console.log('✅ Real-time staff monitoring active');
         
       } catch (error) {
         console.warn('Failed to setup real-time monitoring:', error);
-        // Fallback to polling (disabled to reduce console spam)
-        // setInterval(updateFromLocalStorage, 10000);
+        // Fallback to polling
+        setInterval(updateFromLocalStorage, 10000);
       }
     }
     
@@ -12653,16 +12642,17 @@
       const currentTime = Date.now();
       const activeStaff = [];
       
-      // Processing staff sessions silently
+      console.log('🔥 Processing', snapshot.size, 'staff sessions...');
       
       snapshot.forEach(doc => {
         const staff = doc.data();
         const timeSinceActivity = currentTime - staff.lastActivity;
         
-        // Logging disabled to prevent console spam
+        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
         
         // Exclude admin users from staff count
         if (staff.role === 'admin') {
+          console.log(`❌ Admin ${staff.name} excluded from staff count`);
           return;
         }
         
@@ -12678,18 +12668,18 @@
             lastActivity: staff.lastActivity,
             sessionId: staff.sessionId
           });
-          // Active staff tracked silently
+          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role})`);
         }
       });
       
-      // Active staff count updated silently
+      console.log('🔥 Real-time Active Staff Count:', activeStaff.length);
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
     // Function to update active staff count with Firebase integration
     function updateActiveStaffCount() {
       try {
-        // Staff count update in progress
+        console.log('updateActiveStaffCount called...');
         
         // Try Firebase first for real-time staff tracking
         if (db && typeof db.collection === 'function') {
@@ -12716,10 +12706,11 @@
             const staff = doc.data();
             const timeSinceActivity = currentTime - staff.lastActivity;
             
-            // Logging disabled to prevent console spam
+            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
             
             // Exclude admin users from staff count
             if (staff.role === 'admin') {
+              console.log(`❌ Admin ${staff.name} excluded from staff count`);
               return;
             }
             
@@ -12735,15 +12726,15 @@
                 lastActivity: staff.lastActivity,
                 sessionId: staff.sessionId
               });
-              // Firebase staff active tracking silently
+              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role})`);
             }
           });
           
-          // Firebase staff count updated silently
+          console.log('Firebase Active Staff Count:', activeStaff.length);
           updateStaffCountDisplay(activeStaff.length, activeStaff);
         })
         .catch(error => {
-          // Firebase staff query failed, using localStorage
+          console.log('Firebase staff query failed, using localStorage:', error);
           updateFromLocalStorage();
         });
     }
@@ -12756,7 +12747,7 @@
       const currentTime = Date.now();
       const activeStaff = [];
       
-      // Staff activity data retrieved
+      console.log('All staff activity data:', allStaffActivity);
       
       // Clean up old inactive sessions and test data
       const cleanedActivity = {};
@@ -12792,11 +12783,11 @@
       // Filter active staff based on recent activity and status - EXCLUDE ADMIN
       Object.values(cleanedActivity).forEach(staff => {
         const timeSinceActivity = currentTime - staff.lastActivity;
-        // Staff activity check in progress
+        console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
         
         // EXCLUDE ALL ADMIN USERS from staff count completely
         if (staff.role === 'admin') {
-          // Admin excluded from staff count
+          console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
           return; // Skip admin users entirely
         }
         
@@ -12826,7 +12817,7 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            // Current staff member counted
+            console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
           } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
             // This is another active staff member from a different session
             activeStaff.push({
@@ -12836,16 +12827,16 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            // Other active staff member counted
+            console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
           } else {
-            // Staff member not counted
+            console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
           }
         } else {
-          // Staff member filtered out
+          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
         }
       });
       
-      // Active staff count determined
+      console.log('Active staff found:', activeStaff.length, activeStaff);
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
@@ -12865,7 +12856,7 @@
           activeStaffElement.style.color = 'var(--gold)';
           activeStaffElement.style.fontWeight = 'bold';
           activeStaffElement.style.fontSize = '1.5rem';
-          // Staff count display updated
+          console.log('Updated Active Staff to:', count);
         }
         
         // Update active staff details for admin
@@ -12959,26 +12950,26 @@
     // Function to refresh statistics and orders (fallback)
     function refreshStatisticsAndOrders() {
       if (!db || typeof db.collection !== 'function') {
-        // Firebase not available for statistics refresh
+        console.log('Firebase not available for statistics refresh');
         return;
       }
       
-      // Refreshing statistics and orders
+      console.log('🔄 Manually refreshing statistics and orders...');
       db.collection('orders').get().then(snapshot => {
-        // Orders retrieved for statistics
+        console.log('📊 Retrieved', snapshot.size, 'orders for statistics');
         updateStatisticsFromSnapshot(snapshot);
         updateOrdersDisplay();
       }).catch(error => {
-        // Error refreshing statistics
+        console.warn('Error refreshing statistics:', error);
       });
     }
     
     // Force initial statistics load function
     function forceInitialStatisticsLoad() {
-      // Force loading initial statistics
+      console.log('🚀 Force loading initial statistics...');
       
       if (!db || typeof db.collection !== 'function') {
-        // Firebase not available, cannot load statistics
+        console.log('Firebase not available, cannot load statistics');
         // Set default values
         const totalOrdersElement = document.getElementById('total-orders');
         const totalCustomersElement = document.getElementById('total-customers');
@@ -12997,7 +12988,7 @@
           updateOrdersDisplay();
         }
       }).catch(error => {
-        // Error in initial statistics load
+        console.warn('Error in initial statistics load:', error);
         // Set default values on error
         const totalOrdersElement = document.getElementById('total-orders');
         const totalCustomersElement = document.getElementById('total-customers');
@@ -13276,7 +13267,7 @@
       // Load local storage ratings
       try {
         const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
-        // Loading local ratings for admin
+        console.log('Loading local ratings for admin:', localRatings.length);
         allRatings = localRatings.map(rating => ({
           ...rating,
           source: 'local'
@@ -13287,7 +13278,7 @@
       
       // Function to display all ratings
       function displayAllRatings() {
-        // Displaying all ratings
+        console.log('Displaying all ratings:', allRatings.length);
         
         // Update ratings count display and statistics
         const ratingsCountEl = document.getElementById('ratings-count');
@@ -13431,11 +13422,11 @@
       try {
         const localRatings = JSON.parse(localStorage.getItem('pending_ratings') || '[]');
         if (localRatings.length === 0) {
-          // No pending ratings to sync
+          console.log('No pending ratings to sync');
           return;
         }
         
-        // Attempting to sync pending ratings
+        console.log(`Attempting to sync ${localRatings.length} pending ratings...`);
         
         const ratingsCollection = db.collection('ratings');
         let syncedCount = 0;
@@ -13615,7 +13606,7 @@
     // Setup rating filter functionality
     function setupRatingFilter(allRatings) {
       allStoredRatings = allRatings;
-      // Filter setup with ratings
+      console.log('Filter setup with', allRatings.length, 'ratings');
       
       // Add event listener to filter dropdown with multiple methods
       setTimeout(() => {
@@ -13626,13 +13617,13 @@
           
           // Add new listener
           filterSelect.addEventListener('change', handleFilterChange);
-          // Event listener added to filter dropdown
+          console.log('Event listener added to filter dropdown');
           
           // Test the filter immediately
-          // Testing filter with all ratings
+          console.log('Testing filter with all ratings...');
           updateRatingsList(allStoredRatings);
         } else {
-          // ERROR: Filter dropdown not found
+          console.log('ERROR: Filter dropdown not found');
         }
       }, 500);
       
@@ -13684,19 +13675,20 @@
     
     // Update the ratings list display
     function updateRatingsList(ratings) {
-      // Updating ratings list
+      console.log('=== UPDATING RATINGS LIST ===');
+      console.log('Ratings to display:', ratings.length);
       
       const container = document.getElementById('staff-ratings-list');
       if (!container) {
-        // ERROR: Container not found
+        console.log('ERROR: Container not found!');
         return;
       }
       
-      // Clearing container
+      console.log('Clearing container...');
       container.innerHTML = '';
       
       if (ratings.length === 0) {
-        // No ratings to show, displaying empty message
+        console.log('No ratings to show, displaying empty message');
         container.innerHTML = `
           <div style="text-align: center; padding: 40px; color: #ccc; background: rgba(255,255,255,0.05); border-radius: 12px; margin: 20px 0;">
             <i class="fas fa-filter" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5;"></i>
@@ -13770,17 +13762,9 @@
         };
         
         const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
-        const uniqueCustomers = new Set(); // Fix for undefined uniqueCustomers error
         
         snapshot.forEach(doc => {
           const order = doc.data();
-          
-          // Track unique customers
-          if (order.guestId) {
-            uniqueCustomers.add(order.guestId);
-          } else if (order.tableNumber) {
-            uniqueCustomers.add(`table_${order.tableNumber}`);
-          }
           
           // Count by status
           if (orderStatusData.hasOwnProperty(order.status)) {
@@ -14291,109 +14275,96 @@
     
     // Create new discount
     async function applyDiscount() {
-      try {
-        console.log('🔹 Create Discount button clicked!');
-        
-        const codeInput = document.getElementById('discount-code-input');
-        const percentInput = document.getElementById('discount-percent');
-        
-        if (!codeInput || !percentInput) {
-          console.error('❌ Input elements not found!');
-          showNotification('Error', 'Input fields not found', 'error');
-          return;
-        }
-        
-        const code = codeInput.value.trim().toUpperCase();
-        const percent = parseInt(percentInput.value);
-        
-        console.log('🔹 Input values:', { code, percent });
-        
-        if (!code) {
-          showNotification(
-            currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
-            currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
-            'error'
-          );
-          codeInput.focus();
-          return;
-        }
-        
-        if (!percent || percent < 5 || percent > 50) {
-          showNotification(
-            currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
-            currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
-            'error'
-          );
-          percentInput.focus();
-          return;
-        }
-        
-        // Check if code already exists
-        if (activeDiscounts.some(d => d.code === code)) {
-          showNotification(
-            currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
-            currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
-            'error'
-          );
-          return;
-        }
-        
-        const discountData = {
-          code: code,
-          percentage: percent,
-          createdAt: new Date().toISOString(),
-          createdBy: currentUserName || 'admin',
-          isActive: true,
-          id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-        };
-        
-        // Try to save to Firestore first, but don't let it block the functionality
-        try {
-          if (db && typeof db.collection === 'function') {
-            const docRef = await db.collection('discounts').add(discountData);
-            console.log('✅ Discount saved to Firestore with ID:', docRef.id);
-            discountData.id = docRef.id; // Update with Firestore ID
-            discountData.source = 'firestore';
-          } else {
-            console.log('Firestore not available, using local storage only');
-            discountData.source = 'local';
-          }
-        } catch (error) {
-          console.error('❌ Error saving discount to Firestore:', error);
-          console.log('Continuing with local storage');
-          discountData.source = 'local';
-        }
-        
-        // Always add to local array (this ensures the button always works)
-        activeDiscounts.push(discountData);
-        
-        // Clear inputs
-        codeInput.value = '';
-        percentInput.value = '10';
-        
-        // Update display
-        displayDiscountsList();
-        
-        // Show appropriate success message
-        const messageType = discountData.source === 'firestore' ? 'success' : 'warning';
-        const title = currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created';
-        const message = discountData.source === 'firestore' ? 
-          (currentLanguage === 'ar' ? 
-            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
-            `Discount code ${code} created with ${percent}% off and saved to database`) :
-          (currentLanguage === 'ar' ? 
-            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% محلياً` : 
-            `Discount code ${code} created with ${percent}% off locally`);
-        
-        showNotification(title, message, messageType);
-      } catch (error) {
-        console.error('❌ Error in applyDiscount function:', error);
+      console.log('🔹 Create Discount button clicked!');
+      
+      const codeInput = document.getElementById('discount-code-input');
+      const percentInput = document.getElementById('discount-percent');
+      
+      console.log('🔹 Input elements found:', codeInput, percentInput);
+      
+      const code = codeInput.value.trim().toUpperCase();
+      const percent = parseInt(percentInput.value);
+      
+      console.log('🔹 Input values:', { code, percent });
+      
+      if (!code) {
         showNotification(
-          currentLanguage === 'ar' ? 'خطأ' : 'Error',
-          currentLanguage === 'ar' ? 'حدث خطأ أثناء إنشاء الخصم' : 'An error occurred while creating the discount',
+          currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
+          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
           'error'
         );
+        codeInput.focus();
+        return;
       }
+      
+      if (!percent || percent < 5 || percent > 50) {
+        showNotification(
+          currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
+          currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
+          'error'
+        );
+        percentInput.focus();
+        return;
+      }
+      
+      // Check if code already exists
+      if (activeDiscounts.some(d => d.code === code)) {
+        showNotification(
+          currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
+          currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
+          'error'
+        );
+        return;
+      }
+      
+      const discountData = {
+        code: code,
+        percentage: percent,
+        createdAt: new Date().toISOString(),
+        createdBy: currentUserName || 'admin',
+        isActive: true,
+        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
+      
+      // Try to save to Firestore first, but don't let it block the functionality
+      try {
+        if (db && typeof db.collection === 'function') {
+          const docRef = await db.collection('discounts').add(discountData);
+          console.log('✅ Discount saved to Firestore with ID:', docRef.id);
+          discountData.id = docRef.id; // Update with Firestore ID
+          discountData.source = 'firestore';
+        } else {
+          console.log('Firestore not available, using local storage only');
+          discountData.source = 'local';
+        }
+      } catch (error) {
+        console.error('❌ Error saving discount to Firestore:', error);
+        console.log('Continuing with local storage');
+        discountData.source = 'local';
+      }
+      
+      // Always add to local array (this ensures the button always works)
+      activeDiscounts.push(discountData);
+      
+      // Clear inputs
+      codeInput.value = '';
+      percentInput.value = '10';
+      
+      // Update display
+      displayDiscountsList();
+      
+      // Show appropriate success message
+      const messageType = discountData.source === 'firestore' ? 'success' : 'warning';
+      const title = currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created';
+      const message = discountData.source === 'firestore' ? 
+        (currentLanguage === 'ar' ? 
+          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
+          `Discount code ${code} created with ${percent}% off and saved to database`) :
+        (currentLanguage === 'ar' ? 
+          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% محلياً` : 
+          `Discount code ${code} created with ${percent}% off locally`);
+      
+      showNotification(title, message, messageType);
     }
     
     // Load discounts from Firestore
@@ -15193,7 +15164,6 @@
       return Array.from({length: length}, () => Math.floor(Math.random() * (max - min + 1) + min));
     }
     
-    
     // Function to add a demo order to client list (for offline mode)
     function addDemoOrderToClientList(order) {
       if (!clientOrdersList) return;
@@ -15294,7 +15264,6 @@
         });
       }
     }
-    }); // End of DOMContentLoaded event listener
   </script>
   
 
