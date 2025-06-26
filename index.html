@@ -9103,7 +9103,7 @@
           guestOption.onclick = function() { showGuestOption(); };
           guestOption.innerHTML = `
             <i class="fas fa-utensils option-icon"></i>
-            <span id="guest-option-text">${currentLanguage === 'ar' ? 'أنا ضيف' : 'I\'m a Guest'}</span>
+            <span id="guest-option-text">${currentLanguage === 'ar' ? 'أنا b�يف' : 'I\'m a Guest'}</span>
             <div class="option-description" id="guest-option-desc">
               ${currentLanguage === 'ar' 
                 ? 'حدد هذا إذا كنت تتناول الطعام وتحتاج إلى طلب من طاولتك' 
@@ -14275,17 +14275,18 @@
     
     // Create new discount
     async function applyDiscount() {
-      console.log('🔹 Create Discount button clicked!');
+      console.log('Create Discount button clicked');
       
       const codeInput = document.getElementById('discount-code-input');
       const percentInput = document.getElementById('discount-percent');
       
-      console.log('🔹 Input elements found:', codeInput, percentInput);
+      if (!codeInput || !percentInput) {
+        console.error('Discount input elements not found');
+        return;
+      }
       
       const code = codeInput.value.trim().toUpperCase();
       const percent = parseInt(percentInput.value);
-      
-      console.log('🔹 Input values:', { code, percent });
       
       if (!code) {
         showNotification(
@@ -14317,11 +14318,15 @@
         return;
       }
       
+      // Get current user name safely
+      const currentUser = getCurrentUser();
+      const userName = currentUser ? currentUser.name : 'admin';
+      
       const discountData = {
         code: code,
         percentage: percent,
         createdAt: new Date().toISOString(),
-        createdBy: currentUserName || 'admin',
+        createdBy: userName,
         isActive: true,
         id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       };
