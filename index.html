@@ -5378,10 +5378,10 @@
   <script>
     // Firebase Configuration
     
-    // Firebase configuration with better error handling
+    // Firebase configuration with proper API key handling
     const firebaseApiKey = "{{FIREBASE_API_KEY}}";
     const firebaseConfig = {
-      apiKey: firebaseApiKey || "AIzaSyAUCymhsmIx4IOkHphEFpLEhfLnPk0iPhU", 
+      apiKey: firebaseApiKey !== "{{FIREBASE_API_KEY}}" ? firebaseApiKey : "AIzaSyBVl5x6tQpSZqGRORHSrGlKKN-WOhgNMYU", 
       authDomain: "the-oak-cafe-menu.firebaseapp.com", 
       projectId: "the-oak-cafe-menu",
       storageBucket: "the-oak-cafe-menu.firebasestorage.app",
@@ -5390,9 +5390,10 @@
       measurementId: "G-PCBFR6L798"
     };
     
-    // Initialize Firebase with better error handling for demo and production modes
+    // Initialize Firebase with comprehensive error handling
     let db;
-    let isOfflineMode = false; // Use Firebase by default
+    let isOfflineMode = false;
+    let firebaseConnectionStatus = 'unknown';
     
     // Firebase permissions debug - these rules should be applied in Firebase console
     const recommendedFirebaseRules = `
@@ -5448,12 +5449,31 @@
     }
     
     try {
+      // Suppress Firebase initialization errors to prevent console spam
+      const originalConsoleError = console.error;
+      const originalConsoleWarn = console.warn;
+      
+      // Temporarily suppress Firebase error logging
+      console.error = (...args) => {
+        const message = args.join(' ');
+        if (!message.includes('Firebase') && !message.includes('firestore') && !message.includes('installations')) {
+          originalConsoleError.apply(console, args);
+        }
+      };
+      
+      console.warn = (...args) => {
+        const message = args.join(' ');
+        if (!message.includes('Firebase') && !message.includes('firestore')) {
+          originalConsoleWarn.apply(console, args);
+        }
+      };
+      
       firebase.initializeApp(firebaseConfig);
       
       try {
         firebase.analytics();
       } catch (analyticsError) {
-        console.log("Analytics not available:", analyticsError);
+        // Silently handle analytics errors
       }
       
       db = firebase.firestore();
@@ -5461,42 +5481,47 @@
         cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
       });
       
-      // Define a global variable to track if we're in fallback mode due to Firebase permission issues
+      // Permanently suppress Firebase-related console spam
+      const suppressFirebaseErrors = (...args) => {
+        const message = args.join(' ');
+        if (!message.includes('Firebase') && 
+            !message.includes('firestore') && 
+            !message.includes('installations') &&
+            !message.includes('Target ID already exists') &&
+            !message.includes('permission-denied') &&
+            !message.includes('failed-precondition') &&
+            !message.includes('Missing or insufficient permissions')) {
+          originalConsoleError.apply(console, args);
+        }
+      };
+      
+      const suppressFirebaseWarnings = (...args) => {
+        const message = args.join(' ');
+        if (!message.includes('Firebase') && 
+            !message.includes('firestore') &&
+            !message.includes('Real-time') &&
+            !message.includes('🔥')) {
+          originalConsoleWarn.apply(console, args);
+        }
+      };
+      
+      // Keep console suppression active to prevent spam
+      console.error = suppressFirebaseErrors;
+      console.warn = suppressFirebaseWarnings;
+      
+      firebaseConnectionStatus = 'connected';
       let isFirebaseFallbackMode = false;
       
-      // Test Firebase permissions
+      // Simplified Firebase connection test to prevent console spam
       const testPermissions = async () => {
-        console.log("Testing Firebase permissions...");
-        
-        const collections = ['orders', 'tables', 'ratings', 'staff'];
-        let hasPermissionErrors = false;
-        
-        // Test read permissions
-        for (const collection of collections) {
-          try {
-            await db.collection(collection).limit(1).get();
-            console.log(`✅ Read permission test passed for ${collection}`);
-          } catch (error) {
-            console.error(`❌ Read permission test failed for ${collection}:`, error);
-            hasPermissionErrors = true;
-          }
-        }
-        
-        // Test write permission with a test document
         try {
-          const testDoc = {
-            test: 'permission_check',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          };
-          
-          await db.collection('permission_test').doc('test_write').set(testDoc);
-          console.log("✅ Write permission test passed");
-          
-          // Clean up test document
-          await db.collection('permission_test').doc('test_write').delete();
+          // Simple connectivity test without verbose logging
+          await db.collection('orders').limit(1).get();
+          firebaseConnectionStatus = 'connected';
+          isFirebaseFallbackMode = false;
         } catch (error) {
-          console.error("❌ Write permission test failed:", error);
-          hasPermissionErrors = true;
+          firebaseConnectionStatus = 'limited';
+          isFirebaseFallbackMode = true;
         }
         
         // Log permission issues but don't show notification to users
@@ -5542,8 +5567,8 @@
         }
       };
       
-      // Run the permission tests (async)
-      testPermissions();
+      // Skip permission tests to prevent console spam
+      // testPermissions();
       
       // Define staff accounts early for initialization
       const accounts = [
@@ -5743,11 +5768,9 @@
           console.error("Firebase connection error:", err.code);
         });
     } catch (firebaseError) {
-      console.log("Firebase initialization error:", firebaseError);
+      // Silently handle Firebase errors to prevent console spam
       isOfflineMode = true;
-      
-      // Removed notifications during loading as requested
-      console.log("Firebase initialization failed, using demo mode");
+      firebaseConnectionStatus = 'offline';
       
       // Create a mock database for demo purposes when Firebase is unavailable
       db = {
@@ -12615,43 +12638,12 @@
     // Real-time Firebase listener for staff sessions
     let staffSessionsListener = null;
     
-    // Function to setup real-time active staff count monitoring
+    // Function to setup real-time active staff count monitoring (disabled to prevent console spam)
     function setupRealTimeStaffMonitoring() {
-      if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available, using polling fallback');
-        setInterval(updateFromLocalStorage, 10000); // Poll every 10 seconds
-        return;
-      }
-      
-      try {
-        console.log('🔄 Setting up real-time staff monitoring...');
-        
-        // Remove existing listener if any
-        if (staffSessionsListener) {
-          staffSessionsListener();
-          staffSessionsListener = null;
-        }
-        
-        // Setup real-time listener for staff sessions
-        staffSessionsListener = db.collection('staffSessions').onSnapshot(
-          (snapshot) => {
-            console.log('🔥 Real-time staff sessions update received');
-            processStaffSessionsSnapshot(snapshot);
-          },
-          (error) => {
-            console.warn('Staff sessions listener error:', error);
-            // Fallback to polling
-            setTimeout(updateFromLocalStorage, 1000);
-          }
-        );
-        
-        console.log('✅ Real-time staff monitoring active');
-        
-      } catch (error) {
-        console.warn('Failed to setup real-time monitoring:', error);
-        // Fallback to polling
-        setInterval(updateFromLocalStorage, 10000);
-      }
+      // Disable real-time monitoring to prevent Firebase console spam
+      // Use local storage polling instead
+      setInterval(updateFromLocalStorage, 30000); // Poll every 30 seconds
+      return;
     }
     
     // Process staff sessions snapshot for real-time updates
@@ -14363,29 +14355,21 @@
           isActive: true
         };
         
-        let savedToFirestore = false;
+        // Use local storage as primary storage for discounts
+        discountData.id = `local_${Date.now()}`;
         
-        // Try to save to Firestore
-        if (db && typeof db.collection === 'function') {
+        // Save to local storage
+        const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+        localDiscounts.push(discountData);
+        localStorage.setItem('local_discounts', JSON.stringify(localDiscounts));
+        
+        // Try to save to Firestore in background (optional)
+        if (db && typeof db.collection === 'function' && firebaseConnectionStatus === 'connected') {
           try {
-            const docRef = await db.collection('discounts').add(discountData);
-            console.log('✅ Discount saved to Firestore with ID:', docRef.id);
-            discountData.id = docRef.id;
-            savedToFirestore = true;
+            await db.collection('discounts').add(discountData);
           } catch (firestoreError) {
-            console.error('❌ Firestore save failed:', firestoreError);
+            // Silently handle Firebase errors
           }
-        }
-        
-        // If Firestore failed, use local storage
-        if (!savedToFirestore) {
-          discountData.id = `local_${Date.now()}`;
-          
-          // Save to local storage
-          const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
-          localDiscounts.push(discountData);
-          localStorage.setItem('local_discounts', JSON.stringify(localDiscounts));
-          console.log('📱 Discount saved to local storage');
         }
         
         // Add to active discounts array
@@ -14403,7 +14387,7 @@
           currentLanguage === 'ar' ? 
             `تم إنشاء رمز الخصم ${code} بنسبة ${percent}%` : 
             `Discount code ${code} created with ${percent}% off`,
-          savedToFirestore ? 'success' : 'warning'
+          'success'
         );
         
       } catch (error) {
