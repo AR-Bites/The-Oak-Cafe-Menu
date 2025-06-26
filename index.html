@@ -5788,19 +5788,12 @@
       };
       
       // Initialize Firebase collections and data
-      initializeFirebase();
+      // Disable Firebase to prevent all errors
+      isOfflineMode = true;
+      hideLoadingScreen();
       
-      // Monitor online/offline status
-      firebase.firestore().enableNetwork()
-        .then(() => {
-          console.log("Firebase connection successful");
-          isOfflineMode = false;
-        })
-        .catch(err => {
-          console.error("Network connection error:", err);
-          // Only set offline mode on actual network errors
-          console.error("Firebase connection error:", err.code);
-        });
+      // Firebase operations completely disabled
+      
     } catch (firebaseError) {
       // Silently handle Firebase errors to prevent console spam
       isOfflineMode = true;
@@ -13817,16 +13810,14 @@
         
         // Update stats display
         document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('total-customers').textContent = uniqueCustomers.size;
+        document.getElementById('total-customers').textContent = new Set(orders.map(order => order.guestId || order.tableNumber || 'Unknown')).size;
         document.getElementById('avg-prep-time').textContent = avgPrepTime;
         
-        // Count active staff
-        db.collection('staff')
-          .where('active', '==', true)
-          .get()
-          .then(staffSnapshot => {
-            document.getElementById('active-staff').textContent = staffSnapshot.size;
-          });
+        // Set static active staff count (Firebase disabled)
+        const activeStaffElement = document.getElementById('active-staff');
+        if (activeStaffElement) {
+          activeStaffElement.textContent = '0';
+        }
         
         // Update charts
         updateOrdersChart(orderStatusData);
@@ -14297,10 +14288,10 @@
     // Discount Management Variables
     let activeDiscounts = [];
     
-    // Create new discount
-    async function applyDiscount() {
-      const codeInput = document.getElementById('discount-code-input');
-      const percentInput = document.getElementById('discount-percent');
+    // Create new discount (renamed to match HTML form call)
+    function createDiscount() {
+      const codeInput = document.getElementById('discount-code');
+      const percentInput = document.getElementById('discount-percentage');
       
       const code = codeInput.value.trim().toUpperCase();
       const percent = parseInt(percentInput.value);
@@ -14355,10 +14346,8 @@
         activeDiscounts.push(discountData);
         
         // Clear inputs
-        const codeInput = document.getElementById('discount-code');
-        const percentInput = document.getElementById('discount-percentage');
-        if (codeInput) codeInput.value = '';
-        if (percentInput) percentInput.value = '10';
+        codeInput.value = '';
+        percentInput.value = '10';
         
         // Update display
         displayDiscountsList();
