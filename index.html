@@ -10092,14 +10092,28 @@
       isOrderBeingProcessed = true;
       
       try {
-        // Calculate total
+        // Calculate total with discount
         let subtotal = 0;
         cart.forEach(item => {
           subtotal += item.totalPrice;
         });
         
-        const tax = subtotal * 0.08;
-        const total = subtotal + tax;
+        // Apply discount if available
+        const discountAmount = discountApplied > 0 ? (subtotal * discountApplied / 100) : 0;
+        const afterDiscount = subtotal - discountAmount;
+        
+        // Calculate tax on discounted amount
+        const tax = afterDiscount * 0.08;
+        const total = afterDiscount + tax;
+        
+        console.log('Order calculation:', {
+          subtotal: subtotal.toFixed(2),
+          discountPercentage: discountApplied,
+          discountAmount: discountAmount.toFixed(2),
+          afterDiscount: afterDiscount.toFixed(2),
+          tax: tax.toFixed(2),
+          finalTotal: total.toFixed(2)
+        });
         
         // Generate unique order identifier to help prevent duplicates
         const uniqueOrderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
@@ -14580,27 +14594,7 @@
       });
     }
 
-    // Function to delete discount
-    function deleteDiscount(discountId) {
-      const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
-      const updatedDiscounts = localDiscounts.map(d => 
-        d.id === discountId ? {...d, isActive: false} : d
-      );
-      localStorage.setItem('local_discounts', JSON.stringify(updatedDiscounts));
-      
-      const index = activeDiscounts.findIndex(d => d.id === discountId);
-      if (index > -1) {
-        activeDiscounts.splice(index, 1);
-      }
-      
-      updateDiscountDisplay();
-      
-      showNotification(
-        currentLanguage === 'ar' ? 'تم حذف الخصم' : 'Discount Deleted',
-        currentLanguage === 'ar' ? 'تم حذف رمز الخصم بنجاح' : 'Discount code deleted successfully',
-        'success'
-      );
-    }
+    // Duplicate function removed - using comprehensive version below
     
     // Load discounts from local storage only (Firebase disabled)
     function loadDiscountsList() {
@@ -14759,12 +14753,16 @@
           }
         }
         
-        // Remove from local storage if it's a local discount
-        if (discountId.startsWith('local_')) {
-          const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
-          const updatedLocalDiscounts = localDiscounts.filter(d => d.id !== discountId);
-          localStorage.setItem('local_discounts', JSON.stringify(updatedLocalDiscounts));
-          console.log('📱 Discount deleted from local storage:', discountCode);
+        // Remove from local storage (works for all discounts)
+        const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+        const updatedLocalDiscounts = localDiscounts.filter(d => d.id !== discountId);
+        localStorage.setItem('local_discounts', JSON.stringify(updatedLocalDiscounts));
+        console.log('📱 Discount deleted from local storage:', discountCode);
+        
+        // Remove from global discount codes for guests
+        if (window.availableDiscountCodes && window.availableDiscountCodes[discountCode]) {
+          delete window.availableDiscountCodes[discountCode];
+          console.log('🌐 Discount removed from global codes:', discountCode);
         }
         
         // Remove from active discounts array
@@ -15385,7 +15383,7 @@
             year: 'تُظهر البيانات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
           },
           staff: {
-            day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من العملاء',
+            day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من ال<�ملاء',
             week: 'سارة لديها أعلى درجة رضا العملاء عند 4.9/5 هذا الأسبوع',
             month: 'أظهر جون أكبر تحسن هذا الشهر، بزيادة 12٪',
             year: 'سارة هي أفضل موظف سنوي بمتوسط تقييم 4.8/5'
