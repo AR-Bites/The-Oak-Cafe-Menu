@@ -7405,7 +7405,7 @@
           weekOption: "هذا الأسبوع",
           monthOption: "هذا الشهر",
           yearOption: "هذا العام",
-          salesPerformance: "أ.�اء المبيعات",
+          salesPerformance: "أداء المبيعات",
           topMenuItems: "أفضل عناصر القائمة",
           customerSatisfaction: "رضا العملاء",
           tableUtilization: "استخدام الطاولة",
@@ -8571,6 +8571,13 @@
     
     function toggleCart() {
       cartPanel.classList.toggle('active');
+      
+      // Ensure discount codes are loaded when cart is opened
+      if (cartPanel.classList.contains('active')) {
+        console.log('Cart opened - ensuring discount codes are loaded...');
+        loadDiscountsList();
+        console.log('Discount codes available for cart:', window.availableDiscountCodes);
+      }
     }
     
     // Authentication
@@ -14563,9 +14570,14 @@
         activeDiscounts.push(discountData);
         
         // Save to global discount codes for guest access
+        console.log('=== SAVING DISCOUNT TO GLOBAL CODES ===');
+        console.log('Before saving - window.availableDiscountCodes:', window.availableDiscountCodes);
+        
         if (typeof window.availableDiscountCodes === 'undefined') {
           window.availableDiscountCodes = {};
+          console.log('Initialized empty global codes object');
         }
+        
         window.availableDiscountCodes[code] = {
           percentage: percent,
           isActive: true,
@@ -14573,12 +14585,28 @@
           createdBy: discountData.createdBy
         };
         
+        console.log('After saving - window.availableDiscountCodes:', window.availableDiscountCodes);
+        console.log('Saved discount data:', window.availableDiscountCodes[code]);
+        console.log('Local storage after save:', localStorage.getItem('local_discounts'));
+        console.log('activeDiscounts array:', activeDiscounts);
+        
         // Clear inputs
         codeInput.value = '';
         percentInput.value = '10';
         
         // Update display immediately
         updateDiscountDisplay();
+        
+        // Test immediate access to verify storage worked
+        console.log('=== TESTING IMMEDIATE ACCESS ===');
+        console.log('Can access code in global?', !!window.availableDiscountCodes[code]);
+        console.log('Is code active?', window.availableDiscountCodes[code]?.isActive);
+        
+        // Test local storage access
+        const testLocal = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+        const foundInLocal = testLocal.find(d => d.code === code);
+        console.log('Found in local storage?', !!foundInLocal);
+        console.log('Local storage entry:', foundInLocal);
         
         showNotification(
           currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created',
@@ -14632,21 +14660,47 @@
     
     // Load discounts from local storage only (Firebase disabled)
     function loadDiscountsList() {
+      console.log('=== LOAD DISCOUNTS LIST FUNCTION CALLED ===');
+      
       try {
         // Load from local storage
-        const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
-        activeDiscounts = localDiscounts.filter(d => d.isActive === true);
+        console.log('Loading from localStorage...');
+        const localStorageRaw = localStorage.getItem('local_discounts');
+        console.log('Raw localStorage data:', localStorageRaw);
+        
+        const localDiscounts = JSON.parse(localStorageRaw || '[]');
+        console.log('Parsed local discounts:', localDiscounts);
+        console.log('Local discounts count:', localDiscounts.length);
+        
+        // Filter active discounts
+        activeDiscounts = localDiscounts.filter(d => {
+          console.log('Checking discount:', d.code, 'Active:', d.isActive);
+          return d.isActive === true;
+        });
+        
+        console.log('Active discounts after filtering:', activeDiscounts);
+        console.log('Active discounts count:', activeDiscounts.length);
         
         // Sort by creation date
         activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         
         // Populate global discount codes for guest access
+        console.log('Setting up global discount codes...');
         if (typeof window.availableDiscountCodes === 'undefined') {
           window.availableDiscountCodes = {};
+          console.log('Initialized empty global codes object');
+        } else {
+          console.log('Global codes already exists:', window.availableDiscountCodes);
         }
         
+        // Clear existing codes first
+        window.availableDiscountCodes = {};
+        console.log('Cleared existing global codes');
+        
         // Add all active discounts to global codes
+        console.log('Adding active discounts to global codes...');
         activeDiscounts.forEach(discount => {
+          console.log('Adding to global:', discount.code, discount.percentage + '%');
           window.availableDiscountCodes[discount.code] = {
             percentage: discount.percentage,
             isActive: true,
@@ -14655,8 +14709,12 @@
           };
         });
         
+        console.log('Final global codes object:', window.availableDiscountCodes);
+        console.log('Global codes count:', Object.keys(window.availableDiscountCodes).length);
+        
         // Add test discount if none exist
         if (activeDiscounts.length === 0) {
+          console.log('No discounts found, creating test discount...');
           const testDiscount = {
             id: `local_${Date.now()}`,
             code: 'WELCOME10',
@@ -14665,6 +14723,7 @@
             createdBy: 'admin',
             isActive: true
           };
+          
           const allDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
           allDiscounts.push(testDiscount);
           localStorage.setItem('local_discounts', JSON.stringify(allDiscounts));
@@ -14677,14 +14736,23 @@
             createdAt: testDiscount.createdAt,
             createdBy: testDiscount.createdBy
           };
+          
+          console.log('Test discount created and added:', testDiscount.code);
         }
         
-        console.log('Available discount codes for guests:', window.availableDiscountCodes);
+        console.log('=== FINAL STATE ===');
+        console.log('activeDiscounts array:', activeDiscounts.map(d => ({ code: d.code, percentage: d.percentage })));
+        console.log('window.availableDiscountCodes:', window.availableDiscountCodes);
+        console.log('=== LOAD DISCOUNTS COMPLETE ===');
         
         // Update UI
         updateDiscountDisplay();
+        
       } catch (error) {
+        console.error('❌ ERROR in loadDiscountsList:', error);
+        console.error('Error stack:', error.stack);
         activeDiscounts = [];
+        window.availableDiscountCodes = {};
         updateDiscountDisplay();
       }
     }
@@ -15677,6 +15745,39 @@
       loadDiscountsList();
       console.log('Discount system initialized for guest access');
       console.log('Available codes after initialization:', window.availableDiscountCodes);
+      
+      // Test discount functionality after initialization
+      setTimeout(() => {
+        console.log('=== RUNNING DISCOUNT SYSTEM TEST ===');
+        
+        // Create a test function to verify everything works
+        window.testDiscountSystem = function() {
+          console.log('Testing discount creation and application...');
+          
+          // Test 1: Check if global codes exist
+          console.log('Test 1 - Global codes exist:', !!window.availableDiscountCodes);
+          console.log('Current codes:', Object.keys(window.availableDiscountCodes));
+          
+          // Test 2: Check localStorage
+          const localData = localStorage.getItem('local_discounts');
+          console.log('Test 2 - Local storage data:', localData);
+          
+          // Test 3: Check activeDiscounts array
+          console.log('Test 3 - Active discounts array:', activeDiscounts);
+          
+          // Test 4: Simulate discount application
+          if (Object.keys(window.availableDiscountCodes).length > 0) {
+            const testCode = Object.keys(window.availableDiscountCodes)[0];
+            console.log('Test 4 - Simulating application of:', testCode);
+            console.log('Code data:', window.availableDiscountCodes[testCode]);
+          }
+          
+          console.log('=== DISCOUNT SYSTEM TEST COMPLETE ===');
+        };
+        
+        // Run the test
+        window.testDiscountSystem();
+      }, 1000);
     }, 500);
   });
 </script>
