@@ -14363,8 +14363,17 @@
       
       if (!code) {
         discountApplied = 0;
-        updateCart();
+        updateCartDisplay();
         return;
+      }
+      
+      console.log('Applying discount code:', code);
+      console.log('Available discount codes:', window.availableDiscountCodes);
+      
+      // Ensure discount codes are loaded
+      if (!window.availableDiscountCodes) {
+        console.log('Loading discount codes...');
+        loadDiscountsList();
       }
       
       // Check available discount codes
@@ -14372,19 +14381,22 @@
       let discountPercentage = 0;
       
       // Check in window.availableDiscountCodes (created by admin)
-      if (window.availableDiscountCodes[code] && window.availableDiscountCodes[code].isActive) {
+      if (window.availableDiscountCodes && window.availableDiscountCodes[code] && window.availableDiscountCodes[code].isActive) {
         discountFound = true;
         discountPercentage = window.availableDiscountCodes[code].percentage;
+        console.log('Found discount in global codes:', discountPercentage);
       }
       
       // Also check in local storage discounts
       if (!discountFound) {
         try {
           const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+          console.log('Checking local discounts:', localDiscounts);
           const discount = localDiscounts.find(d => d.code === code && d.isActive === true);
           if (discount) {
             discountFound = true;
             discountPercentage = discount.percentage;
+            console.log('Found discount in local storage:', discountPercentage);
           }
         } catch (error) {
           console.warn('Error checking local discounts:', error);
@@ -14393,6 +14405,7 @@
       
       if (discountFound) {
         discountApplied = discountPercentage;
+        console.log('Discount applied successfully:', discountPercentage + '%');
         showNotification(
           currentLanguage === 'ar' ? 'تم تطبيق الخصم' : 'Discount Applied',
           currentLanguage === 'ar' ? 
@@ -14402,14 +14415,15 @@
         );
       } else {
         discountApplied = 0;
+        console.log('Discount code not found:', code);
         showNotification(
           currentLanguage === 'ar' ? 'رمز خاطئ' : 'Invalid Code',
-          currentLanguage === 'ar' ? 'رمز الخصم غير صحيح' : 'Invalid discount code',
+          currentLanguage === 'ar' ? 'رمز الخصم غير صحيح' : 'Please check the discount code',
           'error'
         );
       }
       
-      updateCart();
+      updateCartDisplay();
     }
     
     // Create new discount (renamed to match HTML form call)
@@ -15592,9 +15606,17 @@
 <script>
   // Initialize discount system on page load
   document.addEventListener('DOMContentLoaded', function() {
+    // Initialize global discount codes object first
+    if (typeof window.availableDiscountCodes === 'undefined') {
+      window.availableDiscountCodes = {};
+    }
+    
     // Load discounts for all user types including guests
-    loadDiscountsList();
-    console.log('Discount system initialized for guest access');
+    setTimeout(() => {
+      loadDiscountsList();
+      console.log('Discount system initialized for guest access');
+      console.log('Available codes after initialization:', window.availableDiscountCodes);
+    }, 500);
   });
 </script>
 
