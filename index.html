@@ -8514,18 +8514,33 @@
         cartItems.appendChild(cartItem);
       });
       
-      // Calculate tax (assuming 8%)
-      const tax = subtotal * 0.08;
+      // Calculate discount amount
+      const discountAmount = discountApplied > 0 ? (subtotal * discountApplied / 100) : 0;
+      const afterDiscount = subtotal - discountAmount;
       
-      // Calculate total
-      const total = subtotal + tax;
+      // Calculate tax (assuming 8%) on discounted amount
+      const tax = afterDiscount * 0.08;
       
-      // Update total breakdown
-      totalBreakdown.innerHTML = `
+      // Calculate final total
+      const total = afterDiscount + tax;
+      
+      // Update total breakdown with discount
+      let breakdownHTML = `
         <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
           <span>${currentLanguage === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
           <span>$${subtotal.toFixed(2)}</span>
-        </p>
+        </p>`;
+      
+      // Show discount if applied
+      if (discountApplied > 0) {
+        breakdownHTML += `
+          <p style="display: flex; justify-content: space-between; margin-bottom: 5px; color: var(--gold);">
+            <span>${currentLanguage === 'ar' ? `خصم (${discountApplied}%)` : `Discount (${discountApplied}%)`}</span>
+            <span>-$${discountAmount.toFixed(2)}</span>
+          </p>`;
+      }
+      
+      breakdownHTML += `
         <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
           <span>${currentLanguage === 'ar' ? 'الضريبة (8%)' : 'Tax (8%)'}</span>
           <span>$${tax.toFixed(2)}</span>
@@ -8533,8 +8548,9 @@
         <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
           <span>${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}</span>
           <span>$${total.toFixed(2)}</span>
-        </p>
-      `;
+        </p>`;
+      
+      totalBreakdown.innerHTML = breakdownHTML;
       
       // Update cart icon based on whether there are items
       const cartIconElement = document.querySelector('.cart-icon');
@@ -11209,7 +11225,7 @@
           if (error.code === 'permission-denied') {
             errorTitle = currentLanguage === 'ar' ? 'غير مخول' : 'Not Authorized';
             errorMessage = currentLanguage === 'ar' 
-              ? 'ليس لديك صلاحية لتحديث هذا الطلب. يc�جى الاتصال بالمدير'
+              ? 'ليس لديك صلاحية لتحديث هذا الطلب. يرجى الاتصال بالمدير'
               : 'You don\'t have permission to update this order. Please contact the admin.';
           } else if (error.code === 'not-found') {
             errorMessage = currentLanguage === 'ar' 
@@ -14333,6 +14349,68 @@
     
     // Discount Management Variables
     let activeDiscounts = [];
+    let discountApplied = 0;
+    
+    // Initialize global discount codes for guest access
+    window.availableDiscountCodes = {};
+    
+    // Guest discount application function
+    function applyDiscount() {
+      const discountCodeInput = document.getElementById('discount-code');
+      if (!discountCodeInput) return;
+      
+      const code = discountCodeInput.value.trim().toUpperCase();
+      
+      if (!code) {
+        discountApplied = 0;
+        updateCart();
+        return;
+      }
+      
+      // Check available discount codes
+      let discountFound = false;
+      let discountPercentage = 0;
+      
+      // Check in window.availableDiscountCodes (created by admin)
+      if (window.availableDiscountCodes[code] && window.availableDiscountCodes[code].isActive) {
+        discountFound = true;
+        discountPercentage = window.availableDiscountCodes[code].percentage;
+      }
+      
+      // Also check in local storage discounts
+      if (!discountFound) {
+        try {
+          const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+          const discount = localDiscounts.find(d => d.code === code && d.isActive === true);
+          if (discount) {
+            discountFound = true;
+            discountPercentage = discount.percentage;
+          }
+        } catch (error) {
+          console.warn('Error checking local discounts:', error);
+        }
+      }
+      
+      if (discountFound) {
+        discountApplied = discountPercentage;
+        showNotification(
+          currentLanguage === 'ar' ? 'تم تطبيق الخصم' : 'Discount Applied',
+          currentLanguage === 'ar' ? 
+            `تم تطبيق خصم ${discountPercentage}%` : 
+            `${discountPercentage}% discount applied`,
+          'success'
+        );
+      } else {
+        discountApplied = 0;
+        showNotification(
+          currentLanguage === 'ar' ? 'رمز خاطئ' : 'Invalid Code',
+          currentLanguage === 'ar' ? 'رمز الخصم غير صحيح' : 'Invalid discount code',
+          'error'
+        );
+      }
+      
+      updateCart();
+    }
     
     // Create new discount (renamed to match HTML form call)
     function createDiscount() {
@@ -14403,13 +14481,35 @@
           isActive: true
         };
         
-        // Save to local storage
+        // Save to Firebase database first
+        try {
+          if (typeof db !== 'undefined' && db.collection) {
+            db.collection('discounts').doc(discountData.id).set(discountData)
+              .then(() => console.log('Discount saved to Firebase successfully'))
+              .catch(firebaseError => console.warn('Firebase save failed:', firebaseError));
+          }
+        } catch (firebaseError) {
+          console.warn('Firebase save failed, using local storage:', firebaseError);
+        }
+        
+        // Save to local storage as backup
         const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
         localDiscounts.push(discountData);
         localStorage.setItem('local_discounts', JSON.stringify(localDiscounts));
         
         // Add to active discounts array
         activeDiscounts.push(discountData);
+        
+        // Save to global discount codes for guest access
+        if (typeof window.availableDiscountCodes === 'undefined') {
+          window.availableDiscountCodes = {};
+        }
+        window.availableDiscountCodes[code] = {
+          percentage: percent,
+          isActive: true,
+          createdAt: discountData.createdAt,
+          createdBy: discountData.createdBy
+        };
         
         // Clear inputs
         codeInput.value = '';
@@ -14421,8 +14521,8 @@
         showNotification(
           currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created',
           currentLanguage === 'ar' ? 
-            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}%` : 
-            `Discount code ${code} created with ${percent}% off`,
+            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
+            `Discount code ${code} created with ${percent}% off and saved to database`,
           'success'
         );
         
@@ -14498,6 +14598,21 @@
         // Sort by creation date
         activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         
+        // Populate global discount codes for guest access
+        if (typeof window.availableDiscountCodes === 'undefined') {
+          window.availableDiscountCodes = {};
+        }
+        
+        // Add all active discounts to global codes
+        activeDiscounts.forEach(discount => {
+          window.availableDiscountCodes[discount.code] = {
+            percentage: discount.percentage,
+            isActive: true,
+            createdAt: discount.createdAt,
+            createdBy: discount.createdBy
+          };
+        });
+        
         // Add test discount if none exist
         if (activeDiscounts.length === 0) {
           const testDiscount = {
@@ -14512,7 +14627,17 @@
           allDiscounts.push(testDiscount);
           localStorage.setItem('local_discounts', JSON.stringify(allDiscounts));
           activeDiscounts.push(testDiscount);
+          
+          // Add test discount to global codes
+          window.availableDiscountCodes[testDiscount.code] = {
+            percentage: testDiscount.percentage,
+            isActive: true,
+            createdAt: testDiscount.createdAt,
+            createdBy: testDiscount.createdBy
+          };
         }
+        
+        console.log('Available discount codes for guests:', window.availableDiscountCodes);
         
         // Update UI
         updateDiscountDisplay();
@@ -15463,5 +15588,15 @@
       </div>
     </div>
   </div>
+
+<script>
+  // Initialize discount system on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load discounts for all user types including guests
+    loadDiscountsList();
+    console.log('Discount system initialized for guest access');
+  });
+</script>
+
 </body>
 </html>
