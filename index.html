@@ -14370,74 +14370,108 @@
     
     // Guest discount application function
     function applyDiscount() {
+      console.log('=== APPLY DISCOUNT FUNCTION CALLED ===');
       const discountCodeInput = document.getElementById('discount-code');
-      if (!discountCodeInput) return;
+      if (!discountCodeInput) {
+        console.error('ERROR: discount-code input element not found!');
+        return;
+      }
       
       const code = discountCodeInput.value.trim().toUpperCase();
+      console.log('Raw input code:', discountCodeInput.value);
+      console.log('Processed code:', code);
       
       if (!code) {
+        console.log('Empty code, resetting discount');
         discountApplied = 0;
         updateCartDisplay();
         return;
       }
       
-      console.log('Applying discount code:', code);
-      console.log('Available discount codes:', window.availableDiscountCodes);
+      console.log('Current discountApplied value:', discountApplied);
+      console.log('Available discount codes object:', window.availableDiscountCodes);
+      console.log('Local storage discounts:', localStorage.getItem('local_discounts'));
       
-      // Ensure discount codes are loaded
-      if (!window.availableDiscountCodes) {
-        console.log('Loading discount codes...');
-        loadDiscountsList();
-      }
+      // Force reload discount codes
+      console.log('Force reloading discount codes...');
+      loadDiscountsList();
       
-      // Check available discount codes
-      let discountFound = false;
-      let discountPercentage = 0;
-      
-      // Check in window.availableDiscountCodes (created by admin)
-      if (window.availableDiscountCodes && window.availableDiscountCodes[code] && window.availableDiscountCodes[code].isActive) {
-        discountFound = true;
-        discountPercentage = window.availableDiscountCodes[code].percentage;
-        console.log('Found discount in global codes:', discountPercentage);
-      }
-      
-      // Also check in local storage discounts
-      if (!discountFound) {
-        try {
-          const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
-          console.log('Checking local discounts:', localDiscounts);
-          const discount = localDiscounts.find(d => d.code === code && d.isActive === true);
-          if (discount) {
-            discountFound = true;
-            discountPercentage = discount.percentage;
-            console.log('Found discount in local storage:', discountPercentage);
+      // Wait a moment for load to complete
+      setTimeout(() => {
+        console.log('After reload - Available codes:', window.availableDiscountCodes);
+        
+        let discountFound = false;
+        let discountPercentage = 0;
+        
+        // Check in window.availableDiscountCodes first
+        if (window.availableDiscountCodes && typeof window.availableDiscountCodes === 'object') {
+          console.log('Checking global codes for:', code);
+          if (window.availableDiscountCodes[code]) {
+            console.log('Found code in global:', window.availableDiscountCodes[code]);
+            if (window.availableDiscountCodes[code].isActive) {
+              discountFound = true;
+              discountPercentage = window.availableDiscountCodes[code].percentage;
+              console.log('✅ FOUND VALID DISCOUNT IN GLOBAL:', discountPercentage + '%');
+            } else {
+              console.log('❌ Discount found but not active');
+            }
+          } else {
+            console.log('❌ Code not found in global codes');
           }
-        } catch (error) {
-          console.warn('Error checking local discounts:', error);
         }
-      }
-      
-      if (discountFound) {
-        discountApplied = discountPercentage;
-        console.log('Discount applied successfully:', discountPercentage + '%');
-        showNotification(
-          currentLanguage === 'ar' ? 'تم تطبيق الخصم' : 'Discount Applied',
-          currentLanguage === 'ar' ? 
-            `تم تطبيق خصم ${discountPercentage}%` : 
-            `${discountPercentage}% discount applied`,
-          'success'
-        );
-      } else {
-        discountApplied = 0;
-        console.log('Discount code not found:', code);
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز خاطئ' : 'Invalid Code',
-          currentLanguage === 'ar' ? 'رمز الخصم غير صحيح' : 'Please check the discount code',
-          'error'
-        );
-      }
-      
-      updateCartDisplay();
+        
+        // Check local storage as backup
+        if (!discountFound) {
+          try {
+            console.log('Checking local storage...');
+            const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+            console.log('Local discounts array:', localDiscounts);
+            
+            const discount = localDiscounts.find(d => {
+              console.log('Comparing:', d.code, 'with', code, '| Active:', d.isActive);
+              return d.code === code && d.isActive === true;
+            });
+            
+            if (discount) {
+              discountFound = true;
+              discountPercentage = discount.percentage;
+              console.log('✅ FOUND VALID DISCOUNT IN LOCAL STORAGE:', discountPercentage + '%');
+            } else {
+              console.log('❌ No matching active discount in local storage');
+            }
+          } catch (error) {
+            console.error('❌ Error parsing local discounts:', error);
+          }
+        }
+        
+        console.log('Final result - Found:', discountFound, 'Percentage:', discountPercentage);
+        
+        if (discountFound) {
+          discountApplied = discountPercentage;
+          console.log('✅ DISCOUNT APPLIED SUCCESSFULLY:', discountApplied + '%');
+          
+          showNotification(
+            currentLanguage === 'ar' ? 'تم تطبيق الخصم' : 'Discount Applied',
+            currentLanguage === 'ar' ? 
+              `تم تطبيق خصم ${discountPercentage}%` : 
+              `${discountPercentage}% discount applied`,
+            'success'
+          );
+        } else {
+          discountApplied = 0;
+          console.log('❌ DISCOUNT CODE NOT FOUND OR INVALID:', code);
+          
+          showNotification(
+            currentLanguage === 'ar' ? 'رمز خاطئ' : 'Invalid Code',
+            currentLanguage === 'ar' ? 'رمز الخصم غير صحيح' : 'Discount code not found',
+            'error'
+          );
+        }
+        
+        console.log('Updating cart display with discount:', discountApplied);
+        updateCartDisplay();
+        console.log('=== APPLY DISCOUNT FUNCTION COMPLETE ===');
+      }, 100);
     }
     
     // Create new discount (renamed to match HTML form call)
@@ -14731,45 +14765,72 @@
     
     // Delete discount
     async function deleteDiscount(discountId, discountCode) {
+      console.log('=== DELETE DISCOUNT FUNCTION CALLED ===');
+      console.log('Discount ID:', discountId);
+      console.log('Discount Code:', discountCode);
+      console.log('Current activeDiscounts:', activeDiscounts);
+      console.log('Current global codes:', window.availableDiscountCodes);
+      console.log('Current local storage:', localStorage.getItem('local_discounts'));
+      
       const confirmDelete = confirm(
         currentLanguage === 'ar' ? 
           `هل أنت متأكد من حذف رمز الخصم ${discountCode}؟` :
           `Are you sure you want to delete discount code ${discountCode}?`
       );
       
-      if (!confirmDelete) return;
+      if (!confirmDelete) {
+        console.log('❌ User cancelled deletion');
+        return;
+      }
       
       try {
-        let deletedFromFirestore = false;
+        console.log('🗑️ Starting deletion process...');
+        
+        // Remove from local storage (works for all discounts)
+        console.log('📱 Updating local storage...');
+        const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+        console.log('Before deletion - Local discounts count:', localDiscounts.length);
+        
+        const updatedLocalDiscounts = localDiscounts.filter(d => d.id !== discountId);
+        console.log('After filtering - Local discounts count:', updatedLocalDiscounts.length);
+        
+        localStorage.setItem('local_discounts', JSON.stringify(updatedLocalDiscounts));
+        console.log('✅ Local storage updated');
+        
+        // Remove from global discount codes for guests
+        console.log('🌐 Updating global codes...');
+        if (window.availableDiscountCodes && window.availableDiscountCodes[discountCode]) {
+          delete window.availableDiscountCodes[discountCode];
+          console.log('✅ Removed from global codes:', discountCode);
+        } else {
+          console.log('⚠️ Code not found in global codes');
+        }
+        
+        // Remove from active discounts array
+        console.log('📋 Updating active discounts array...');
+        const beforeCount = activeDiscounts.length;
+        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
+        const afterCount = activeDiscounts.length;
+        console.log('Active discounts count - Before:', beforeCount, 'After:', afterCount);
         
         // Try to delete from Firestore if it's not a local-only discount
         if (db && typeof db.collection === 'function' && !discountId.startsWith('local_')) {
           try {
+            console.log('🔥 Attempting Firestore deletion...');
             await db.collection('discounts').doc(discountId).delete();
-            console.log('✅ Discount deleted from Firestore:', discountCode);
-            deletedFromFirestore = true;
+            console.log('✅ Firestore deletion successful');
           } catch (firestoreError) {
-            console.error('❌ Firestore delete failed:', firestoreError);
+            console.warn('⚠️ Firestore delete failed (continuing anyway):', firestoreError);
           }
+        } else {
+          console.log('⏭️ Skipping Firestore deletion (local discount or no DB)');
         }
-        
-        // Remove from local storage (works for all discounts)
-        const localDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
-        const updatedLocalDiscounts = localDiscounts.filter(d => d.id !== discountId);
-        localStorage.setItem('local_discounts', JSON.stringify(updatedLocalDiscounts));
-        console.log('📱 Discount deleted from local storage:', discountCode);
-        
-        // Remove from global discount codes for guests
-        if (window.availableDiscountCodes && window.availableDiscountCodes[discountCode]) {
-          delete window.availableDiscountCodes[discountCode];
-          console.log('🌐 Discount removed from global codes:', discountCode);
-        }
-        
-        // Remove from active discounts array
-        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
         
         // Update display
+        console.log('🔄 Updating display...');
         displayDiscountsList();
+        
+        console.log('✅ Deletion process completed successfully');
         
         showNotification(
           currentLanguage === 'ar' ? 'تم حذف الخصم' : 'Discount Deleted',
@@ -14780,13 +14841,15 @@
         );
         
       } catch (error) {
-        console.error('❌ Error deleting discount:', error);
+        console.error('❌ ERROR in deleteDiscount function:', error);
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في حذف الخصم' : 'Error Deleting Discount',
           currentLanguage === 'ar' ? 'حدث خطأ أثناء حذف الخصم' : 'An error occurred while deleting the discount',
           'error'
         );
       }
+      
+      console.log('=== DELETE DISCOUNT FUNCTION COMPLETE ===');
     }
     
     // Admin Tabs Navigation
@@ -15383,7 +15446,7 @@
             year: 'تُظهر البيانات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
           },
           staff: {
-            day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من ال<�ملاء',
+            day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من العملاء',
             week: 'سارة لديها أعلى درجة رضا العملاء عند 4.9/5 هذا الأسبوع',
             month: 'أظهر جون أكبر تحسن هذا الشهر، بزيادة 12٪',
             year: 'سارة هي أفضل موظف سنوي بمتوسط تقييم 4.8/5'
