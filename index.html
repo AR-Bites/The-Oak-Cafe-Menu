@@ -10819,7 +10819,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في إلغاء الطلب' : 'Cancellation Failed',
           currentLanguage === 'ar' 
-            ? `حدث خطأ أثناء إلغاء الطلب: ${error.message}` 
+            ? `حدث خطأ أثناc� إلغاء الطلب: ${error.message}` 
             : `Error cancelling order: ${error.message}`,
           'error'
         );
@@ -14258,50 +14258,70 @@
     
     // Create new discount (renamed to match HTML form call)
     function createDiscount() {
-      const codeInput = document.getElementById('discount-code-input');
-      const percentInput = document.getElementById('discount-percent');
-      
-      const code = codeInput.value.trim().toUpperCase();
-      const percent = parseInt(percentInput.value);
-      
-      if (!code) {
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
-          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
-          'error'
-        );
-        codeInput.focus();
-        return;
-      }
-      
-      if (!percent || percent < 5 || percent > 50) {
-        showNotification(
-          currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
-          currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
-          'error'
-        );
-        percentInput.focus();
-        return;
-      }
-      
-      // Check if code already exists
-      if (activeDiscounts.some(d => d.code === code)) {
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
-          currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
-          'error'
-        );
-        return;
-      }
-      
       try {
+        console.log('createDiscount function called');
+        
+        const codeInput = document.getElementById('discount-code-input');
+        const percentInput = document.getElementById('discount-percent');
+        
+        console.log('Input elements found:', {
+          codeInput: !!codeInput,
+          percentInput: !!percentInput
+        });
+        
+        if (!codeInput || !percentInput) {
+          console.error('Input elements not found');
+          showNotification(
+            currentLanguage === 'ar' ? 'خطأ في النظام' : 'System Error',
+            currentLanguage === 'ar' ? 'لا يمكن العثور على عناصر الإدخال' : 'Input elements not found',
+            'error'
+          );
+          return;
+        }
+        
+        const code = codeInput.value.trim().toUpperCase();
+        const percent = parseInt(percentInput.value);
+        
+        console.log('Input values:', { code, percent });
+        
+        // Validation
+        if (!code) {
+          showNotification(
+            currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
+            currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
+            'error'
+          );
+          codeInput.focus();
+          return;
+        }
+        
+        if (!percent || percent < 5 || percent > 50) {
+          showNotification(
+            currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
+            currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
+            'error'
+          );
+          percentInput.focus();
+          return;
+        }
+        
+        // Check if code already exists
+        if (activeDiscounts.some(d => d.code === code)) {
+          showNotification(
+            currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
+            currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
+            'error'
+          );
+          return;
+        }
+        
         // Create discount data
         const discountData = {
           id: `local_${Date.now()}`,
           code: code,
           percentage: percent,
           createdAt: new Date().toISOString(),
-          createdBy: currentUserName || 'admin',
+          createdBy: (typeof currentUserName !== 'undefined' ? currentUserName : 'admin'),
           isActive: true
         };
         
@@ -14329,9 +14349,11 @@
         );
         
       } catch (error) {
+        console.error('Error in createDiscount function:', error);
+        console.error('Error stack:', error.stack);
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في إنشاء الخصم' : 'Error Creating Discount',
-          currentLanguage === 'ar' ? 'حدث خطأ أثناء إنشاء الخصم' : 'An error occurred while creating the discount',
+          currentLanguage === 'ar' ? 'حدث خطأ أثناء إنشاء الخصم' : `Error: ${error.message}`,
           'error'
         );
       }
@@ -14397,6 +14419,22 @@
         
         // Sort by creation date
         activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        // Add test discount if none exist
+        if (activeDiscounts.length === 0) {
+          const testDiscount = {
+            id: `local_${Date.now()}`,
+            code: 'WELCOME10',
+            percentage: 10,
+            createdAt: new Date().toISOString(),
+            createdBy: 'admin',
+            isActive: true
+          };
+          const allDiscounts = JSON.parse(localStorage.getItem('local_discounts') || '[]');
+          allDiscounts.push(testDiscount);
+          localStorage.setItem('local_discounts', JSON.stringify(allDiscounts));
+          activeDiscounts.push(testDiscount);
+        }
         
         // Update UI
         updateDiscountDisplay();
@@ -15124,7 +15162,7 @@
             year: 'معدل الرضا السنوي هو 4.6/5، بتحسن 9٪ عن العام الماضي'
           },
           table: {
-            day: 'اليوم الطاولات 9-12 لديها أعلى معدل دوران عند 4.1 ساعات',
+            day: 'اليوم الطاولات 9-12 لديها أ �لى معدل دوران عند 4.1 ساعات',
             week: 'الطاولات 5-8 لديها أعلى معدل دوران بمتوسط 3.2 ساعة هذا الأسبوع',
             month: 'تُظهر البيانات الشهرية أن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيام الأسبوع',
             year: 'تُظهر البيانات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
