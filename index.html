@@ -7405,7 +7405,7 @@
           weekOption: "هذا الأسبوع",
           monthOption: "هذا الشهر",
           yearOption: "هذا العام",
-          salesPerformance: "أ.�اء المبيعات",
+          salesPerformance: "أداء المبيعات",
           topMenuItems: "أفضل عناصر القائمة",
           customerSatisfaction: "رضا العملاء",
           tableUtilization: "استخدام الطاولة",
@@ -10099,15 +10099,27 @@
       isOrderBeingProcessed = true;
       
       try {
+        console.log('🛒 CHECKOUT PROCESS STARTING');
+        console.log('Cart contents:', cart);
+        console.log('Current discount applied:', discountApplied);
+        
         // Calculate total with discount
         let subtotal = 0;
         cart.forEach(item => {
           subtotal += item.totalPrice;
         });
         
-        // Apply discount if available
-        const discountAmount = discountApplied > 0 ? (subtotal * discountApplied / 100) : 0;
+        console.log('Subtotal calculated:', subtotal);
+        
+        // Apply discount if available - ensure discountApplied is defined
+        const discountAmount = (typeof discountApplied === 'number' && discountApplied > 0) ? (subtotal * discountApplied / 100) : 0;
         const afterDiscount = subtotal - discountAmount;
+        
+        console.log('Discount calculation:', {
+          discountApplied: discountApplied,
+          discountAmount: discountAmount,
+          afterDiscount: afterDiscount
+        });
         
         // Calculate tax on discounted amount
         const tax = afterDiscount * 0.08;
@@ -10130,6 +10142,9 @@
           clientId: clientId,
           items: JSON.parse(JSON.stringify(cart)), // Create deep copy to prevent mutation issues
           subtotal: subtotal,
+          discountPercentage: discountApplied || 0, // Include discount percentage
+          discountAmount: discountAmount || 0, // Include discount amount
+          afterDiscount: afterDiscount, // Include amount after discount
           tax: tax,
           total: total,
           status: 'pending',
@@ -10152,12 +10167,20 @@
         );
         
         // Create the order in Firebase
+        console.log('📡 SENDING ORDER TO FIREBASE');
+        console.log('Order data being sent:', order);
+        
         const orderId = await createOrderInFirebase(order);
+        
+        console.log('Firebase response - Order ID:', orderId);
         
         if (!orderId) {
           // If order creation failed
+          console.error('❌ Order creation failed - no ID returned');
           throw new Error("Failed to create order in Firebase");
         }
+        
+        console.log('✅ Order created successfully with ID:', orderId);
         
         // Mark table as occupied locally for immediate feedback
         occupiedTables.add(orderTableNumber);
@@ -10189,7 +10212,14 @@
         }, 800);
         
       } catch (error) {
-        console.error('Error placing order:', error);
+        console.error('❌ CHECKOUT ERROR CAUGHT:', error);
+        console.error('Error stack:', error.stack);
+        console.error('Error details:', {
+          message: error.message,
+          name: error.name,
+          cause: error.cause
+        });
+        
         // Show detailed error notification
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الطلب' : 'Order Error',
@@ -14389,6 +14419,7 @@
       console.log('Applying discount code:', code);
       
       if (!code) {
+        console.log('Empty code - resetting discount to 0');
         discountApplied = 0;
         updateCartDisplay();
         return;
