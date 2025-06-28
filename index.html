@@ -4805,7 +4805,7 @@
         <div class="model-container">
           <model-viewer 
             id="food-model-viewer" 
-            src="/models/Margherita Pizza.glb" 
+            src="./models/Margherita Pizza.glb" 
             alt="3D Food Model" 
             ar 
             ar-modes="quick-look scene-viewer webxr" 
@@ -7960,9 +7960,11 @@
           
           // Check if this model exists in our available models list
           if (availableModels.includes(existingFilename)) {
-            // Model exists, keep the existing path but ensure it starts with /models/
-            if (!item.modelSrc.startsWith('/models/')) {
-              item.modelSrc = `/models/${existingFilename}`;
+            // Model exists, keep the existing path but ensure it starts with ./models/
+            if (!item.modelSrc.startsWith('./models/') && !item.modelSrc.startsWith('/models/')) {
+              item.modelSrc = `./models/${existingFilename}`;
+            } else if (item.modelSrc.startsWith('/models/')) {
+              item.modelSrc = item.modelSrc.replace('/models/', './models/');
             }
             console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
           } else {
@@ -7975,7 +7977,7 @@
             );
             
             if (alternativeMatch) {
-              item.modelSrc = `/models/${alternativeMatch}`;
+              item.modelSrc = `./models/${alternativeMatch}`;
               console.log(`Mapped ${item.name} to alternative model: ${item.modelSrc}`);
             } else {
               item.modelSrc = null;
@@ -7992,7 +7994,7 @@
           );
           
           if (nameMatch) {
-            item.modelSrc = `/models/${nameMatch}`;
+            item.modelSrc = `./models/${nameMatch}`;
             console.log(`Mapped ${item.name} to name-based model: ${item.modelSrc}`);
           } else {
             console.log(`No model available for: ${item.name}`);
@@ -8011,7 +8013,7 @@
       
       // Preload only available models
       availableModels.forEach(modelName => {
-        const modelPath = `/models/${modelName}`;
+        const modelPath = `./models/${modelName}`;
         console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
