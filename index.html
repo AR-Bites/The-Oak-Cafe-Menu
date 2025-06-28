@@ -8901,9 +8901,13 @@
         // Add to beginning of orders array
         tableDetails[tableNumber].orders.unshift(orderForTable);
         
-        // Update staff view if needed
-        if (userType === 'staff' || userType === 'admin') {
-          updateTablesDisplay();
+        // Force update staff dashboard display
+        console.log("🔄 Forcing staff dashboard update after order creation");
+        updateTablesDisplay();
+        
+        // Also trigger Firebase listener updates if available
+        if (typeof refreshOrdersDisplay === 'function') {
+          refreshOrdersDisplay();
         }
         
         return orderId;
@@ -11225,7 +11229,7 @@
                 // Show appropriate notification based on status
                 const notificationTitle = currentLanguage === 'ar' ? 'تم تحديث الطلب' : 'Order Updated';
                 const notificationMessage = currentLanguage === 'ar'
-                  ? `تم تغيير حالة ال �لب إلى ${getStatusTranslation(newStatus)}`
+                  ? `تم تغيير حالة الطلب إلى ${getStatusTranslation(newStatus)}`
                   : `Order status changed to ${newStatus}`;
                   
                 showNotification(notificationTitle, notificationMessage, 'success');
@@ -11594,7 +11598,7 @@
                 
                 // Update required message based on language
                 feedbackRequiredMsg.textContent = currentLanguage === 'ar' 
-                  ? 'هذا الحقل مطلوب للتقييمات 3 نجa�م أو أقل'
+                  ? 'هذا الحقل مطلوب للتقييمات 3 نجوم أو أقل'
                   : 'This field is required for ratings of 3 stars or less';
               } else {
                 // For higher ratings, feedback is optional
@@ -14164,14 +14168,31 @@
     
     // Function to update tables display in staff view
     function updateTablesDisplay() {
-      console.log("Updating tables display");
-      const tablesContainer = document.getElementById('occupied-tables-container');
-      if (!tablesContainer) return;
+      console.log("🔄 Updating staff dashboard tables display");
+      let tablesContainer = document.getElementById('occupied-tables-container') || 
+                           document.getElementById('tables-grid') ||
+                           document.getElementById('orders-list');
+      
+      if (!tablesContainer) {
+        console.log("❌ No tables container found, creating one");
+        // Create container if it doesn't exist
+        const staffDashboard = document.getElementById('staff-dashboard');
+        if (staffDashboard) {
+          const newContainer = document.createElement('div');
+          newContainer.id = 'tables-grid';
+          newContainer.className = 'tables-grid';
+          staffDashboard.appendChild(newContainer);
+          tablesContainer = newContainer;
+        } else {
+          console.log("❌ Staff dashboard not found");
+          return;
+        }
+      }
       
       // Clear existing content
       tablesContainer.innerHTML = '';
       
-      // Create an element to show total number of occupied tables
+      // Create header showing occupied tables count
       const occupiedTablesCount = document.createElement('div');
       occupiedTablesCount.className = 'occupied-tables-count';
       occupiedTablesCount.innerHTML = `
@@ -14182,117 +14203,202 @@
       `;
       tablesContainer.appendChild(occupiedTablesCount);
       
-      // Get current staff username if we're in staff view
-      const currentStaffUsername = userType === 'staff' ? localStorage.getItem('username') : null;
+      console.log("📊 Occupied tables:", Array.from(occupiedTables));
+      console.log("📋 Table details:", tableDetails);
       
-      // Filter for tables assigned to current staff member if we're in staff view
-      let tablesToShow = [];
-      
-      if (userType === 'staff' && currentStaffUsername) {
-        // Get table assignments for this staff member
-        const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
-        
-        // Create an array of all table numbers assigned to this staff member
-        const assignedTables = [];
-        staffAssignments.forEach(assignment => {
-          for (let t = assignment.startTable; t <= assignment.endTable; t++) {
-            assignedTables.push(t);
-          }
-        });
-        
-        // Filter occupied tables to only show those assigned to this staff
-        tablesToShow = Array.from(occupiedTables).filter(tableNum => 
-          assignedTables.includes(parseInt(tableNum))
-        ).sort((a, b) => a - b);
-        
-        // Show message if no tables assigned
-        if (tablesToShow.length === 0) {
-          const noTablesMsg = document.createElement('div');
-          noTablesMsg.className = 'no-tables-message';
-          noTablesMsg.innerHTML = `
-            <p style="text-align: center; color: var(--light-cream); padding: 20px;">
-              ${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة مخصصة لك' : 'No occupied tables assigned to you'}
-            </p>
-          `;
-          tablesContainer.appendChild(noTablesMsg);
-          return;
-        }
-      } else {
-        // For admin view, show all occupied tables
-        tablesToShow = Array.from(occupiedTables).sort((a, b) => a - b);
-        
-        // Show message if no tables occupied
-        if (tablesToShow.length === 0) {
-          const noTablesMsg = document.createElement('div');
-          noTablesMsg.className = 'no-tables-message';
-          noTablesMsg.innerHTML = `
-            <p style="text-align: center; color: var(--light-cream); padding: 20px;">
-              ${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 'No occupied tables'}
-            </p>
-          `;
-          tablesContainer.appendChild(noTablesMsg);
-          return;
-        }
+      // If no occupied tables, show appropriate message
+      if (occupiedTables.size === 0) {
+        tablesContainer.innerHTML = `
+          <div style="text-align: center; color: var(--light-cream); padding: 40px;">
+            <i class="fas fa-utensils" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+            <p style="font-size: 18px; margin-bottom: 5px;">No Active Orders</p>
+            <p style="opacity: 0.7;">Orders will appear here when customers place them</p>
+          </div>
+        `;
+        return;
       }
       
-      // Display tables
-      tablesToShow.forEach(tableNum => {
+      // Display all occupied tables with their orders
+      Array.from(occupiedTables).forEach(tableNumber => {
+        const tableData = tableDetails[tableNumber];
+        
+        console.log(`Processing table ${tableNumber}:`, tableData);
+        
         const tableCard = document.createElement('div');
         tableCard.className = 'table-card';
-        tableCard.dataset.tableNumber = tableNum;
+        tableCard.dataset.tableNumber = tableNumber;
+        tableCard.style.cssText = `
+          background: rgba(40, 40, 40, 0.8);
+          border: 1px solid var(--gold);
+          border-radius: 12px;
+          padding: 20px;
+          margin-bottom: 15px;
+          color: var(--light-cream);
+        `;
         
-        // Get table details
-        const details = tableDetails[tableNum] || { orders: [] };
-        const hasOrders = details.orders && details.orders.length > 0;
+        // Get order info or show basic table info
+        let orderInfo = '';
+        let orderCount = 0;
+        let totalAmount = 0;
+        let orderTime = 'Just now';
         
-        // Get staff assigned to this table
-        const assignedStaff = getStaffForTable(tableNum);
-        const staffInfo = assignedStaff ? 
-          `<p class="assigned-staff">
-            <span class="staff-label">${currentLanguage === 'ar' ? 'الموظف:' : 'Staff:'}</span>
-            <span class="staff-name ${assignedStaff.role}">${assignedStaff.name}</span>
-          </p>` : '';
-        
-        // Get status based on orders
-        let statusText = currentLanguage === 'ar' ? 'مشغولة' : 'OCCUPIED';
-        let statusClass = 'status-occupied';
-        
-        if (hasOrders) {
-          const latestOrder = details.orders[0];
-          if (latestOrder.status === 'ready') {
-            statusText = currentLanguage === 'ar' ? 'جاهز للتقديم' : 'READY TO SERVE';
-            statusClass = 'status-ready';
-          } else if (latestOrder.status === 'preparing') {
-            statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'PREPARING';
-            statusClass = 'status-preparing';
-          }
+        if (tableData && tableData.orders && tableData.orders.length > 0) {
+          orderCount = tableData.orders.length;
+          const latestOrder = tableData.orders[0];
+          totalAmount = latestOrder.total || 0;
+          orderTime = latestOrder.timestamp ? new Date(latestOrder.timestamp).toLocaleTimeString() : 'Just now';
+          
+          orderInfo = `
+            <div style="margin-top: 15px;">
+              <h4 style="color: var(--gold); margin-bottom: 10px;">Latest Order Items:</h4>
+              ${latestOrder.items.slice(0, 3).map(item => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <span>${item.name}</span>
+                  <span>x${item.quantity}</span>
+                </div>
+              `).join('')}
+              ${latestOrder.items.length > 3 ? `<div style="color: var(--gold); font-style: italic;">...and ${latestOrder.items.length - 3} more items</div>` : ''}
+            </div>
+          `;
         }
         
         tableCard.innerHTML = `
-          <div class="table-card-header">
-            <h3>TABLE ${tableNum}</h3>
-            <span class="table-status ${statusClass}">
-              ${statusText}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="color: var(--gold); font-size: 24px; margin: 0;">TABLE ${tableNumber}</h3>
+            <span style="background: var(--gold); color: var(--dark-green); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">
+              ACTIVE
             </span>
           </div>
-          <div class="table-card-content">
-            <div class="table-info">
-              <p>${currentLanguage === 'ar' ? 'الطلبات' : 'Orders'}: 
-                <span>${hasOrders ? details.orders.length : 0}</span>
-              </p>
-              ${staffInfo}
-              <p>${currentLanguage === 'ar' ? 'آخر تحديث' : 'Last Updated'}: 
-                <span>${hasOrders ? '5 ' + (currentLanguage === 'ar' ? 'دقائق' : 'mins') + ' ' + (currentLanguage === 'ar' ? 'مضت' : 'ago') : '-'}</span>
-              </p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div style="text-align: center;">
+              <div style="font-size: 24px; color: var(--gold); font-weight: bold;">${orderCount}</div>
+              <div style="font-size: 12px; opacity: 0.8;">Orders</div>
             </div>
-            <button class="view-table-details-btn" onclick="viewTableDetails(${tableNum})">
-              ${currentLanguage === 'ar' ? 'عرض التفاصيل' : 'VIEW DETAILS'}
+            <div style="text-align: center;">
+              <div style="font-size: 24px; color: var(--gold); font-weight: bold;">$${totalAmount.toFixed(2)}</div>
+              <div style="font-size: 12px; opacity: 0.8;">Total</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 14px; color: var(--gold); font-weight: bold;">${orderTime}</div>
+              <div style="font-size: 12px; opacity: 0.8;">Last Order</div>
+            </div>
+          </div>
+          
+          ${orderInfo}
+          
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="viewTableOrders(${tableNumber})" style="
+              flex: 1; 
+              background: var(--gold); 
+              color: var(--dark-green); 
+              border: none; 
+              padding: 12px; 
+              border-radius: 8px; 
+              font-weight: bold; 
+              cursor: pointer;
+              transition: all 0.2s ease;
+            " onmouseover="this.style.background='#f4d03f'" onmouseout="this.style.background='var(--gold)'">
+              <i class="fas fa-eye"></i> View Details
+            </button>
+            <button onclick="updateOrderStatus(${tableNumber})" style="
+              flex: 1; 
+              background: var(--green); 
+              color: white; 
+              border: none; 
+              padding: 12px; 
+              border-radius: 8px; 
+              font-weight: bold; 
+              cursor: pointer;
+              transition: all 0.2s ease;
+            " onmouseover="this.style.background='#27ae60'" onmouseout="this.style.background='var(--green)'">
+              <i class="fas fa-check"></i> Update Status
             </button>
           </div>
         `;
         
         tablesContainer.appendChild(tableCard);
       });
+      
+      console.log("✅ Staff dashboard updated with orders");
+    }
+    
+    // Function to view orders for a specific table
+    function viewTableOrders(tableNumber) {
+      const tableData = tableDetails[tableNumber];
+      if (!tableData || !tableData.orders || tableData.orders.length === 0) {
+        showNotification('No Orders', 'No orders found for this table', 'info');
+        return;
+      }
+      
+      console.log(`Viewing orders for table ${tableNumber}:`, tableData.orders);
+      
+      // Create detailed order view
+      let orderDetails = tableData.orders.map((order, index) => `
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+          <h4 style="color: var(--gold); margin-bottom: 10px;">Order ${index + 1} - $${order.total || '0.00'}</h4>
+          <div style="max-height: 150px; overflow-y: auto;">
+            ${order.items.map(item => `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 5px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <span>${item.name}</span>
+                <span>x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+            Status: ${order.status || 'pending'} | Time: ${order.timestamp ? new Date(order.timestamp).toLocaleTimeString() : 'Unknown'}
+          </div>
+        </div>
+      `).join('');
+      
+      // Show detailed modal or notification
+      showNotification(
+        `Table ${tableNumber} Orders (${tableData.orders.length})`, 
+        `Total Amount: $${tableData.orders.reduce((sum, order) => sum + (order.total || 0), 0).toFixed(2)}`,
+        'success'
+      );
+    }
+    
+    // Function to update order status
+    function updateOrderStatus(tableNumber) {
+      const tableData = tableDetails[tableNumber];
+      if (!tableData || !tableData.orders || tableData.orders.length === 0) {
+        showNotification('No Orders', 'No orders found for this table', 'info');
+        return;
+      }
+      
+      // Update the latest order status
+      const latestOrder = tableData.orders[0];
+      const currentStatus = latestOrder.status || 'pending';
+      
+      let newStatus;
+      switch(currentStatus) {
+        case 'pending':
+          newStatus = 'preparing';
+          break;
+        case 'preparing':
+          newStatus = 'ready';
+          break;
+        case 'ready':
+          newStatus = 'completed';
+          break;
+        default:
+          newStatus = 'pending';
+      }
+      
+      latestOrder.status = newStatus;
+      latestOrder.updatedAt = new Date();
+      
+      console.log(`Updated table ${tableNumber} order status from ${currentStatus} to ${newStatus}`);
+      
+      // Refresh the display
+      updateTablesDisplay();
+      
+      showNotification(
+        'Status Updated', 
+        `Table ${tableNumber} order status changed to ${newStatus}`,
+        'success'
+      );
     }
     
     // Discount Management Variables
@@ -15237,7 +15343,7 @@
           table: {
             day: 'اليوم الطاولات 9-12 لديها أعلى معدل دوران عند 4.1 ساعات',
             week: 'الطاولات 5-8 لديها أعلى معدل دوران بمتوسط 3.2 ساعة هذا الأسبوع',
-            month: 'تُظهر البيانات الشهرية أن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيا"� الأسبوع',
+            month: 'تُظهر البيانات الشهرية أن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيام الأسبوع',
             year: 'تُظهر البيانات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
           },
           staff: {
