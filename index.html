@@ -12627,7 +12627,7 @@
     
     // Process staff sessions snapshot for real-time updates
     function processStaffSessionsSnapshot(snapshot) {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const STAFF_ACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes (increased timeout)
       const currentTime = Date.now();
       const activeStaff = [];
       
@@ -12639,16 +12639,12 @@
         
         console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
         
-        // Exclude admin users from staff count
-        if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count`);
-          return;
-        }
-        
-        // Count active non-admin staff within timeout period
-        if (staff.status === 'active' && 
-            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-            staff.sessionId) {
+        // Count ALL staff with active sessions (including admin)
+        // Be more lenient with timeout and status checks
+        if ((staff.status === 'active' || staff.status === 'inactive') && 
+            staff.sessionId && 
+            !staff.loggedOut &&
+            staff.name && staff.name !== 'undefined') {
           
           activeStaff.push({
             username: staff.username,
@@ -12684,7 +12680,7 @@
     
     // Query Firebase for active staff sessions
     function queryFirebaseStaffSessions() {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const STAFF_ACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes (increased timeout)
       const currentTime = Date.now();
       
       db.collection('staffSessions').get()
@@ -12697,16 +12693,12 @@
             
             console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
             
-            // Exclude admin users from staff count
-            if (staff.role === 'admin') {
-              console.log(`❌ Admin ${staff.name} excluded from staff count`);
-              return;
-            }
-            
-            // Count active non-admin staff within timeout period
-            if (staff.status === 'active' && 
-                timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-                staff.sessionId) {
+            // Count ALL staff with active sessions (including admin)
+            // Be more lenient with timeout and status checks
+            if ((staff.status === 'active' || staff.status === 'inactive') && 
+                staff.sessionId && 
+                !staff.loggedOut &&
+                staff.name && staff.name !== 'undefined') {
               
               activeStaff.push({
                 username: staff.username,
@@ -12769,24 +12761,15 @@
         console.log('Cleaned up old staff sessions, active data:', cleanedActivity);
       }
       
-      // Filter active staff based on recent activity and status - EXCLUDE ADMIN
+      // Count ALL logged-in staff (including admin)
       Object.values(cleanedActivity).forEach(staff => {
         const timeSinceActivity = currentTime - staff.lastActivity;
         console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
         
-        // EXCLUDE ALL ADMIN USERS from staff count completely
-        if (staff.role === 'admin') {
-          console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
-          return; // Skip admin users entirely
-        }
-        
-        // Only count actual STAFF (non-admin) as active if:
-        // 1. Their status is 'active' (not 'offline' or 'inactive')
-        // 2. Their last activity was within the timeout period
-        // 3. They have a valid session
-        if (staff.status === 'active' && 
-            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-            staff.sessionId) {
+        // Count ALL staff with valid sessions
+        if ((staff.status === 'active' || staff.status === 'inactive') && 
+            staff.sessionId &&
+            staff.name && staff.name !== 'undefined') {
           
           // Double-check if this user is actually still logged in
           const staffToken = localStorage.getItem(STAFF_TOKEN);
@@ -12797,31 +12780,17 @@
           const isCurrentSession = staff.sessionId === currentSessionId;
           const hasValidStaffToken = staffToken === 'true';
           
-          if (isCurrentSession && hasValidStaffToken) {
-            // This is the current user and they have a valid staff token
-            activeStaff.push({
-              username: staff.username,
-              name: staff.name,
-              role: staff.role,
-              lastActivity: staff.lastActivity,
-              sessionId: staff.sessionId
-            });
-            console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
-          } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
-            // This is another active staff member from a different session
-            activeStaff.push({
-              username: staff.username,
-              name: staff.name,
-              role: staff.role,
-              lastActivity: staff.lastActivity,
-              sessionId: staff.sessionId
-            });
-            console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
-          } else {
-            console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
-          }
+          // Simply count all staff with valid sessions
+          activeStaff.push({
+            username: staff.username,
+            name: staff.name,
+            role: staff.role,
+            lastActivity: staff.lastActivity,
+            sessionId: staff.sessionId
+          });
+          console.log(`✅ Counting staff member: ${staff.name} (${staff.role})`);
         } else {
-          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
+          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, hasSession=${!!staff.sessionId}`);
         }
       });
       
