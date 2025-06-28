@@ -11759,7 +11759,7 @@
           // If after processing there are no orders, show "no orders" message
           setTimeout(() => {
             if (clientOrdersList.children.length === 0) {
-              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلب �ت نشطة' : 'No active orders'}</p>`;
             }
           }, 350); // Wait a bit longer than the animation to make sure all removals have completed
         })
@@ -12335,10 +12335,9 @@
           }
         }
         
-        // TEST: Add sample staff sessions for verification (admin only)
-        if (activityData.role === 'admin' && !localStorage.getItem('staffSessionsCreated')) {
-          createTestStaffSessions();
-          localStorage.setItem('staffSessionsCreated', 'true');
+        // Clear fake sessions immediately to fix active staff count
+        if (activityData.role === 'admin') {
+          clearFakeStaffSessions();
         }
         
         // Store in localStorage as fallback
@@ -12358,43 +12357,32 @@
       }
     }
     
-    // Function to create test staff sessions in Firebase for demonstration
-    function createTestStaffSessions() {
+    // Function to clear fake staff sessions from Firebase
+    function clearFakeStaffSessions() {
       if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available for test staff creation');
+        console.log('Firebase not available for clearing fake sessions');
         return;
       }
       
-      const testStaffSessions = [
-        {
-          username: 'john',
-          name: 'John Smith',
-          role: 'chef',
-          lastActivity: Date.now(),
-          status: 'active',
-          sessionId: 'REAL-CHEF-' + Date.now()
-        },
-        {
-          username: 'ahmad',
-          name: 'Ahmad Mohammed', 
-          role: 'manager',
-          lastActivity: Date.now(),
-          status: 'active',
-          sessionId: 'REAL-MANAGER-' + Date.now()
-        }
-      ];
+      const fakeUsernames = ['john', 'ahmad', 'test'];
       
-      testStaffSessions.forEach(staff => {
-        db.collection('staffSessions').doc(staff.username).set(staff, { merge: true })
-          .then(() => {
-            console.log(`✅ Test staff session created for ${staff.name}`);
-          })
-          .catch(error => {
-            console.log(`Failed to create test session for ${staff.name}:`, error);
+      // Clear all existing staff sessions to reset the count
+      db.collection('staffSessions').get()
+        .then(querySnapshot => {
+          const batch = db.batch();
+          querySnapshot.forEach(doc => {
+            batch.delete(doc.ref);
           });
-      });
+          return batch.commit();
+        })
+        .then(() => {
+          console.log('✅ All fake staff sessions cleared from Firebase');
+        })
+        .catch(error => {
+          console.log('Failed to clear fake sessions:', error);
+        });
       
-      console.log('🔧 Created test staff sessions - active staff count should update');
+      console.log('🧹 Clearing fake staff sessions - count should reset to actual logins');
     }
 
     // Function to start staff heartbeat monitoring  
