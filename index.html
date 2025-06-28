@@ -4382,76 +4382,6 @@
       border: 1px solid rgba(212, 175, 55, 0.1);
     }
     
-    /* Discount Display Styles */
-    .discounts-display {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 8px;
-      padding: 15px;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-      min-height: 120px;
-    }
-    
-    .discount-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-left: 4px solid var(--gold);
-    }
-    
-    .discount-info {
-      flex: 1;
-    }
-    
-    .discount-code {
-      display: block;
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: var(--gold);
-      margin-bottom: 4px;
-    }
-    
-    .discount-percentage {
-      display: block;
-      color: var(--light-cream);
-      font-size: 0.9rem;
-      margin-bottom: 2px;
-    }
-    
-    .discount-date {
-      display: block;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.8rem;
-    }
-    
-    .delete-discount-btn {
-      background: rgba(255, 0, 0, 0.2);
-      color: #ff6b6b;
-      border: 1px solid rgba(255, 0, 0, 0.3);
-      border-radius: 6px;
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .delete-discount-btn:hover {
-      background: rgba(255, 0, 0, 0.3);
-      transform: translateY(-1px);
-    }
-    
-    .no-discounts-message {
-      text-align: center;
-      color: rgba(255, 255, 255, 0.5);
-      font-style: italic;
-      padding: 20px;
-      margin: 0;
-    }
-    
     .chart-header {
       margin-bottom: 15px;
     }
@@ -5214,15 +5144,7 @@
               <label for="discount-percent">DISCOUNT PERCENTAGE</label>
               <input type="number" id="discount-percent" min="5" max="50" value="10">
             </div>
-            <button onclick="createDiscount()" id="apply-discount-btn" class="confirm-btn">CREATE DISCOUNT</button>
-            
-            <!-- Active Discounts Display -->
-            <div class="active-discounts-section" style="margin-top: 20px;">
-              <h4 style="color: var(--gold); margin-bottom: 10px;">ACTIVE DISCOUNT CODES</h4>
-              <div id="active-discounts-list" class="discounts-display">
-                <!-- Discounts will appear here -->
-              </div>
-            </div>
+            <button onclick="applyDiscount()" id="apply-discount-btn" class="confirm-btn">CREATE DISCOUNT</button>
           </div>
         </div>
       </div>
@@ -5456,10 +5378,10 @@
   <script>
     // Firebase Configuration
     
-    // Firebase configuration with proper API key handling
+    // Firebase configuration with better error handling
     const firebaseApiKey = "{{FIREBASE_API_KEY}}";
     const firebaseConfig = {
-      apiKey: firebaseApiKey !== "{{FIREBASE_API_KEY}}" ? firebaseApiKey : "AIzaSyBVl5x6tQpSZqGRORHSrGlKKN-WOhgNMYU", 
+      apiKey: firebaseApiKey || "AIzaSyAUCymhsmIx4IOkHphEFpLEhfLnPk0iPhU", 
       authDomain: "the-oak-cafe-menu.firebaseapp.com", 
       projectId: "the-oak-cafe-menu",
       storageBucket: "the-oak-cafe-menu.firebasestorage.app",
@@ -5468,10 +5390,9 @@
       measurementId: "G-PCBFR6L798"
     };
     
-    // Initialize Firebase with comprehensive error handling
+    // Initialize Firebase with better error handling for demo and production modes
     let db;
-    let isOfflineMode = false;
-    let firebaseConnectionStatus = 'unknown';
+    let isOfflineMode = false; // Use Firebase by default
     
     // Firebase permissions debug - these rules should be applied in Firebase console
     const recommendedFirebaseRules = `
@@ -5527,31 +5448,12 @@
     }
     
     try {
-      // Suppress Firebase initialization errors to prevent console spam
-      const originalConsoleError = console.error;
-      const originalConsoleWarn = console.warn;
-      
-      // Temporarily suppress Firebase error logging
-      console.error = (...args) => {
-        const message = args.join(' ');
-        if (!message.includes('Firebase') && !message.includes('firestore') && !message.includes('installations')) {
-          originalConsoleError.apply(console, args);
-        }
-      };
-      
-      console.warn = (...args) => {
-        const message = args.join(' ');
-        if (!message.includes('Firebase') && !message.includes('firestore')) {
-          originalConsoleWarn.apply(console, args);
-        }
-      };
-      
       firebase.initializeApp(firebaseConfig);
       
       try {
         firebase.analytics();
       } catch (analyticsError) {
-        // Silently handle analytics errors
+        console.log("Analytics not available:", analyticsError);
       }
       
       db = firebase.firestore();
@@ -5559,81 +5461,42 @@
         cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
       });
       
-      // Aggressively suppress ALL Firebase-related console spam
-      const suppressAllSpam = (...args) => {
-        const message = args.join(' ');
-        // Block ALL Firebase, staff, and excessive logging
-        if (message.includes('Firebase') || 
-            message.includes('firestore') || 
-            message.includes('installations') ||
-            message.includes('Target ID') ||
-            message.includes('permission-denied') ||
-            message.includes('failed-precondition') ||
-            message.includes('Missing or insufficient') ||
-            message.includes('Real-time') ||
-            message.includes('🔥') ||
-            message.includes('Staff Check') ||
-            message.includes('Active Staff') ||
-            message.includes('Admin') ||
-            message.includes('excluded') ||
-            message.includes('Activity tracked') ||
-            message.includes('Heartbeat') ||
-            message.includes('session update failed') ||
-            message.includes('timeSince=')) {
-          return; // Block completely
-        }
-        originalConsoleError.apply(console, args);
-      };
-      
-      // Apply aggressive suppression to all console methods
-      const originalLog = console.log;
-      console.error = suppressAllSpam;
-      console.warn = suppressAllSpam;
-      console.log = (...args) => {
-        const message = args.join(' ');
-        // Block ALL spam-related logging
-        if (message.includes('Firebase') || 
-            message.includes('firestore') || 
-            message.includes('Staff Check') ||
-            message.includes('Active Staff') ||
-            message.includes('Admin') ||
-            message.includes('excluded') ||
-            message.includes('Activity tracked') ||
-            message.includes('Heartbeat') ||
-            message.includes('session update') ||
-            message.includes('timeSince=') ||
-            message.includes('Real-time') ||
-            message.includes('🔥') ||
-            message.includes('Updated Active Staff') ||
-            message.includes('Firebase Staff') ||
-            message.includes('Total Orders') ||
-            message.includes('Total Customers') ||
-            message.includes('Avg Prep Time') ||
-            message.includes('Retrieved') ||
-            message.includes('orders for statistics') ||
-            message.includes('Rendering orders') ||
-            message.includes('staff username') ||
-            message.includes('Loading timeout') ||
-            message.includes('Manually refreshing') ||
-            message.includes('Failsafe')) {
-          return; // Block completely
-        }
-        originalLog.apply(console, args);
-      };
-      
-      firebaseConnectionStatus = 'connected';
+      // Define a global variable to track if we're in fallback mode due to Firebase permission issues
       let isFirebaseFallbackMode = false;
       
-      // Simplified Firebase connection test to prevent console spam
+      // Test Firebase permissions
       const testPermissions = async () => {
+        console.log("Testing Firebase permissions...");
+        
+        const collections = ['orders', 'tables', 'ratings', 'staff'];
+        let hasPermissionErrors = false;
+        
+        // Test read permissions
+        for (const collection of collections) {
+          try {
+            await db.collection(collection).limit(1).get();
+            console.log(`✅ Read permission test passed for ${collection}`);
+          } catch (error) {
+            console.error(`❌ Read permission test failed for ${collection}:`, error);
+            hasPermissionErrors = true;
+          }
+        }
+        
+        // Test write permission with a test document
         try {
-          // Simple connectivity test without verbose logging
-          await db.collection('orders').limit(1).get();
-          firebaseConnectionStatus = 'connected';
-          isFirebaseFallbackMode = false;
+          const testDoc = {
+            test: 'permission_check',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          
+          await db.collection('permission_test').doc('test_write').set(testDoc);
+          console.log("✅ Write permission test passed");
+          
+          // Clean up test document
+          await db.collection('permission_test').doc('test_write').delete();
         } catch (error) {
-          firebaseConnectionStatus = 'limited';
-          isFirebaseFallbackMode = true;
+          console.error("❌ Write permission test failed:", error);
+          hasPermissionErrors = true;
         }
         
         // Log permission issues but don't show notification to users
@@ -5679,8 +5542,8 @@
         }
       };
       
-      // Skip permission tests to prevent console spam
-      // testPermissions();
+      // Run the permission tests (async)
+      testPermissions();
       
       // Define staff accounts early for initialization
       const accounts = [
@@ -5866,16 +5729,25 @@
       };
       
       // Initialize Firebase collections and data
-      // Disable Firebase to prevent all errors
-      isOfflineMode = true;
-      hideLoadingScreen();
+      initializeFirebase();
       
-      // Firebase operations completely disabled
-      
+      // Monitor online/offline status
+      firebase.firestore().enableNetwork()
+        .then(() => {
+          console.log("Firebase connection successful");
+          isOfflineMode = false;
+        })
+        .catch(err => {
+          console.error("Network connection error:", err);
+          // Only set offline mode on actual network errors
+          console.error("Firebase connection error:", err.code);
+        });
     } catch (firebaseError) {
-      // Silently handle Firebase errors to prevent console spam
+      console.log("Firebase initialization error:", firebaseError);
       isOfflineMode = true;
-      firebaseConnectionStatus = 'offline';
+      
+      // Removed notifications during loading as requested
+      console.log("Firebase initialization failed, using demo mode");
       
       // Create a mock database for demo purposes when Firebase is unavailable
       db = {
@@ -6053,10 +5925,6 @@
     let currentStaff = null;
     let clientId = localStorage.getItem('clientId') || 
                   'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    
-    // Ensure clientId is saved to localStorage
-    localStorage.setItem('clientId', clientId);
-    console.log('Client ID initialized:', clientId);
     let occupiedTables = new Set(); // Track occupied tables
     let tableNumber = null; // Current table number for all users
     let userTableNumber = null; // Specifically for guest users to track their own table
@@ -8518,33 +8386,18 @@
         cartItems.appendChild(cartItem);
       });
       
-      // Calculate discount amount
-      const discountAmount = discountApplied > 0 ? (subtotal * discountApplied / 100) : 0;
-      const afterDiscount = subtotal - discountAmount;
+      // Calculate tax (assuming 8%)
+      const tax = subtotal * 0.08;
       
-      // Calculate tax (assuming 8%) on discounted amount
-      const tax = afterDiscount * 0.08;
+      // Calculate total
+      const total = subtotal + tax;
       
-      // Calculate final total
-      const total = afterDiscount + tax;
-      
-      // Update total breakdown with discount
-      let breakdownHTML = `
+      // Update total breakdown
+      totalBreakdown.innerHTML = `
         <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
           <span>${currentLanguage === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
           <span>$${subtotal.toFixed(2)}</span>
-        </p>`;
-      
-      // Show discount if applied
-      if (discountApplied > 0) {
-        breakdownHTML += `
-          <p style="display: flex; justify-content: space-between; margin-bottom: 5px; color: var(--gold);">
-            <span>${currentLanguage === 'ar' ? `خصم (${discountApplied}%)` : `Discount (${discountApplied}%)`}</span>
-            <span>-$${discountAmount.toFixed(2)}</span>
-          </p>`;
-      }
-      
-      breakdownHTML += `
+        </p>
         <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
           <span>${currentLanguage === 'ar' ? 'الضريبة (8%)' : 'Tax (8%)'}</span>
           <span>$${tax.toFixed(2)}</span>
@@ -8552,9 +8405,8 @@
         <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
           <span>${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}</span>
           <span>$${total.toFixed(2)}</span>
-        </p>`;
-      
-      totalBreakdown.innerHTML = breakdownHTML;
+        </p>
+      `;
       
       // Update cart icon based on whether there are items
       const cartIconElement = document.querySelector('.cart-icon');
@@ -8575,13 +8427,6 @@
     
     function toggleCart() {
       cartPanel.classList.toggle('active');
-      
-      // Ensure discount codes are loaded when cart is opened
-      if (cartPanel.classList.contains('active')) {
-        console.log('Cart opened - ensuring discount codes are loaded...');
-        loadDiscountsList();
-        console.log('Discount codes available for cart:', window.availableDiscountCodes);
-      }
     }
     
     // Authentication
@@ -8901,13 +8746,9 @@
         // Add to beginning of orders array
         tableDetails[tableNumber].orders.unshift(orderForTable);
         
-        // Force update staff dashboard display
-        console.log("🔄 Forcing staff dashboard update after order creation");
-        updateTablesDisplay();
-        
-        // Also trigger Firebase listener updates if available
-        if (typeof refreshOrdersDisplay === 'function') {
-          refreshOrdersDisplay();
+        // Update staff view if needed
+        if (userType === 'staff' || userType === 'admin') {
+          updateTablesDisplay();
         }
         
         return orderId;
@@ -10107,40 +9948,14 @@
       isOrderBeingProcessed = true;
       
       try {
-        console.log('🛒 CHECKOUT PROCESS STARTING');
-        console.log('Cart contents:', cart);
-        console.log('Current discount applied:', discountApplied);
-        
-        // Calculate total with discount
+        // Calculate total
         let subtotal = 0;
         cart.forEach(item => {
           subtotal += item.totalPrice;
         });
         
-        console.log('Subtotal calculated:', subtotal);
-        
-        // Apply discount if available - ensure discountApplied is defined
-        const discountAmount = (typeof discountApplied === 'number' && discountApplied > 0) ? (subtotal * discountApplied / 100) : 0;
-        const afterDiscount = subtotal - discountAmount;
-        
-        console.log('Discount calculation:', {
-          discountApplied: discountApplied,
-          discountAmount: discountAmount,
-          afterDiscount: afterDiscount
-        });
-        
-        // Calculate tax on discounted amount
-        const tax = afterDiscount * 0.08;
-        const total = afterDiscount + tax;
-        
-        console.log('Order calculation:', {
-          subtotal: subtotal.toFixed(2),
-          discountPercentage: discountApplied,
-          discountAmount: discountAmount.toFixed(2),
-          afterDiscount: afterDiscount.toFixed(2),
-          tax: tax.toFixed(2),
-          finalTotal: total.toFixed(2)
-        });
+        const tax = subtotal * 0.08;
+        const total = subtotal + tax;
         
         // Generate unique order identifier to help prevent duplicates
         const uniqueOrderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
@@ -10150,9 +9965,6 @@
           clientId: clientId,
           items: JSON.parse(JSON.stringify(cart)), // Create deep copy to prevent mutation issues
           subtotal: subtotal,
-          discountPercentage: discountApplied || 0, // Include discount percentage
-          discountAmount: discountAmount || 0, // Include discount amount
-          afterDiscount: afterDiscount, // Include amount after discount
           tax: tax,
           total: total,
           status: 'pending',
@@ -10175,20 +9987,12 @@
         );
         
         // Create the order in Firebase
-        console.log('📡 SENDING ORDER TO FIREBASE');
-        console.log('Order data being sent:', order);
-        
         const orderId = await createOrderInFirebase(order);
-        
-        console.log('Firebase response - Order ID:', orderId);
         
         if (!orderId) {
           // If order creation failed
-          console.error('❌ Order creation failed - no ID returned');
           throw new Error("Failed to create order in Firebase");
         }
-        
-        console.log('✅ Order created successfully with ID:', orderId);
         
         // Mark table as occupied locally for immediate feedback
         occupiedTables.add(orderTableNumber);
@@ -10213,51 +10017,14 @@
         // Close cart panel
         toggleCart();
         
-        // Force immediate update of client orders display
+        // Auto show the client orders panel with a slight delay for better UX
         setTimeout(() => {
-          console.log('🔄 FORCING CLIENT ORDERS UPDATE');
-          console.log('ClientId for new order:', clientId);
-          console.log('TableNumber for new order:', orderTableNumber);
-          
-          // Update local data structures immediately
-          if (!tableDetails[orderTableNumber]) {
-            tableDetails[orderTableNumber] = { orders: [] };
-          }
-          
-          // Add order to local cache for immediate display
-          const localOrder = {
-            id: orderId,
-            clientId: clientId,
-            tableNumber: orderTableNumber,
-            status: 'pending',
-            items: cart.slice(), // Copy cart items
-            total: total,
-            createdAt: new Date(),
-            timestamp: new Date()
-          };
-          
-          tableDetails[orderTableNumber].orders.unshift(localOrder);
-          
-          // Show client orders panel and force render
           clientOrders.classList.add('active');
           renderClientOrders();
-          
-          // Also update staff display if applicable
-          if (userType === 'staff' || userType === 'admin') {
-            updateTablesDisplay();
-            renderTablesOverview();
-          }
-        }, 500);
+        }, 800);
         
       } catch (error) {
-        console.error('❌ CHECKOUT ERROR CAUGHT:', error);
-        console.error('Error stack:', error.stack);
-        console.error('Error details:', {
-          message: error.message,
-          name: error.name,
-          cause: error.cause
-        });
-        
+        console.error('Error placing order:', error);
         // Show detailed error notification
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الطلب' : 'Order Error',
@@ -11795,91 +11562,228 @@
     // Flag to track if we're currently rendering client orders to prevent duplicate calls
     let isRenderingClientOrders = false;
     
-    // Helper function to create order elements for display
-    function createOrderElement(order) {
-      console.log('Creating order element for:', order.id);
-      
-      const orderEl = document.createElement('div');
-      orderEl.className = 'client-order order-card';
-      orderEl.dataset.orderId = order.id;
-      
-      // Generate status class and text
-      let statusClass = '';
-      let statusText = '';
-      
-      switch (order.status) {
-        case 'pending':
-          statusClass = 'status-pending';
-          statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
-          break;
-        case 'preparing':
-          statusClass = 'status-preparing';
-          statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
-          break;
-        case 'ready':
-          statusClass = 'status-ready';
-          statusText = currentLanguage === 'ar' ? 'جاهز' : 'Ready';
-          break;
-        case 'completed':
-          statusClass = 'status-completed';
-          statusText = currentLanguage === 'ar' ? 'مكتمل' : 'Completed';
-          break;
-        default:
-          statusClass = 'status-pending';
-          statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
-      }
-      
-      // Create items list
-      const itemsList = order.items?.map(item => 
-        `<li>${item.name} ${item.quantity ? `x${item.quantity}` : ''} - $${(item.totalPrice || item.price || 0).toFixed(2)}</li>`
-      ).join('') || '';
-      
-      // Format timestamp
-      const orderTime = order.createdAt || order.timestamp || new Date();
-      const timeStr = orderTime instanceof Date ? 
-        orderTime.toLocaleTimeString() : 
-        new Date(orderTime.seconds ? orderTime.seconds * 1000 : orderTime).toLocaleTimeString();
-      
-      orderEl.innerHTML = `
-        <div class="order-status ${statusClass}">${statusText}</div>
-        <div class="order-id">Order #${order.id.slice(-6)}</div>
-        <div class="order-time">${timeStr}</div>
-        <ul class="order-items">${itemsList}</ul>
-        <div class="order-total">Total: $${(order.total || 0).toFixed(2)}</div>
-        ${order.status === 'completed' ? 
-          `<button onclick="showRatingDialog('${order.id}')" class="rate-btn">
-            ${currentLanguage === 'ar' ? 'تقييم الطلب' : 'Rate Order'}
-          </button>` : ''
-        }
-      `;
-      
-      return orderEl;
-    }
-    
     function renderClientOrders() {
-      console.log("Rendering client orders");
+      // Prevent multiple simultaneous renders
+      if (isRenderingClientOrders) {
+        console.log("Client orders already being rendered, skipping duplicate render");
+        return;
+      }
       
+      // Set the flag to prevent duplicate renders
+      isRenderingClientOrders = true;
+      
+      // Initial loading state - but only if there's no content already
+      if (!clientOrdersList.querySelector('.client-order')) {
+        clientOrdersList.innerHTML = `
+          <div style="text-align: center; padding: 10px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 1rem; color: var(--light-cream);"></i>
+            <p style="margin-top: 10px; color: var(--light-cream);">${currentLanguage === 'ar' ? 'جارٍ تحميل الطلبات...' : 'Loading orders...'}</p>
+          </div>
+        `;
+      }
+      
+      // If we don't have a table number yet, don't show any orders
       if (!tableNumber) {
-        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">Please select a table number first</p>`;
+        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'الرجاء تحديد رقم الطاولة أولاً' : 'Please select a table number first'}</p>`;
+        isRenderingClientOrders = false;
         return;
       }
       
-      const tableNumberInt = parseInt(tableNumber);
-      const localOrders = tableDetails[tableNumberInt]?.orders?.filter(order => 
-        order.clientId === clientId
-      ) || [];
-      
-      clientOrdersList.innerHTML = '';
-      
-      if (localOrders.length === 0) {
-        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">No active orders</p>`;
+      // Verify Firebase connection
+      if (!db || typeof db.collection !== 'function') {
+        console.error("Firebase database not initialized");
+        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>`;
+        isRenderingClientOrders = false;
         return;
       }
       
-      localOrders.forEach(order => {
-        const orderElement = createOrderElement(order);
-        clientOrdersList.appendChild(orderElement);
+      console.log(`Fetching orders for client ${clientId} at table ${tableNumber}`);
+      
+      // Track existing order elements to update them instead of recreating
+      const existingOrderElements = {};
+      document.querySelectorAll('.client-order').forEach(el => {
+        const orderId = el.dataset.orderId;
+        if (orderId) {
+          existingOrderElements[orderId] = el;
+        }
       });
+      
+      // Use a simpler query to get all orders for this client and table
+      db.collection('orders')
+        .where('tableNumber', '==', tableNumber)
+        .where('clientId', '==', clientId)
+        .get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+            isRenderingClientOrders = false;
+            return;
+          }
+          
+          // Clear all existing messages first if we have orders
+          const loadingMessage = clientOrdersList.querySelector('p');
+          if (loadingMessage) {
+            loadingMessage.remove();
+          }
+          
+          // Keep track of order IDs we find and process to avoid duplicates
+          const foundOrderIds = new Set();
+          
+          // First update existing order elements or create new ones as needed
+          querySnapshot.forEach((doc) => {
+            const order = doc.data();
+            order.id = doc.id; // Make sure the id is set
+            foundOrderIds.add(doc.id);
+            
+            // Check if we already have this order in the UI
+            let orderEl = existingOrderElements[doc.id];
+            let isNewOrder = false;
+            
+            if (!orderEl) {
+              // If not, create a new element
+              isNewOrder = true;
+              orderEl = document.createElement('div');
+              orderEl.className = 'client-order order-card'; // Add order-card class for unified styling
+              orderEl.dataset.orderId = doc.id; // Set dataset for easier selection
+            }
+            
+            // Generate status class and text
+            let statusClass = '';
+            let statusText = '';
+            
+            switch (order.status) {
+              case 'pending':
+                statusClass = 'status-pending';
+                statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
+                break;
+              case 'preparing':
+                statusClass = 'status-preparing';
+                statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
+                break;
+              case 'ready':
+                statusClass = 'status-ready';
+                statusText = currentLanguage === 'ar' ? 'جاهز' : 'Ready';
+                break;
+              case 'completed':
+                statusClass = 'status-completed';
+                statusText = currentLanguage === 'ar' ? 'مكتمل' : 'Completed';
+                break;
+              case 'cancelled':
+                statusClass = 'status-cancelled';
+                statusText = currentLanguage === 'ar' ? 'ملغي' : 'Cancelled';
+                break;
+            }
+            
+            // Format timestamp
+            let timestampStr = '';
+            if (order.createdAt) {
+              const timestamp = order.createdAt.toDate();
+              timestampStr = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            // Create HTML for order items
+            let itemsHtml = '';
+            order.items.forEach(item => {
+              itemsHtml += `
+                <div class="client-order-item">
+                  <span>${item.name}</span>
+                  <span>$${item.totalPrice.toFixed(2)}</span>
+                </div>
+              `;
+            });
+            
+            // Check for assigned staff - handle both new and old format
+            let assignedStaffName = null;
+            let assignedStaffRole = null;
+            
+            // Check different ways staff might be assigned to the order
+            if (order.assignedStaff) {
+              // Get from new assignedStaff object
+              assignedStaffName = order.assignedStaff.name;
+              assignedStaffRole = order.assignedStaff.role;
+            } else if (order.assignedStaffName) {
+              // Get from older direct properties
+              assignedStaffName = order.assignedStaffName;
+              assignedStaffRole = order.assignedStaffRole;
+            }
+            
+            // Create staff info HTML if available
+            const assignedStaffHtml = assignedStaffName ? `
+              <div style="margin: 8px 0; padding: 5px; background: rgba(50, 50, 50, 0.3); border-radius: 4px; font-size: 0.8rem;">
+                <span style="color: #ffc107;">
+                  <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤول' : 'Your Server'}:
+                </span>
+                <span>${assignedStaffName}</span>
+              </div>
+            ` : '';
+            
+            // Create simplified display of order number (just use last 4 chars and format nicely)
+            const orderNumber = order.id.slice(-4).toUpperCase();
+            
+            // Create HTML for the order - simpler and more user-friendly display
+            orderEl.innerHTML = `
+              <div class="client-order-header">
+                <div class="client-order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${orderNumber}</div>
+                <div class="client-order-status ${statusClass}">${statusText}</div>
+              </div>
+              <div style="font-size: 0.8rem; margin-bottom: 8px; color: var(--light-cream);">${timestampStr}</div>
+              ${assignedStaffHtml}
+              <div class="client-order-items">
+                ${itemsHtml}
+              </div>
+              <div style="text-align: right; font-weight: bold; font-size: 0.85rem;">
+                ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: $${order.total.toFixed(2)}
+              </div>
+              ${order.status === 'pending' ? `
+                <button onclick="cancelOrder('${order.id}')" style="background: var(--red); margin-top: 8px; width: 100%;">
+                  ${currentLanguage === 'ar' ? 'إلغاء الطلب' : 'CANCEL ORDER'}
+                </button>
+              ` : ''}
+            `;
+            
+            // If it's a new order, add it to the DOM
+            if (isNewOrder) {
+              clientOrdersList.appendChild(orderEl);
+            }
+          });
+          
+          // Now remove any elements that are not in the current data
+          Object.keys(existingOrderElements).forEach(id => {
+            if (!foundOrderIds.has(id)) {
+              // This order is no longer in the database, remove the element
+              const elementToRemove = existingOrderElements[id];
+              if (elementToRemove && elementToRemove.parentNode) {
+                // Animate the removal
+                elementToRemove.style.opacity = '0';
+                elementToRemove.style.transform = 'scale(0.95)';
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                  if (elementToRemove.parentNode) {
+                    elementToRemove.parentNode.removeChild(elementToRemove);
+                  }
+                }, 300);
+              }
+            }
+          });
+          
+          // If after processing there are no orders, show "no orders" message
+          setTimeout(() => {
+            if (clientOrdersList.children.length === 0) {
+              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+            }
+          }, 350); // Wait a bit longer than the animation to make sure all removals have completed
+        })
+        .catch((error) => {
+          console.error("Error fetching client orders:", error);
+          clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ في تحميل الطلبات' : 'Error loading orders'}</p>`;
+        })
+        .finally(() => {
+          // Reset the rendering flag when done, regardless of success or failure
+          setTimeout(() => {
+            isRenderingClientOrders = false;
+          }, 500); // Short delay to prevent too frequent re-renders
+        });
     }
     
     function toggleClientOrders() {
@@ -12225,10 +12129,10 @@
         }, 10000); // Update every 10 seconds
       });
 
-      // Disable periodic Firebase updates to eliminate console spam
-      // setInterval(() => {
-      //   updateActiveStaffCount();
-      // }, 180000);
+      // Set up periodic update for active staff count (since Firebase permissions are limited)
+      setInterval(() => {
+        updateActiveStaffCount();
+      }, 30000); // Update every 30 seconds
     }
 
     // Function to update statistics from orders snapshot
@@ -12316,33 +12220,21 @@
         totalOrdersElement.textContent = totalOrders;
         totalOrdersElement.style.color = 'var(--gold)';
         totalOrdersElement.style.fontWeight = 'bold';
-        // Only log statistics updates every 2 minutes to reduce console spam
-        const lastStatsLogTime = localStorage.getItem('lastStatsLogTime') || 0;
-        const currentTime = Date.now();
-        if (currentTime - lastStatsLogTime > 120000) { // 2 minutes
-          console.log('✅ Updated Total Orders:', totalOrders);
-          localStorage.setItem('lastStatsLogTime', currentTime);
-        }
+        console.log('✅ Updated Total Orders:', totalOrders);
       }
       
       if (totalCustomersElement) {
         totalCustomersElement.textContent = uniqueCustomers.size;
         totalCustomersElement.style.color = 'var(--gold)';
         totalCustomersElement.style.fontWeight = 'bold';
-        const lastStatsLogTime = localStorage.getItem('lastStatsLogTime') || 0;
-        if (Date.now() - lastStatsLogTime <= 1000) { // Only log if we just logged orders
-          console.log('✅ Updated Total Customers:', uniqueCustomers.size);
-        }
+        console.log('✅ Updated Total Customers:', uniqueCustomers.size);
       }
       
       if (avgPrepTimeElement) {
         avgPrepTimeElement.textContent = avgPrepTime;
         avgPrepTimeElement.style.color = 'var(--gold)';
         avgPrepTimeElement.style.fontWeight = 'bold';
-        const lastStatsLogTime = localStorage.getItem('lastStatsLogTime') || 0;
-        if (Date.now() - lastStatsLogTime <= 1000) { // Only log if we just logged orders
-          console.log('✅ Updated Avg Prep Time:', avgPrepTime);
-        }
+        console.log('✅ Updated Avg Prep Time:', avgPrepTime);
       }
       
       // Update active staff count (but don't let it interfere with other stats)
@@ -12390,7 +12282,7 @@
     let inactivityTimeout = null;
     const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes of inactivity
     const INACTIVITY_LOGOUT_TIMEOUT = 10 * 60 * 1000; // 10 minutes auto logout
-    const HEARTBEAT_INTERVAL = 120 * 1000; // Send heartbeat every 2 minutes to reduce Firebase operations
+    const HEARTBEAT_INTERVAL = 30 * 1000; // Send heartbeat every 30 seconds
 
     // Function to get current user info from localStorage
     function getCurrentUserInfo() {
@@ -12468,13 +12360,7 @@
         // Update the active staff count immediately after updating activity
         updateActiveStaffCount();
         
-        // Only log activity tracking once per minute to reduce console spam
-        const lastLogTime = localStorage.getItem('lastActivityLogTime') || 0;
-        const currentTime = Date.now();
-        if (currentTime - lastLogTime > 60000) { // 1 minute
-          console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
-          localStorage.setItem('lastActivityLogTime', currentTime);
-        }
+        console.log(`✅ Activity tracked for ${activityData.name} (${activityData.role})`);
         
         // Broadcast to other tabs/windows if needed
         window.dispatchEvent(new CustomEvent('staffActivityUpdate', { 
@@ -12522,10 +12408,57 @@
       console.log('🔧 Created test staff sessions - active staff count should update');
     }
 
-    // Function to start staff heartbeat monitoring (DISABLED to prevent console spam)
+    // Function to start staff heartbeat monitoring  
     function startStaffHeartbeat() {
-      // Completely disable all staff monitoring to eliminate console spam
-      return;
+      if (activeStaffHeartbeat) {
+        clearInterval(activeStaffHeartbeat);
+      }
+      
+      console.log('Starting staff heartbeat monitoring for user type:', userType);
+      
+      // Get current user info from localStorage
+      const currentUser = getCurrentUserInfo();
+      if (!currentUser) {
+        console.warn('No current user info found, cannot start heartbeat');
+        return;
+      }
+      
+      console.log('Starting heartbeat for user:', currentUser.name, '(' + currentUser.role + ')');
+      
+      // Update activity immediately
+      updateStaffActivity();
+      
+      // Trigger immediate active staff count update
+      setTimeout(() => {
+        console.log('Triggering initial active staff count update...');
+        console.log('Current userType:', userType);
+        console.log('Current page visibility:', document.hidden ? 'hidden' : 'visible');
+        
+        // Check if we're in admin dashboard
+        const adminDashboard = document.querySelector('.admin-dashboard');
+        const statsCards = document.querySelector('.stats-cards');
+        console.log('Admin dashboard found:', !!adminDashboard);
+        console.log('Stats cards found:', !!statsCards);
+        
+        updateActiveStaffCount();
+      }, 1000);
+      
+      // Set up heartbeat interval
+      activeStaffHeartbeat = setInterval(() => {
+        console.log('Heartbeat: Updating staff activity and count...');
+        updateStaffActivity();
+        updateActiveStaffCount(); // Update count on each heartbeat
+      }, HEARTBEAT_INTERVAL);
+      
+      // Reset activity timeout on user interaction
+      ['click', 'keypress', 'scroll', 'mousemove', 'touchstart'].forEach(eventType => {
+        document.addEventListener(eventType, resetStaffActivityTimeout, { passive: true });
+        document.addEventListener(eventType, trackUserActivity, { passive: true });
+      });
+      
+      resetStaffActivityTimeout();
+      resetInactivityTimeout();
+      console.log('Staff heartbeat monitoring started successfully with 10-minute auto-logout');
     }
 
     // Function to reset staff activity timeout
@@ -12664,12 +12597,43 @@
     // Real-time Firebase listener for staff sessions
     let staffSessionsListener = null;
     
-    // Function to setup real-time active staff count monitoring (disabled to prevent console spam)
+    // Function to setup real-time active staff count monitoring
     function setupRealTimeStaffMonitoring() {
-      // Disable real-time monitoring to prevent Firebase console spam
-      // Use local storage polling instead
-      setInterval(updateFromLocalStorage, 30000); // Poll every 30 seconds
-      return;
+      if (!db || typeof db.collection !== 'function') {
+        console.log('Firebase not available, using polling fallback');
+        setInterval(updateFromLocalStorage, 10000); // Poll every 10 seconds
+        return;
+      }
+      
+      try {
+        console.log('🔄 Setting up real-time staff monitoring...');
+        
+        // Remove existing listener if any
+        if (staffSessionsListener) {
+          staffSessionsListener();
+          staffSessionsListener = null;
+        }
+        
+        // Setup real-time listener for staff sessions
+        staffSessionsListener = db.collection('staffSessions').onSnapshot(
+          (snapshot) => {
+            console.log('🔥 Real-time staff sessions update received');
+            processStaffSessionsSnapshot(snapshot);
+          },
+          (error) => {
+            console.warn('Staff sessions listener error:', error);
+            // Fallback to polling
+            setTimeout(updateFromLocalStorage, 1000);
+          }
+        );
+        
+        console.log('✅ Real-time staff monitoring active');
+        
+      } catch (error) {
+        console.warn('Failed to setup real-time monitoring:', error);
+        // Fallback to polling
+        setInterval(updateFromLocalStorage, 10000);
+      }
     }
     
     // Process staff sessions snapshot for real-time updates
@@ -12714,8 +12678,6 @@
     
     // Function to update active staff count with Firebase integration
     function updateActiveStaffCount() {
-      // DISABLED: Return immediately to prevent all console spam
-      return;
       try {
         console.log('updateActiveStaffCount called...');
         
@@ -12785,14 +12747,7 @@
       const currentTime = Date.now();
       const activeStaff = [];
       
-      // Reduce console spam by limiting staff activity logging
-      const lastStaffLogTime = localStorage.getItem('lastStaffActivityLogTime') || 0;
-      const shouldLogStaffActivity = (currentTime - lastStaffLogTime) > 300000; // 5 minutes
-      
-      if (shouldLogStaffActivity) {
-        console.log('All staff activity data:', allStaffActivity);
-        localStorage.setItem('lastStaffActivityLogTime', currentTime);
-      }
+      console.log('All staff activity data:', allStaffActivity);
       
       // Clean up old inactive sessions and test data
       const cleanedActivity = {};
@@ -12802,9 +12757,7 @@
         
         // Remove all test sessions and demo sessions immediately
         if (isTestSession || staff.sessionId.startsWith('DEMO-') || staff.name.includes('(Demo)')) {
-          if (shouldLogStaffActivity) {
-            console.log(`Removing test/demo session for ${staff.name}`);
-          }
+          console.log(`Removing test/demo session for ${staff.name}`);
           return;
         }
         
@@ -12830,17 +12783,11 @@
       // Filter active staff based on recent activity and status - EXCLUDE ADMIN
       Object.values(cleanedActivity).forEach(staff => {
         const timeSinceActivity = currentTime - staff.lastActivity;
-        
-        // Only log staff checking every 5 minutes to reduce console spam
-        if (shouldLogStaffActivity) {
-          console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
-        }
+        console.log(`Checking ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
         
         // EXCLUDE ALL ADMIN USERS from staff count completely
         if (staff.role === 'admin') {
-          if (shouldLogStaffActivity) {
-            console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
-          }
+          console.log(`❌ Admin ${staff.name} excluded from staff count (role: ${staff.role})`);
           return; // Skip admin users entirely
         }
         
@@ -12870,9 +12817,7 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            if (shouldLogStaffActivity) {
-              console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
-            }
+            console.log(`✅ Counting current staff member: ${staff.name} (${staff.role})`);
           } else if (!isCurrentSession && timeSinceActivity < STAFF_ACTIVITY_TIMEOUT) {
             // This is another active staff member from a different session
             activeStaff.push({
@@ -12882,24 +12827,16 @@
               lastActivity: staff.lastActivity,
               sessionId: staff.sessionId
             });
-            if (shouldLogStaffActivity) {
-              console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
-            }
+            console.log(`✅ Counting other active staff member: ${staff.name} (${staff.role})`);
           } else {
-            if (shouldLogStaffActivity) {
-              console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
-            }
+            console.log(`❌ Staff ${staff.name} not counted: currentSession=${isCurrentSession}, hasToken=${hasValidStaffToken}, timeSince=${timeSinceActivity}ms`);
           }
         } else {
-          if (shouldLogStaffActivity) {
-            console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
-          }
+          console.log(`❌ Staff ${staff.name} filtered out: status=${staff.status}, timeSince=${timeSinceActivity}, hasSession=${!!staff.sessionId}`);
         }
       });
       
-      if (shouldLogStaffActivity) {
-        console.log('Active staff found:', activeStaff.length, activeStaff);
-      }
+      console.log('Active staff found:', activeStaff.length, activeStaff);
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
@@ -13799,8 +13736,8 @@
     
     // Add call to loadStaffRatings in renderAdminDashboard function
     function renderAdminDashboard() {
-      // Load staff accounts and table assignments (Firebase disabled)
-      // loadStaffAccounts(); // Disabled to prevent Firebase errors
+      // Load staff accounts and table assignments
+      loadStaffAccounts();
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
       loadDiscountsList(); // Load discounts management
@@ -13808,35 +13745,69 @@
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
       
-      // Set static values (Firebase disabled to prevent errors)
-      const totalOrders = 0;
-      const avgPrepTime = '0';
-      
-      // Prepare static data for charts
-      const orderStatusData = {
-        pending: 0,
-        preparing: 0,
-        ready: 0,
-        completed: 0,
-        cancelled: 0
-      };
-      
-      const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
-      
-      // Update stats display with static values
-      document.getElementById('total-orders').textContent = totalOrders;
-      document.getElementById('total-customers').textContent = 0;
-      document.getElementById('avg-prep-time').textContent = avgPrepTime;
-      
-      // Set static active staff count
-      const activeStaffElement = document.getElementById('active-staff');
-      if (activeStaffElement) {
-        activeStaffElement.textContent = '0';
-      }
-      
-      // Update charts with static data
-      updateOrdersChart(orderStatusData);
-      updateRatingsChart(ratingDistribution);
+      // Fetch stats and render charts
+      db.collection('orders').get().then(snapshot => {
+        const totalOrders = snapshot.size;
+        let totalRating = 0;
+        let ratedOrders = 0;
+        let lowRatings = 0;
+        
+        // Prepare data for charts
+        const orderStatusData = {
+          pending: 0,
+          preparing: 0,
+          ready: 0,
+          completed: 0,
+          cancelled: 0
+        };
+        
+        const ratingDistribution = [0, 0, 0, 0, 0]; // 1-5 stars
+        
+        snapshot.forEach(doc => {
+          const order = doc.data();
+          
+          // Count by status
+          if (orderStatusData.hasOwnProperty(order.status)) {
+            orderStatusData[order.status]++;
+          }
+          
+          // Track ratings
+          if (order.rating) {
+            totalRating += order.rating;
+            ratedOrders++;
+            
+            // Count low ratings (1-2 stars)
+            if (order.rating <= 2) {
+              lowRatings++;
+            }
+            
+            // Update rating distribution
+            if (order.rating >= 1 && order.rating <= 5) {
+              ratingDistribution[order.rating - 1]++;
+            }
+          }
+        });
+        
+        // Calculate average rating
+        const avgRating = ratedOrders > 0 ? (totalRating / ratedOrders).toFixed(1) : '0.0';
+        
+        // Update stats display
+        document.getElementById('total-orders').textContent = totalOrders;
+        document.getElementById('total-customers').textContent = uniqueCustomers.size;
+        document.getElementById('avg-prep-time').textContent = avgPrepTime;
+        
+        // Count active staff
+        db.collection('staff')
+          .where('active', '==', true)
+          .get()
+          .then(staffSnapshot => {
+            document.getElementById('active-staff').textContent = staffSnapshot.size;
+          });
+        
+        // Update charts
+        updateOrdersChart(orderStatusData);
+        updateRatingsChart(ratingDistribution);
+      });
     }
     
     // Load staff accounts into the UI
@@ -14168,31 +14139,14 @@
     
     // Function to update tables display in staff view
     function updateTablesDisplay() {
-      console.log("🔄 Updating staff dashboard tables display");
-      let tablesContainer = document.getElementById('occupied-tables-container') || 
-                           document.getElementById('tables-grid') ||
-                           document.getElementById('orders-list');
-      
-      if (!tablesContainer) {
-        console.log("❌ No tables container found, creating one");
-        // Create container if it doesn't exist
-        const staffDashboard = document.getElementById('staff-dashboard');
-        if (staffDashboard) {
-          const newContainer = document.createElement('div');
-          newContainer.id = 'tables-grid';
-          newContainer.className = 'tables-grid';
-          staffDashboard.appendChild(newContainer);
-          tablesContainer = newContainer;
-        } else {
-          console.log("❌ Staff dashboard not found");
-          return;
-        }
-      }
+      console.log("Updating tables display");
+      const tablesContainer = document.getElementById('occupied-tables-container');
+      if (!tablesContainer) return;
       
       // Clear existing content
       tablesContainer.innerHTML = '';
       
-      // Create header showing occupied tables count
+      // Create an element to show total number of occupied tables
       const occupiedTablesCount = document.createElement('div');
       occupiedTablesCount.className = 'occupied-tables-count';
       occupiedTablesCount.innerHTML = `
@@ -14203,445 +14157,257 @@
       `;
       tablesContainer.appendChild(occupiedTablesCount);
       
-      console.log("📊 Occupied tables:", Array.from(occupiedTables));
-      console.log("📋 Table details:", tableDetails);
+      // Get current staff username if we're in staff view
+      const currentStaffUsername = userType === 'staff' ? localStorage.getItem('username') : null;
       
-      // If no occupied tables, show appropriate message
-      if (occupiedTables.size === 0) {
-        tablesContainer.innerHTML = `
-          <div style="text-align: center; color: var(--light-cream); padding: 40px;">
-            <i class="fas fa-utensils" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
-            <p style="font-size: 18px; margin-bottom: 5px;">No Active Orders</p>
-            <p style="opacity: 0.7;">Orders will appear here when customers place them</p>
-          </div>
-        `;
-        return;
+      // Filter for tables assigned to current staff member if we're in staff view
+      let tablesToShow = [];
+      
+      if (userType === 'staff' && currentStaffUsername) {
+        // Get table assignments for this staff member
+        const staffAssignments = tableAssignments.filter(a => a.staffUsername === currentStaffUsername);
+        
+        // Create an array of all table numbers assigned to this staff member
+        const assignedTables = [];
+        staffAssignments.forEach(assignment => {
+          for (let t = assignment.startTable; t <= assignment.endTable; t++) {
+            assignedTables.push(t);
+          }
+        });
+        
+        // Filter occupied tables to only show those assigned to this staff
+        tablesToShow = Array.from(occupiedTables).filter(tableNum => 
+          assignedTables.includes(parseInt(tableNum))
+        ).sort((a, b) => a - b);
+        
+        // Show message if no tables assigned
+        if (tablesToShow.length === 0) {
+          const noTablesMsg = document.createElement('div');
+          noTablesMsg.className = 'no-tables-message';
+          noTablesMsg.innerHTML = `
+            <p style="text-align: center; color: var(--light-cream); padding: 20px;">
+              ${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة مخصصة لك' : 'No occupied tables assigned to you'}
+            </p>
+          `;
+          tablesContainer.appendChild(noTablesMsg);
+          return;
+        }
+      } else {
+        // For admin view, show all occupied tables
+        tablesToShow = Array.from(occupiedTables).sort((a, b) => a - b);
+        
+        // Show message if no tables occupied
+        if (tablesToShow.length === 0) {
+          const noTablesMsg = document.createElement('div');
+          noTablesMsg.className = 'no-tables-message';
+          noTablesMsg.innerHTML = `
+            <p style="text-align: center; color: var(--light-cream); padding: 20px;">
+              ${currentLanguage === 'ar' ? 'لا توجد طاولات مشغولة' : 'No occupied tables'}
+            </p>
+          `;
+          tablesContainer.appendChild(noTablesMsg);
+          return;
+        }
       }
       
-      // Display all occupied tables with their orders
-      Array.from(occupiedTables).forEach(tableNumber => {
-        const tableData = tableDetails[tableNumber];
-        
-        console.log(`Processing table ${tableNumber}:`, tableData);
-        
+      // Display tables
+      tablesToShow.forEach(tableNum => {
         const tableCard = document.createElement('div');
         tableCard.className = 'table-card';
-        tableCard.dataset.tableNumber = tableNumber;
-        tableCard.style.cssText = `
-          background: rgba(40, 40, 40, 0.8);
-          border: 1px solid var(--gold);
-          border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 15px;
-          color: var(--light-cream);
-        `;
+        tableCard.dataset.tableNumber = tableNum;
         
-        // Get order info or show basic table info
-        let orderInfo = '';
-        let orderCount = 0;
-        let totalAmount = 0;
-        let orderTime = 'Just now';
+        // Get table details
+        const details = tableDetails[tableNum] || { orders: [] };
+        const hasOrders = details.orders && details.orders.length > 0;
         
-        if (tableData && tableData.orders && tableData.orders.length > 0) {
-          orderCount = tableData.orders.length;
-          const latestOrder = tableData.orders[0];
-          totalAmount = latestOrder.total || 0;
-          orderTime = latestOrder.timestamp ? new Date(latestOrder.timestamp).toLocaleTimeString() : 'Just now';
-          
-          orderInfo = `
-            <div style="margin-top: 15px;">
-              <h4 style="color: var(--gold); margin-bottom: 10px;">Latest Order Items:</h4>
-              ${latestOrder.items.slice(0, 3).map(item => `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                  <span>${item.name}</span>
-                  <span>x${item.quantity}</span>
-                </div>
-              `).join('')}
-              ${latestOrder.items.length > 3 ? `<div style="color: var(--gold); font-style: italic;">...and ${latestOrder.items.length - 3} more items</div>` : ''}
-            </div>
-          `;
+        // Get staff assigned to this table
+        const assignedStaff = getStaffForTable(tableNum);
+        const staffInfo = assignedStaff ? 
+          `<p class="assigned-staff">
+            <span class="staff-label">${currentLanguage === 'ar' ? 'الموظف:' : 'Staff:'}</span>
+            <span class="staff-name ${assignedStaff.role}">${assignedStaff.name}</span>
+          </p>` : '';
+        
+        // Get status based on orders
+        let statusText = currentLanguage === 'ar' ? 'مشغولة' : 'OCCUPIED';
+        let statusClass = 'status-occupied';
+        
+        if (hasOrders) {
+          const latestOrder = details.orders[0];
+          if (latestOrder.status === 'ready') {
+            statusText = currentLanguage === 'ar' ? 'جاهز للتقديم' : 'READY TO SERVE';
+            statusClass = 'status-ready';
+          } else if (latestOrder.status === 'preparing') {
+            statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'PREPARING';
+            statusClass = 'status-preparing';
+          }
         }
         
         tableCard.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="color: var(--gold); font-size: 24px; margin: 0;">TABLE ${tableNumber}</h3>
-            <span style="background: var(--gold); color: var(--dark-green); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;">
-              ACTIVE
+          <div class="table-card-header">
+            <h3>TABLE ${tableNum}</h3>
+            <span class="table-status ${statusClass}">
+              ${statusText}
             </span>
           </div>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <div style="text-align: center;">
-              <div style="font-size: 24px; color: var(--gold); font-weight: bold;">${orderCount}</div>
-              <div style="font-size: 12px; opacity: 0.8;">Orders</div>
+          <div class="table-card-content">
+            <div class="table-info">
+              <p>${currentLanguage === 'ar' ? 'الطلبات' : 'Orders'}: 
+                <span>${hasOrders ? details.orders.length : 0}</span>
+              </p>
+              ${staffInfo}
+              <p>${currentLanguage === 'ar' ? 'آخر تحديث' : 'Last Updated'}: 
+                <span>${hasOrders ? '5 ' + (currentLanguage === 'ar' ? 'دقائق' : 'mins') + ' ' + (currentLanguage === 'ar' ? 'مضت' : 'ago') : '-'}</span>
+              </p>
             </div>
-            <div style="text-align: center;">
-              <div style="font-size: 24px; color: var(--gold); font-weight: bold;">$${totalAmount.toFixed(2)}</div>
-              <div style="font-size: 12px; opacity: 0.8;">Total</div>
-            </div>
-            <div style="text-align: center;">
-              <div style="font-size: 14px; color: var(--gold); font-weight: bold;">${orderTime}</div>
-              <div style="font-size: 12px; opacity: 0.8;">Last Order</div>
-            </div>
-          </div>
-          
-          ${orderInfo}
-          
-          <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button onclick="viewTableOrders(${tableNumber})" style="
-              flex: 1; 
-              background: var(--gold); 
-              color: var(--dark-green); 
-              border: none; 
-              padding: 12px; 
-              border-radius: 8px; 
-              font-weight: bold; 
-              cursor: pointer;
-              transition: all 0.2s ease;
-            " onmouseover="this.style.background='#f4d03f'" onmouseout="this.style.background='var(--gold)'">
-              <i class="fas fa-eye"></i> View Details
-            </button>
-            <button onclick="updateOrderStatus(${tableNumber})" style="
-              flex: 1; 
-              background: var(--green); 
-              color: white; 
-              border: none; 
-              padding: 12px; 
-              border-radius: 8px; 
-              font-weight: bold; 
-              cursor: pointer;
-              transition: all 0.2s ease;
-            " onmouseover="this.style.background='#27ae60'" onmouseout="this.style.background='var(--green)'">
-              <i class="fas fa-check"></i> Update Status
+            <button class="view-table-details-btn" onclick="viewTableDetails(${tableNum})">
+              ${currentLanguage === 'ar' ? 'عرض التفاصيل' : 'VIEW DETAILS'}
             </button>
           </div>
         `;
         
         tablesContainer.appendChild(tableCard);
       });
-      
-      console.log("✅ Staff dashboard updated with orders");
-    }
-    
-    // Function to view orders for a specific table
-    function viewTableOrders(tableNumber) {
-      const tableData = tableDetails[tableNumber];
-      if (!tableData || !tableData.orders || tableData.orders.length === 0) {
-        showNotification('No Orders', 'No orders found for this table', 'info');
-        return;
-      }
-      
-      console.log(`Viewing orders for table ${tableNumber}:`, tableData.orders);
-      
-      // Create detailed order view
-      let orderDetails = tableData.orders.map((order, index) => `
-        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-          <h4 style="color: var(--gold); margin-bottom: 10px;">Order ${index + 1} - $${order.total || '0.00'}</h4>
-          <div style="max-height: 150px; overflow-y: auto;">
-            ${order.items.map(item => `
-              <div style="display: flex; justify-content: space-between; margin-bottom: 5px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <span>${item.name}</span>
-                <span>x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}</span>
-              </div>
-            `).join('')}
-          </div>
-          <div style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
-            Status: ${order.status || 'pending'} | Time: ${order.timestamp ? new Date(order.timestamp).toLocaleTimeString() : 'Unknown'}
-          </div>
-        </div>
-      `).join('');
-      
-      // Show detailed modal or notification
-      showNotification(
-        `Table ${tableNumber} Orders (${tableData.orders.length})`, 
-        `Total Amount: $${tableData.orders.reduce((sum, order) => sum + (order.total || 0), 0).toFixed(2)}`,
-        'success'
-      );
-    }
-    
-    // Function to update order status
-    function updateOrderStatus(tableNumber) {
-      const tableData = tableDetails[tableNumber];
-      if (!tableData || !tableData.orders || tableData.orders.length === 0) {
-        showNotification('No Orders', 'No orders found for this table', 'info');
-        return;
-      }
-      
-      // Update the latest order status
-      const latestOrder = tableData.orders[0];
-      const currentStatus = latestOrder.status || 'pending';
-      
-      let newStatus;
-      switch(currentStatus) {
-        case 'pending':
-          newStatus = 'preparing';
-          break;
-        case 'preparing':
-          newStatus = 'ready';
-          break;
-        case 'ready':
-          newStatus = 'completed';
-          break;
-        default:
-          newStatus = 'pending';
-      }
-      
-      latestOrder.status = newStatus;
-      latestOrder.updatedAt = new Date();
-      
-      console.log(`Updated table ${tableNumber} order status from ${currentStatus} to ${newStatus}`);
-      
-      // Refresh the display
-      updateTablesDisplay();
-      
-      showNotification(
-        'Status Updated', 
-        `Table ${tableNumber} order status changed to ${newStatus}`,
-        'success'
-      );
     }
     
     // Discount Management Variables
     let activeDiscounts = [];
-    let discountApplied = 0;
     
-    // Initialize global discount codes for guest access
-    window.availableDiscountCodes = {};
-    
-    // Firebase-connected discount application function
+    // Create new discount
     async function applyDiscount() {
-      console.log('🎯 FIREBASE-CONNECTED DISCOUNT APPLICATION');
+      console.log('🔹 Create Discount button clicked!');
       
-      const discountCodeInput = document.getElementById('discount-code');
-      if (!discountCodeInput) {
-        console.error('❌ Discount code input not found');
-        return;
-      }
+      const codeInput = document.getElementById('discount-code-input');
+      const percentInput = document.getElementById('discount-percent');
       
-      const code = discountCodeInput.value.trim().toUpperCase();
-      console.log('Applying discount code:', code);
+      console.log('🔹 Input elements found:', codeInput, percentInput);
+      
+      const code = codeInput.value.trim().toUpperCase();
+      const percent = parseInt(percentInput.value);
+      
+      console.log('🔹 Input values:', { code, percent });
       
       if (!code) {
-        console.log('Empty code - resetting discount to 0');
-        discountApplied = 0;
-        updateCartDisplay();
-        return;
-      }
-      
-      try {
-        // Load fresh data from Firebase
-        console.log('📡 Loading fresh discount data from Firebase...');
-        await loadDiscountsFromFirebase();
-        
-        console.log('Available codes:', Object.keys(window.availableDiscountCodes));
-        
-        // Check if code exists and is active
-        if (window.availableDiscountCodes[code] && window.availableDiscountCodes[code].isActive) {
-          const discountPercentage = window.availableDiscountCodes[code].percentage;
-          discountApplied = discountPercentage;
-          
-          console.log('✅ DISCOUNT APPLIED:', discountPercentage + '%');
-          
-          showNotification(
-            'Discount Applied',
-            `${discountPercentage}% discount applied successfully`,
-            'success'
-          );
-        } else {
-          discountApplied = 0;
-          console.log('❌ Invalid or inactive discount code:', code);
-          
-          showNotification(
-            'Invalid Code',
-            'Discount code not found or inactive',
-            'error'
-          );
-        }
-        
-        updateCartDisplay();
-        
-      } catch (error) {
-        console.error('❌ Error applying discount:', error);
-        discountApplied = 0;
-        updateCartDisplay();
-        
         showNotification(
-          'Error',
-          'Failed to apply discount code',
+          currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
+          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
           'error'
         );
-      }
-    }
-    
-    // Create new discount (renamed to match HTML form call)
-    async function createDiscount() {
-      console.log('🎯 DATABASE-CONNECTED DISCOUNT CREATION STARTING');
-      
-      try {
-        const codeInput = document.getElementById('discount-code-input');
-        const percentInput = document.getElementById('discount-percent');
-        
-        if (!codeInput || !percentInput) {
-          console.error('❌ Input elements not found');
-          showNotification('System Error', 'Input elements not found', 'error');
-          return;
-        }
-        
-        const code = codeInput.value.trim().toUpperCase();
-        const percent = parseInt(percentInput.value);
-        
-        // Validation
-        if (!code || code.length < 3) {
-          showNotification('Invalid Code', 'Code must be at least 3 characters', 'error');
-          return;
-        }
-        
-        if (!percent || percent < 5 || percent > 50) {
-          showNotification('Invalid Percentage', 'Percentage must be between 5% and 50%', 'error');
-          return;
-        }
-        
-        // Create unique ID
-        const discountId = `disc_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-        
-        // Prepare data for Firebase
-        const discountData = {
-          id: discountId,
-          code: code,
-          percentage: percent,
-          createdAt: firebase.firestore.Timestamp.now(),
-          createdBy: 'admin',
-          isActive: true
-        };
-        
-        console.log('💾 Saving to Firebase Firestore:', discountData);
-        
-        // Save to Firebase Firestore directly
-        await db.collection('discounts').doc(discountId).set(discountData);
-        console.log('✅ Successfully saved to Firebase!');
-        
-        // Immediately load all discounts from Firebase to sync
-        await loadDiscountsFromFirebase();
-        
-        // Update admin display
-        displayDiscountsList();
-        
-        // Clear inputs
-        codeInput.value = '';
-        percentInput.value = '10';
-        
-        showNotification('Success', `Discount code ${code} created with ${percent}% off`, 'success');
-        
-      } catch (error) {
-        console.error('❌ Error creating discount:', error);
-        showNotification('Error', `Failed to create discount: ${error.message}`, 'error');
-      }
-    }
-    
-    // NEW: Load discounts directly from Firebase
-    async function loadDiscountsFromFirebase() {
-      console.log('🔄 Loading discounts from Firebase...');
-      
-      try {
-        const snapshot = await db.collection('discounts').where('isActive', '==', true).get();
-        console.log('📊 Firebase query result:', snapshot.size, 'documents');
-        
-        // Clear existing data
-        activeDiscounts = [];
-        window.availableDiscountCodes = {};
-        
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          console.log('Processing discount:', data.code, data.percentage + '%');
-          
-          // Convert Firebase timestamp to ISO string for local use
-          const discountForLocal = {
-            ...data,
-            createdAt: data.createdAt.toDate().toISOString()
-          };
-          
-          activeDiscounts.push(discountForLocal);
-          
-          // Add to global codes for guest access
-          window.availableDiscountCodes[data.code] = {
-            percentage: data.percentage,
-            isActive: true,
-            createdAt: discountForLocal.createdAt,
-            createdBy: data.createdBy
-          };
-        });
-        
-        console.log('✅ Loaded', activeDiscounts.length, 'active discounts from Firebase');
-        console.log('🌐 Global codes updated:', Object.keys(window.availableDiscountCodes));
-        
-        // Update admin UI display
-        displayDiscountsList();
-        
-        return activeDiscounts;
-        
-      } catch (error) {
-        console.error('❌ Error loading from Firebase:', error);
-        return [];
-      }
-    }
-
-    // Function to update discount display
-    function updateDiscountDisplay() {
-      const discountsList = document.getElementById('active-discounts-list');
-      if (!discountsList) return;
-      
-      discountsList.innerHTML = '';
-      
-      if (activeDiscounts.length === 0) {
-        discountsList.innerHTML = '<p class="no-discounts-message">No active discount codes</p>';
+        codeInput.focus();
         return;
       }
       
-      activeDiscounts.forEach(discount => {
-        const discountItem = document.createElement('div');
-        discountItem.className = 'discount-item';
-        discountItem.innerHTML = `
-          <div class="discount-info">
-            <span class="discount-code">${discount.code}</span>
-            <span class="discount-percentage">${discount.percentage}% OFF</span>
-            <span class="discount-date">Created: ${new Date(discount.createdAt).toLocaleDateString()}</span>
-          </div>
-          <button onclick="deleteDiscount('${discount.id}')" class="delete-discount-btn">
-            ${currentLanguage === 'ar' ? 'حذف' : 'DELETE'}
-          </button>
-        `;
-        discountsList.appendChild(discountItem);
-      });
+      if (!percent || percent < 5 || percent > 50) {
+        showNotification(
+          currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
+          currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
+          'error'
+        );
+        percentInput.focus();
+        return;
+      }
+      
+      // Check if code already exists
+      if (activeDiscounts.some(d => d.code === code)) {
+        showNotification(
+          currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
+          currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
+          'error'
+        );
+        return;
+      }
+      
+      const discountData = {
+        code: code,
+        percentage: percent,
+        createdAt: new Date().toISOString(),
+        createdBy: currentUserName || 'admin',
+        isActive: true,
+        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
+      
+      // Try to save to Firestore first, but don't let it block the functionality
+      try {
+        if (db && typeof db.collection === 'function') {
+          const docRef = await db.collection('discounts').add(discountData);
+          console.log('✅ Discount saved to Firestore with ID:', docRef.id);
+          discountData.id = docRef.id; // Update with Firestore ID
+          discountData.source = 'firestore';
+        } else {
+          console.log('Firestore not available, using local storage only');
+          discountData.source = 'local';
+        }
+      } catch (error) {
+        console.error('❌ Error saving discount to Firestore:', error);
+        console.log('Continuing with local storage');
+        discountData.source = 'local';
+      }
+      
+      // Always add to local array (this ensures the button always works)
+      activeDiscounts.push(discountData);
+      
+      // Clear inputs
+      codeInput.value = '';
+      percentInput.value = '10';
+      
+      // Update display
+      displayDiscountsList();
+      
+      // Show appropriate success message
+      const messageType = discountData.source === 'firestore' ? 'success' : 'warning';
+      const title = currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created';
+      const message = discountData.source === 'firestore' ? 
+        (currentLanguage === 'ar' ? 
+          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
+          `Discount code ${code} created with ${percent}% off and saved to database`) :
+        (currentLanguage === 'ar' ? 
+          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% محلياً` : 
+          `Discount code ${code} created with ${percent}% off locally`);
+      
+      showNotification(title, message, messageType);
     }
-
-    // Duplicate function removed - using comprehensive version below
     
-    // Use Firebase-connected function instead of local storage
-    function loadDiscountsList() {
-      console.log('🔄 Loading discounts using Firebase connection...');
-      return loadDiscountsFromFirebase();
+    // Load discounts from Firestore
+    async function loadDiscountsList() {
+      try {
+        // Load from Firestore (simplified query without orderBy to avoid index issues)
+        const discountsSnapshot = await db.collection('discounts')
+          .where('isActive', '==', true)
+          .get();
+        
+        activeDiscounts = [];
+        
+        if (!discountsSnapshot.empty) {
+          discountsSnapshot.forEach(doc => {
+            const discount = doc.data();
+            discount.id = doc.id;
+            activeDiscounts.push(discount);
+          });
+          
+          // Sort locally by creation date
+          activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          console.log('✅ Loaded', activeDiscounts.length, 'discounts from Firestore');
+        }
+        
+      } catch (error) {
+        console.error('❌ Error loading discounts from Firestore:', error);
+        console.error('Error details:', error.code, error.message);
+        
+        // Initialize empty array if no local discounts exist
+        if (!activeDiscounts || activeDiscounts.length === 0) {
+          activeDiscounts = [];
+        }
+      }
+      
+      // Always update UI regardless of Firestore success/failure
+      displayDiscountsList();
     }
     
     // Display discounts in the admin panel
     function displayDiscountsList() {
-      console.log('📋 DISPLAYING DISCOUNTS IN ADMIN PANEL');
-      console.log('Active discounts to display:', activeDiscounts.length);
-      
-      let container = document.getElementById('discounts-list');
-      if (!container) {
-        console.log('Creating new discounts container...');
-        container = createDiscountsListContainer();
-      }
-      
-      if (!container) {
-        console.error('❌ Failed to create or find discounts container');
-        return;
-      }
-      
-      console.log('✅ Container found/created:', container.id);
+      const container = document.getElementById('discounts-list') || createDiscountsListContainer();
       
       if (activeDiscounts.length === 0) {
-        console.log('No discounts to display, showing empty state');
         container.innerHTML = `
           <div style="text-align: center; padding: 20px; color: #ccc; background: rgba(255,255,255,0.05); border-radius: 8px;">
             <i class="fas fa-percentage" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
@@ -14650,8 +14416,6 @@
         `;
         return;
       }
-      
-      console.log('Displaying', activeDiscounts.length, 'discounts');
       
       const discountsHTML = activeDiscounts.map(discount => {
         const createdDate = new Date(discount.createdAt).toLocaleDateString();
@@ -14702,54 +14466,60 @@
     
     // Create discounts list container if it doesn't exist
     function createDiscountsListContainer() {
-      // Find the discount management panel specifically
-      const discountTitle = document.getElementById('discount-management-title');
-      if (discountTitle) {
-        const discountPanel = discountTitle.closest('.admin-panel');
-        if (discountPanel) {
-          let container = document.getElementById('discounts-list');
-          if (!container) {
-            container = document.createElement('div');
-            container.id = 'discounts-list';
-            container.style.marginTop = '20px';
-            container.style.padding = '15px';
-            container.style.background = 'rgba(255,255,255,0.05)';
-            container.style.borderRadius = '8px';
-            discountPanel.appendChild(container);
-            console.log('✅ Created discounts list container in management panel');
-          }
-          return container;
-        }
+      const discountPanel = document.querySelector('.admin-panel:last-child');
+      if (discountPanel) {
+        const container = document.createElement('div');
+        container.id = 'discounts-list';
+        container.style.marginTop = '20px';
+        discountPanel.appendChild(container);
+        return container;
       }
-      console.error('❌ Could not find discount management panel');
       return null;
     }
     
-    // Firebase-connected delete function
+    // Delete discount
     async function deleteDiscount(discountId, discountCode) {
-      console.log('🗑️ FIREBASE-CONNECTED DISCOUNT DELETION');
-      console.log('Deleting:', discountId, discountCode);
+      const confirmDelete = confirm(
+        currentLanguage === 'ar' ? 
+          `هل أنت متأكد من حذف رمز الخصم ${discountCode}؟` :
+          `Are you sure you want to delete discount code ${discountCode}?`
+      );
       
-      const confirmDelete = confirm(`Are you sure you want to delete discount code ${discountCode}?`);
       if (!confirmDelete) return;
       
       try {
-        // Delete from Firebase Firestore
-        console.log('🔥 Deleting from Firebase...');
+        // Delete from Firestore
         await db.collection('discounts').doc(discountId).delete();
-        console.log('✅ Deleted from Firebase successfully');
+        console.log('✅ Discount deleted from Firestore:', discountCode);
         
-        // Reload discounts from Firebase to sync all data
-        await loadDiscountsFromFirebase();
+        // Remove from local array
+        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
         
-        // Update admin display after deletion
+        // Update display
         displayDiscountsList();
         
-        showNotification('Success', `Discount code ${discountCode} deleted successfully`, 'success');
+        showNotification(
+          currentLanguage === 'ar' ? 'تم حذف الخصم' : 'Discount Deleted',
+          currentLanguage === 'ar' ? 
+            `تم حذف رمز الخصم ${discountCode}` :
+            `Discount code ${discountCode} has been deleted`,
+          'success'
+        );
         
       } catch (error) {
-        console.error('❌ Error deleting discount:', error);
-        showNotification('Error', `Failed to delete discount: ${error.message}`, 'error');
+        console.error('❌ Error deleting discount from Firestore:', error);
+        
+        // Fallback: Remove from local array only
+        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
+        displayDiscountsList();
+        
+        showNotification(
+          currentLanguage === 'ar' ? 'حذف محلي' : 'Deleted Locally',
+          currentLanguage === 'ar' ? 
+            'تم حذف الخصم محلياً (قد تكون المزامنة محدودة)' :
+            'Discount deleted locally (database sync may be limited)',
+          'warning'
+        );
       }
     }
     
@@ -15564,26 +15334,5 @@
       </div>
     </div>
   </div>
-
-<script>
-  // Initialize discount system on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize global discount codes object
-    window.availableDiscountCodes = {};
-    
-    // Load discounts from Firebase when page loads
-    setTimeout(async () => {
-      try {
-        console.log('🚀 Initializing Firebase-connected discount system...');
-        await loadDiscountsFromFirebase();
-        console.log('✅ Discount system initialized with Firebase data');
-        console.log('Available codes:', Object.keys(window.availableDiscountCodes));
-      } catch (error) {
-        console.error('❌ Failed to initialize discount system:', error);
-      }
-    }, 1000);
-  });
-</script>
-
 </body>
 </html>
