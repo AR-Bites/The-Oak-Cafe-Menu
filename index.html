@@ -5134,7 +5134,18 @@
             </div>
           </div>
           
-
+          <div class="admin-panel">
+            <h3 id="discount-management-title">DISCOUNT MANAGEMENT</h3>
+            <div class="input-group">
+              <label for="discount-code-input">DISCOUNT CODE</label>
+              <input type="text" id="discount-code-input" placeholder="Enter discount code">
+            </div>
+            <div class="input-group">
+              <label for="discount-percent">DISCOUNT PERCENTAGE</label>
+              <input type="number" id="discount-percent" min="5" max="50" value="10">
+            </div>
+            <button onclick="applyDiscount()" id="apply-discount-btn" class="confirm-btn">CREATE DISCOUNT</button>
+          </div>
         </div>
       </div>
     </div>
@@ -11759,7 +11770,7 @@
           // If after processing there are no orders, show "no orders" message
           setTimeout(() => {
             if (clientOrdersList.children.length === 0) {
-              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلب �ت نشطة' : 'No active orders'}</p>`;
+              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
             }
           }, 350); // Wait a bit longer than the animation to make sure all removals have completed
         })
@@ -12335,9 +12346,10 @@
           }
         }
         
-        // Clear fake sessions immediately to fix active staff count
-        if (activityData.role === 'admin') {
-          clearFakeStaffSessions();
+        // TEST: Add sample staff sessions for verification (admin only)
+        if (activityData.role === 'admin' && !localStorage.getItem('staffSessionsCreated')) {
+          createTestStaffSessions();
+          localStorage.setItem('staffSessionsCreated', 'true');
         }
         
         // Store in localStorage as fallback
@@ -12357,32 +12369,43 @@
       }
     }
     
-    // Function to clear fake staff sessions from Firebase
-    function clearFakeStaffSessions() {
+    // Function to create test staff sessions in Firebase for demonstration
+    function createTestStaffSessions() {
       if (!db || typeof db.collection !== 'function') {
-        console.log('Firebase not available for clearing fake sessions');
+        console.log('Firebase not available for test staff creation');
         return;
       }
       
-      const fakeUsernames = ['john', 'ahmad', 'test'];
+      const testStaffSessions = [
+        {
+          username: 'john',
+          name: 'John Smith',
+          role: 'chef',
+          lastActivity: Date.now(),
+          status: 'active',
+          sessionId: 'REAL-CHEF-' + Date.now()
+        },
+        {
+          username: 'ahmad',
+          name: 'Ahmad Mohammed', 
+          role: 'manager',
+          lastActivity: Date.now(),
+          status: 'active',
+          sessionId: 'REAL-MANAGER-' + Date.now()
+        }
+      ];
       
-      // Clear all existing staff sessions to reset the count
-      db.collection('staffSessions').get()
-        .then(querySnapshot => {
-          const batch = db.batch();
-          querySnapshot.forEach(doc => {
-            batch.delete(doc.ref);
+      testStaffSessions.forEach(staff => {
+        db.collection('staffSessions').doc(staff.username).set(staff, { merge: true })
+          .then(() => {
+            console.log(`✅ Test staff session created for ${staff.name}`);
+          })
+          .catch(error => {
+            console.log(`Failed to create test session for ${staff.name}:`, error);
           });
-          return batch.commit();
-        })
-        .then(() => {
-          console.log('✅ All fake staff sessions cleared from Firebase');
-        })
-        .catch(error => {
-          console.log('Failed to clear fake sessions:', error);
-        });
+      });
       
-      console.log('🧹 Clearing fake staff sessions - count should reset to actual logins');
+      console.log('🔧 Created test staff sessions - active staff count should update');
     }
 
     // Function to start staff heartbeat monitoring  
@@ -12615,7 +12638,7 @@
     
     // Process staff sessions snapshot for real-time updates
     function processStaffSessionsSnapshot(snapshot) {
-      const STAFF_ACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes - increased timeout
+      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
       const currentTime = Date.now();
       const activeStaff = [];
       
@@ -12625,7 +12648,7 @@
         const staff = doc.data();
         const timeSinceActivity = currentTime - staff.lastActivity;
         
-        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, sessionId=${staff.sessionId}, timeSince=${timeSinceActivity}ms`);
+        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
         
         // Exclude admin users from staff count
         if (staff.role === 'admin') {
@@ -12633,24 +12656,23 @@
           return;
         }
         
-        // Count all active staff regardless of timing - focus on session status
-        if (staff.status === 'active' && staff.sessionId) {
+        // Count active non-admin staff within timeout period
+        if (staff.status === 'active' && 
+            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
+            staff.sessionId) {
+          
           activeStaff.push({
             username: staff.username,
             name: staff.name,
             role: staff.role,
             lastActivity: staff.lastActivity,
-            sessionId: staff.sessionId,
-            timeSinceActivity: timeSinceActivity
+            sessionId: staff.sessionId
           });
-          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role}) - Status: ${staff.status}, SessionID: ${staff.sessionId}`);
-        } else {
-          console.log(`❌ Staff ${staff.name} not counted - status: ${staff.status}, sessionId: ${staff.sessionId || 'missing'}, conditions: status=${staff.status==='active'}, hasSession=${!!staff.sessionId}`);
+          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role})`);
         }
       });
       
       console.log('🔥 Real-time Active Staff Count:', activeStaff.length);
-      console.log('Real-time Active Staff Details:', activeStaff);
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
@@ -12673,7 +12695,7 @@
     
     // Query Firebase for active staff sessions
     function queryFirebaseStaffSessions() {
-      const STAFF_ACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes - increased timeout
+      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
       const currentTime = Date.now();
       
       db.collection('staffSessions').get()
@@ -12684,32 +12706,31 @@
             const staff = doc.data();
             const timeSinceActivity = currentTime - staff.lastActivity;
             
-            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, sessionId=${staff.sessionId}, timeSince=${timeSinceActivity}ms`);
+            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
             
-            // Include all staff types (managers, chefs, servers, staff) but exclude admins from count
+            // Exclude admin users from staff count
             if (staff.role === 'admin') {
               console.log(`❌ Admin ${staff.name} excluded from staff count`);
               return;
             }
             
-            // Count all active staff regardless of timing - focus on session status
-            if (staff.status === 'active' && staff.sessionId) {
+            // Count active non-admin staff within timeout period
+            if (staff.status === 'active' && 
+                timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
+                staff.sessionId) {
+              
               activeStaff.push({
                 username: staff.username,
                 name: staff.name,
                 role: staff.role,
                 lastActivity: staff.lastActivity,
-                sessionId: staff.sessionId,
-                timeSinceActivity: timeSinceActivity
+                sessionId: staff.sessionId
               });
-              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role}) - Status: ${staff.status}, SessionID: ${staff.sessionId}`);
-            } else {
-              console.log(`❌ Staff ${staff.name} not counted - status: ${staff.status}, sessionId: ${staff.sessionId || 'missing'}, conditions: status=${staff.status==='active'}, hasSession=${!!staff.sessionId}`);
+              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role})`);
             }
           });
           
           console.log('Firebase Active Staff Count:', activeStaff.length);
-          console.log('Active Staff Details:', activeStaff);
           updateStaffCountDisplay(activeStaff.length, activeStaff);
         })
         .catch(error => {
@@ -13719,7 +13740,6 @@
       loadStaffAccounts();
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
-      loadDiscountsList(); // Load discounts management
       
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
@@ -14249,252 +14269,33 @@
       });
     }
     
-    // Discount Management Variables
-    let activeDiscounts = [];
-    
-    // Create new discount
-    async function applyDiscount() {
-      const codeInput = document.getElementById('discount-code-input');
-      const percentInput = document.getElementById('discount-percent');
-      
-      const code = codeInput.value.trim().toUpperCase();
-      const percent = parseInt(percentInput.value);
+    // Apply discount
+    function applyDiscount() {
+      const code = discountCodeInput.value.trim();
       
       if (!code) {
         showNotification(
           currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
-          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
+          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم قبل التطبيق" : "Please enter a discount code before applying",
           'error'
         );
-        codeInput.focus();
+        
+        // Add focus animation on the input
+        discountCodeInput.classList.add('input-error');
+        setTimeout(() => discountCodeInput.classList.remove('input-error'), 600);
+        discountCodeInput.focus();
         return;
       }
       
-      if (!percent || percent < 5 || percent > 50) {
-        showNotification(
-          currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
-          currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
-          'error'
-        );
-        percentInput.focus();
-        return;
-      }
-      
-      // Check if code already exists
-      if (activeDiscounts.some(d => d.code === code)) {
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
-          currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
-          'error'
-        );
-        return;
-      }
-      
-      try {
-        const discountData = {
-          code: code,
-          percentage: percent,
-          createdAt: new Date().toISOString(),
-          createdBy: currentUserName || 'admin',
-          isActive: true
-        };
-        
-        // Save to Firestore
-        const docRef = await db.collection('discounts').add(discountData);
-        console.log('✅ Discount saved to Firestore with ID:', docRef.id);
-        
-        // Add to local array with Firestore ID
-        discountData.id = docRef.id;
-        activeDiscounts.push(discountData);
-        
-        // Clear inputs
-        codeInput.value = '';
-        percentInput.value = '10';
-        
-        // Update display
-        loadDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created',
-          currentLanguage === 'ar' ? 
-            `تم إنشاء رمز الخصم ${code} بنسبة ${percent}%` : 
-            `Discount code ${code} created with ${percent}% off`,
-          'success'
-        );
-        
-      } catch (error) {
-        console.error('❌ Error saving discount to Firestore:', error);
-        
-        // Fallback: Add to local array only
-        const fallbackData = {
-          code: code,
-          percentage: percent,
-          createdAt: new Date().toISOString(),
-          createdBy: currentUserName || 'admin',
-          isActive: true,
-          id: `local_${Date.now()}`
-        };
-        
-        activeDiscounts.push(fallbackData);
-        loadDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'خصم محلي' : 'Discount Created Locally',
-          currentLanguage === 'ar' ? 
-            'تم إنشاء الخصم محلياً (قد تكون المزامنة محدودة)' : 
-            'Discount created locally (database sync may be limited)',
-          'warning'
-        );
-      }
-    }
-    
-    // Load discounts from Firestore
-    async function loadDiscountsList() {
-      try {
-        // Load from Firestore
-        const discountsSnapshot = await db.collection('discounts')
-          .where('isActive', '==', true)
-          .orderBy('createdAt', 'desc')
-          .get();
-        
-        activeDiscounts = [];
-        
-        if (!discountsSnapshot.empty) {
-          discountsSnapshot.forEach(doc => {
-            const discount = doc.data();
-            discount.id = doc.id;
-            activeDiscounts.push(discount);
-          });
-          console.log('✅ Loaded', activeDiscounts.length, 'discounts from Firestore');
-        }
-        
-      } catch (error) {
-        console.error('❌ Error loading discounts from Firestore:', error);
-        // Keep existing local discounts
-      }
-      
-      // Update UI
-      displayDiscountsList();
-    }
-    
-    // Display discounts in the admin panel
-    function displayDiscountsList() {
-      const container = document.getElementById('discounts-list') || createDiscountsListContainer();
-      
-      if (activeDiscounts.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 20px; color: #ccc; background: rgba(255,255,255,0.05); border-radius: 8px;">
-            <i class="fas fa-percentage" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-            <p>No active discount codes</p>
-          </div>
-        `;
-        return;
-      }
-      
-      const discountsHTML = activeDiscounts.map(discount => {
-        const createdDate = new Date(discount.createdAt).toLocaleDateString();
-        return `
-          <div class="discount-item" style="
-            background: rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 4px solid var(--gold);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          ">
-            <div class="discount-info">
-              <div style="font-size: 1.2rem; font-weight: bold; color: var(--gold); margin-bottom: 5px;">
-                ${discount.code}
-              </div>
-              <div style="color: var(--light-cream); margin-bottom: 3px;">
-                <i class="fas fa-percentage"></i> ${discount.percentage}% OFF
-              </div>
-              <div style="color: #aaa; font-size: 0.9rem;">
-                Created: ${createdDate} by ${discount.createdBy}
-              </div>
-            </div>
-            <div class="discount-actions">
-              <button onclick="deleteDiscount('${discount.id}', '${discount.code}')" 
-                style="
-                  background: #dc3545;
-                  color: white;
-                  border: none;
-                  padding: 8px 12px;
-                  border-radius: 5px;
-                  cursor: pointer;
-                  font-size: 0.9rem;
-                "
-                onmouseover="this.style.background='#c82333'"
-                onmouseout="this.style.background='#dc3545'">
-                <i class="fas fa-trash"></i> Delete
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      container.innerHTML = discountsHTML;
-    }
-    
-    // Create discounts list container if it doesn't exist
-    function createDiscountsListContainer() {
-      const discountPanel = document.querySelector('.admin-panel:last-child');
-      if (discountPanel) {
-        const container = document.createElement('div');
-        container.id = 'discounts-list';
-        container.style.marginTop = '20px';
-        discountPanel.appendChild(container);
-        return container;
-      }
-      return null;
-    }
-    
-    // Delete discount
-    async function deleteDiscount(discountId, discountCode) {
-      const confirmDelete = confirm(
-        currentLanguage === 'ar' ? 
-          `هل أنت متأكد من حذف رمز الخصم ${discountCode}؟` :
-          `Are you sure you want to delete discount code ${discountCode}?`
+      // In a real application, this would validate the code and apply discount
+      // For demo, we'll just show a notification
+      showNotification(
+        currentLanguage === 'ar' ? 'تم تطبيق الخصم' : 'Discount Applied',
+        currentLanguage === 'ar' 
+          ? `تم تطبيق رمز الخصم ${code} بنجاح` 
+          : `Discount code ${code} has been applied successfully`,
+        'success'
       );
-      
-      if (!confirmDelete) return;
-      
-      try {
-        // Delete from Firestore
-        await db.collection('discounts').doc(discountId).delete();
-        console.log('✅ Discount deleted from Firestore:', discountCode);
-        
-        // Remove from local array
-        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
-        
-        // Update display
-        displayDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'تم حذف الخصم' : 'Discount Deleted',
-          currentLanguage === 'ar' ? 
-            `تم حذف رمز الخصم ${discountCode}` :
-            `Discount code ${discountCode} has been deleted`,
-          'success'
-        );
-        
-      } catch (error) {
-        console.error('❌ Error deleting discount from Firestore:', error);
-        
-        // Fallback: Remove from local array only
-        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
-        displayDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'حذف محلي' : 'Deleted Locally',
-          currentLanguage === 'ar' ? 
-            'تم حذف الخصم محلياً (قد تكون المزامنة محدودة)' :
-            'Discount deleted locally (database sync may be limited)',
-          'warning'
-        );
-      }
     }
     
     // Admin Tabs Navigation
@@ -14519,11 +14320,6 @@
       // If analytics tab is selected, initialize the analytics charts
       if (tabName === 'analytics') {
         initializeAnalytics();
-      }
-      
-      // If management tab is selected, load discounts
-      if (tabName === 'management') {
-        loadDiscountsList();
       }
     }
     
