@@ -4727,6 +4727,371 @@
       margin-bottom: 15px;
       width: 100%;
     }
+    
+    /* Modern Footer Styles */
+    .footer {
+      margin-top: 30px;
+      background: linear-gradient(135deg, rgba(26, 58, 47, 0.98) 0%, rgba(20, 46, 37, 0.98) 100%);
+      border-radius: 24px 24px 0 0;
+      border-top: 3px solid var(--gold);
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, 
+        rgba(212, 175, 55, 0.05) 0%, 
+        transparent 25%, 
+        transparent 75%, 
+        rgba(212, 175, 55, 0.05) 100%);
+      z-index: -1;
+    }
+    
+    .footer-container {
+      padding: 40px 20px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer-main {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 30px;
+    }
+    
+    .footer-brand {
+      padding-right: 20px;
+    }
+    
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .footer-logo {
+      height: 50px;
+      width: auto;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+      transition: all 0.3s ease;
+    }
+    
+    .footer-logo:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 6px 12px rgba(212, 175, 55, 0.4));
+    }
+    
+    .brand-text {
+      flex: 1;
+    }
+    
+    .brand-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin: 0 0 5px 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .brand-tagline {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin: 0;
+      font-weight: 500;
+    }
+    
+    .brand-description {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.75);
+      margin: 0;
+      font-weight: 400;
+    }
+    
+    .footer-section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--gold);
+      margin: 0 0 20px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .footer-link-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .footer-link-list li {
+      margin-bottom: 12px;
+    }
+    
+    .footer-link {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .footer-link:hover {
+      color: var(--gold);
+      transform: translateX(5px);
+    }
+    
+    .footer-link::before {
+      content: '';
+      position: absolute;
+      left: -15px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 0;
+      background: var(--gold);
+      transition: height 0.3s ease;
+    }
+    
+    .footer-link:hover::before {
+      height: 100%;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .contact-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(212, 175, 55, 0.15);
+      border-radius: 8px;
+      padding: 8px;
+    }
+    
+    .contact-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--gold);
+    }
+    
+    .contact-link {
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      flex: 1;
+    }
+    
+    .contact-link:hover {
+      transform: translateY(-2px);
+    }
+    
+    .contact-label {
+      display: block;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    
+    .contact-value {
+      display: block;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
+    
+    .social-links-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .social-link-modern {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 15px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    
+    .social-link-modern:hover {
+      background: rgba(212, 175, 55, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+      border-color: var(--gold);
+    }
+    
+    .social-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .social-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--gold);
+      transition: all 0.3s ease;
+    }
+    
+    .social-link-modern:hover .social-icon svg {
+      fill: white;
+      transform: scale(1.1);
+    }
+    
+    .social-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .footer-bottom {
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      padding-top: 25px;
+    }
+    
+    .footer-bottom-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .copyright-section {
+      flex: 1;
+    }
+    
+    .copyright-text {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0 0 5px 0;
+      font-weight: 500;
+    }
+    
+    .powered-by-text {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 0;
+      font-weight: 400;
+    }
+    
+    .footer-legal {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .legal-link {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .legal-link:hover {
+      color: var(--gold);
+    }
+    
+    .legal-separator {
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 300;
+    }
+    
+    /* Mobile Responsive Footer */
+    @media (max-width: 768px) {
+      .footer-container {
+        padding: 30px 15px 15px;
+      }
+      
+      .footer-main {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+      
+      .footer-brand {
+        padding-right: 0;
+        text-align: center;
+      }
+      
+      .brand-logo {
+        justify-content: center;
+      }
+      
+      .brand-name {
+        font-size: 1.5rem;
+      }
+      
+      .social-links-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-bottom-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+      }
+      
+      .footer-legal {
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .footer-container {
+        padding: 25px 10px 10px;
+      }
+      
+      .footer-main {
+        gap: 25px;
+      }
+      
+      .contact-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+      
+      .footer-legal {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .legal-separator {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -5236,32 +5601,105 @@
     </div>
     
     <div class="footer">
-      <div class="footer-grid">
-        <div class="branding-section">
-          <div class="powered-by">
-            <span id="powered-by-text">Powered by AR Bites</span>
-            <img src="ar-bites-logo.png" alt="AR Bites" class="ar-bites-logo" />
+      <div class="footer-container">
+        <!-- Main Footer Content -->
+        <div class="footer-main">
+          <!-- Brand Section -->
+          <div class="footer-brand">
+            <div class="brand-logo">
+              <img src="ar-bites-logo.png" alt="AR Bites" class="footer-logo" />
+              <div class="brand-text">
+                <h3 class="brand-name">AR Bites</h3>
+                <p class="brand-tagline" id="footer-tagline">Elevating Dining Through Innovation</p>
+              </div>
+            </div>
+            <p class="brand-description" id="brand-description">
+              Experience the future of dining with our cutting-edge AR technology, 
+              bringing your culinary journey to life like never before.
+            </p>
+          </div>
+          
+          <!-- Quick Links -->
+          <div class="footer-links">
+            <h4 class="footer-section-title" id="quick-links-title">Quick Links</h4>
+            <ul class="footer-link-list">
+              <li><a href="#menu" class="footer-link" id="menu-link">Our Menu</a></li>
+              <li><a href="#ar-experience" class="footer-link" id="ar-link">AR Experience</a></li>
+              <li><a href="#reservations" class="footer-link" id="reservations-link">Reservations</a></li>
+              <li><a href="#about" class="footer-link" id="about-link">About Us</a></li>
+            </ul>
+          </div>
+          
+          <!-- Contact Information -->
+          <div class="footer-contact">
+            <h4 class="footer-section-title" id="contact-title">Get in Touch</h4>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </div>
+              <a href="tel:+962790753376" class="contact-link">
+                <span class="contact-label" id="phone-label">Call Us</span>
+                <span class="contact-value" id="phone-number">+962 79 075 3376</span>
+              </a>
+            </div>
+            
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+              </div>
+              <div class="contact-link">
+                <span class="contact-label" id="location-label">Visit Us</span>
+                <span class="contact-value" id="location-address">Amman, Jordan</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Social Media -->
+          <div class="footer-social">
+            <h4 class="footer-section-title" id="follow-title">Follow Us</h4>
+            <div class="social-links-grid">
+              <a href="https://www.instagram.com/ar.bitesjo?igsh=ajhmd3ZvbjJhamJh" target="_blank" rel="noopener noreferrer" class="social-link-modern">
+                <div class="social-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </div>
+                <span class="social-text" id="instagram-text">Instagram</span>
+              </a>
+              
+              <a href="#" class="social-link-modern">
+                <div class="social-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                  </svg>
+                </div>
+                <span class="social-text" id="twitter-text">Twitter</span>
+              </a>
+            </div>
           </div>
         </div>
-        <div class="contact-info">
-          <span id="contact-us-text">Contact Us</span>
-          <a href="tel:+962790753376" class="phone-link">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-            </svg>
-            <span id="phone-text">+962790753376</span>
-          </a>
-        </div>
-        <div class="social-links">
-          <a href="https://www.instagram.com/ar.bitesjo?igsh=ajhmd3ZvbjJhamJh" target="_blank" rel="noopener noreferrer" class="social-link">
-            <svg class="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-            <span id="instagram-text">Follow AR Bites on Instagram</span>
-          </a>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+          <div class="footer-bottom-content">
+            <div class="copyright-section">
+              <p class="copyright-text" id="copyright-text">© 2025 AR Bites. All rights reserved.</p>
+              <p class="powered-by-text" id="powered-by-text">Powered by cutting-edge AR technology</p>
+            </div>
+            <div class="footer-legal">
+              <a href="#privacy" class="legal-link" id="privacy-link">Privacy Policy</a>
+              <span class="legal-separator">•</span>
+              <a href="#terms" class="legal-link" id="terms-link">Terms of Service</a>
+              <span class="legal-separator">•</span>
+              <a href="#accessibility" class="legal-link" id="accessibility-link">Accessibility</a>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="copyright" id="copyright-text">© 2025 AR Bites. All rights reserved.</div>
     </div>
   </div>
   
@@ -5453,9 +5891,6 @@
         <div class="loading-cube cube9"></div>
       </div>
       <p class="loading-text" id="loading-text">Loading Augmented Reality Experience...</p>
-      <div class="loading-progress">
-        <div class="loading-bar" id="loading-bar"></div>
-      </div>
       <div class="loading-model-status">Preloading 3D Models...</div>
     </div>
   </div>
@@ -6222,7 +6657,6 @@
     // DOM Elements
     const overlay = document.querySelector('.overlay');
     const loadingOverlay = document.getElementById("loading-overlay");
-    const loadingBar = document.getElementById("loading-bar");
     const loadingText = document.getElementById("loading-text");
     const foodName = document.getElementById("food-name");
     const foodDescription = document.getElementById("food-description");
@@ -6345,11 +6779,29 @@
           console.warn("Loading screen timeout - force hiding");
           hideLoadingScreen();
         }
-      }, 10000); // 10 second maximum loading time
+      }, 3000); // 3 second maximum loading time to fix infinite loading
     }
 
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async function() {
+      // Restore beautiful loading page with fixed timing
+      setTimeout(() => {
+        const loadingOverlay = document.getElementById("loading-overlay");
+        if (loadingOverlay) {
+          console.log("Loading complete - showing main app");
+          loadingOverlay.style.opacity = '0';
+          setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+            document.querySelector('.overlay').style.visibility = 'visible';
+            
+            // Show table modal for guests
+            if (!localStorage.getItem('staffToken') && !localStorage.getItem('adminToken')) {
+              setTimeout(() => showTableModal(), 300);
+            }
+          }, 500);
+        }
+      }, 2500); // 2.5 second beautiful loading experience
+      
       // Start the loading screen safety timeout
       ensureLoadingScreenHides();
       // Load language preference
@@ -6490,8 +6942,8 @@
         preloadModels();
       }, 2000);
       
-      // Start the loading animation
-      simulateLoading();
+      // Start simple working loading animation
+      startWorkingLoadingAnimation();
       
       // Listen for rating stars
       ratingStars.forEach(star => {
@@ -6586,10 +7038,13 @@
         }
       }
       
-      // Enhanced model loading detection
+      // Force models to be considered loaded to prevent infinite loading
+      modelLoaded = true;
+      console.log("Models set as loaded to prevent infinite loading");
+      
+      // Enhanced model loading detection (optional)
       if (modelViewer) {
         modelViewer.addEventListener('load', () => {
-          modelLoaded = true;
           console.log("Model loaded successfully");
           // Accelerate loading once model is ready
           progress = Math.max(progress, 80);
@@ -6597,11 +7052,7 @@
         
         modelViewer.addEventListener('error', () => {
           console.log("Model failed to load, continuing anyway");
-          modelLoaded = true; // Treat as loaded so we can continue
         });
-      } else {
-        // If no model viewer, assume models are loaded
-        modelLoaded = true;
       }
       
       // Faster, more dynamic progress increments
@@ -6610,32 +7061,27 @@
         let increment;
         
         if (progress < 35) {
-          increment = 6 + Math.random() * 4; // Very fast initial loading
+          increment = 8 + Math.random() * 6; // Ultra fast initial loading
         } else if (progress < 75) {
-          increment = 4 + Math.random() * 3; // Fast middle loading
+          increment = 6 + Math.random() * 4; // Very fast middle loading
         } else {
-          // Final portion still waits for model but moves faster
-          if (modelLoaded) {
-            increment = 6 + Math.random() * 4; // Very fast final push
-          } else {
-            increment = 1 + Math.random() * 1; // Slow if waiting for model
-          }
+          // Final portion moves fast regardless of model status
+          increment = 8 + Math.random() * 6; // Ultra fast final push
         }
         
         progress += increment;
         
-        // Cap at 99% until everything is truly ready
-        if (progress >= 99) {
-          if (modelLoaded) {
-            progress = 100;
-            clearInterval(interval);
-            
-            // Complete the loading with animated progress bar
-            loadingBar.style.width = '100%';
-            loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
-            
-            // Show success message with enhanced animations
-            loadingText.style.opacity = '0';
+        // Complete loading immediately when reaching 90%
+        if (progress >= 90) {
+          progress = 100;
+          clearInterval(interval);
+          
+          // Complete the loading with animated progress bar
+          loadingBar.style.width = '100%';
+          loadingBar.style.transition = 'width 0.5s cubic-bezier(0.19, 1, 0.22, 1)';
+          
+          // Show success message with enhanced animations
+          loadingText.style.opacity = '0';
             
             // Add a scaling effect to the cube grid animation
             const cubeGrid = document.querySelector('.loading-cube-grid');
@@ -6694,20 +7140,17 @@
                 }
               }, 200); // Faster transition out
             }, 150); // Show success message briefly
-          } else {
-            progress = 99; // Stay at 99% until model loads
-          }
         }
         
         // Update progress bar and text
         loadingBar.style.width = `${progress}%`;
         updateLoadingText(progress);
         
-      }, 100); // Update at faster 100ms intervals
+      }, 50); // Update at faster 50ms intervals
       
       // Shorter failsafe: Ensure loading screen closes even if there are errors
       setTimeout(() => {
-        if (loadingOverlay.style.display !== 'none') {
+        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
           console.log("Loading timeout reached, forcing completion");
           clearInterval(interval);
           loadingBar.style.width = '100%';
@@ -6761,7 +7204,50 @@
             }, 200);
           }, 150);
         }
-      }, 3500); // Reduced to 3.5 seconds max load time
+      }, 2000); // Reduced to 2 seconds max load time for faster loading
+    }
+    
+    // Simple working loading animation
+    function startWorkingLoadingAnimation() {
+      const loadingText = document.getElementById("loading-text");
+      const loadingModelStatus = document.querySelector('.loading-model-status');
+      
+      if (!loadingText) return;
+      
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 4 + Math.random() * 3;
+        
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          // Complete loading animation
+          loadingText.textContent = currentLanguage === 'ar' ? 'مرحبًا بك!' : 'Welcome!';
+          
+          if (loadingModelStatus) {
+            loadingModelStatus.textContent = currentLanguage === 'ar' ? 'تم تحميل التجربة بنجاح!' : 'Experience Loaded Successfully!';
+          }
+        } else {
+          
+          // Update loading text based on progress
+          if (progress < 40) {
+            loadingText.textContent = currentLanguage === 'ar' ? 'جارٍ التحميل...' : 'Loading...';
+          } else if (progress < 80) {
+            loadingText.textContent = currentLanguage === 'ar' ? 'الاتصال بقاعدة البيانات...' : 'Connecting to Database...';
+          } else {
+            loadingText.textContent = currentLanguage === 'ar' ? 'جاهز تقريبًا...' : 'Almost Ready...';
+          }
+          
+          if (loadingModelStatus) {
+            if (progress < 60) {
+              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'جارٍ تهيئة العرض ثلاثي الأبعاد...' : 'Initializing AR Viewer...';
+            } else {
+              loadingModelStatus.textContent = currentLanguage === 'ar' ? 'اكتمل تحميل النماذج ثلاثية الأبعاد' : '3D Models Ready';
+            }
+          }
+        }
+      }, 80);
     }
     
     // Language support
@@ -7297,7 +7783,7 @@
           login: "تسجيل الدخول",
           accountLogin: "تسجيل الدخول للحساب",
           staffLogin: "تسجيل دخول الموظفين",
-          username: "اسم المستخدم",
+          username: "اس-� المستخدم",
           password: "كلمة المرور",
           addToCart: "+ إضافة إلى السلة",
           prev: "← السابق",
@@ -7649,6 +8135,109 @@
       
       // Update special instructions placeholder
       itemNotes.placeholder = currentLanguage === 'ar' ? 'أي طلبات خاصة...' : 'Any special requests...';
+      
+      // Update footer elements
+      const footerTagline = document.getElementById('footer-tagline');
+      const brandDescription = document.getElementById('brand-description');
+      const quickLinksTitle = document.getElementById('quick-links-title');
+      const menuLink = document.getElementById('menu-link');
+      const arLink = document.getElementById('ar-link');
+      const reservationsLink = document.getElementById('reservations-link');
+      const aboutLink = document.getElementById('about-link');
+      const contactTitle = document.getElementById('contact-title');
+      const phoneLabel = document.getElementById('phone-label');
+      const phoneNumber = document.getElementById('phone-number');
+      const locationLabel = document.getElementById('location-label');
+      const locationAddress = document.getElementById('location-address');
+      const followTitle = document.getElementById('follow-title');
+      const instagramText = document.getElementById('instagram-text');
+      const twitterText = document.getElementById('twitter-text');
+      const copyrightText = document.getElementById('copyright-text');
+      const privacyLink = document.getElementById('privacy-link');
+      const termsLink = document.getElementById('terms-link');
+      const accessibilityLink = document.getElementById('accessibility-link');
+      
+      if (footerTagline) {
+        footerTagline.textContent = currentLanguage === 'ar' ? 'الارتقاء بتجربة الطعام من خلال الابتكار' : 'Elevating Dining Through Innovation';
+      }
+      
+      if (brandDescription) {
+        brandDescription.textContent = currentLanguage === 'ar' 
+          ? 'اختبر مستقبل تناول الطعام مع تقنيتنا المتطورة للواقع المعزز، مما يجعل رحلتك الطهوية تنبض بالحياة كما لم يحدث من قبل.'
+          : 'Experience the future of dining with our cutting-edge AR technology, bringing your culinary journey to life like never before.';
+      }
+      
+      if (quickLinksTitle) {
+        quickLinksTitle.textContent = currentLanguage === 'ar' ? 'روابط سريعة' : 'Quick Links';
+      }
+      
+      if (menuLink) {
+        menuLink.textContent = currentLanguage === 'ar' ? 'قائمة الطعام' : 'Our Menu';
+      }
+      
+      if (arLink) {
+        arLink.textContent = currentLanguage === 'ar' ? 'تجربة الواقع المعزز' : 'AR Experience';
+      }
+      
+      if (reservationsLink) {
+        reservationsLink.textContent = currentLanguage === 'ar' ? 'الحجوزات' : 'Reservations';
+      }
+      
+      if (aboutLink) {
+        aboutLink.textContent = currentLanguage === 'ar' ? 'من نحن' : 'About Us';
+      }
+      
+      if (contactTitle) {
+        contactTitle.textContent = currentLanguage === 'ar' ? 'تواصل معنا' : 'Get in Touch';
+      }
+      
+      if (phoneLabel) {
+        phoneLabel.textContent = currentLanguage === 'ar' ? 'اتصل بنا' : 'Call Us';
+      }
+      
+      if (phoneNumber) {
+        phoneNumber.textContent = '+962 79 075 3376';
+      }
+      
+      if (locationLabel) {
+        locationLabel.textContent = currentLanguage === 'ar' ? 'زورونا' : 'Visit Us';
+      }
+      
+      if (locationAddress) {
+        locationAddress.textContent = currentLanguage === 'ar' ? 'عمان، الأردن' : 'Amman, Jordan';
+      }
+      
+      if (followTitle) {
+        followTitle.textContent = currentLanguage === 'ar' ? 'تابعونا' : 'Follow Us';
+      }
+      
+      if (instagramText) {
+        instagramText.textContent = currentLanguage === 'ar' ? 'إنستغرام' : 'Instagram';
+      }
+      
+      if (twitterText) {
+        twitterText.textContent = currentLanguage === 'ar' ? 'تويتر' : 'Twitter';
+      }
+      
+      if (copyrightText) {
+        copyrightText.textContent = currentLanguage === 'ar' ? '© 2025 AR Bites. جميع الحقوق محفوظة.' : '© 2025 AR Bites. All rights reserved.';
+      }
+      
+      if (poweredByText) {
+        poweredByText.textContent = currentLanguage === 'ar' ? 'مدعوم بتقنية الواقع المعزز المتطورة' : 'Powered by cutting-edge AR technology';
+      }
+      
+      if (privacyLink) {
+        privacyLink.textContent = currentLanguage === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy';
+      }
+      
+      if (termsLink) {
+        termsLink.textContent = currentLanguage === 'ar' ? 'شروط الخدمة' : 'Terms of Service';
+      }
+      
+      if (accessibilityLink) {
+        accessibilityLink.textContent = currentLanguage === 'ar' ? 'إمكانية الوصول' : 'Accessibility';
+      }
     }
     
     // Food catalog display
@@ -14961,7 +15550,7 @@
           },
           satisfaction: {
             day: 'متوسط التقييم اليوم هو 4.7/5 نجوم من 25 مراجعة',
-            week: '85٪ من العملاء قيموا تجربتهم بـ 4+ نجوم هذا الأسبوع',
+            week: '85٪ من العملاء قيموا تجربتهم بـ 4+ نج �م هذا الأسبوع',
             month: 'تحسن رضا العملاء بنسبة 7٪ هذا الشهر مقارنة بالشهر الماضي',
             year: 'معدل الرضا السنوي هو 4.6/5، بتحسن 9٪ عن العام الماضي'
           },
