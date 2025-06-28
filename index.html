@@ -6053,6 +6053,10 @@
     let currentStaff = null;
     let clientId = localStorage.getItem('clientId') || 
                   'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    
+    // Ensure clientId is saved to localStorage
+    localStorage.setItem('clientId', clientId);
+    console.log('Client ID initialized:', clientId);
     let occupiedTables = new Set(); // Track occupied tables
     let tableNumber = null; // Current table number for all users
     let userTableNumber = null; // Specifically for guest users to track their own table
@@ -10205,11 +10209,41 @@
         // Close cart panel
         toggleCart();
         
-        // Auto show the client orders panel with a slight delay for better UX
+        // Force immediate update of client orders display
         setTimeout(() => {
+          console.log('🔄 FORCING CLIENT ORDERS UPDATE');
+          console.log('ClientId for new order:', clientId);
+          console.log('TableNumber for new order:', orderTableNumber);
+          
+          // Update local data structures immediately
+          if (!tableDetails[orderTableNumber]) {
+            tableDetails[orderTableNumber] = { orders: [] };
+          }
+          
+          // Add order to local cache for immediate display
+          const localOrder = {
+            id: orderId,
+            clientId: clientId,
+            tableNumber: orderTableNumber,
+            status: 'pending',
+            items: cart.slice(), // Copy cart items
+            total: total,
+            createdAt: new Date(),
+            timestamp: new Date()
+          };
+          
+          tableDetails[orderTableNumber].orders.unshift(localOrder);
+          
+          // Show client orders panel and force render
           clientOrders.classList.add('active');
           renderClientOrders();
-        }, 800);
+          
+          // Also update staff display if applicable
+          if (userType === 'staff' || userType === 'admin') {
+            updateTablesDisplay();
+            renderTablesOverview();
+          }
+        }, 500);
         
       } catch (error) {
         console.error('❌ CHECKOUT ERROR CAUGHT:', error);
@@ -11191,7 +11225,7 @@
                 // Show appropriate notification based on status
                 const notificationTitle = currentLanguage === 'ar' ? 'تم تحديث الطلب' : 'Order Updated';
                 const notificationMessage = currentLanguage === 'ar'
-                  ? `تم تغيير حالة الطلب إلى ${getStatusTranslation(newStatus)}`
+                  ? `تم تغيير حالة الٷلب إلى ${getStatusTranslation(newStatus)}`
                   : `Order status changed to ${newStatus}`;
                   
                 showNotification(notificationTitle, notificationMessage, 'success');
@@ -11560,7 +11594,7 @@
                 
                 // Update required message based on language
                 feedbackRequiredMsg.textContent = currentLanguage === 'ar' 
-                  ? 'هذا الحقل مطلوب للتقييمات 3 نجوم أو أقل'
+                  ? 'هذا الحقل مطلوب للتقييمات 3 نجn�م أو أقل'
                   : 'This field is required for ratings of 3 stars or less';
               } else {
                 // For higher ratings, feedback is optional
@@ -11757,6 +11791,67 @@
     // Flag to track if we're currently rendering client orders to prevent duplicate calls
     let isRenderingClientOrders = false;
     
+    // Helper function to create order elements for display
+    function createOrderElement(order) {
+      console.log('Creating order element for:', order.id);
+      
+      const orderEl = document.createElement('div');
+      orderEl.className = 'client-order order-card';
+      orderEl.dataset.orderId = order.id;
+      
+      // Generate status class and text
+      let statusClass = '';
+      let statusText = '';
+      
+      switch (order.status) {
+        case 'pending':
+          statusClass = 'status-pending';
+          statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
+          break;
+        case 'preparing':
+          statusClass = 'status-preparing';
+          statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
+          break;
+        case 'ready':
+          statusClass = 'status-ready';
+          statusText = currentLanguage === 'ar' ? 'جاهز' : 'Ready';
+          break;
+        case 'completed':
+          statusClass = 'status-completed';
+          statusText = currentLanguage === 'ar' ? 'مكتمل' : 'Completed';
+          break;
+        default:
+          statusClass = 'status-pending';
+          statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
+      }
+      
+      // Create items list
+      const itemsList = order.items?.map(item => 
+        `<li>${item.name} ${item.quantity ? `x${item.quantity}` : ''} - $${(item.totalPrice || item.price || 0).toFixed(2)}</li>`
+      ).join('') || '';
+      
+      // Format timestamp
+      const orderTime = order.createdAt || order.timestamp || new Date();
+      const timeStr = orderTime instanceof Date ? 
+        orderTime.toLocaleTimeString() : 
+        new Date(orderTime.seconds ? orderTime.seconds * 1000 : orderTime).toLocaleTimeString();
+      
+      orderEl.innerHTML = `
+        <div class="order-status ${statusClass}">${statusText}</div>
+        <div class="order-id">Order #${order.id.slice(-6)}</div>
+        <div class="order-time">${timeStr}</div>
+        <ul class="order-items">${itemsList}</ul>
+        <div class="order-total">Total: $${(order.total || 0).toFixed(2)}</div>
+        ${order.status === 'completed' ? 
+          `<button onclick="showRatingDialog('${order.id}')" class="rate-btn">
+            ${currentLanguage === 'ar' ? 'تقييم الطلب' : 'Rate Order'}
+          </button>` : ''
+        }
+      `;
+      
+      return orderEl;
+    }
+    
     function renderClientOrders() {
       // Prevent multiple simultaneous renders
       if (isRenderingClientOrders) {
@@ -11792,7 +11887,10 @@
         return;
       }
       
-      console.log(`Fetching orders for client ${clientId} at table ${tableNumber}`);
+      console.log(`🔍 SEARCHING FOR ORDERS`);
+      console.log('Current clientId:', clientId);
+      console.log('Current tableNumber:', tableNumber);
+      console.log('TableNumber type:', typeof tableNumber);
       
       // Track existing order elements to update them instead of recreating
       const existingOrderElements = {};
@@ -11803,14 +11901,57 @@
         }
       });
       
+      // Convert tableNumber to integer for consistent querying
+      const tableNumberInt = parseInt(tableNumber);
+      console.log('Converted tableNumber to:', tableNumberInt);
+      
       // Use a simpler query to get all orders for this client and table
       db.collection('orders')
-        .where('tableNumber', '==', tableNumber)
+        .where('tableNumber', '==', tableNumberInt)
         .where('clientId', '==', clientId)
         .get()
         .then((querySnapshot) => {
+          console.log('📋 QUERY RESULTS:');
+          console.log('Query returned', querySnapshot.size, 'orders');
+          
+          // Debug: log all orders found
+          querySnapshot.forEach((doc) => {
+            const order = doc.data();
+            console.log('Found order:', {
+              id: doc.id,
+              tableNumber: order.tableNumber,
+              clientId: order.clientId,
+              status: order.status,
+              items: order.items?.length || 0
+            });
+          });
+          // Check local cache first if Firebase is empty
           if (querySnapshot.empty) {
-            clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+            console.log('🔍 No orders found in Firebase, checking local cache...');
+            
+            // Check local tableDetails for orders
+            const localOrders = tableDetails[tableNumberInt]?.orders?.filter(order => 
+              order.clientId === clientId
+            ) || [];
+            
+            console.log('Found local orders:', localOrders.length);
+            
+            if (localOrders.length === 0) {
+              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
+              isRenderingClientOrders = false;
+              return;
+            }
+            
+            // Display local orders
+            console.log('📋 DISPLAYING LOCAL ORDERS');
+            clientOrdersList.innerHTML = '';
+            
+            localOrders.forEach(order => {
+              console.log('Rendering local order:', order.id);
+              const orderElement = createOrderElement(order);
+              clientOrdersList.appendChild(orderElement);
+            });
+            
             isRenderingClientOrders = false;
             return;
           }
@@ -11857,7 +11998,7 @@
                 break;
               case 'ready':
                 statusClass = 'status-ready';
-                statusText = currentLanguage === 'ar' ? 'جاهز' : 'Ready';
+                statusText = curren�Language === 'ar' ? 'جاهز' : 'Ready';
                 break;
               case 'completed':
                 statusClass = 'status-completed';
