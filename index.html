@@ -12627,7 +12627,7 @@
     
     // Process staff sessions snapshot for real-time updates
     function processStaffSessionsSnapshot(snapshot) {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const STAFF_ACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes - increased timeout
       const currentTime = Date.now();
       const activeStaff = [];
       
@@ -12637,7 +12637,7 @@
         const staff = doc.data();
         const timeSinceActivity = currentTime - staff.lastActivity;
         
-        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+        console.log(`Real-time Check - ${staff.name}: role=${staff.role}, status=${staff.status}, sessionId=${staff.sessionId}, timeSince=${timeSinceActivity}ms`);
         
         // Exclude admin users from staff count
         if (staff.role === 'admin') {
@@ -12645,23 +12645,24 @@
           return;
         }
         
-        // Count active non-admin staff within timeout period
-        if (staff.status === 'active' && 
-            timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-            staff.sessionId) {
-          
+        // Count all active staff regardless of timing - focus on session status
+        if (staff.status === 'active' && staff.sessionId) {
           activeStaff.push({
             username: staff.username,
             name: staff.name,
             role: staff.role,
             lastActivity: staff.lastActivity,
-            sessionId: staff.sessionId
+            sessionId: staff.sessionId,
+            timeSinceActivity: timeSinceActivity
           });
-          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role})`);
+          console.log(`✅ Real-time Active Staff: ${staff.name} (${staff.role}) - Status: ${staff.status}, SessionID: ${staff.sessionId}`);
+        } else {
+          console.log(`❌ Staff ${staff.name} not counted - status: ${staff.status}, sessionId: ${staff.sessionId || 'missing'}, conditions: status=${staff.status==='active'}, hasSession=${!!staff.sessionId}`);
         }
       });
       
       console.log('🔥 Real-time Active Staff Count:', activeStaff.length);
+      console.log('Real-time Active Staff Details:', activeStaff);
       updateStaffCountDisplay(activeStaff.length, activeStaff);
     }
     
@@ -12684,7 +12685,7 @@
     
     // Query Firebase for active staff sessions
     function queryFirebaseStaffSessions() {
-      const STAFF_ACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+      const STAFF_ACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes - increased timeout
       const currentTime = Date.now();
       
       db.collection('staffSessions').get()
@@ -12695,31 +12696,32 @@
             const staff = doc.data();
             const timeSinceActivity = currentTime - staff.lastActivity;
             
-            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, timeSince=${timeSinceActivity}ms`);
+            console.log(`Firebase Staff Check - ${staff.name}: role=${staff.role}, status=${staff.status}, sessionId=${staff.sessionId}, timeSince=${timeSinceActivity}ms`);
             
-            // Exclude admin users from staff count
+            // Include all staff types (managers, chefs, servers, staff) but exclude admins from count
             if (staff.role === 'admin') {
               console.log(`❌ Admin ${staff.name} excluded from staff count`);
               return;
             }
             
-            // Count active non-admin staff within timeout period
-            if (staff.status === 'active' && 
-                timeSinceActivity < STAFF_ACTIVITY_TIMEOUT && 
-                staff.sessionId) {
-              
+            // Count all active staff regardless of timing - focus on session status
+            if (staff.status === 'active' && staff.sessionId) {
               activeStaff.push({
                 username: staff.username,
                 name: staff.name,
                 role: staff.role,
                 lastActivity: staff.lastActivity,
-                sessionId: staff.sessionId
+                sessionId: staff.sessionId,
+                timeSinceActivity: timeSinceActivity
               });
-              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role})`);
+              console.log(`✅ Firebase Staff Active: ${staff.name} (${staff.role}) - Status: ${staff.status}, SessionID: ${staff.sessionId}`);
+            } else {
+              console.log(`❌ Staff ${staff.name} not counted - status: ${staff.status}, sessionId: ${staff.sessionId || 'missing'}, conditions: status=${staff.status==='active'}, hasSession=${!!staff.sessionId}`);
             }
           });
           
           console.log('Firebase Active Staff Count:', activeStaff.length);
+          console.log('Active Staff Details:', activeStaff);
           updateStaffCountDisplay(activeStaff.length, activeStaff);
         })
         .catch(error => {
