@@ -13740,7 +13740,6 @@
       loadStaffAccounts();
       loadTableAssignments();
       loadStaffRatings(); // Load staff ratings
-      loadDiscountsList(); // Load discounts management
       
       // Try to sync pending ratings when admin accesses dashboard
       setTimeout(() => syncPendingRatings(), 1000);
@@ -14270,257 +14269,33 @@
       });
     }
     
-    // Discount Management Variables
-    let activeDiscounts = [];
-    
-    // Create new discount
-    async function applyDiscount() {
-      console.log('🔹 Create Discount button clicked!');
-      
-      const codeInput = document.getElementById('discount-code-input');
-      const percentInput = document.getElementById('discount-percent');
-      
-      console.log('🔹 Input elements found:', codeInput, percentInput);
-      
-      const code = codeInput.value.trim().toUpperCase();
-      const percent = parseInt(percentInput.value);
-      
-      console.log('🔹 Input values:', { code, percent });
+    // Apply discount
+    function applyDiscount() {
+      const code = discountCodeInput.value.trim();
       
       if (!code) {
         showNotification(
           currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
-          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم" : "Please enter a discount code",
+          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم قبل التطبيق" : "Please enter a discount code before applying",
           'error'
         );
-        codeInput.focus();
+        
+        // Add focus animation on the input
+        discountCodeInput.classList.add('input-error');
+        setTimeout(() => discountCodeInput.classList.remove('input-error'), 600);
+        discountCodeInput.focus();
         return;
       }
       
-      if (!percent || percent < 5 || percent > 50) {
-        showNotification(
-          currentLanguage === 'ar' ? 'نسبة خصم غير صحيحة' : 'Invalid Discount Percentage',
-          currentLanguage === 'ar' ? "النسبة يجب أن تكون بين 5% و 50%" : "Percentage must be between 5% and 50%",
-          'error'
-        );
-        percentInput.focus();
-        return;
-      }
-      
-      // Check if code already exists
-      if (activeDiscounts.some(d => d.code === code)) {
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز موجود مسبقاً' : 'Code Already Exists',
-          currentLanguage === 'ar' ? "هذا الرمز موجود مسبقاً" : "This discount code already exists",
-          'error'
-        );
-        return;
-      }
-      
-      const discountData = {
-        code: code,
-        percentage: percent,
-        createdAt: new Date().toISOString(),
-        createdBy: currentUserName || 'admin',
-        isActive: true,
-        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      };
-      
-      // Try to save to Firestore first, but don't let it block the functionality
-      try {
-        if (db && typeof db.collection === 'function') {
-          const docRef = await db.collection('discounts').add(discountData);
-          console.log('✅ Discount saved to Firestore with ID:', docRef.id);
-          discountData.id = docRef.id; // Update with Firestore ID
-          discountData.source = 'firestore';
-        } else {
-          console.log('Firestore not available, using local storage only');
-          discountData.source = 'local';
-        }
-      } catch (error) {
-        console.error('❌ Error saving discount to Firestore:', error);
-        console.log('Continuing with local storage');
-        discountData.source = 'local';
-      }
-      
-      // Always add to local array (this ensures the button always works)
-      activeDiscounts.push(discountData);
-      
-      // Clear inputs
-      codeInput.value = '';
-      percentInput.value = '10';
-      
-      // Update display
-      displayDiscountsList();
-      
-      // Show appropriate success message
-      const messageType = discountData.source === 'firestore' ? 'success' : 'warning';
-      const title = currentLanguage === 'ar' ? 'تم إنشاء الخصم' : 'Discount Created';
-      const message = discountData.source === 'firestore' ? 
-        (currentLanguage === 'ar' ? 
-          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% وحفظه في قاعدة البيانات` : 
-          `Discount code ${code} created with ${percent}% off and saved to database`) :
-        (currentLanguage === 'ar' ? 
-          `تم إنشاء رمز الخصم ${code} بنسبة ${percent}% محلياً` : 
-          `Discount code ${code} created with ${percent}% off locally`);
-      
-      showNotification(title, message, messageType);
-    }
-    
-    // Load discounts from Firestore
-    async function loadDiscountsList() {
-      try {
-        // Load from Firestore (simplified query without orderBy to avoid index issues)
-        const discountsSnapshot = await db.collection('discounts')
-          .where('isActive', '==', true)
-          .get();
-        
-        activeDiscounts = [];
-        
-        if (!discountsSnapshot.empty) {
-          discountsSnapshot.forEach(doc => {
-            const discount = doc.data();
-            discount.id = doc.id;
-            activeDiscounts.push(discount);
-          });
-          
-          // Sort locally by creation date
-          activeDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          console.log('✅ Loaded', activeDiscounts.length, 'discounts from Firestore');
-        }
-        
-      } catch (error) {
-        console.error('❌ Error loading discounts from Firestore:', error);
-        console.error('Error details:', error.code, error.message);
-        
-        // Initialize empty array if no local discounts exist
-        if (!activeDiscounts || activeDiscounts.length === 0) {
-          activeDiscounts = [];
-        }
-      }
-      
-      // Always update UI regardless of Firestore success/failure
-      displayDiscountsList();
-    }
-    
-    // Display discounts in the admin panel
-    function displayDiscountsList() {
-      const container = document.getElementById('discounts-list') || createDiscountsListContainer();
-      
-      if (activeDiscounts.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 20px; color: #ccc; background: rgba(255,255,255,0.05); border-radius: 8px;">
-            <i class="fas fa-percentage" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-            <p>No active discount codes</p>
-          </div>
-        `;
-        return;
-      }
-      
-      const discountsHTML = activeDiscounts.map(discount => {
-        const createdDate = new Date(discount.createdAt).toLocaleDateString();
-        return `
-          <div class="discount-item" style="
-            background: rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 4px solid var(--gold);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          ">
-            <div class="discount-info">
-              <div style="font-size: 1.2rem; font-weight: bold; color: var(--gold); margin-bottom: 5px;">
-                ${discount.code}
-              </div>
-              <div style="color: var(--light-cream); margin-bottom: 3px;">
-                <i class="fas fa-percentage"></i> ${discount.percentage}% OFF
-              </div>
-              <div style="color: #aaa; font-size: 0.9rem;">
-                Created: ${createdDate} by ${discount.createdBy}
-              </div>
-            </div>
-            <div class="discount-actions">
-              <button onclick="deleteDiscount('${discount.id}', '${discount.code}')" 
-                style="
-                  background: #dc3545;
-                  color: white;
-                  border: none;
-                  padding: 8px 12px;
-                  border-radius: 5px;
-                  cursor: pointer;
-                  font-size: 0.9rem;
-                "
-                onmouseover="this.style.background='#c82333'"
-                onmouseout="this.style.background='#dc3545'">
-                <i class="fas fa-trash"></i> Delete
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      container.innerHTML = discountsHTML;
-    }
-    
-    // Create discounts list container if it doesn't exist
-    function createDiscountsListContainer() {
-      const discountPanel = document.querySelector('.admin-panel:last-child');
-      if (discountPanel) {
-        const container = document.createElement('div');
-        container.id = 'discounts-list';
-        container.style.marginTop = '20px';
-        discountPanel.appendChild(container);
-        return container;
-      }
-      return null;
-    }
-    
-    // Delete discount
-    async function deleteDiscount(discountId, discountCode) {
-      const confirmDelete = confirm(
-        currentLanguage === 'ar' ? 
-          `هل أنت متأكد من حذف رمز الخصم ${discountCode}؟` :
-          `Are you sure you want to delete discount code ${discountCode}?`
+      // In a real application, this would validate the code and apply discount
+      // For demo, we'll just show a notification
+      showNotification(
+        currentLanguage === 'ar' ? 'تم تطبيق الخصم' : 'Discount Applied',
+        currentLanguage === 'ar' 
+          ? `تم تطبيق رمز الخصم ${code} بنجاح` 
+          : `Discount code ${code} has been applied successfully`,
+        'success'
       );
-      
-      if (!confirmDelete) return;
-      
-      try {
-        // Delete from Firestore
-        await db.collection('discounts').doc(discountId).delete();
-        console.log('✅ Discount deleted from Firestore:', discountCode);
-        
-        // Remove from local array
-        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
-        
-        // Update display
-        displayDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'تم حذف الخصم' : 'Discount Deleted',
-          currentLanguage === 'ar' ? 
-            `تم حذف رمز الخصم ${discountCode}` :
-            `Discount code ${discountCode} has been deleted`,
-          'success'
-        );
-        
-      } catch (error) {
-        console.error('❌ Error deleting discount from Firestore:', error);
-        
-        // Fallback: Remove from local array only
-        activeDiscounts = activeDiscounts.filter(d => d.id !== discountId);
-        displayDiscountsList();
-        
-        showNotification(
-          currentLanguage === 'ar' ? 'حذف محلي' : 'Deleted Locally',
-          currentLanguage === 'ar' ? 
-            'تم حذف الخصم محلياً (قد تكون المزامنة محدودة)' :
-            'Discount deleted locally (database sync may be limited)',
-          'warning'
-        );
-      }
     }
     
     // Admin Tabs Navigation
@@ -14545,11 +14320,6 @@
       // If analytics tab is selected, initialize the analytics charts
       if (tabName === 'analytics') {
         initializeAnalytics();
-      }
-      
-      // If management tab is selected, load discounts
-      if (tabName === 'management') {
-        loadDiscountsList();
       }
     }
     
