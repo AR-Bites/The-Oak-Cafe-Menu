@@ -5286,13 +5286,7 @@
       <p id="estimated-time-label">Estimated Wait Time: <span id="estimated-time">15 minutes</span></p>
     </div>
     
-    <div class="input-group" style="margin-top: 10px;">
-      <label for="discount-code" id="discount-label">DISCOUNT CODE</label>
-      <div style="display: flex; gap: 8px;">
-        <input type="text" id="discount-code" placeholder="Enter code...">
-        <button id="apply-discount" onclick="applyDiscount()" class="apply-btn">APPLY</button>
-      </div>
-    </div>
+
     
     <button class="checkout-btn" id="checkout-btn" onclick="checkout()">
       <span class="checkout-text" id="checkout-text">CHECKOUT</span>
@@ -6250,8 +6244,7 @@
     const staffDashboardTitle = document.getElementById("staff-dashboard-title");
     const checkoutText = document.getElementById("checkout-text");
     const checkoutBtn = document.getElementById("checkout-btn");
-    const discountLabel = document.getElementById("discount-label");
-    const applyDiscountBtn = document.getElementById("apply-discount");
+
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
     const addCartBtn = document.getElementById("add-cart-btn");
@@ -6281,7 +6274,7 @@
     const staffOptionText = document.getElementById("staff-option-text");
     const itemNotes = document.getElementById("item-notes");
     const extrasSelect = document.getElementById("extras-select");
-    const discountCodeInput = document.getElementById("discount-code");
+
     const totalBreakdown = document.getElementById("total-breakdown");
     const estimatedTimeEl = document.getElementById("estimated-time");
     const staffEstimatedTimeEl = document.getElementById("staff-estimated-time");
@@ -7396,8 +7389,8 @@
       arButton.textContent = t.viewInAr;
       extrasLabel.textContent = t.addExtras;
       notesLabel.textContent = t.specialInstructions;
-      discountLabel.textContent = t.discountCode;
-      applyDiscountBtn.textContent = t.apply;
+
+
       estimatedTimeLabel.textContent = t.estimatedWaitTime;
       yourOrdersTitle.textContent = t.yourOrders;
       viewOrdersBtn.textContent = t.viewMyOrders;
@@ -9326,7 +9319,7 @@
             
             const usernameLabel = document.createElement('label');
             usernameLabel.htmlFor = 'embedded-username';
-            usernameLabel.textContent = currentLanguage === 'ar' ? 'اسم الa�ستخدم' : 'USERNAME';
+            usernameLabel.textContent = currentLanguage === 'ar' ? 'اسم المستخدم' : 'USERNAME';
             usernameLabel.className = 'input-label';
             
             const usernameInput = document.createElement('input');
@@ -14354,34 +14347,7 @@
       });
     }
     
-    // Apply discount
-    function applyDiscount() {
-      const code = discountCodeInput.value.trim();
-      
-      if (!code) {
-        showNotification(
-          currentLanguage === 'ar' ? 'رمز مطلوب' : 'Code Required',
-          currentLanguage === 'ar' ? "الرجاء إدخال رمز الخصم قبل التطبيق" : "Please enter a discount code before applying",
-          'error'
-        );
-        
-        // Add focus animation on the input
-        discountCodeInput.classList.add('input-error');
-        setTimeout(() => discountCodeInput.classList.remove('input-error'), 600);
-        discountCodeInput.focus();
-        return;
-      }
-      
-      // In a real application, this would validate the code and apply discount
-      // For demo, we'll just show a notification
-      showNotification(
-        currentLanguage === 'ar' ? 'تم تطبيق الخصم' : 'Discount Applied',
-        currentLanguage === 'ar' 
-          ? `تم تطبيق رمز الخصم ${code} بنجاح` 
-          : `Discount code ${code} has been applied successfully`,
-        'success'
-      );
-    }
+
     
     // Admin Tabs Navigation
     function switchAdminTab(tabName) {
