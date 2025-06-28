@@ -11225,7 +11225,7 @@
                 // Show appropriate notification based on status
                 const notificationTitle = currentLanguage === 'ar' ? 'تم تحديث الطلب' : 'Order Updated';
                 const notificationMessage = currentLanguage === 'ar'
-                  ? `تم تغيير حالة الٷلب إلى ${getStatusTranslation(newStatus)}`
+                  ? `تم تغيير حالة ال �لب إلى ${getStatusTranslation(newStatus)}`
                   : `Order status changed to ${newStatus}`;
                   
                 showNotification(notificationTitle, notificationMessage, 'success');
@@ -11594,7 +11594,7 @@
                 
                 // Update required message based on language
                 feedbackRequiredMsg.textContent = currentLanguage === 'ar' 
-                  ? 'هذا الحقل مطلوب للتقييمات 3 نجn�م أو أقل'
+                  ? 'هذا الحقل مطلوب للتقييمات 3 نجa�م أو أقل'
                   : 'This field is required for ratings of 3 stars or less';
               } else {
                 // For higher ratings, feedback is optional
@@ -11853,273 +11853,29 @@
     }
     
     function renderClientOrders() {
-      // Prevent multiple simultaneous renders
-      if (isRenderingClientOrders) {
-        console.log("Client orders already being rendered, skipping duplicate render");
-        return;
-      }
+      console.log("Rendering client orders");
       
-      // Set the flag to prevent duplicate renders
-      isRenderingClientOrders = true;
-      
-      // Initial loading state - but only if there's no content already
-      if (!clientOrdersList.querySelector('.client-order')) {
-        clientOrdersList.innerHTML = `
-          <div style="text-align: center; padding: 10px;">
-            <i class="fas fa-spinner fa-spin" style="font-size: 1rem; color: var(--light-cream);"></i>
-            <p style="margin-top: 10px; color: var(--light-cream);">${currentLanguage === 'ar' ? 'جارٍ تحميل الطلبات...' : 'Loading orders...'}</p>
-          </div>
-        `;
-      }
-      
-      // If we don't have a table number yet, don't show any orders
       if (!tableNumber) {
-        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'الرجاء تحديد رقم الطاولة أولاً' : 'Please select a table number first'}</p>`;
-        isRenderingClientOrders = false;
+        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">Please select a table number first</p>`;
         return;
       }
       
-      // Verify Firebase connection
-      if (!db || typeof db.collection !== 'function') {
-        console.error("Firebase database not initialized");
-        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>`;
-        isRenderingClientOrders = false;
-        return;
-      }
-      
-      console.log(`🔍 SEARCHING FOR ORDERS`);
-      console.log('Current clientId:', clientId);
-      console.log('Current tableNumber:', tableNumber);
-      console.log('TableNumber type:', typeof tableNumber);
-      
-      // Track existing order elements to update them instead of recreating
-      const existingOrderElements = {};
-      document.querySelectorAll('.client-order').forEach(el => {
-        const orderId = el.dataset.orderId;
-        if (orderId) {
-          existingOrderElements[orderId] = el;
-        }
-      });
-      
-      // Convert tableNumber to integer for consistent querying
       const tableNumberInt = parseInt(tableNumber);
-      console.log('Converted tableNumber to:', tableNumberInt);
+      const localOrders = tableDetails[tableNumberInt]?.orders?.filter(order => 
+        order.clientId === clientId
+      ) || [];
       
-      // Use a simpler query to get all orders for this client and table
-      db.collection('orders')
-        .where('tableNumber', '==', tableNumberInt)
-        .where('clientId', '==', clientId)
-        .get()
-        .then((querySnapshot) => {
-          console.log('📋 QUERY RESULTS:');
-          console.log('Query returned', querySnapshot.size, 'orders');
-          
-          // Debug: log all orders found
-          querySnapshot.forEach((doc) => {
-            const order = doc.data();
-            console.log('Found order:', {
-              id: doc.id,
-              tableNumber: order.tableNumber,
-              clientId: order.clientId,
-              status: order.status,
-              items: order.items?.length || 0
-            });
-          });
-          // Check local cache first if Firebase is empty
-          if (querySnapshot.empty) {
-            console.log('🔍 No orders found in Firebase, checking local cache...');
-            
-            // Check local tableDetails for orders
-            const localOrders = tableDetails[tableNumberInt]?.orders?.filter(order => 
-              order.clientId === clientId
-            ) || [];
-            
-            console.log('Found local orders:', localOrders.length);
-            
-            if (localOrders.length === 0) {
-              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
-              isRenderingClientOrders = false;
-              return;
-            }
-            
-            // Display local orders
-            console.log('📋 DISPLAYING LOCAL ORDERS');
-            clientOrdersList.innerHTML = '';
-            
-            localOrders.forEach(order => {
-              console.log('Rendering local order:', order.id);
-              const orderElement = createOrderElement(order);
-              clientOrdersList.appendChild(orderElement);
-            });
-            
-            isRenderingClientOrders = false;
-            return;
-          }
-          
-          // Clear all existing messages first if we have orders
-          const loadingMessage = clientOrdersList.querySelector('p');
-          if (loadingMessage) {
-            loadingMessage.remove();
-          }
-          
-          // Keep track of order IDs we find and process to avoid duplicates
-          const foundOrderIds = new Set();
-          
-          // First update existing order elements or create new ones as needed
-          querySnapshot.forEach((doc) => {
-            const order = doc.data();
-            order.id = doc.id; // Make sure the id is set
-            foundOrderIds.add(doc.id);
-            
-            // Check if we already have this order in the UI
-            let orderEl = existingOrderElements[doc.id];
-            let isNewOrder = false;
-            
-            if (!orderEl) {
-              // If not, create a new element
-              isNewOrder = true;
-              orderEl = document.createElement('div');
-              orderEl.className = 'client-order order-card'; // Add order-card class for unified styling
-              orderEl.dataset.orderId = doc.id; // Set dataset for easier selection
-            }
-            
-            // Generate status class and text
-            let statusClass = '';
-            let statusText = '';
-            
-            switch (order.status) {
-              case 'pending':
-                statusClass = 'status-pending';
-                statusText = currentLanguage === 'ar' ? 'قيد الانتظار' : 'Pending';
-                break;
-              case 'preparing':
-                statusClass = 'status-preparing';
-                statusText = currentLanguage === 'ar' ? 'قيد التحضير' : 'Preparing';
-                break;
-              case 'ready':
-                statusClass = 'status-ready';
-                statusText = curren�Language === 'ar' ? 'جاهز' : 'Ready';
-                break;
-              case 'completed':
-                statusClass = 'status-completed';
-                statusText = currentLanguage === 'ar' ? 'مكتمل' : 'Completed';
-                break;
-              case 'cancelled':
-                statusClass = 'status-cancelled';
-                statusText = currentLanguage === 'ar' ? 'ملغي' : 'Cancelled';
-                break;
-            }
-            
-            // Format timestamp
-            let timestampStr = '';
-            if (order.createdAt) {
-              const timestamp = order.createdAt.toDate();
-              timestampStr = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-            
-            // Create HTML for order items
-            let itemsHtml = '';
-            order.items.forEach(item => {
-              itemsHtml += `
-                <div class="client-order-item">
-                  <span>${item.name}</span>
-                  <span>$${item.totalPrice.toFixed(2)}</span>
-                </div>
-              `;
-            });
-            
-            // Check for assigned staff - handle both new and old format
-            let assignedStaffName = null;
-            let assignedStaffRole = null;
-            
-            // Check different ways staff might be assigned to the order
-            if (order.assignedStaff) {
-              // Get from new assignedStaff object
-              assignedStaffName = order.assignedStaff.name;
-              assignedStaffRole = order.assignedStaff.role;
-            } else if (order.assignedStaffName) {
-              // Get from older direct properties
-              assignedStaffName = order.assignedStaffName;
-              assignedStaffRole = order.assignedStaffRole;
-            }
-            
-            // Create staff info HTML if available
-            const assignedStaffHtml = assignedStaffName ? `
-              <div style="margin: 8px 0; padding: 5px; background: rgba(50, 50, 50, 0.3); border-radius: 4px; font-size: 0.8rem;">
-                <span style="color: #ffc107;">
-                  <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤول' : 'Your Server'}:
-                </span>
-                <span>${assignedStaffName}</span>
-              </div>
-            ` : '';
-            
-            // Create simplified display of order number (just use last 4 chars and format nicely)
-            const orderNumber = order.id.slice(-4).toUpperCase();
-            
-            // Create HTML for the order - simpler and more user-friendly display
-            orderEl.innerHTML = `
-              <div class="client-order-header">
-                <div class="client-order-id">${currentLanguage === 'ar' ? 'طلب' : 'Order'} #${orderNumber}</div>
-                <div class="client-order-status ${statusClass}">${statusText}</div>
-              </div>
-              <div style="font-size: 0.8rem; margin-bottom: 8px; color: var(--light-cream);">${timestampStr}</div>
-              ${assignedStaffHtml}
-              <div class="client-order-items">
-                ${itemsHtml}
-              </div>
-              <div style="text-align: right; font-weight: bold; font-size: 0.85rem;">
-                ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: $${order.total.toFixed(2)}
-              </div>
-              ${order.status === 'pending' ? `
-                <button onclick="cancelOrder('${order.id}')" style="background: var(--red); margin-top: 8px; width: 100%;">
-                  ${currentLanguage === 'ar' ? 'إلغاء الطلب' : 'CANCEL ORDER'}
-                </button>
-              ` : ''}
-            `;
-            
-            // If it's a new order, add it to the DOM
-            if (isNewOrder) {
-              clientOrdersList.appendChild(orderEl);
-            }
-          });
-          
-          // Now remove any elements that are not in the current data
-          Object.keys(existingOrderElements).forEach(id => {
-            if (!foundOrderIds.has(id)) {
-              // This order is no longer in the database, remove the element
-              const elementToRemove = existingOrderElements[id];
-              if (elementToRemove && elementToRemove.parentNode) {
-                // Animate the removal
-                elementToRemove.style.opacity = '0';
-                elementToRemove.style.transform = 'scale(0.95)';
-                
-                // Remove after animation completes
-                setTimeout(() => {
-                  if (elementToRemove.parentNode) {
-                    elementToRemove.parentNode.removeChild(elementToRemove);
-                  }
-                }, 300);
-              }
-            }
-          });
-          
-          // If after processing there are no orders, show "no orders" message
-          setTimeout(() => {
-            if (clientOrdersList.children.length === 0) {
-              clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">${currentLanguage === 'ar' ? 'لا توجد طلبات نشطة' : 'No active orders'}</p>`;
-            }
-          }, 350); // Wait a bit longer than the animation to make sure all removals have completed
-        })
-        .catch((error) => {
-          console.error("Error fetching client orders:", error);
-          clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ في تحميل الطلبات' : 'Error loading orders'}</p>`;
-        })
-        .finally(() => {
-          // Reset the rendering flag when done, regardless of success or failure
-          setTimeout(() => {
-            isRenderingClientOrders = false;
-          }, 500); // Short delay to prevent too frequent re-renders
-        });
+      clientOrdersList.innerHTML = '';
+      
+      if (localOrders.length === 0) {
+        clientOrdersList.innerHTML = `<p style="text-align: center; color: var(--light-cream);">No active orders</p>`;
+        return;
+      }
+      
+      localOrders.forEach(order => {
+        const orderElement = createOrderElement(order);
+        clientOrdersList.appendChild(orderElement);
+      });
     }
     
     function toggleClientOrders() {
@@ -15481,7 +15237,7 @@
           table: {
             day: 'اليوم الطاولات 9-12 لديها أعلى معدل دوران عند 4.1 ساعات',
             week: 'الطاولات 5-8 لديها أعلى معدل دوران بمتوسط 3.2 ساعة هذا الأسبوع',
-            month: 'تُظهر البيانات الشهرية أن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيام الأسبوع',
+            month: 'تُظهر البيانات الشهرية أن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيا"� الأسبوع',
             year: 'تُظهر البيانات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
           },
           staff: {
