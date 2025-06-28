@@ -196,6 +196,34 @@
       padding-top: 5px;
     }
     
+    .sub-categories.force-hidden {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Force hide subcategories when ALL is selected */
+    .main-category-all-active ~ .sub-categories,
+    .main-category-all-active ~ .sub-categories *,
+    body.hide-subcategories .sub-categories,
+    body.hide-subcategories .subcategory-group,
+    body.hide-subcategories .subcategory-label,
+    body.hide-subcategories .subcategory-buttons,
+    body.hide-subcategories .category-btn {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      max-height: 0 !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
     .subcategory-label {
       text-align: center;
       font-size: 14px;
@@ -5130,9 +5158,9 @@
           </button>
         </div>
         
-        <div class="sub-categories" id="sub-categories">
+        <div class="sub-categories" id="sub-categories" style="display: none;">
           <!-- Food subcategories -->
-          <div class="subcategory-group" id="food-subcategories">
+          <div class="subcategory-group" id="food-subcategories" style="display: none;">
             <div class="subcategory-label">Food Types</div>
             <div class="subcategory-buttons">
               <button class="category-btn active" data-category="all-food" data-parent="food" id="all-food-btn" onclick="changeCategory('all-food')">All Food</button>
@@ -6471,7 +6499,7 @@
         nameAr: "سباغيتي بولونيز",
         modelSrc: "models/Rose Pasta.glb", // Updated to match actual file name
         description: "Spaghetti with a rich, slow-cooked meat sauce and parmesan cheese.",
-        descriptionAr: "سباغيتي مع صلصة لحم غنية مطبوخة ببطء وجبنة بارميزان.",
+        descriptionAr: "سباغيتي مع صلصة لحم غنية مطبوخة بب �ء وجبنة بارميزان.",
         price: 14.99,
         category: "pasta",
         mainCategory: "food"
@@ -6493,7 +6521,7 @@
         nameAr: "سلطة سيزر",
         modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Crisp romaine lettuce with Caesar dressing, croutons, and parmesan cheese.",
-        descriptionAr: "خe� روماني مقرمش مع صلصة سيزر، قطع خبز محمصة، وجبنة بارميزان.",
+        descriptionAr: "خس روماني مقرمش مع صلصة سيزر، قطع خبز محمصة، وجبنة بارميزان.",
         price: 9.99,
         category: "salads",
         mainCategory: "food"
@@ -7802,7 +7830,7 @@
           loadingText: "جاري تحميل تجربة الواقع المعزز...",
           // Category buttons
           allItems: "جميع العناصر",
-          hotFood: "طعاc� ساخن",
+          hotFood: "طعام ساخن",
           coldFood: "طعام بارد",
           drinks: "مشروبات",
           desserts: "حلويات",
@@ -8256,36 +8284,54 @@
     
     // Main category selection
     function changeMainCategory(mainCategory) {
+      console.log('changeMainCategory called with:', mainCategory);
+      
       // Update active button in main categories
       document.querySelectorAll('.main-category-btn').forEach(btn => {
         btn.classList.remove('active');
       });
-      document.querySelector(`.main-category-btn[data-maincategory="${mainCategory}"]`).classList.add('active');
+      const activeBtn = document.querySelector(`.main-category-btn[data-maincategory="${mainCategory}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
       
-      // Hide all subcategory groups first
-      document.querySelectorAll('.subcategory-group').forEach(group => {
-        group.style.display = 'none';
-      });
-      
-      // Hide the sub-categories container completely when "All" is selected
-      const subCategoriesContainer = document.getElementById('sub-categories');
       if (mainCategory === 'all') {
-        // If "All" is selected, hide the subcategories section
-        subCategoriesContainer.style.display = 'none';
+        console.log('ALL SELECTED - APPLYING BODY CLASS TO HIDE SUBCATEGORIES');
+        
+        // Add body class to trigger CSS hiding
+        document.body.classList.add('hide-subcategories');
+        
+        // Additional direct hiding for extra safety
+        const subCategoriesContainer = document.getElementById('sub-categories');
+        if (subCategoriesContainer) {
+          subCategoriesContainer.style.cssText = 'display: none !important;';
+        }
+        
         currentCategory = 'all';
         currentMainCategory = 'all';
-        filterFoodItems();
-        updateFoodDisplay();
+        
       } else {
-        // Show the subcategories container
-        subCategoriesContainer.style.display = 'block';
+        console.log('Specific category selected:', mainCategory);
+        
+        // Remove body class to show subcategories
+        document.body.classList.remove('hide-subcategories');
+        
+        // Restore subcategories display
+        const subCategoriesContainer = document.getElementById('sub-categories');
+        if (subCategoriesContainer) {
+          subCategoriesContainer.style.cssText = '';
+          subCategoriesContainer.style.display = 'block';
+        }
+        
+        // Hide all subcategory groups first
+        document.querySelectorAll('.subcategory-group').forEach(group => {
+          group.style.display = 'none';
+        });
         
         // Show corresponding subcategory group
         const subcategoryGroup = document.getElementById(`${mainCategory}-subcategories`);
         if (subcategoryGroup) {
           subcategoryGroup.style.display = 'flex';
           
-          // Set default subcategory as "All [MainCategory]"
+          // Set default subcategory
           currentMainCategory = mainCategory;
           currentCategory = `all-${mainCategory}`;
           
@@ -8293,13 +8339,18 @@
           document.querySelectorAll('.category-btn').forEach(btn => {
             btn.classList.remove('active');
           });
-          document.querySelector(`.category-btn[data-category="all-${mainCategory}"]`).classList.add('active');
-          
-          // Filter items and update display
-          filterFoodItems();
-          updateFoodDisplay();
+          const defaultBtn = document.querySelector(`.category-btn[data-category="all-${mainCategory}"]`);
+          if (defaultBtn) {
+            defaultBtn.classList.add('active');
+          }
         }
       }
+      
+      // Filter and update display
+      filterFoodItems();
+      updateFoodDisplay();
+      
+      console.log('Category change complete. Current category:', currentCategory);
     }
     
     // Subcategory selection
@@ -11023,7 +11074,7 @@
             const assignedStaffHtml = assignedStaffName ? `
               <div class="assigned-staff-info">
                 <span style="color: #ffc107;">
-                  <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤول' : 'Assigned Staff'}:
+                  <i class="fas fa-user-tag"></i> ${currentLanguage === 'ar' ? 'الموظف المسؤوi�' : 'Assigned Staff'}:
                 </span>
                 <span>${assignedStaffName} 
                   ${assignedStaffRole ? `<span class="staff-role-badge role-${assignedStaffRole}">${assignedStaffRole}</span>` : ''}
@@ -11403,7 +11454,7 @@
     async function updateOrderStatus(orderId, newStatus) {
       console.log(`Updating order ${orderId} to status: ${newStatus}`);
       
-      // Immediately show "updating" notification to give feedback
+      // Immediately show "updating" noti�ication to give feedback
       const targetCardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
       if (targetCardElement) {
         targetCardElement.classList.add('updating');
