@@ -6279,7 +6279,7 @@
         nameAr: "برجر لحم البقر",
         modelSrc: "models/Margherita Pizza.glb", // Using available model as placeholder
         description: "Juicy beef patty with lettuce, tomato, onions, and our special sauce.",
-        descriptionAr: "قطعة لحم بقر ��صارية مع الخس والطماطم والبصل وصلصتنا الخاصة.",
+        descriptionAr: "قطعة لحم بقر عصارية مع الخس والطماطم والبصل وصلصتنا الخاصة.",
         price: 16.99,
         category: "burgers",
         mainCategory: "food"
@@ -7590,7 +7590,7 @@
           yourCart: "سلة التسوق",
           checkout: "إتمام الطلب",
           cancel: "إلغاء",
-          confirm: "تp�كيد",
+          confirm: "تأكيد",
           yourTableNumber: "رقم الطاولة",
           tableNumberSubtitle: "يرجى تحديد دورك أو إدخال رقم الطاولة للمتابعة",
           tableNumberHelp: "رقم الطاولة الخاص بك مُظهر على رمز QR الموجود على طاولتك",
@@ -7997,6 +7997,16 @@
           // Set the model path to the exact match
           item.modelSrc = `/models/${exactModelMatch}`;
           console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
+        } else if (item.modelSrc && item.modelSrc.includes('models/')) {
+          // If item already has a modelSrc set with available model, keep it
+          const modelFileName = item.modelSrc.split('/').pop();
+          if (availableModels.includes(modelFileName)) {
+            console.log(`Using assigned model for ${item.name}: ${item.modelSrc}`);
+          } else {
+            // Model file doesn't exist, clear it
+            item.modelSrc = null;
+            console.log(`Assigned model file not found for: ${item.name}`);
+          }
         } else {
           // No exact match found, clear model src
           item.modelSrc = null;
