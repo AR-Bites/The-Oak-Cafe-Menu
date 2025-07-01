@@ -5545,6 +5545,9 @@
     }
     
     try {
+      // TEMPORARILY DISABLE FIREBASE TO FOCUS ON 3D MODELS
+      console.log("Skipping Firebase initialization to focus on 3D model loading");
+      throw new Error("Firebase disabled for 3D model testing");
       firebase.initializeApp(firebaseConfig);
       
       try {
@@ -11573,11 +11576,11 @@
               : 'Network connection error. Please check your connection and try again.';
           } else if (error.code === 'already-exists') {
             errorMessage = currentLanguage === 'ar' 
-              ? 'تم تحديث الطلب مسبقاً'
+              ? 'N�م تحديث الطلب مسبقاً'
               : 'Order has already been updated';
           } else {
             errorMessage = currentLanguage === 'ar' 
-              ? `حدث خطأ أثناء تح �يث الطلب: ${error.message || 'خطأ غير معروف'}`
+              ? `حدث خطأ أثناء تحديث الطلب: ${error.message || 'خطأ غير معروف'}`
               : `There was an error while updating the order: ${error.message || 'Unknown error'}`;
           }
           
@@ -15349,7 +15352,7 @@
             day: 'اليوم أنفق مستخدمو قائمة الواقع المعزز 22٪ أكثر من مستخدمي القائمة العادية',
             week: 'تصور قائمة الواقع المعزز يزيد متوسط قيمة الطلب بنسبة 18٪ هذا الأسبوع',
             month: 'زادت الإحالات من وسائل التواصل الاجتماعي بنسبة 15٪ هذا الشهر',
-            year: 'أدى تصور قائمة الواقع المعزز إلى زيادة بنسبة 25٪ في طل<�ات الحلويات سنويًا'
+            year: 'أدى تصور قائمة الواقع المعزز إلى زيادة بنسبة 25٪ في طلبات الحلويات سنويًا'
           }
         }
       };
