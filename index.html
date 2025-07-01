@@ -8189,16 +8189,18 @@
         console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
         
         // Set the model source with proper URL encoding for spaces
-        modelViewer.src = item.modelSrc.replace(/ /g, '%20');
+        const encodedSrc = item.modelSrc.replace(/ /g, '%20');
+        console.log(`Encoded model src: ${encodedSrc}`);
+        modelViewer.src = encodedSrc;
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
-          console.log("Model loaded successfully");
+          console.log(`✅ Model loaded successfully: ${item.name}`);
           modelLoadingIndicator.style.display = 'none';
         });
         
         modelViewer.addEventListener('error', (e) => {
-          console.error("Error loading model:", item.modelSrc, e);
+          console.error(`❌ Error loading model for ${item.name}:`, item.modelSrc, encodedSrc, e);
           modelLoadingIndicator.style.display = 'none';
           // Hide the model container if there's an error
           modelContainer.style.display = 'none';
@@ -8640,7 +8642,7 @@
           modelViewer.addEventListener('error', (e) => {
             console.error("Error loading cart model:", modelPath, e);
           });
-          modelViewer.setAttribute('src', modelPath);
+          modelViewer.setAttribute('src', modelPath.replace(/ /g, '%20'));
           modelViewer.setAttribute('ar', '');
           modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
           modelViewer.setAttribute('camera-controls', '');
@@ -8662,7 +8664,7 @@
             modelViewer.addEventListener('error', (e) => {
               console.error("Error loading cart foodItem model:", modelPath, e);
             });
-            modelViewer.setAttribute('src', modelPath);
+            modelViewer.setAttribute('src', modelPath.replace(/ /g, '%20'));
             modelViewer.setAttribute('ar', '');
             modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
             modelViewer.setAttribute('camera-controls', '');
@@ -15227,7 +15229,7 @@
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
             week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
             month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
-            year: 'تظل البيتزا الفئة الأو"�ى التي تمثل 45٪ من الإيرادات السنوية'
+            year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
           satisfaction: {
             day: 'متوسط التقييم اليوم هو 4.7/5 نجوم من 25 مراجعة',
