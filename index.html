@@ -6294,7 +6294,7 @@
         nameAr: "يلنجي",
         modelSrc: "models/yalanji",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
-        descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتواg�ل المتوسطية.",
+        descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتواy�ل المتوسطية.",
         price: 10.99,
         category: "appetizers",
         mainCategory: "food"
@@ -7619,7 +7619,7 @@
           weekOption: "هذا الأسبوع",
           monthOption: "هذا الشهر",
           yearOption: "هذا العام",
-          salesPerformance: "أداء المبيعo�ت",
+          salesPerformance: "أداء المبيعات",
           topMenuItems: "أفضل عناصر القائمة",
           customerSatisfaction: "رضا العملاء",
           tableUtilization: "استخدام الطاولة",
@@ -8200,6 +8200,22 @@
           console.log(`✅ Model loaded successfully: ${item.name}`);
           console.log(`✅ Model viewer src: ${modelViewer.src}`);
           console.log(`✅ Model viewer ready state: ${modelViewer.modelIsVisible}`);
+          
+          // Force model viewer to be visible and properly sized
+          modelViewer.style.visibility = 'visible';
+          modelViewer.style.opacity = '1';
+          modelViewer.style.pointerEvents = 'auto';
+          modelViewer.style.width = '100%';
+          modelViewer.style.height = '100%';
+          modelViewer.style.display = 'block';
+          
+          // Force re-render by triggering resize
+          setTimeout(() => {
+            modelViewer.updateComplete.then(() => {
+              modelViewer.jumpCameraToGoal();
+            });
+          }, 100);
+          
           modelLoadingIndicator.style.display = 'none';
         });
         
@@ -8216,7 +8232,7 @@
           console.log(`📊 Loading progress for ${item.name}: ${e.detail.totalProgress}`);
         });
         
-        // Check if model becomes visible
+        // Check if model becomes visible and force refresh if needed
         setTimeout(() => {
           if (modelViewer.modelIsVisible) {
             console.log(`✅ Model ${item.name} is visible after 2 seconds`);
@@ -8224,6 +8240,17 @@
             console.warn(`⚠️ Model ${item.name} loaded but not visible after 2 seconds`);
             console.warn(`⚠️ Model container display: ${modelContainer.style.display}`);
             console.warn(`⚠️ Model viewer display: ${window.getComputedStyle(modelViewer).display}`);
+            
+            // Force model-viewer to refresh/re-render
+            console.log(`🔄 Attempting to force model refresh for ${item.name}`);
+            modelViewer.jumpCameraToGoal();
+            
+            // Try forcing a dimension update
+            const currentSrc = modelViewer.src;
+            modelViewer.src = '';
+            setTimeout(() => {
+              modelViewer.src = currentSrc;
+            }, 100);
           }
         }, 2000);
         
