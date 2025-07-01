@@ -7949,20 +7949,52 @@
         'Steak.glb'
       ];
       
-      // Map menu items to their models (if available)
+      // Manual mapping of menu items to model filenames
+      const modelMapping = {
+        'Margherita Pizza': 'Margherita Pizza.glb',
+        'Pepperoni Pizza': 'Pepperoni Pizza.glb',
+        'Pesto Chicken Pizza': 'pestoChickenPizza.glb',
+        'Calzone': 'Calezone.glb',
+        'Fettuccine Alfredo': 'Fettuccine Alfredo.glb',
+        'Pesto Pasta': 'Pesto Pasta.glb',
+        'Rose Pasta': 'Rose Pasta.glb',
+        'Sea Food Pasta': 'Sea Food Pasta.glb',
+        'Penne Arrabiata': 'pennaArabita_.glb',
+        'Mac and Cheese': 'macAndCheese.glb',
+        'Chicken Dynamite Salad': 'chickenDynamiteSalad.glb',
+        'Smoked Salmon Salad': 'smokedSalmonSalad.glb',
+        'Taco Salad': 'tacoSalad.glb',
+        'Waffle Salad': 'waffleSalad.glb',
+        'Halloumi Salad': 'hallomiSalad.glb',
+        'Beef Burger': 'beefBurger.glb',
+        'Crispy Chicken Burger': 'crispyChickenBurger.glb',
+        'Cheese Steak Sandwich': 'cheeseSteakSandwich.glb',
+        'Chicken Zinger Sandwich': 'chickenZingerSandwich.glb',
+        'Halloumi Sandwich': 'halloumiSandwich_.glb',
+        'Grilled Chicken': 'grilledChicken.glb',
+        'Chicken Tender': 'chickenTender.glb',
+        'Chicken Fajita': 'chickenFajita.glb',
+        'Chicken Quesadilla': 'chickenQuesadilla.glb',
+        'Chicken Shawarma': 'chickenShawerma.glb',
+        'Steak': 'Steak.glb',
+        'Beef Fajita': 'beefFahita.glb',
+        'Dynamite Shrimp': 'dynamiteShrimp.glb',
+        'Mozzarella Sticks': 'mozzerellaSticks_.glb',
+        'Onion Rings': 'onionRings_.glb',
+        'Hash Browns': 'hashBrown.glb',
+        'Halloumi': 'hallomi.glb',
+        'Yalanji': 'yalanji.glb',
+        'Sea Food Bowl': 'seaFoodBowl_.glb',
+        'Food Platter': 'foodPlatter_.glb'
+      };
+
+      // Map menu items to their models using manual mapping
       foodItems.forEach(item => {
-        // Check if there's an exact match with an available model name
-        const itemName = item.name.replace(/\s+/g, ' ').trim();
-        const exactModelMatch = availableModels.find(model => 
-          model === `${itemName}.glb` || model.toLowerCase() === `${itemName.toLowerCase()}.glb`
-        );
-        
-        if (exactModelMatch) {
-          // Set the model path to the exact match
-          item.modelSrc = `/models/${exactModelMatch}`;
-          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
+        const modelFile = modelMapping[item.name];
+        if (modelFile && availableModels.includes(modelFile)) {
+          item.modelSrc = `/models/${modelFile}`;
+          console.log(`Mapped ${item.name} to model: ${item.modelSrc}`);
         } else {
-          // No exact match found, clear model src
           item.modelSrc = null;
           console.log(`No model available for: ${item.name}`);
         }
