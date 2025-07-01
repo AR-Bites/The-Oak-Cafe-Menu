@@ -4805,7 +4805,7 @@
         <div class="model-container">
           <model-viewer 
             id="food-model-viewer" 
-            src="/models/Margherita Pizza.glb" 
+            src="/models/Margherita%20Pizza.glb" 
             alt="3D Food Model" 
             ar 
             ar-modes="quick-look scene-viewer webxr" 
@@ -6294,7 +6294,7 @@
         nameAr: "يلنجي",
         modelSrc: "models/yalanji",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
-        descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطية.",
+        descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطي �.",
         price: 10.99,
         category: "appetizers",
         mainCategory: "food"
@@ -7998,7 +7998,7 @@
         console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
-        preloader.setAttribute('src', modelPath);
+        preloader.setAttribute('src', modelPath.replace(/ /g, '%20'));
         preloader.setAttribute('preload', '');
         
         // Simpler event handling
@@ -8188,8 +8188,8 @@
         
         console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
         
-        // Set the model source
-        modelViewer.src = item.modelSrc;
+        // Set the model source with proper URL encoding for spaces
+        modelViewer.src = item.modelSrc.replace(/ /g, '%20');
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
@@ -15227,7 +15227,7 @@
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
             week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
             month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
-            year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
+            year: 'تظل البيتزا الفئة الأو"�ى التي تمثل 45٪ من الإيرادات السنوية'
           },
           satisfaction: {
             day: 'متوسط التقييم اليوم هو 4.7/5 نجوم من 25 مراجعة',
