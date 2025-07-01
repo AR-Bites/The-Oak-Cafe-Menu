@@ -7953,73 +7953,23 @@
         'yalanji.glb'
       ];
       
-      // Smart model mapping that handles models with and without .glb extension
+      // Simple verification - DO NOT override existing modelSrc paths
+      console.log(`📋 Verifying ${foodItems.length} food items for model availability...`);
+      
+      let modelsFound = 0;
+      let modelsNotFound = 0;
+      
       foodItems.forEach(item => {
-        // If item already has a modelSrc defined, check if that model exists
         if (item.modelSrc) {
-          // Extract filename from the existing modelSrc path
-          const existingFilename = item.modelSrc.split('/').pop();
-          
-          // Check if this exact model exists in our available models list
-          let foundModel = availableModels.find(model => model === existingFilename);
-          
-          // If not found with exact match, try without .glb extension or adding .glb
-          if (!foundModel) {
-            const baseFilename = existingFilename.replace('.glb', '');
-            foundModel = availableModels.find(model => 
-              model === baseFilename || 
-              model === `${baseFilename}.glb`
-            );
-          }
-          
-          if (foundModel) {
-            item.modelSrc = `/models/${foundModel}`;
-            console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
-          } else {
-            // Try fuzzy matching based on item name
-            const itemName = item.name.replace(/\s+/g, '').toLowerCase();
-            const fuzzyMatch = availableModels.find(model => {
-              const modelName = model.replace('.glb', '').replace(/\s+/g, '').toLowerCase();
-              return modelName.includes(itemName.substring(0, 8)) || 
-                     itemName.includes(modelName.substring(0, 8));
-            });
-            
-            if (fuzzyMatch) {
-              item.modelSrc = `/models/${fuzzyMatch}`;
-              console.log(`Mapped ${item.name} to fuzzy match: ${item.modelSrc}`);
-            } else {
-              item.modelSrc = null;
-              console.log(`No model available for: ${item.name}`);
-            }
-          }
+          console.log(`✅ Model ready for ${item.name}: ${item.modelSrc}`);
+          modelsFound++;
         } else {
-          // No modelSrc defined, try to find a match based on item name
-          const itemName = item.name.replace(/\s+/g, '').toLowerCase();
-          
-          // Try exact matches first
-          let nameMatch = availableModels.find(model => {
-            const modelName = model.replace('.glb', '').replace(/\s+/g, '').toLowerCase();
-            return modelName === itemName || 
-                   model.toLowerCase() === `${item.name.toLowerCase()}.glb`;
-          });
-          
-          // If no exact match, try fuzzy matching
-          if (!nameMatch) {
-            nameMatch = availableModels.find(model => {
-              const modelName = model.replace('.glb', '').replace(/\s+/g, '').toLowerCase();
-              return modelName.includes(itemName.substring(0, 8)) || 
-                     itemName.includes(modelName.substring(0, 8));
-            });
-          }
-          
-          if (nameMatch) {
-            item.modelSrc = `/models/${nameMatch}`;
-            console.log(`Mapped ${item.name} to name-based model: ${item.modelSrc}`);
-          } else {
-            console.log(`No model available for: ${item.name}`);
-          }
+          console.log(`⚠️ No model defined for ${item.name}`);
+          modelsNotFound++;
         }
       });
+      
+      console.log(`📊 Model Status: ${modelsFound} items with models, ${modelsNotFound} without models`);
       
       // Create a single hidden container for preloading
       const preloadContainer = document.createElement('div');
@@ -10498,7 +10448,7 @@
                 showNotification(
                   currentLanguage === 'ar' ? 'طلبك جاهز' : 'Order Ready',
                   currentLanguage === 'ar' 
-                    ? `طلبك رقم ${orderData.id}  �اهز للاستلام` 
+                    ? `طلبك رقم ${orderData.id} جاهز للاستلام` 
                     : `Your order #${orderData.id} is ready for pickup`,
                   'success'
                 );
