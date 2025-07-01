@@ -4773,8 +4773,16 @@
               <button class="category-btn active" data-category="all-food" data-parent="food" id="all-food-btn" onclick="changeCategory('all-food')">All Food</button>
               <button class="category-btn" data-category="pizza" data-parent="food" id="pizza-category-btn" onclick="changeCategory('pizza')">Pizza</button>
               <button class="category-btn" data-category="pasta" data-parent="food" id="pasta-category-btn" onclick="changeCategory('pasta')">Pasta</button>
-              <button class="category-btn" data-category="salads" data-parent="food" id="salads-category-btn" onclick="changeCategory('salads')">Salads</button>
               <button class="category-btn" data-category="burgers" data-parent="food" id="burgers-category-btn" onclick="changeCategory('burgers')">Burgers</button>
+              <button class="category-btn" data-category="sandwiches" data-parent="food" id="sandwiches-category-btn" onclick="changeCategory('sandwiches')">Sandwiches</button>
+              <button class="category-btn" data-category="mexican" data-parent="food" id="mexican-category-btn" onclick="changeCategory('mexican')">Mexican</button>
+              <button class="category-btn" data-category="grilled" data-parent="food" id="grilled-category-btn" onclick="changeCategory('grilled')">Grilled</button>
+              <button class="category-btn" data-category="middle-eastern" data-parent="food" id="middle-eastern-category-btn" onclick="changeCategory('middle-eastern')">Middle Eastern</button>
+              <button class="category-btn" data-category="appetizers" data-parent="food" id="appetizers-category-btn" onclick="changeCategory('appetizers')">Appetizers</button>
+              <button class="category-btn" data-category="sides" data-parent="food" id="sides-category-btn" onclick="changeCategory('sides')">Sides</button>
+              <button class="category-btn" data-category="salads" data-parent="food" id="salads-category-btn" onclick="changeCategory('salads')">Salads</button>
+              <button class="category-btn" data-category="bowls" data-parent="food" id="bowls-category-btn" onclick="changeCategory('bowls')">Bowls</button>
+              <button class="category-btn" data-category="platters" data-parent="food" id="platters-category-btn" onclick="changeCategory('platters')">Platters</button>
             </div>
           </div>
           
@@ -6028,7 +6036,7 @@
       {
         name: "Pepperoni Pizza",
         nameAr: "بيتزا ببروني",
-        modelSrc: "./models/Pepperoni Pizza.glb",
+        modelSrc: "models/Pepperoni Pizza.glb",
         description: "Classic pepperoni with cheese and our signature tomato sauce.",
         descriptionAr: "ببروني كلاسيكي مع الجبن وصلصة الطماطم المميزة لدينا.",
         price: 15.99,
@@ -6036,31 +6044,21 @@
         mainCategory: "food"
       },
       {
-        name: "Vegetarian Pizza",
-        nameAr: "بيتزا نباتية",
-        modelSrc: "./models/Margherita Pizza.glb", // Using existing model as placeholder
-        description: "Fresh bell peppers, mushrooms, onions, and olives on our signature crust.",
-        descriptionAr: "فلفل حلو طازج، فطر، بصل، وزيتون على عجينتنا المميزة.",
-        price: 16.99,
-        category: "pizza",
-        mainCategory: "food"
-      },
-      {
         name: "Pesto Chicken Pizza",
-        nameAr: "بيتزا دجاج بيستو",
-        modelSrc: "./models/pestoChickenPizza.glb",
-        description: "Delicious pizza topped with grilled chicken, basil pesto, and melted cheese.",
-        descriptionAr: "بيتزا لذيذة مغطاة بالدجاج المشوي وصلصة البيستو والجبن المذاب.",
-        price: 18.99,
+        nameAr: "بيتزا دجاج بالبيستو",
+        modelSrc: "models/pestoChickenPizza.glb",
+        description: "Grilled chicken with basil pesto, sun-dried tomatoes, and mozzarella cheese.",
+        descriptionAr: "دجاج مشوي مع صلصة البيستو بالريحان، طماطم مجففة، وجبنة موزاريلا.",
+        price: 17.99,
         category: "pizza",
         mainCategory: "food"
       },
       
       // FOOD - Pasta items
       {
-        name: "Alfredo Pasta",
-        nameAr: "باستا ألفريدو",
-        modelSrc: "./models/Fettuccine Alfredo.glb", // Updated to match actual file name
+        name: "Fettuccine Alfredo",
+        nameAr: "فيتوتشيني ألفريدو",
+        modelSrc: "models/Fettuccine Alfredo.glb",
         description: "Creamy Alfredo sauce with fettuccine pasta, garnished with parsley.",
         descriptionAr: "صلصة ألفريدو كريمية مع معكرونة فيتوتشيني، مزينة بالبقدونس.",
         price: 13.99,
@@ -6068,11 +6066,11 @@
         mainCategory: "food"
       },
       {
-        name: "Spaghetti Bolognese",
-        nameAr: "سباغيتي بولونيز",
-        modelSrc: "./models/Rose Pasta.glb", // Updated to match actual file name
-        description: "Spaghetti with a rich, slow-cooked meat sauce and parmesan cheese.",
-        descriptionAr: "سباغيتي مع صلصة لحم غنية مطبوخة ببطء وجبنة بارميزان.",
+        name: "Rose Pasta",
+        nameAr: "باستا الوردة",
+        modelSrc: "models/Rose Pasta.glb",
+        description: "Creamy tomato and herb sauce with penne pasta and fresh basil.",
+        descriptionAr: "صلصة كريمية بالطماطم والأعشاب مع معكرونة بيني وريحان طازج.",
         price: 14.99,
         category: "pasta",
         mainCategory: "food"
@@ -6080,7 +6078,7 @@
       {
         name: "Pesto Pasta",
         nameAr: "باستا بيستو",
-        modelSrc: "./models/Pesto Pasta.glb", // Updated to match actual file name
+        modelSrc: "models/Pesto Pasta.glb",
         description: "Linguine pasta with basil pesto, pine nuts, and freshly grated parmesan.",
         descriptionAr: "معكرونة لينجويني مع صلصة البيستو بالريحان والصنوبر وجبنة بارميزان مبشورة طازجة.",
         price: 14.49,
@@ -6088,77 +6086,33 @@
         mainCategory: "food"
       },
       {
-        name: "Celezone",
-        nameAr: "سيليزون",
-        modelSrc: "./models/celezone.glb",
-        description: "Exquisite seafood pasta with mussels, gnocchi, and aromatic herbs in a rich sauce.",
-        descriptionAr: "معكرونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
-        price: 19.99,
+        name: "Sea Food Pasta",
+        nameAr: "باستا المأكولات البحرية",
+        modelSrc: "models/Sea Food Pasta.glb",
+        description: "Mixed seafood with linguine pasta in a white wine and garlic sauce.",
+        descriptionAr: "مأكولات بحرية متنوعة مع معكرونة لينجويني في صلصة النبيذ الأبيض والثوم.",
+        price: 18.99,
+        category: "pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Penna Arabita",
+        nameAr: "بيني أرابياتا",
+        modelSrc: "models/pennaArabita_.glb",
+        description: "Spicy tomato sauce with penne pasta, garlic, and red chili flakes.",
+        descriptionAr: "صلصة طماطم حارة مع معكرونة بيني، ثوم، ورقائق الفلفل الأحمر.",
+        price: 13.49,
         category: "pasta",
         mainCategory: "food"
       },
       
-      // FOOD - Salad items
-      {
-        name: "Chicken Dynamite Salad",
-        nameAr: "سلطة دجاج ديناميت",
-        modelSrc: "./models/chickenDynamiteSalad.glb",
-        description: "Fresh mixed greens with crispy chicken, dynamite sauce, and seasonal vegetables.",
-        descriptionAr: "خضار ورقية مشكلة طازجة مع دجاج مقرمش وصلصة ديناميت وخضار موسمية.",
-        price: 12.99,
-        category: "salads",
-        mainCategory: "food"
-      },
-      {
-        name: "Halloumi Salad",
-        nameAr: "سلطة حلوم",
-        modelSrc: "./models/hallomiSalad.glb",
-        description: "Grilled halloumi cheese with fresh vegetables, herbs, and Mediterranean dressing.",
-        descriptionAr: "جبنة حلوم مشوية مع خضار طازجة وأعشاب وصلصة متوسطية.",
-        price: 11.99,
-        category: "salads",
-        mainCategory: "food"
-      },
-      
-      // FOOD - More Salads
-      {
-        name: "Taco Salad",
-        nameAr: "سلطة تاكو",
-        modelSrc: "./models/tacoSalad.glb",
-        description: "Mexican-inspired salad with crispy tortilla shell, seasoned ground beef, and fresh toppings.",
-        descriptionAr: "سلطة مكسيكية في قشرة تورتيلا مقرمشة مع لحم مطحون متبل وخضار طازجة.",
-        price: 13.99,
-        category: "salads",
-        mainCategory: "food"
-      },
-      {
-        name: "Waffle Salad",
-        nameAr: "سلطة وافل",
-        modelSrc: "./models/waffleSalad.glb",
-        description: "Unique sweet and savory combination with waffle pieces, mixed greens, and special dressing.",
-        descriptionAr: "تجمع فريد بين الحلو والمالح مع قطع وافل وخضار مشكلة وصلصة خاصة.",
-        price: 12.49,
-        category: "salads",
-        mainCategory: "food"
-      },
-      {
-        name: "Smoked Salmon Salad",
-        nameAr: "سلطة سلمون مدخن",
-        modelSrc: "./models/smokedSalmonSalad.glb",
-        description: "Premium smoked salmon with mixed greens, capers, and dill cream dressing.",
-        descriptionAr: "سلمون مدخن فاخر مع خضار مشكلة وكبار وصلصة كريمة الشبت.",
-        price: 16.99,
-        category: "salads",
-        mainCategory: "food"
-      },
-
-      // FOOD - Burger items
+      // FOOD - Burgers
       {
         name: "Beef Burger",
-        nameAr: "برجر لحم بقري",
-        modelSrc: "./models/beefBurger.glb",
-        description: "Juicy beef patty with fresh lettuce, tomato, onions, and our signature sauce.",
-        descriptionAr: "قطعة لحم بقري عصيرية مع خس طازج وطماطم وبصل وصلصتنا المميزة.",
+        nameAr: "برجر لحم البقر",
+        modelSrc: "models/beefBurger.glb",
+        description: "Juicy beef patty with lettuce, tomato, onions, and our signature sauce.",
+        descriptionAr: "قطعة لحم بقري عصيرية مع خس، طماطم، بصل، وصلصتنا المميزة.",
         price: 12.99,
         category: "burgers",
         mainCategory: "food"
@@ -6166,237 +6120,295 @@
       {
         name: "Crispy Chicken Burger",
         nameAr: "برجر دجاج مقرمش",
-        modelSrc: "./models/crispyChickenBurger.glb",
-        description: "Crispy fried chicken breast with coleslaw and spicy mayo on a brioche bun.",
-        descriptionAr: "صدر دجاج مقلي مقرمش مع سلطة كولسلو ومايونيز حار في خبز بريوش.",
-        price: 13.99,
+        modelSrc: "models/crispyChickenBurger.glb",
+        description: "Crispy breaded chicken breast with lettuce, pickles, and mayo.",
+        descriptionAr: "صدر دجاج مقرمش مع خس، مخلل، ومايونيز.",
+        price: 13.49,
         category: "burgers",
         mainCategory: "food"
       },
-
-      // FOOD - Sandwiches & Wraps
+      
+      // FOOD - Sandwiches
       {
         name: "Cheese Steak Sandwich",
         nameAr: "ساندويش ستيك بالجبن",
-        modelSrc: "./models/cheeseSteakSandwich.glb",
-        description: "Tender sliced steak with melted cheese, peppers, and onions on a hoagie roll.",
-        descriptionAr: "شرائح ستيك طرية مع جبن ذائب وفلفل وبصل في خبز هوجي.",
+        modelSrc: "models/cheeseSteakSandwich.glb",
+        description: "Tender beef steak with melted cheese, onions, and peppers on a fresh roll.",
+        descriptionAr: "ستيك لحم طري مع جبن ذائب، بصل، وفلفل في خبز طازج.",
         price: 14.99,
-        category: "sandwiches",
-        mainCategory: "food"
-      },
-      {
-        name: "Halloumi Sandwich",
-        nameAr: "ساندويش حلوم",
-        modelSrc: "./models/halloumiSandwich_.glb",
-        description: "Grilled halloumi cheese with Mediterranean vegetables and herb aioli.",
-        descriptionAr: "جبنة حلوم مشوية مع خضار متوسطية وأيولي الأعشاب.",
-        price: 11.99,
         category: "sandwiches",
         mainCategory: "food"
       },
       {
         name: "Chicken Zinger Sandwich",
         nameAr: "ساندويش دجاج زنجر",
-        modelSrc: "./models/chickenZingerSandwich.glb",
-        description: "Spicy crispy chicken with fresh lettuce and zinger sauce in a soft bun.",
-        descriptionAr: "دجاج مقرمش حار مع خس طازج وصلصة زنجر في خبز طري.",
-        price: 12.49,
+        modelSrc: "models/chickenZingerSandwich.glb",
+        description: "Spicy fried chicken breast with lettuce, tomato, and spicy mayo.",
+        descriptionAr: "صدر دجاج مقلي حار مع خس، طماطم، ومايونيز حار.",
+        price: 13.99,
         category: "sandwiches",
         mainCategory: "food"
       },
-
-      // FOOD - Main Dishes & Specialties
+      {
+        name: "Halloumi Sandwich",
+        nameAr: "ساندويش حلومي",
+        modelSrc: "models/halloumiSandwich_.glb",
+        description: "Grilled halloumi cheese with fresh vegetables and Mediterranean herbs.",
+        descriptionAr: "جبنة حلومي مشوية مع خضار طازجة وأعشاب البحر الأبيض المتوسط.",
+        price: 11.99,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      
+      // FOOD - Fajitas & Mexican
       {
         name: "Beef Fajita",
-        nameAr: "فاهيتا لحم بقري",
-        modelSrc: "./models/beefFahita.glb",
-        description: "Sizzling beef strips with peppers and onions, served with tortillas and sides.",
-        descriptionAr: "شرائح لحم بقري مع فلفل وبصل، تقدم مع تورتيلا وأطباق جانبية.",
-        price: 18.99,
-        category: "mains",
+        nameAr: "فاهيتا لحم البقر",
+        modelSrc: "models/beefFahita.glb",
+        description: "Sizzling beef strips with peppers, onions, and Mexican spices.",
+        descriptionAr: "شرائح لحم بقري مع فلفل، بصل، وتوابل مكسيكية.",
+        price: 16.99,
+        category: "mexican",
         mainCategory: "food"
       },
       {
         name: "Chicken Fajita",
-        nameAr: "فاهيتا دجاج",
-        modelSrc: "./models/chickenFajita.glb",
-        description: "Tender chicken strips with sautéed vegetables, served with warm tortillas.",
-        descriptionAr: "شرائح دجاج طرية مع خضار مقلية، تقدم مع تورتيلا دافئة.",
-        price: 16.99,
-        category: "mains",
-        mainCategory: "food"
-      },
-      {
-        name: "Chicken Shawarma",
-        nameAr: "شاورما دجاج",
-        modelSrc: "./models/chickenShawerma.glb",
-        description: "Traditional Middle Eastern chicken shawarma with garlic sauce and pickles.",
-        descriptionAr: "شاورما دجاج شرق أوسطية تقليدية مع صلصة الثوم والمخللات.",
-        price: 13.99,
-        category: "mains",
+        nameAr: "فاهيتا الدجاج",
+        modelSrc: "models/chickenFajita.glb",
+        description: "Grilled chicken strips with bell peppers, onions, and authentic seasonings.",
+        descriptionAr: "شرائح دجاج مشوية مع فلفل حلو، بصل، وتوابل أصلية.",
+        price: 15.99,
+        category: "mexican",
         mainCategory: "food"
       },
       {
         name: "Chicken Quesadilla",
-        nameAr: "كيساديلا دجاج",
+        nameAr: "كيساديلا الدجاج",
         modelSrc: "models/chickenQuesadilla.glb",
-        description: "Grilled tortilla filled with seasoned chicken and melted cheese.",
-        descriptionAr: "تورتيلا مشوية محشوة بدجاج متبل وجبن ذائب.",
-        price: 12.99,
-        category: "mains",
+        description: "Grilled tortilla filled with chicken, cheese, and vegetables.",
+        descriptionAr: "تورتيلا مشوية محشوة بالدجاج، الجبن، والخضار.",
+        price: 13.99,
+        category: "mexican",
+        mainCategory: "food"
+      },
+      
+      // FOOD - Grilled & Meat Dishes
+      {
+        name: "Grilled Chicken",
+        nameAr: "دجاج مشوي",
+        modelSrc: "models/grilledChicken.glb",
+        description: "Perfectly grilled chicken breast with herbs and lemon.",
+        descriptionAr: "صدر دجاج مشوي بالأعشاب والليمون بطريقة مثالية.",
+        price: 16.49,
+        category: "grilled",
         mainCategory: "food"
       },
       {
         name: "Premium Steak",
         nameAr: "ستيك فاخر",
-        modelSrc: "./models/Steak.glb",
-        description: "Prime cut steak grilled to perfection, served with seasonal vegetables.",
-        descriptionAr: "قطعة ستيك فاخرة مشوية بإتقان، تقدم مع خضار موسمية.",
+        modelSrc: "models/Steak.glb",
+        description: "Premium cut steak grilled to perfection with garlic butter.",
+        descriptionAr: "قطعة ستيك فاخرة مشوية بالكمال مع زبدة الثوم.",
         price: 24.99,
-        category: "mains",
+        category: "grilled",
         mainCategory: "food"
       },
       {
-        name: "Grilled Chicken",
-        nameAr: "دجاج مشوي",
-        modelSrc: "./models/grilledChicken.glb",
-        description: "Perfectly grilled chicken breast with gnocchi, vegetables, and herbs in a savory sauce.",
-        descriptionAr: "صدر دجاج مشوي بإتقان مع نيوكي وخضار وأعشاب في صلصة لذيذة.",
-        price: 17.99,
-        category: "mains",
+        name: "Chicken Shawerma",
+        nameAr: "شاورما الدجاج",
+        modelSrc: "models/chickenShawerma.glb",
+        description: "Traditional chicken shawerma with garlic sauce and pickles.",
+        descriptionAr: "شاورما دجاج تقليدية مع صلصة الثوم والمخلل.",
+        price: 12.99,
+        category: "middle-eastern",
         mainCategory: "food"
       },
-
-      // FOOD - Pasta & Specialty Dishes
-      {
-        name: "Penne Arrabbiata",
-        nameAr: "بيني أرابياتا",
-        modelSrc: "./models/pennaArabita_.glb",
-        description: "Penne pasta in spicy tomato sauce with garlic, red peppers, and herbs.",
-        descriptionAr: "معكرونة بيني في صلصة طماطم حارة مع ثوم وفلفل أحمر وأعشاب.",
-        price: 13.49,
-        category: "pasta",
-        mainCategory: "food"
-      },
-      {
-        name: "Mac and Cheese",
-        nameAr: "ماك آند تشيز",
-        modelSrc: "./models/macAndCheese.glb",
-        description: "Creamy macaroni pasta with a rich cheese sauce and crispy breadcrumb topping.",
-        descriptionAr: "معكرونة مكروني كريمية مع صلصة جبن غنية وطبقة فتات خبز مقرمشة.",
-        price: 11.99,
-        category: "pasta",
-        mainCategory: "food"
-      },
-      {
-        name: "Yalanji",
-        nameAr: "يلنجي",
-        modelSrc: "./models/yalanji.glb",
-        description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
-        descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطية.",
-        price: 10.99,
-        category: "appetizers",
-        mainCategory: "food"
-      },
-
-      // FOOD - Seafood & Appetizers
-      {
-        name: "Seafood Bowl",
-        nameAr: "وعاء المأكولات البحرية",
-        modelSrc: "./models/seaFoodBowl_.glb",
-        description: "Fresh seafood medley with shrimp, fish, and vegetables in aromatic broth.",
-        descriptionAr: "خليط مأكولات بحرية طازجة مع روبيان وسمك وخضار في مرق عطري.",
-        price: 19.99,
-        category: "seafood",
-        mainCategory: "food"
-      },
-      {
-        name: "Dynamite Shrimp",
-        nameAr: "روبيان ديناميت",
-        modelSrc: "./models/dynamiteShrimp.glb",
-        description: "Crispy fried shrimp tossed in our signature dynamite sauce.",
-        descriptionAr: "روبيان مقلي مقرمش مغطى بصلصة الديناميت المميزة لدينا.",
-        price: 15.99,
-        category: "seafood",
-        mainCategory: "food"
-      },
-
-      // FOOD - Sides & Appetizers
+      
+      // FOOD - Appetizers & Sides
       {
         name: "Chicken Tenders",
-        nameAr: "أصابع دجاج",
-        modelSrc: "./models/chickenTender.glb",
-        description: "Crispy breaded chicken strips served with honey mustard and BBQ sauce.",
-        descriptionAr: "أصابع دجاج مقرمشة مغلفة بالبقسماط تقدم مع خردل بالعسل وصلصة باربكيو.",
+        nameAr: "أصابع الدجاج",
+        modelSrc: "models/chickenTender.glb",
+        description: "Crispy chicken tenders served with honey mustard sauce.",
+        descriptionAr: "أصابع دجاج مقرمشة تُقدم مع صلصة العسل والخردل.",
         price: 9.99,
         category: "appetizers",
         mainCategory: "food"
       },
       {
-        name: "Mozzarella Sticks",
-        nameAr: "أصابع موزاريلا",
-        modelSrc: "./models/mozzerellaSticks_.glb",
-        description: "Golden fried mozzarella cheese sticks with marinara dipping sauce.",
-        descriptionAr: "أصابع جبنة موزاريلا مقلية ذهبية مع صلصة مارينارا للغمس.",
-        price: 8.99,
-        category: "appetizers",
-        mainCategory: "food"
-      },
-      {
-        name: "Onion Rings",
-        nameAr: "حلقات البصل",
-        modelSrc: "./models/onionRings_.glb",
-        description: "Crispy beer-battered onion rings served with ranch dipping sauce.",
-        descriptionAr: "حلقات بصل مقرمشة مغلفة بعجينة البيرة تقدم مع صلصة الرانش.",
-        price: 7.99,
+        name: "Dynamite Shrimp",
+        nameAr: "جمبري ديناميت",
+        modelSrc: "models/dynamiteShrimp.glb",
+        description: "Crispy shrimp with spicy dynamite sauce and fresh herbs.",
+        descriptionAr: "جمبري مقرمش مع صلصة ديناميت حارة وأعشاب طازجة.",
+        price: 14.99,
         category: "appetizers",
         mainCategory: "food"
       },
       {
         name: "Hash Browns",
         nameAr: "هاش براون",
-        modelSrc: "./models/hashBrown.glb",
-        description: "Golden crispy shredded potato patties, perfect for breakfast or as a side.",
-        descriptionAr: "فطائر بطاطس مبشورة مقرمشة ذهبية، مثالية للإفطار أو كطبق جانبي.",
+        modelSrc: "models/hashBrown.glb",
+        description: "Golden crispy hash browns, perfect for breakfast or as a side.",
+        descriptionAr: "هاش براون ذهبي مقرمش، مثالي للإفطار أو كطبق جانبي.",
+        price: 5.99,
+        category: "sides",
+        mainCategory: "food"
+      },
+      {
+        name: "Mac and Cheese",
+        nameAr: "مكرونة بالجبن",
+        modelSrc: "models/macAndCheese.glb",
+        description: "Creamy macaroni and cheese with a golden crust.",
+        descriptionAr: "مكرونة كريمية بالجبن مع قشرة ذهبية.",
+        price: 8.99,
+        category: "sides",
+        mainCategory: "food"
+      },
+      {
+        name: "Mozzarella Sticks",
+        nameAr: "أصابع الموزاريلا",
+        modelSrc: "models/mozzerellaSticks_.glb",
+        description: "Crispy breaded mozzarella sticks with marinara sauce.",
+        descriptionAr: "أصابع موزاريلا مقرمشة مع صلصة المارينارا.",
+        price: 7.99,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Onion Rings",
+        nameAr: "حلقات البصل",
+        modelSrc: "models/onionRings_.glb",
+        description: "Golden crispy onion rings served with ranch dressing.",
+        descriptionAr: "حلقات بصل ذهبية مقرمشة تُقدم مع صلصة الرانش.",
         price: 6.99,
         category: "sides",
         mainCategory: "food"
       },
       {
-        name: "Halloumi Cheese",
-        nameAr: "جبنة حلوم",
-        modelSrc: "./models/hallomi.glb",
-        description: "Grilled halloumi cheese served with fresh herbs and olive oil drizzle.",
-        descriptionAr: "جبنة حلوم مشوية تقدم مع أعشاب طازجة ورذاذ زيت الزيتون.",
-        price: 9.49,
+        name: "Halloumi",
+        nameAr: "حلومي",
+        modelSrc: "models/hallomi.glb",
+        description: "Grilled halloumi cheese with olive oil and herbs.",
+        descriptionAr: "جبنة حلومي مشوية مع زيت الزيتون والأعشاب.",
+        price: 8.49,
         category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Yalanji",
+        nameAr: "يلنجي",
+        modelSrc: "models/yalanji.glb",
+        description: "Traditional stuffed grape leaves with rice and herbs.",
+        descriptionAr: "ورق عنب محشي تقليدي بالأرز والأعشاب.",
+        price: 9.99,
+        category: "middle-eastern",
+        mainCategory: "food"
+      },
+      
+      // FOOD - Salads
+      {
+        name: "Chicken Dynamite Salad",
+        nameAr: "سلطة دجاج ديناميت",
+        modelSrc: "models/chickenDynamiteSalad.glb",
+        description: "Mixed greens with spicy chicken, cherry tomatoes, and dynamite dressing.",
+        descriptionAr: "خضار مشكلة مع دجاج حار، طماطم كرزية، وصلصة ديناميت.",
+        price: 12.99,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Halloumi Salad",
+        nameAr: "سلطة حلومي",
+        modelSrc: "models/hallomiSalad.glb",
+        description: "Fresh salad with grilled halloumi, olives, and Mediterranean herbs.",
+        descriptionAr: "سلطة طازجة مع حلومي مشوي، زيتون، وأعشاب البحر الأبيض المتوسط.",
+        price: 11.99,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Smoked Salmon Salad",
+        nameAr: "سلطة السلمون المدخن",
+        modelSrc: "models/smokedSalmonSalad.glb",
+        description: "Premium smoked salmon with mixed greens, capers, and lemon dressing.",
+        descriptionAr: "سلمون مدخن فاخر مع خضار مشكلة، كبار، وصلصة الليمون.",
+        price: 16.99,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Taco Salad",
+        nameAr: "سلطة التاكو",
+        modelSrc: "models/tacoSalad.glb",
+        description: "Mexican-style salad with seasoned ground beef, corn, and spicy dressing.",
+        descriptionAr: "سلطة مكسيكية مع لحم مفروم متبل، ذرة، وصلصة حارة.",
+        price: 13.49,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Waffle Salad",
+        nameAr: "سلطة الوافل",
+        modelSrc: "models/waffleSalad.glb",
+        description: "Unique salad served in a crispy waffle bowl with mixed greens and fruits.",
+        descriptionAr: "سلطة فريدة تُقدم في وعاء وافل مقرمش مع خضار وفواكه مشكلة.",
+        price: 11.49,
+        category: "salads",
+        mainCategory: "food"
+      },
+      
+      // FOOD - Bowls & Platters
+      {
+        name: "Sea Food Bowl",
+        nameAr: "وعاء المأكولات البحرية",
+        modelSrc: "models/seaFoodBowl_.glb",
+        description: "Fresh seafood bowl with rice, vegetables, and special sauce.",
+        descriptionAr: "وعاء مأكولات بحرية طازجة مع أرز، خضار، وصلصة خاصة.",
+        price: 19.99,
+        category: "bowls",
         mainCategory: "food"
       },
       {
         name: "Food Platter",
         nameAr: "طبق مشكل",
-        modelSrc: "./models/foodPlatter_.glb",
-        description: "Assorted appetizers and finger foods perfect for sharing.",
-        descriptionAr: "مقبلات وأطعمة متنوعة مثالية للمشاركة.",
+        modelSrc: "models/foodPlatter_.glb",
+        description: "Mixed platter with grilled meats, vegetables, and traditional sides.",
+        descriptionAr: "طبق مشكل مع لحوم مشوية، خضار، وأطباق جانبية تقليدية.",
         price: 22.99,
-        category: "appetizers",
+        category: "platters",
+        mainCategory: "food"
+      },
+      
+      // FOOD - Italian Specialties
+      {
+        name: "Calzone",
+        nameAr: "كالزوني",
+        modelSrc: "models/Calezone.glb",
+        description: "Folded pizza filled with ricotta, mozzarella, and your choice of toppings.",
+        descriptionAr: "بيتزا مطوية محشوة بجبنة ريكوتا وموزاريلا واختيارك من الإضافات.",
+        price: 15.49,
+        category: "pizza",
         mainCategory: "food"
       },
       
       // DRINKS - Hot Drinks
       {
         name: "Hot Chocolate",
-        modelSrc: "./models/Rose Pasta.glb", // Updated to correct model filename
+        nameAr: "شوكولاتة ساخنة",
+        modelSrc: "models/Rose Pasta.glb",
         description: "Rich and creamy hot chocolate topped with marshmallows and whipped cream.",
+        descriptionAr: "شوكولاتة ساخنة غنية وكريمية مع مارشميلو وكريمة مخفوقة.",
         price: 3.99,
         category: "hot-drinks",
         mainCategory: "drinks"
       },
       {
         name: "Cappuccino",
-        modelSrc: "./models/Margherita Pizza.glb", // Using existing model as placeholder
+        nameAr: "كابتشينو",
+        modelSrc: "models/Margherita Pizza.glb",
         description: "Espresso with steamed milk and a silky microfoam.",
+        descriptionAr: "إسبريسو مع حليب مبخر ورغوة حريرية.",
         price: 4.49,
         category: "hot-drinks",
         mainCategory: "drinks"
@@ -6405,16 +6417,20 @@
       // DRINKS - Cold Drinks
       {
         name: "Iced Mocha",
-        modelSrc: "./models/Margherita Pizza.glb", // Using existing model as placeholder
+        nameAr: "موكا مثلجة",
+        modelSrc: "models/Margherita Pizza.glb",
         description: "Chilled espresso with chocolate, milk, and ice, topped with whipped cream.",
+        descriptionAr: "إسبريسو مبرد مع شوكولاتة، حليب، وثلج، مغطى بكريمة مخفوقة.",
         price: 4.99,
         category: "cold-drinks",
         mainCategory: "drinks"
       },
       {
         name: "Lemonade",
-        modelSrc: "./models/Pepperoni Pizza.glb", // Using existing model as placeholder
+        nameAr: "عصير ليمون",
+        modelSrc: "models/Pepperoni Pizza.glb",
         description: "Freshly squeezed lemons with sparkling water and a touch of sweetness.",
+        descriptionAr: "ليمون طازج معصور مع ماء فوار ولمسة حلاوة.",
         price: 3.49,
         category: "cold-drinks",
         mainCategory: "drinks"
@@ -6423,16 +6439,20 @@
       // DRINKS - Smoothies
       {
         name: "Berry Blast Smoothie",
-        modelSrc: "./models/Fettuccine Alfredo.glb", // Updated to correct model filename
+        nameAr: "سموذي انفجار التوت",
+        modelSrc: "models/Fettuccine Alfredo.glb",
         description: "Mixed berries, yogurt, and honey blended with ice for a refreshing treat.",
+        descriptionAr: "توت مشكل، زبادي، وعسل مخلوطة مع الثلج لمشروب منعش.",
         price: 5.99,
         category: "smoothies",
         mainCategory: "drinks"
       },
       {
         name: "Tropical Paradise Smoothie",
-        modelSrc: "./models/Rose Pasta.glb", // Updated to correct model filename
+        nameAr: "سموذي الجنة الاستوائية",
+        modelSrc: "models/Rose Pasta.glb",
         description: "Mango, pineapple, and banana blended with coconut milk and ice.",
+        descriptionAr: "مانجو، أناناس، وموز مخلوطة مع حليب جوز الهند والثلج.",
         price: 6.49,
         category: "smoothies",
         mainCategory: "drinks"
@@ -6441,16 +6461,20 @@
       // DESSERTS - Cakes
       {
         name: "Chocolate Cake",
-        modelSrc: "models/Margherita Pizza.glb", // Using existing model as placeholder
+        nameAr: "كيكة الشوكولاتة",
+        modelSrc: "models/Margherita Pizza.glb",
         description: "Decadent chocolate cake with a rich chocolate ganache and berries.",
+        descriptionAr: "كيكة شوكولاتة فاخرة مع غاناش شوكولاتة غني وتوت.",
         price: 6.99,
         category: "cakes",
         mainCategory: "desserts"
       },
       {
         name: "Red Velvet Cake",
-        modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
+        nameAr: "كيكة الريد فيلفيت",
+        modelSrc: "models/Pepperoni Pizza.glb",
         description: "Moist red velvet cake with cream cheese frosting and white chocolate shavings.",
+        descriptionAr: "كيكة ريد فيلفيت رطبة مع كريمة الجبن وشرائح الشوكولاتة البيضاء.",
         price: 7.49,
         category: "cakes",
         mainCategory: "desserts"
@@ -6459,16 +6483,20 @@
       // DESSERTS - Ice Cream
       {
         name: "Vanilla Bean Ice Cream",
-        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to correct model filename
+        nameAr: "آيس كريم الفانيليا",
+        modelSrc: "models/Fettuccine Alfredo.glb",
         description: "Creamy vanilla bean ice cream served with a wafer cookie.",
+        descriptionAr: "آيس كريم فانيليا كريمي يُقدم مع بسكويت الويفر.",
         price: 4.99,
         category: "ice-cream",
         mainCategory: "desserts"
       },
       {
         name: "Tiramisu",
-        modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
+        nameAr: "تيراميسو",
+        modelSrc: "models/Pepperoni Pizza.glb",
         description: "Classic Italian dessert with layers of coffee-soaked ladyfingers and mascarpone cream.",
+        descriptionAr: "حلوى إيطالية كلاسيكية مع طبقات من أصابع السيدة المنقوعة في القهوة وكريمة الماسكاربوني.",
         price: 7.99,
         category: "cakes",
         mainCategory: "desserts"
@@ -7533,7 +7561,20 @@
           hotFood: "Hot Food",
           coldFood: "Cold Food",
           drinks: "Drinks",
-          desserts: "Desserts"
+          desserts: "Desserts",
+          // Food categories
+          pizza: "Pizza",
+          pasta: "Pasta",
+          burgers: "Burgers",
+          sandwiches: "Sandwiches",
+          mexican: "Mexican",
+          grilled: "Grilled",
+          middleEastern: "Middle Eastern",
+          appetizers: "Appetizers",
+          sides: "Sides",
+          salads: "Salads",
+          bowls: "Bowls",
+          platters: "Platters"
         },
         ar: {
           title: "ذا أوك كافيه",
@@ -7607,6 +7648,19 @@
           coldFood: "طعام بارد",
           drinks: "مشروبات",
           desserts: "حلويات",
+          // Food categories
+          pizza: "بيتزا",
+          pasta: "باستا",
+          burgers: "برجر",
+          sandwiches: "ساندويشات",
+          mexican: "مكسيكي",
+          grilled: "مشويات",
+          middleEastern: "شرق أوسطي",
+          appetizers: "مقبلات",
+          sides: "أطباق جانبية",
+          salads: "سلطات",
+          bowls: "أوعية",
+          platters: "أطباق مشكلة",
           // Advanced Analytics translations
           advancedAnalytics: "تحليلات متقدمة",
           analyticsTitle: "لوحة التحليلات المتقدمة",
@@ -7867,14 +7921,30 @@
       const allFoodBtn = document.getElementById('all-food-btn');
       const pizzaCategoryBtn = document.getElementById('pizza-category-btn');
       const pastaCategoryBtn = document.getElementById('pasta-category-btn');
-      const saladsCategoryBtn = document.getElementById('salads-category-btn');
       const burgersCategoryBtn = document.getElementById('burgers-category-btn');
+      const sandwichesCategoryBtn = document.getElementById('sandwiches-category-btn');
+      const mexicanCategoryBtn = document.getElementById('mexican-category-btn');
+      const grilledCategoryBtn = document.getElementById('grilled-category-btn');
+      const middleEasternCategoryBtn = document.getElementById('middle-eastern-category-btn');
+      const appetizersCategoryBtn = document.getElementById('appetizers-category-btn');
+      const sidesCategoryBtn = document.getElementById('sides-category-btn');
+      const saladsCategoryBtn = document.getElementById('salads-category-btn');
+      const bowlsCategoryBtn = document.getElementById('bowls-category-btn');
+      const plattersCategoryBtn = document.getElementById('platters-category-btn');
       
       if (allFoodBtn) allFoodBtn.textContent = currentLanguage === 'ar' ? 'كل الطعام' : 'All Food';
       if (pizzaCategoryBtn) pizzaCategoryBtn.textContent = currentLanguage === 'ar' ? 'بيتزا' : 'Pizza';
       if (pastaCategoryBtn) pastaCategoryBtn.textContent = currentLanguage === 'ar' ? 'باستا' : 'Pasta';
-      if (saladsCategoryBtn) saladsCategoryBtn.textContent = currentLanguage === 'ar' ? 'سلطات' : 'Salads';
       if (burgersCategoryBtn) burgersCategoryBtn.textContent = currentLanguage === 'ar' ? 'برجر' : 'Burgers';
+      if (sandwichesCategoryBtn) sandwichesCategoryBtn.textContent = currentLanguage === 'ar' ? 'ساندويشات' : 'Sandwiches';
+      if (mexicanCategoryBtn) mexicanCategoryBtn.textContent = currentLanguage === 'ar' ? 'مكسيكي' : 'Mexican';
+      if (grilledCategoryBtn) grilledCategoryBtn.textContent = currentLanguage === 'ar' ? 'مشويات' : 'Grilled';
+      if (middleEasternCategoryBtn) middleEasternCategoryBtn.textContent = currentLanguage === 'ar' ? 'شرق أوسطي' : 'Middle Eastern';
+      if (appetizersCategoryBtn) appetizersCategoryBtn.textContent = currentLanguage === 'ar' ? 'مقبلات' : 'Appetizers';
+      if (sidesCategoryBtn) sidesCategoryBtn.textContent = currentLanguage === 'ar' ? 'أطباق جانبية' : 'Sides';
+      if (saladsCategoryBtn) saladsCategoryBtn.textContent = currentLanguage === 'ar' ? 'سلطات' : 'Salads';
+      if (bowlsCategoryBtn) bowlsCategoryBtn.textContent = currentLanguage === 'ar' ? 'أوعية' : 'Bowls';
+      if (plattersCategoryBtn) plattersCategoryBtn.textContent = currentLanguage === 'ar' ? 'أطباق مشكلة' : 'Platters';
       
       // Update drinks subcategory buttons
       const allDrinksBtn = document.getElementById('all-drinks-btn');
@@ -7914,9 +7984,16 @@
     function preloadModels() {
       // List of available models (from the models folder)
       const availableModels = [
+        'Fettuccine Alfredo.glb',
+        'Margherita Pizza.glb',
+        'Pepperoni Pizza.glb',
+        'Pesto Pasta.glb',
+        'Rose Pasta.glb',
+        'Sea Food Pasta.glb',
+        'Calezone.glb',
+        'Steak.glb',
         'beefBurger.glb',
         'beefFahita.glb',
-        'celezone.glb',
         'cheeseSteakSandwich.glb',
         'chickenDynamiteSalad.glb',
         'chickenFajita.glb',
@@ -7926,7 +8003,6 @@
         'chickenZingerSandwich.glb',
         'crispyChickenBurger.glb',
         'dynamiteShrimp.glb',
-        'Fettuccine Alfredo.glb',
         'foodPlatter_.glb',
         'grilledChicken.glb',
         'hallomi.glb',
@@ -7934,18 +8010,12 @@
         'halloumiSandwich_.glb',
         'hashBrown.glb',
         'macAndCheese.glb',
-        'Margherita Pizza.glb',
         'mozzerellaSticks_.glb',
         'onionRings_.glb',
         'pennaArabita_.glb',
-        'Pepperoni Pizza.glb',
         'pestoChickenPizza.glb',
-        'Pesto Pasta.glb',
-        'Rose Pasta.glb',
         'seaFoodBowl_.glb',
-        'Sea Food Pasta.glb',
         'smokedSalmonSalad.glb',
-        'Steak.glb',
         'tacoSalad.glb',
         'waffleSalad.glb',
         'yalanji.glb'
@@ -7953,50 +8023,30 @@
       
       // Map menu items to their models (if available)
       foodItems.forEach(item => {
-        // If item already has a modelSrc defined, check if that model exists
-        if (item.modelSrc) {
-          // Extract filename from the existing modelSrc path
-          const existingFilename = item.modelSrc.split('/').pop();
-          
-          // Check if this model exists in our available models list
-          if (availableModels.includes(existingFilename)) {
-            // Model exists, keep the existing path but ensure it starts with /models/
-            if (!item.modelSrc.startsWith('/models/')) {
-              item.modelSrc = `/models/${existingFilename}`;
-            }
-            console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
-          } else {
-            // Model doesn't exist, try to find alternative matches
-            const itemName = item.name.replace(/\s+/g, ' ').trim();
-            const alternativeMatch = availableModels.find(model => 
-              model === `${itemName}.glb` || 
-              model.toLowerCase() === `${itemName.toLowerCase()}.glb` ||
-              model.toLowerCase().includes(itemName.toLowerCase().replace(/\s+/g, '').substring(0, 8))
-            );
-            
-            if (alternativeMatch) {
-              item.modelSrc = `/models/${alternativeMatch}`;
-              console.log(`Mapped ${item.name} to alternative model: ${item.modelSrc}`);
-            } else {
-              item.modelSrc = null;
-              console.log(`No model available for: ${item.name}`);
-            }
-          }
+        // Create multiple potential file name variations to match
+        const itemName = item.name.replace(/\s+/g, ' ').trim();
+        const nameVariations = [
+          `${itemName}.glb`, // Exact match with spaces
+          `${itemName.replace(/\s+/g, '')}.glb`, // No spaces (camelCase start)
+          `${itemName.replace(/\s+/g, '').toLowerCase()}.glb`, // lowercase no spaces
+          `${itemName.toLowerCase().replace(/\s+/g, '')}.glb`, // lowercase no spaces alt
+          `${itemName.replace(/\s+/g, '').replace(/^./, c => c.toLowerCase())}.glb`, // camelCase
+          `${itemName.split(' ').map((word, idx) => idx === 0 ? word.toLowerCase() : word).join('')}.glb` // true camelCase
+        ];
+        
+        const exactModelMatch = availableModels.find(model => 
+          nameVariations.includes(model) || 
+          model.toLowerCase() === itemName.toLowerCase().replace(/\s+/g, '') + '.glb'
+        );
+        
+        if (exactModelMatch) {
+          // Set the model path to the exact match
+          item.modelSrc = `/models/${exactModelMatch}`;
+          console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
         } else {
-          // No modelSrc defined, try to find a match based on item name
-          const itemName = item.name.replace(/\s+/g, ' ').trim();
-          const nameMatch = availableModels.find(model => 
-            model === `${itemName}.glb` || 
-            model.toLowerCase() === `${itemName.toLowerCase()}.glb` ||
-            model.toLowerCase().includes(itemName.toLowerCase().replace(/\s+/g, '').substring(0, 8))
-          );
-          
-          if (nameMatch) {
-            item.modelSrc = `/models/${nameMatch}`;
-            console.log(`Mapped ${item.name} to name-based model: ${item.modelSrc}`);
-          } else {
-            console.log(`No model available for: ${item.name}`);
-          }
+          // No exact match found, clear model src
+          item.modelSrc = null;
+          console.log(`No model available for: ${item.name}`);
         }
       });
       
