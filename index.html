@@ -6293,7 +6293,7 @@
       {
         name: "Yalanji",
         nameAr: "يلنجي",
-        modelSrc: "models/yalanji.glb",
+        modelSrc: "models/yalanji",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
         descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطية.",
         price: 10.99,
@@ -7977,7 +7977,7 @@
     
     // Preload all 3D models
     function preloadModels() {
-      // List of available models (from the models folder)
+      // List of available models (from the models folder) - exact filenames from user
       const availableModels = [
         'Fatet Makdus Breakfast.glb',
         'Fettuccine Alfredo.glb',
@@ -8018,36 +8018,44 @@
         'smokedSalmonSalad.glb',
         'tacoSalad.glb',
         'waffleSalad.glb',
-        'yalanji.glb',
+        'yalanji',
         'celezone.glb'
       ];
       
-      // Map menu items to their models (if available)
+      // Smart model mapping that handles models with and without .glb extension
       foodItems.forEach(item => {
         // If item already has a modelSrc defined, check if that model exists
         if (item.modelSrc) {
           // Extract filename from the existing modelSrc path
           const existingFilename = item.modelSrc.split('/').pop();
           
-          // Check if this model exists in our available models list
-          if (availableModels.includes(existingFilename)) {
-            // Model exists, keep the existing path but ensure it starts with /models/
-            if (!item.modelSrc.startsWith('/models/')) {
-              item.modelSrc = `/models/${existingFilename}`;
-            }
+          // Check if this exact model exists in our available models list
+          let foundModel = availableModels.find(model => model === existingFilename);
+          
+          // If not found with exact match, try without .glb extension or adding .glb
+          if (!foundModel) {
+            const baseFilename = existingFilename.replace('.glb', '');
+            foundModel = availableModels.find(model => 
+              model === baseFilename || 
+              model === `${baseFilename}.glb`
+            );
+          }
+          
+          if (foundModel) {
+            item.modelSrc = `/models/${foundModel}`;
             console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
           } else {
-            // Model doesn't exist, try to find alternative matches
-            const itemName = item.name.replace(/\s+/g, ' ').trim();
-            const alternativeMatch = availableModels.find(model => 
-              model === `${itemName}.glb` || 
-              model.toLowerCase() === `${itemName.toLowerCase()}.glb` ||
-              model.toLowerCase().includes(itemName.toLowerCase().replace(/\s+/g, '').substring(0, 8))
-            );
+            // Try fuzzy matching based on item name
+            const itemName = item.name.replace(/\s+/g, '').toLowerCase();
+            const fuzzyMatch = availableModels.find(model => {
+              const modelName = model.replace('.glb', '').replace(/\s+/g, '').toLowerCase();
+              return modelName.includes(itemName.substring(0, 8)) || 
+                     itemName.includes(modelName.substring(0, 8));
+            });
             
-            if (alternativeMatch) {
-              item.modelSrc = `/models/${alternativeMatch}`;
-              console.log(`Mapped ${item.name} to alternative model: ${item.modelSrc}`);
+            if (fuzzyMatch) {
+              item.modelSrc = `/models/${fuzzyMatch}`;
+              console.log(`Mapped ${item.name} to fuzzy match: ${item.modelSrc}`);
             } else {
               item.modelSrc = null;
               console.log(`No model available for: ${item.name}`);
@@ -8055,12 +8063,23 @@
           }
         } else {
           // No modelSrc defined, try to find a match based on item name
-          const itemName = item.name.replace(/\s+/g, ' ').trim();
-          const nameMatch = availableModels.find(model => 
-            model === `${itemName}.glb` || 
-            model.toLowerCase() === `${itemName.toLowerCase()}.glb` ||
-            model.toLowerCase().includes(itemName.toLowerCase().replace(/\s+/g, '').substring(0, 8))
-          );
+          const itemName = item.name.replace(/\s+/g, '').toLowerCase();
+          
+          // Try exact matches first
+          let nameMatch = availableModels.find(model => {
+            const modelName = model.replace('.glb', '').replace(/\s+/g, '').toLowerCase();
+            return modelName === itemName || 
+                   model.toLowerCase() === `${item.name.toLowerCase()}.glb`;
+          });
+          
+          // If no exact match, try fuzzy matching
+          if (!nameMatch) {
+            nameMatch = availableModels.find(model => {
+              const modelName = model.replace('.glb', '').replace(/\s+/g, '').toLowerCase();
+              return modelName.includes(itemName.substring(0, 8)) || 
+                     itemName.includes(modelName.substring(0, 8));
+            });
+          }
           
           if (nameMatch) {
             item.modelSrc = `/models/${nameMatch}`;
