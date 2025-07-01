@@ -4771,6 +4771,7 @@
             <div class="subcategory-label">Food Types</div>
             <div class="subcategory-buttons">
               <button class="category-btn active" data-category="all-food" data-parent="food" id="all-food-btn" onclick="changeCategory('all-food')">All Food</button>
+              <button class="category-btn" data-category="breakfast" data-parent="food" id="breakfast-category-btn" onclick="changeCategory('breakfast')">Breakfast</button>
               <button class="category-btn" data-category="pizza" data-parent="food" id="pizza-category-btn" onclick="changeCategory('pizza')">Pizza</button>
               <button class="category-btn" data-category="pasta" data-parent="food" id="pasta-category-btn" onclick="changeCategory('pasta')">Pasta</button>
               <button class="category-btn" data-category="salads" data-parent="food" id="salads-category-btn" onclick="changeCategory('salads')">Salads</button>
@@ -6282,7 +6283,7 @@
       {
         name: "Mac and Cheese",
         nameAr: "ماك آند تشيز",
-        modelSrc: "models/macAndCheese",
+        modelSrc: "models/macAndCheese.glb",
         description: "Creamy macaroni pasta with a rich cheese sauce and crispy breadcrumb topping.",
         descriptionAr: "معكرونة مكروني كريمية مع صلصة جبن غنية وطبقة فتات خبز مقرمشة.",
         price: 11.99,
@@ -6292,7 +6293,7 @@
       {
         name: "Yalanji",
         nameAr: "يلنجي",
-        modelSrc: "models/yalanji",
+        modelSrc: "models/yalanji.glb",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
         descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطية.",
         price: 10.99,
@@ -6304,7 +6305,7 @@
       {
         name: "Seafood Bowl",
         nameAr: "وعاء المأكولات البحرية",
-        modelSrc: "models/seaFoodBowl_",
+        modelSrc: "models/seaFoodBowl_.glb",
         description: "Fresh seafood medley with shrimp, fish, and vegetables in aromatic broth.",
         descriptionAr: "خليط مأكولات بحرية طازجة مع روبيان وسمك وخضار في مرق عطري.",
         price: 19.99,
@@ -6314,7 +6315,7 @@
       {
         name: "Dynamite Shrimp",
         nameAr: "روبيان ديناميت",
-        modelSrc: "models/dynamiteShrimp",
+        modelSrc: "models/dynamiteShrimp.glb",
         description: "Crispy fried shrimp tossed in our signature dynamite sauce.",
         descriptionAr: "روبيان مقلي مقرمش مغطى بصلصة الديناميت المميزة لدينا.",
         price: 15.99,
@@ -6472,6 +6473,68 @@
         price: 7.99,
         category: "cakes",
         mainCategory: "desserts"
+      },
+
+      // BREAKFAST - Traditional Lebanese
+      {
+        name: "Fatet Makdus Breakfast",
+        nameAr: "فتة مقدوس للإفطار",
+        modelSrc: "models/Fatet Makdus Breakfast.glb",
+        description: "Traditional Lebanese breakfast with eggplant, yogurt, crispy bread, and tahini.",
+        descriptionAr: "إفطار لبناني تقليدي مع الباذنجان واللبن والخبز المحمص والطحينة.",
+        price: 12.99,
+        category: "breakfast",
+        mainCategory: "food"
+      },
+      {
+        name: "Korat AlJebna Breakfast",
+        nameAr: "كورات الجبنة للإفطار",
+        modelSrc: "models/Korat AlJebna Breakfast.glb",
+        description: "Cheese balls served with fresh vegetables, olives, and traditional Lebanese bread.",
+        descriptionAr: "كرات الجبنة تقدم مع الخضار الطازجة والزيتون والخبز اللبناني التقليدي.",
+        price: 11.99,
+        category: "breakfast",
+        mainCategory: "food"
+      },
+      {
+        name: "Makdus Breakfast",
+        nameAr: "مقدوس للإفطار",
+        modelSrc: "models/Makdus Breakfast.glb",
+        description: "Pickled baby eggplant stuffed with walnuts, garlic, and herbs, served with bread.",
+        descriptionAr: "باذنجان صغير مخلل محشو بالجوز والثوم والأعشاب، يقدم مع الخبز.",
+        price: 10.99,
+        category: "breakfast",
+        mainCategory: "food"
+      },
+      {
+        name: "Maqdus Salad Breakfast",
+        nameAr: "سلطة مقدوس للإفطار",
+        modelSrc: "models/Maqdus Salad Breakfast.glb",
+        description: "Fresh salad with pickled eggplant, tomatoes, onions, and traditional dressing.",
+        descriptionAr: "سلطة طازجة مع الباذنجان المخلل والطماطم والبصل وتتبيلة تقليدية.",
+        price: 9.99,
+        category: "breakfast",
+        mainCategory: "food"
+      },
+      {
+        name: "Mtabal Baba Ghanooj Breakfast",
+        nameAr: "متبل بابا غنوج للإفطار",
+        modelSrc: "models/Mtabal Baba Ghanooj Breakfast.glb",
+        description: "Creamy eggplant dip with tahini, lemon, and garlic, served with fresh bread.",
+        descriptionAr: "غموس الباذنجان الكريمي مع الطحينة والليمون والثوم، يقدم مع الخبز الطازج.",
+        price: 8.99,
+        category: "breakfast",
+        mainCategory: "food"
+      },
+      {
+        name: "Mtabal Breakfast",
+        nameAr: "متبل للإفطار",
+        modelSrc: "models/Mtabal Breakfast.glb",
+        description: "Traditional Lebanese eggplant spread with olive oil, pomegranate, and herbs.",
+        descriptionAr: "دهان الباذنجان اللبناني التقليدي مع زيت الزيتون والرمان والأعشاب.",
+        price: 8.49,
+        category: "breakfast",
+        mainCategory: "food"
       }
     ];
     
@@ -7865,12 +7928,14 @@
 
       // Update food subcategory buttons
       const allFoodBtn = document.getElementById('all-food-btn');
+      const breakfastCategoryBtn = document.getElementById('breakfast-category-btn');
       const pizzaCategoryBtn = document.getElementById('pizza-category-btn');
       const pastaCategoryBtn = document.getElementById('pasta-category-btn');
       const saladsCategoryBtn = document.getElementById('salads-category-btn');
       const burgersCategoryBtn = document.getElementById('burgers-category-btn');
       
       if (allFoodBtn) allFoodBtn.textContent = currentLanguage === 'ar' ? 'كل الطعام' : 'All Food';
+      if (breakfastCategoryBtn) breakfastCategoryBtn.textContent = currentLanguage === 'ar' ? 'فطور' : 'Breakfast';
       if (pizzaCategoryBtn) pizzaCategoryBtn.textContent = currentLanguage === 'ar' ? 'بيتزا' : 'Pizza';
       if (pastaCategoryBtn) pastaCategoryBtn.textContent = currentLanguage === 'ar' ? 'باستا' : 'Pasta';
       if (saladsCategoryBtn) saladsCategoryBtn.textContent = currentLanguage === 'ar' ? 'سلطات' : 'Salads';
@@ -7914,9 +7979,21 @@
     function preloadModels() {
       // List of available models (from the models folder)
       const availableModels = [
+        'Fatet Makdus Breakfast.glb',
+        'Fettuccine Alfredo.glb',
+        'Korat AlJebna Breakfast.glb',
+        'Makdus Breakfast.glb',
+        'Maqdus Salad Breakfast.glb',
+        'Margherita Pizza.glb',
+        'Mtabal Baba Ghanooj Breakfast.glb',
+        'Mtabal Breakfast.glb',
+        'Pepperoni Pizza.glb',
+        'Pesto Pasta.glb',
+        'Rose Pasta.glb',
+        'Sea Food Pasta.glb',
+        'Steak.glb',
         'beefBurger.glb',
         'beefFahita.glb',
-        'celezone.glb',
         'cheeseSteakSandwich.glb',
         'chickenDynamiteSalad.glb',
         'chickenFajita.glb',
@@ -7926,7 +8003,6 @@
         'chickenZingerSandwich.glb',
         'crispyChickenBurger.glb',
         'dynamiteShrimp.glb',
-        'Fettuccine Alfredo.glb',
         'foodPlatter_.glb',
         'grilledChicken.glb',
         'hallomi.glb',
@@ -7934,21 +8010,16 @@
         'halloumiSandwich_.glb',
         'hashBrown.glb',
         'macAndCheese.glb',
-        'Margherita Pizza.glb',
         'mozzerellaSticks_.glb',
         'onionRings_.glb',
         'pennaArabita_.glb',
-        'Pepperoni Pizza.glb',
         'pestoChickenPizza.glb',
-        'Pesto Pasta.glb',
-        'Rose Pasta.glb',
         'seaFoodBowl_.glb',
-        'Sea Food Pasta.glb',
         'smokedSalmonSalad.glb',
-        'Steak.glb',
         'tacoSalad.glb',
         'waffleSalad.glb',
-        'yalanji.glb'
+        'yalanji.glb',
+        'celezone.glb'
       ];
       
       // Map menu items to their models (if available)
