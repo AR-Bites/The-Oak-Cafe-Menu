@@ -7914,25 +7914,11 @@
     
     // Preload all 3D models
     function preloadModels() {
-      // List of available models (EXACT filenames as specified by user)
+      // List of available models (EXACT filenames from user - without .glb extensions)
       const availableModels = [
-        // Files WITH .glb extension
-        'Fatet Makdus Breakfast.glb',
-        'Fettuccine Alfredo.glb',
-        'Korat AlJebna Breakfast.glb',
-        'Makdus Breakfast.glb',
-        'Maqdus Salad Breakfast.glb',
-        'Margherita Pizza.glb',
-        'Mtabal Baba Ghanooj Breakfast.glb',
-        'Mtabal Breakfast.glb',
-        'Pepperoni Pizza.glb',
-        'Pesto Pasta.glb',
-        'Rose Pasta.glb',
-        'Sea Food Pasta.glb',
-        // Files WITHOUT .glb extension
-        'Steak',
         'beefBurger',
         'beefFahita',
+        'celezone',
         'cheeseSteakSandwich',
         'chickenDynamiteSalad',
         'chickenFajita',
@@ -7942,23 +7928,29 @@
         'chickenZingerSandwich',
         'crispyChickenBurger',
         'dynamiteShrimp',
+        'Fettuccine Alfredo.glb',
         'foodPlatter_',
+        'grilledChicken',
         'hallomi',
         'hallomiSalad',
         'halloumiSandwich_',
         'hashBrown',
         'macAndCheese',
+        'Margherita Pizza.glb',
         'mozzerellaSticks_',
         'onionRings_',
         'pennaArabita_',
+        'Pepperoni Pizza.glb',
+        'pestoChickenPizza',
+        'Pesto Pasta.glb',
+        'Rose Pasta.glb',
         'seaFoodBowl_',
+        'Sea Food Pasta.glb',
         'smokedSalmonSalad',
+        'Steak',
         'tacoSalad',
         'waffleSalad',
-        'yalanji',
-        'celezone',
-        'pestoChickenPizza',
-        'grilledChicken'
+        'yalanji'
       ];
       
       // Enhanced verification - DO NOT override existing modelSrc paths
@@ -8002,12 +7994,11 @@
       
       // Preload only available models
       availableModels.forEach(modelName => {
-        // Ensure model path always has .glb extension for model-viewer
-        const actualModelPath = modelName.endsWith('.glb') ? `/models/${modelName}` : `/models/${modelName}.glb`;
-        console.log(`Preloading model: /models/${modelName} (actual: ${actualModelPath})`);
+        const modelPath = `/models/${modelName}`;
+        console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
-        preloader.setAttribute('src', actualModelPath);
+        preloader.setAttribute('src', modelPath);
         preloader.setAttribute('preload', '');
         
         // Simpler event handling
@@ -8195,12 +8186,10 @@
         modelContainer.style.display = 'block';
         modelLoadingIndicator.style.display = 'flex';
         
-        // Ensure model path has .glb extension for model-viewer
-        const actualModelSrc = item.modelSrc.endsWith('.glb') ? item.modelSrc : `${item.modelSrc}.glb`;
-        console.log(`Loading model for ${item.name}: ${item.modelSrc} (actual: ${actualModelSrc})`);
+        console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
         
         // Set the model source
-        modelViewer.src = actualModelSrc;
+        modelViewer.src = item.modelSrc;
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
