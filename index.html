@@ -4727,97 +4727,6 @@
       margin-bottom: 15px;
       width: 100%;
     }
-    
-    /* Menu Grid Styles */
-    .menu-grid {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(26, 58, 47, 0.98);
-      z-index: 1000;
-      overflow-y: auto;
-      padding: 20px;
-    }
-
-    .menu-grid-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid var(--gold);
-    }
-
-    .menu-grid-header h3 {
-      color: var(--gold);
-      font-size: 24px;
-      margin: 0;
-    }
-
-    .close-grid-btn {
-      background: var(--bright-red);
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 18px;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .menu-grid-items {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .grid-item {
-      background: rgba(245, 245, 220, 0.1);
-      border: 2px solid var(--gold);
-      border-radius: 12px;
-      padding: 15px;
-      cursor: pointer;
-      transition: var(--transition);
-      text-align: center;
-    }
-
-    .grid-item:hover {
-      background: rgba(212, 175, 55, 0.2);
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
-    }
-
-    .grid-item h4 {
-      color: var(--gold);
-      margin: 0 0 8px 0;
-      font-size: 18px;
-    }
-
-    .grid-item p {
-      color: white;
-      margin: 5px 0;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    @media (max-width: 768px) {
-      .menu-grid-items {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 15px;
-      }
-      
-      .grid-item {
-        padding: 12px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -4896,7 +4805,7 @@
         <div class="model-container">
           <model-viewer 
             id="food-model-viewer" 
-            src="./models/Margherita Pizza.glb" 
+            src="/models/Margherita Pizza.glb" 
             alt="3D Food Model" 
             ar 
             ar-modes="quick-look scene-viewer webxr" 
@@ -4925,22 +4834,6 @@
             <button onclick="showNextItem()" id="next-btn" class="nav-arrow-btn">
               NEXT <i class="fas fa-chevron-right"></i>
             </button>
-            <button onclick="toggleMenuGrid()" id="menu-grid-btn" class="nav-arrow-btn">
-              <i class="fas fa-th-large"></i> <span id="grid-btn-text">MENU GRID</span>
-            </button>
-          </div>
-        </div>
-        
-        <!-- Menu Grid for Direct Item Selection -->
-        <div id="menu-grid" class="menu-grid" style="display: none;">
-          <div class="menu-grid-header">
-            <h3 id="grid-title">Select Any Dish</h3>
-            <button onclick="toggleMenuGrid()" class="close-grid-btn">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div id="menu-grid-items" class="menu-grid-items">
-            <!-- Grid items will be populated by JavaScript -->
           </div>
         </div>
         
@@ -6162,16 +6055,6 @@
         category: "pizza",
         mainCategory: "food"
       },
-      {
-        name: "Calzone",
-        nameAr: "كالزونه",
-        modelSrc: "./models/celezone.glb",
-        description: "Traditional Italian folded pizza filled with ricotta, mozzarella, and your choice of toppings.",
-        descriptionAr: "بيتزا إيطالية تقليدية مطوية محشوة بجبنة الريكوتا والموزاريلا والحشوات المختارة.",
-        price: 17.99,
-        category: "pizza",
-        mainCategory: "food"
-      },
       
       // FOOD - Pasta items
       {
@@ -6207,7 +6090,7 @@
       {
         name: "Celezone",
         nameAr: "سيليزون",
-        modelSrc: "./models/Sea Food Pasta.glb", // Using available seafood pasta model
+        modelSrc: "./models/celezone.glb",
         description: "Exquisite seafood pasta with mussels, gnocchi, and aromatic herbs in a rich sauce.",
         descriptionAr: "معكرونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
         price: 19.99,
@@ -6357,7 +6240,7 @@
       {
         name: "Chicken Quesadilla",
         nameAr: "كيساديلا دجاج",
-        modelSrc: "./models/chickenQuesadilla.glb",
+        modelSrc: "models/chickenQuesadilla.glb",
         description: "Grilled tortilla filled with seasoned chicken and melted cheese.",
         descriptionAr: "تورتيلا مشوية محشوة بدجاج متبل وجبن ذائب.",
         price: 12.99,
@@ -6558,7 +6441,7 @@
       // DESSERTS - Cakes
       {
         name: "Chocolate Cake",
-        modelSrc: "./models/Margherita Pizza.glb", // Using existing model as placeholder
+        modelSrc: "models/Margherita Pizza.glb", // Using existing model as placeholder
         description: "Decadent chocolate cake with a rich chocolate ganache and berries.",
         price: 6.99,
         category: "cakes",
@@ -6566,7 +6449,7 @@
       },
       {
         name: "Red Velvet Cake",
-        modelSrc: "./models/Pepperoni Pizza.glb", // Using existing model as placeholder
+        modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Moist red velvet cake with cream cheese frosting and white chocolate shavings.",
         price: 7.49,
         category: "cakes",
@@ -6576,7 +6459,7 @@
       // DESSERTS - Ice Cream
       {
         name: "Vanilla Bean Ice Cream",
-        modelSrc: "./models/Fettuccine Alfredo.glb", // Updated to correct model filename
+        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to correct model filename
         description: "Creamy vanilla bean ice cream served with a wafer cookie.",
         price: 4.99,
         category: "ice-cream",
@@ -6584,7 +6467,7 @@
       },
       {
         name: "Tiramisu",
-        modelSrc: "./models/Pepperoni Pizza.glb", // Using existing model as placeholder
+        modelSrc: "models/Pepperoni Pizza.glb", // Using existing model as placeholder
         description: "Classic Italian dessert with layers of coffee-soaked ladyfingers and mascarpone cream.",
         price: 7.99,
         category: "cakes",
@@ -8077,11 +7960,9 @@
           
           // Check if this model exists in our available models list
           if (availableModels.includes(existingFilename)) {
-            // Model exists, keep the existing path but ensure it starts with ./models/
-            if (!item.modelSrc.startsWith('./models/') && !item.modelSrc.startsWith('/models/')) {
-              item.modelSrc = `./models/${existingFilename}`;
-            } else if (item.modelSrc.startsWith('/models/')) {
-              item.modelSrc = item.modelSrc.replace('/models/', './models/');
+            // Model exists, keep the existing path but ensure it starts with /models/
+            if (!item.modelSrc.startsWith('/models/')) {
+              item.modelSrc = `/models/${existingFilename}`;
             }
             console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
           } else {
@@ -8094,7 +7975,7 @@
             );
             
             if (alternativeMatch) {
-              item.modelSrc = `./models/${alternativeMatch}`;
+              item.modelSrc = `/models/${alternativeMatch}`;
               console.log(`Mapped ${item.name} to alternative model: ${item.modelSrc}`);
             } else {
               item.modelSrc = null;
@@ -8111,7 +7992,7 @@
           );
           
           if (nameMatch) {
-            item.modelSrc = `./models/${nameMatch}`;
+            item.modelSrc = `/models/${nameMatch}`;
             console.log(`Mapped ${item.name} to name-based model: ${item.modelSrc}`);
           } else {
             console.log(`No model available for: ${item.name}`);
@@ -8130,7 +8011,7 @@
       
       // Preload only available models
       availableModels.forEach(modelName => {
-        const modelPath = `./models/${modelName}`;
+        const modelPath = `/models/${modelName}`;
         console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
@@ -8617,56 +8498,6 @@
           quantityDisplay.classList.remove('quantity-limit');
         }, 300);
       }
-    }
-    
-    // Toggle menu grid display
-    function toggleMenuGrid() {
-      const menuGrid = document.getElementById('menu-grid');
-      const gridBtn = document.getElementById('grid-btn-text');
-      
-      if (menuGrid.style.display === 'none') {
-        populateMenuGrid();
-        menuGrid.style.display = 'block';
-        gridBtn.textContent = currentLanguage === 'ar' ? 'إغلاق القائمة' : 'CLOSE GRID';
-      } else {
-        menuGrid.style.display = 'none';
-        gridBtn.textContent = currentLanguage === 'ar' ? 'شبكة القائمة' : 'MENU GRID';
-      }
-    }
-
-    // Populate menu grid with current category items
-    function populateMenuGrid() {
-      const gridContainer = document.getElementById('menu-grid-items');
-      const gridTitle = document.getElementById('grid-title');
-      
-      gridTitle.textContent = currentLanguage === 'ar' ? 'اختر أي طبق' : 'Select Any Dish';
-      gridContainer.innerHTML = '';
-      
-      filteredFoodItems.forEach((item, index) => {
-        const gridItem = document.createElement('div');
-        gridItem.className = 'grid-item';
-        gridItem.onclick = () => selectGridItem(index);
-        
-        const itemName = (currentLanguage === 'ar' && item.nameAr) ? item.nameAr : item.name;
-        const itemDesc = (currentLanguage === 'ar' && item.descriptionAr) ? item.descriptionAr : item.description;
-        const priceText = currentLanguage === 'ar' ? `${item.price.toFixed(2)} $` : `$${item.price.toFixed(2)}`;
-        
-        gridItem.innerHTML = `
-          <h4>${itemName}</h4>
-          <p>${itemDesc.substring(0, 60)}...</p>
-          <p style="color: var(--gold); font-weight: bold;">${priceText}</p>
-          ${item.modelSrc ? '<p style="color: var(--green); font-size: 12px;">✓ 3D Model</p>' : ''}
-        `;
-        
-        gridContainer.appendChild(gridItem);
-      });
-    }
-
-    // Select item from grid
-    function selectGridItem(index) {
-      currentFoodIndex = index;
-      updateFoodDisplay();
-      toggleMenuGrid();
     }
     
     // Close the customization modal
