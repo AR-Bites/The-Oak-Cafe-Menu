@@ -4805,7 +4805,7 @@
         <div class="model-container">
           <model-viewer 
             id="food-model-viewer" 
-            src="models/Margherita Pizza.glb" 
+            src="/models/Margherita Pizza.glb" 
             alt="3D Food Model" 
             ar 
             ar-modes="quick-look scene-viewer webxr" 
@@ -6018,7 +6018,7 @@
       {
         name: "Margherita Pizza",
         nameAr: "بيتزا مارجريتا",
-        modelSrc: "models/Margherita Pizza.glb",
+        modelSrc: "models/Margherita Pizza",
         description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
         descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
         price: 14.99,
@@ -6038,7 +6038,7 @@
       {
         name: "Vegetarian Pizza",
         nameAr: "بيتزا نباتية",
-        modelSrc: "models/Margherita Pizza.glb", // Using existing model as placeholder
+        modelSrc: "models/Margherita Pizza", // Using existing model as placeholder
         description: "Fresh bell peppers, mushrooms, onions, and olives on our signature crust.",
         descriptionAr: "فلفل حلو طازج، فطر، بصل، وزيتون على عجينتنا المميزة.",
         price: 16.99,
@@ -6395,7 +6395,7 @@
       },
       {
         name: "Cappuccino",
-        modelSrc: "models/Margherita Pizza.glb", // Using existing model as placeholder
+        modelSrc: "models/Margherita Pizza", // Using existing model as placeholder
         description: "Espresso with steamed milk and a silky microfoam.",
         price: 4.49,
         category: "hot-drinks",
@@ -7936,7 +7936,7 @@
         'halloumiSandwich_',
         'hashBrown',
         'macAndCheese',
-        'Margherita Pizza.glb',
+        'Margherita Pizza',
         'mozzerellaSticks_',
         'onionRings_',
         'pennaArabita_',
@@ -7995,11 +7995,10 @@
       // Preload only available models
       availableModels.forEach(modelName => {
         const modelPath = `/models/${modelName}`;
-        const actualFilePath = `${modelPath}.glb`;
-        console.log(`Preloading model: ${modelPath} (actual: ${actualFilePath})`);
+        console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
-        preloader.setAttribute('src', actualFilePath);
+        preloader.setAttribute('src', modelPath);
         preloader.setAttribute('preload', '');
         
         // Simpler event handling
@@ -8189,10 +8188,8 @@
         
         console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
         
-        // Set the model source - add .glb extension for actual file access
-        const actualModelPath = item.modelSrc + '.glb';
-        modelViewer.src = actualModelPath;
-        console.log(`Actual model path: ${actualModelPath}`);
+        // Set the model source
+        modelViewer.src = item.modelSrc;
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
