@@ -6018,7 +6018,7 @@
       {
         name: "Margherita Pizza",
         nameAr: "بيتزا مارجريتا",
-        modelSrc: "./models/Margherita Pizza.glb",
+        modelSrc: "models/Margherita Pizza.glb",
         description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
         descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
         price: 14.99,
@@ -7960,9 +7960,9 @@
           
           // Check if this model exists in our available models list
           if (availableModels.includes(existingFilename)) {
-            // Model exists, keep the existing path but ensure it starts with /models/
-            if (!item.modelSrc.startsWith('/models/')) {
-              item.modelSrc = `/models/${existingFilename}`;
+            // Model exists, keep the existing path but ensure it starts with models/
+            if (!item.modelSrc.startsWith('models/')) {
+              item.modelSrc = `models/${existingFilename}`;
             }
             console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
           } else {
@@ -7975,7 +7975,7 @@
             );
             
             if (alternativeMatch) {
-              item.modelSrc = `/models/${alternativeMatch}`;
+              item.modelSrc = `models/${alternativeMatch}`;
               console.log(`Mapped ${item.name} to alternative model: ${item.modelSrc}`);
             } else {
               item.modelSrc = null;
