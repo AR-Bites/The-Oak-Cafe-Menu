@@ -8002,11 +8002,12 @@
       
       // Preload only available models
       availableModels.forEach(modelName => {
-        const modelPath = `/models/${modelName}`;
-        console.log(`Preloading model: ${modelPath}`);
+        // Ensure model path always has .glb extension for model-viewer
+        const actualModelPath = modelName.endsWith('.glb') ? `/models/${modelName}` : `/models/${modelName}.glb`;
+        console.log(`Preloading model: /models/${modelName} (actual: ${actualModelPath})`);
         
         const preloader = document.createElement('model-viewer');
-        preloader.setAttribute('src', modelPath);
+        preloader.setAttribute('src', actualModelPath);
         preloader.setAttribute('preload', '');
         
         // Simpler event handling
@@ -8194,10 +8195,12 @@
         modelContainer.style.display = 'block';
         modelLoadingIndicator.style.display = 'flex';
         
-        console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
+        // Ensure model path has .glb extension for model-viewer
+        const actualModelSrc = item.modelSrc.endsWith('.glb') ? item.modelSrc : `${item.modelSrc}.glb`;
+        console.log(`Loading model for ${item.name}: ${item.modelSrc} (actual: ${actualModelSrc})`);
         
         // Set the model source
-        modelViewer.src = item.modelSrc;
+        modelViewer.src = actualModelSrc;
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
