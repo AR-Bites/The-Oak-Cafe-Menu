@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>The Oak Cafe - Premium AR Dining</title>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.4.0/dist/model-viewer.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
@@ -6294,7 +6294,7 @@
         nameAr: "يلنجي",
         modelSrc: "models/yalanji",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
-        descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتواy�ل المتوسطية.",
+        descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والu�وابل المتوسطية.",
         price: 10.99,
         category: "appetizers",
         mainCategory: "food"
@@ -8179,6 +8179,9 @@
       modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
       modelViewer.setAttribute('camera-orbit', '-20deg 75deg 2m');
       modelViewer.setAttribute('exposure', '1');
+      modelViewer.setAttribute('environment-image', 'neutral');
+      modelViewer.setAttribute('shadow-intensity', '1');
+      modelViewer.setAttribute('tone-mapping', 'neutral');
       
       // Check if this item has a model assigned during preloading
       if (item.modelSrc) {
@@ -8222,9 +8225,21 @@
         modelViewer.addEventListener('error', (e) => {
           console.error(`❌ Error loading model for ${item.name}:`, item.modelSrc, encodedSrc, e);
           console.error(`❌ Error details:`, e.detail);
+          
+          // Try alternative approach: reload with different attributes
+          console.log(`🔄 Attempting fallback loading for ${item.name}`);
+          modelViewer.removeAttribute('environment-image');
+          modelViewer.removeAttribute('shadow-intensity');
+          modelViewer.removeAttribute('tone-mapping');
+          
+          // Try reloading after a brief delay
+          setTimeout(() => {
+            const fallbackSrc = item.modelSrc.replace(/ /g, '%20');
+            console.log(`🔄 Fallback reload attempt: ${fallbackSrc}`);
+            modelViewer.src = fallbackSrc;
+          }, 500);
+          
           modelLoadingIndicator.style.display = 'none';
-          // Hide the model container if there's an error
-          modelContainer.style.display = 'none';
         });
         
         // Add progress monitoring
