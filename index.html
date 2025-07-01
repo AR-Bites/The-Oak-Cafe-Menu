@@ -8034,10 +8034,31 @@
           `${itemName.split(' ').map((word, idx) => idx === 0 ? word.toLowerCase() : word).join('')}.glb` // true camelCase
         ];
         
-        const exactModelMatch = availableModels.find(model => 
-          nameVariations.includes(model) || 
-          model.toLowerCase() === itemName.toLowerCase().replace(/\s+/g, '') + '.glb'
-        );
+        // Special case mapping for specific models with naming issues
+        const specialMappings = {
+          'Sea Food Bowl': 'seaFoodBowl_.glb',
+          'Food Platter': 'foodPlatter_.glb',
+          'Calzone': 'Calezone.glb',
+          'Penna Arabita': 'pennaArabita_.glb',
+          'Mozzarella Sticks': 'mozzerellaSticks_.glb',
+          'Halloumi Sandwich': 'halloumiSandwich_.glb',
+          'Onion Rings': 'onionRings_.glb'
+        };
+        
+        let exactModelMatch = null;
+        
+        // Check special mappings first
+        if (specialMappings[itemName]) {
+          exactModelMatch = availableModels.find(model => model === specialMappings[itemName]);
+        }
+        
+        // If no special mapping found, try the variations
+        if (!exactModelMatch) {
+          exactModelMatch = availableModels.find(model => 
+            nameVariations.includes(model) || 
+            model.toLowerCase() === itemName.toLowerCase().replace(/\s+/g, '') + '.glb'
+          );
+        }
         
         if (exactModelMatch) {
           // Set the model path to the exact match
