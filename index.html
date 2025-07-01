@@ -4813,7 +4813,7 @@
         <div class="model-container">
           <model-viewer 
             id="food-model-viewer" 
-            src="/models/Margherita Pizza.glb" 
+            src="" 
             alt="3D Food Model" 
             ar 
             ar-modes="quick-look scene-viewer webxr" 
@@ -6083,7 +6083,7 @@
         nameAr: "باستا الوردة",
         modelSrc: "models/Rose Pasta.glb",
         description: "Creamy tomato and herb sauce with penne pasta and fresh basil.",
-        descriptionAr: "صلصة كريمية بالطماطم والأعشاب مع معكرونة بيني وd�يحان طازج.",
+        descriptionAr: "صلصة كريمية بالطماطم والأعشاب مع معكرونة بيني وريحان طازج.",
         price: 14.99,
         category: "pasta",
         mainCategory: "food"
@@ -8294,8 +8294,18 @@
         console.log("Model container display:", modelContainer.style.display);
         console.log("Model viewer before setting src:", modelViewer.getAttribute('src'));
         
-        // Set the model source
-        modelViewer.src = item.modelSrc;
+        // Set the model source with absolute URL
+        let absoluteModelSrc;
+        if (item.modelSrc.startsWith('http')) {
+          absoluteModelSrc = item.modelSrc;
+        } else {
+          // Ensure no double slashes in URL construction
+          const origin = window.location.origin;
+          const modelPath = item.modelSrc.startsWith('/') ? item.modelSrc : `/${item.modelSrc}`;
+          absoluteModelSrc = `${origin}${modelPath}`;
+        }
+        console.log("Setting absolute model source:", absoluteModelSrc);
+        modelViewer.src = absoluteModelSrc;
         
         // Add basic event handlers
         modelViewer.addEventListener('load', () => {
@@ -11577,7 +11587,7 @@
               : 'Order not found in database';
           } else if (error.code === 'network-request-failed') {
             errorMessage = currentLanguage === 'ar' 
-              ? 'خطأ في الات �ال بالشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى'
+              ? 'خطأ في الاتصال بالشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى'
               : 'Network connection error. Please check your connection and try again.';
           } else if (error.code === 'already-exists') {
             errorMessage = currentLanguage === 'ar' 
