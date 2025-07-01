@@ -5240,7 +5240,7 @@
         <div class="branding-section">
           <div class="powered-by">
             <span id="powered-by-text">Powered by AR Bites</span>
-            <img src="/ar-bites-logo.png" alt="AR Bites" class="ar-bites-logo" />
+            <img src="ar-bites-logo.png" alt="AR Bites" class="ar-bites-logo" />
           </div>
         </div>
         <div class="contact-info">
@@ -5434,7 +5434,7 @@
   <!-- Enhanced Loading Animation -->
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-container">
-      <img src="/ar-bites-logo.png" alt="AR Bites Logo" class="loading-logo" />
+      <img src="ar-bites-logo.png" alt="AR Bites Logo" class="loading-logo" />
       <div class="loading-cube-grid">
         <div class="loading-cube cube1"></div>
         <div class="loading-cube cube2"></div>
@@ -6018,7 +6018,7 @@
       {
         name: "Margherita Pizza",
         nameAr: "بيتزا مارجريتا",
-        modelSrc: "models/Margherita Pizza.glb",
+        modelSrc: "./models/Margherita Pizza.glb",
         description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
         descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
         price: 14.99,
@@ -6282,7 +6282,7 @@
       {
         name: "Mac and Cheese",
         nameAr: "ماك آند تشيز",
-        modelSrc: "models/macAndCheese.glb",
+        modelSrc: "models/macAndCheese",
         description: "Creamy macaroni pasta with a rich cheese sauce and crispy breadcrumb topping.",
         descriptionAr: "معكرونة مكروني كريمية مع صلصة جبن غنية وطبقة فتات خبز مقرمشة.",
         price: 11.99,
@@ -6292,7 +6292,7 @@
       {
         name: "Yalanji",
         nameAr: "يلنجي",
-        modelSrc: "models/yalanji.glb",
+        modelSrc: "models/yalanji",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
         descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطية.",
         price: 10.99,
@@ -6304,7 +6304,7 @@
       {
         name: "Seafood Bowl",
         nameAr: "وعاء المأكولات البحرية",
-        modelSrc: "models/seaFoodBowl_.glb",
+        modelSrc: "models/seaFoodBowl_",
         description: "Fresh seafood medley with shrimp, fish, and vegetables in aromatic broth.",
         descriptionAr: "خليط مأكولات بحرية طازجة مع روبيان وسمك وخضار في مرق عطري.",
         price: 19.99,
@@ -6314,7 +6314,7 @@
       {
         name: "Dynamite Shrimp",
         nameAr: "روبيان ديناميت",
-        modelSrc: "models/dynamiteShrimp.glb",
+        modelSrc: "models/dynamiteShrimp",
         description: "Crispy fried shrimp tossed in our signature dynamite sauce.",
         descriptionAr: "روبيان مقلي مقرمش مغطى بصلصة الديناميت المميزة لدينا.",
         price: 15.99,
@@ -7914,21 +7914,9 @@
     function preloadModels() {
       // List of available models (from the models folder)
       const availableModels = [
-        'Fatet Makdus Breakfast.glb',
-        'Fettuccine Alfredo.glb',
-        'Korat AlJebna Breakfast.glb',
-        'Makdus Breakfast.glb',
-        'Maqdus Salad Breakfast.glb',
-        'Margherita Pizza.glb',
-        'Mtabal Baba Ghanooj Breakfast.glb',
-        'Mtabal Breakfast.glb',
-        'Pepperoni Pizza.glb',
-        'Pesto Pasta.glb',
-        'Rose Pasta.glb',
-        'Sea Food Pasta.glb',
-        'Steak.glb',
         'beefBurger.glb',
         'beefFahita.glb',
+        'celezone.glb',
         'cheeseSteakSandwich.glb',
         'chickenDynamiteSalad.glb',
         'chickenFajita.glb',
@@ -7938,23 +7926,29 @@
         'chickenZingerSandwich.glb',
         'crispyChickenBurger.glb',
         'dynamiteShrimp.glb',
+        'Fettuccine Alfredo.glb',
         'foodPlatter_.glb',
+        'grilledChicken.glb',
         'hallomi.glb',
         'hallomiSalad.glb',
         'halloumiSandwich_.glb',
         'hashBrown.glb',
         'macAndCheese.glb',
+        'Margherita Pizza.glb',
         'mozzerellaSticks_.glb',
         'onionRings_.glb',
         'pennaArabita_.glb',
+        'Pepperoni Pizza.glb',
+        'pestoChickenPizza.glb',
+        'Pesto Pasta.glb',
+        'Rose Pasta.glb',
         'seaFoodBowl_.glb',
+        'Sea Food Pasta.glb',
         'smokedSalmonSalad.glb',
+        'Steak.glb',
         'tacoSalad.glb',
         'waffleSalad.glb',
-        'yalanji.glb',
-        'celezone.glb',
-        'grilledChicken.glb',
-        'pestoChickenPizza.glb'
+        'yalanji.glb'
       ];
       
       // Map menu items to their models (if available)
@@ -7966,8 +7960,10 @@
           
           // Check if this model exists in our available models list
           if (availableModels.includes(existingFilename)) {
-            // Model exists, set the correct model URL
-            item.modelSrc = `${modelBaseUrl}${existingFilename}`;
+            // Model exists, keep the existing path but ensure it starts with /models/
+            if (!item.modelSrc.startsWith('/models/')) {
+              item.modelSrc = `/models/${existingFilename}`;
+            }
             console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
           } else {
             // Model doesn't exist, try to find alternative matches
@@ -7979,7 +7975,7 @@
             );
             
             if (alternativeMatch) {
-              item.modelSrc = `${modelBaseUrl}${alternativeMatch}`;
+              item.modelSrc = `/models/${alternativeMatch}`;
               console.log(`Mapped ${item.name} to alternative model: ${item.modelSrc}`);
             } else {
               item.modelSrc = null;
@@ -7996,7 +7992,7 @@
           );
           
           if (nameMatch) {
-            item.modelSrc = `${modelBaseUrl}${nameMatch}`;
+            item.modelSrc = `/models/${nameMatch}`;
             console.log(`Mapped ${item.name} to name-based model: ${item.modelSrc}`);
           } else {
             console.log(`No model available for: ${item.name}`);
@@ -8013,14 +8009,9 @@
       preloadContainer.style.overflow = 'hidden';
       document.body.appendChild(preloadContainer);
       
-      // Model hosting configuration - use GitHub for large files
-      const modelBaseUrl = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('github.io') 
-        ? 'https://raw.githubusercontent.com/AR-Bites/ar-bites-models/main/models/' 
-        : '/models/';
-      
       // Preload only available models
       availableModels.forEach(modelName => {
-        const modelPath = `${modelBaseUrl}${modelName}`;
+        const modelPath = `/models/${modelName}`;
         console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
