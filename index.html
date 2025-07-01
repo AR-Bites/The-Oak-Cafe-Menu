@@ -7992,7 +7992,7 @@
           );
           
           if (nameMatch) {
-            item.modelSrc = `/models/${nameMatch}`;
+            item.modelSrc = `models/${nameMatch}`;
             console.log(`Mapped ${item.name} to name-based model: ${item.modelSrc}`);
           } else {
             console.log(`No model available for: ${item.name}`);
@@ -8011,7 +8011,7 @@
       
       // Preload only available models
       availableModels.forEach(modelName => {
-        const modelPath = `/models/${modelName}`;
+        const modelPath = `models/${modelName}`;
         console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
