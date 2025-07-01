@@ -5240,7 +5240,7 @@
         <div class="branding-section">
           <div class="powered-by">
             <span id="powered-by-text">Powered by AR Bites</span>
-            <img src="ar-bites-logo.png" alt="AR Bites" class="ar-bites-logo" />
+            <img src="/ar-bites-logo.png" alt="AR Bites" class="ar-bites-logo" />
           </div>
         </div>
         <div class="contact-info">
@@ -5434,7 +5434,7 @@
   <!-- Enhanced Loading Animation -->
   <div class="loading-overlay" id="loading-overlay">
     <div class="loading-container">
-      <img src="ar-bites-logo.png" alt="AR Bites Logo" class="loading-logo" />
+      <img src="/ar-bites-logo.png" alt="AR Bites Logo" class="loading-logo" />
       <div class="loading-cube-grid">
         <div class="loading-cube cube1"></div>
         <div class="loading-cube cube2"></div>
@@ -7960,10 +7960,8 @@
           
           // Check if this model exists in our available models list
           if (availableModels.includes(existingFilename)) {
-            // Model exists, keep the existing path but ensure it starts with models/
-            if (!item.modelSrc.startsWith('models/')) {
-              item.modelSrc = `models/${existingFilename}`;
-            }
+            // Model exists, set the correct model URL
+            item.modelSrc = `${modelBaseUrl}${existingFilename}`;
             console.log(`Mapped ${item.name} to exact model: ${item.modelSrc}`);
           } else {
             // Model doesn't exist, try to find alternative matches
@@ -7975,7 +7973,7 @@
             );
             
             if (alternativeMatch) {
-              item.modelSrc = `models/${alternativeMatch}`;
+              item.modelSrc = `${modelBaseUrl}${alternativeMatch}`;
               console.log(`Mapped ${item.name} to alternative model: ${item.modelSrc}`);
             } else {
               item.modelSrc = null;
@@ -7992,7 +7990,7 @@
           );
           
           if (nameMatch) {
-            item.modelSrc = `models/${nameMatch}`;
+            item.modelSrc = `${modelBaseUrl}${nameMatch}`;
             console.log(`Mapped ${item.name} to name-based model: ${item.modelSrc}`);
           } else {
             console.log(`No model available for: ${item.name}`);
@@ -8009,9 +8007,14 @@
       preloadContainer.style.overflow = 'hidden';
       document.body.appendChild(preloadContainer);
       
+      // Model hosting configuration - use GitHub for large files
+      const modelBaseUrl = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('github.io') 
+        ? 'https://raw.githubusercontent.com/AR-Bites/ar-bites-models/main/models/' 
+        : '/models/';
+      
       // Preload only available models
       availableModels.forEach(modelName => {
-        const modelPath = `models/${modelName}`;
+        const modelPath = `${modelBaseUrl}${modelName}`;
         console.log(`Preloading model: ${modelPath}`);
         
         const preloader = document.createElement('model-viewer');
