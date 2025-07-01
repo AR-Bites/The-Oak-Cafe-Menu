@@ -5467,18 +5467,28 @@
     
     // Firebase configuration with better error handling
     const firebaseApiKey = "{{FIREBASE_API_KEY}}";
+    const firebaseProjectId = "{{FIREBASE_PROJECT_ID}}";
+    const firebaseAppId = "{{FIREBASE_APP_ID}}";
+    
     const firebaseConfig = {
       apiKey: firebaseApiKey || "AIzaSyAUCymhsmIx4IOkHphEFpLEhfLnPk0iPhU", 
-      authDomain: "the-oak-cafe-menu.firebaseapp.com", 
-      projectId: "the-oak-cafe-menu",
-      storageBucket: "the-oak-cafe-menu.firebasestorage.app",
+      authDomain: firebaseProjectId ? `${firebaseProjectId}.firebaseapp.com` : "the-oak-cafe-menu.firebaseapp.com", 
+      projectId: firebaseProjectId || "the-oak-cafe-menu",
+      storageBucket: firebaseProjectId ? `${firebaseProjectId}.firebasestorage.app` : "the-oak-cafe-menu.firebasestorage.app",
       messagingSenderId: "69318608602",
-      appId: "1:69318608602:web:c7c716b12c1d0d962647e3",
+      appId: firebaseAppId || "1:69318608602:web:c7c716b12c1d0d962647e3",
       measurementId: "G-PCBFR6L798"
     };
     
     // Initialize Firebase with better error handling for demo and production modes
     let db;
+    
+    // Track Firebase listeners to prevent duplicates
+    const firebaseListeners = {
+      orders: null,
+      tables: null,
+      staff: null
+    };
     let isOfflineMode = false; // Use Firebase by default
     
     // Firebase permissions debug - these rules should be applied in Firebase console
@@ -5608,13 +5618,13 @@
           // Attempt to create necessary collections anyway - may work with default rules
           try {
             // Initialize orders collection if it doesn't exist
-            db.collection('orders').doc('__init__').set({
+            db.collection('orders').doc('system_init').set({
               initialized: true,
               timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
             
             // Initialize tables collection if it doesn't exist
-            db.collection('tables').doc('__init__').set({
+            db.collection('tables').doc('system_init').set({
               initialized: true,
               timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
@@ -11567,7 +11577,7 @@
               : 'Order has already been updated';
           } else {
             errorMessage = currentLanguage === 'ar' 
-              ? `حدث خطأ أثناء تحديث الطلب: ${error.message || 'خطأ غير معروف'}`
+              ? `حدث خطأ أثناء تح �يث الطلب: ${error.message || 'خطأ غير معروف'}`
               : `There was an error while updating the order: ${error.message || 'Unknown error'}`;
           }
           
@@ -15339,7 +15349,7 @@
             day: 'اليوم أنفق مستخدمو قائمة الواقع المعزز 22٪ أكثر من مستخدمي القائمة العادية',
             week: 'تصور قائمة الواقع المعزز يزيد متوسط قيمة الطلب بنسبة 18٪ هذا الأسبوع',
             month: 'زادت الإحالات من وسائل التواصل الاجتماعي بنسبة 15٪ هذا الشهر',
-            year: 'أدى تصور قائمة الواقع المعزز إلى زيادة بنسبة 25٪ في طلبات الحلويات سنويًا'
+            year: 'أدى تصور قائمة الواقع المعزز إلى زيادة بنسبة 25٪ في طل<�ات الحلويات سنويًا'
           }
         }
       };
