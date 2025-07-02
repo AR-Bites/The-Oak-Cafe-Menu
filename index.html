@@ -4823,7 +4823,7 @@
           </model-viewer>
         </div>
         <p id="food-description">Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.</p>
-        <p id="food-price">Price: $14.99</p>
+        <p id="food-price">Price: 14.99 JOD</p>
         
         <div class="nav-buttons">
           <button onclick="addToCart()" class="add-to-cart" id="add-cart-btn">+ ADD TO CART</button>
@@ -6387,8 +6387,9 @@
       // DRINKS - Hot Drinks
       {
         name: "Hot Chocolate",
-        modelSrc: "models/Rose Pasta.glb", // Updated to correct model filename
+        nameAr: "شوكولاتة ساخنة",
         description: "Rich and creamy hot chocolate topped with marshmallows and whipped cream.",
+        descriptionAr: "شوكولاتة ساخنة غنية وكريمية مع مارشميلو وكريمة مخفوقة.",
         price: 3.99,
         category: "hot-drinks",
         mainCategory: "drinks"
@@ -6423,16 +6424,18 @@
       // DRINKS - Smoothies
       {
         name: "Berry Blast Smoothie",
-        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to correct model filename
+        nameAr: "سموثي انفجار التوت",
         description: "Mixed berries, yogurt, and honey blended with ice for a refreshing treat.",
+        descriptionAr: "توت مشكل ولبن وعسل مخلوط بالثلج لمشروب منعش.",
         price: 5.99,
         category: "smoothies",
         mainCategory: "drinks"
       },
       {
         name: "Tropical Paradise Smoothie",
-        modelSrc: "models/Rose Pasta.glb", // Updated to correct model filename
+        nameAr: "سموثي الجنة الاستوائية",
         description: "Mango, pineapple, and banana blended with coconut milk and ice.",
+        descriptionAr: "مانجو وأناناس وموز مخلوط بحليب جوز الهند والثلج.",
         price: 6.49,
         category: "smoothies",
         mainCategory: "drinks"
@@ -6459,8 +6462,9 @@
       // DESSERTS - Ice Cream
       {
         name: "Vanilla Bean Ice Cream",
-        modelSrc: "models/Fettuccine Alfredo.glb", // Updated to correct model filename
+        nameAr: "آيس كريم حبة الفانيليا",
         description: "Creamy vanilla bean ice cream served with a wafer cookie.",
+        descriptionAr: "آيس كريم فانيليا كريمي مع بسكويت الويفر.",
         price: 4.99,
         category: "ice-cream",
         mainCategory: "desserts"
@@ -9137,9 +9141,9 @@
       
       // Format price according to language
       if (currentLanguage === 'ar') {
-        foodPrice.textContent = `السعر: ${item.price.toFixed(2)} $`;
+        foodPrice.textContent = `السعر: ${item.price.toFixed(2)} JOD`;
       } else {
-        foodPrice.textContent = `Price: $${item.price.toFixed(2)}`;
+        foodPrice.textContent = `Price: ${item.price.toFixed(2)} JOD`;
       }
       
       // Ensure model container is visible
@@ -9311,8 +9315,8 @@
       }
       
       // Set price
-      document.getElementById('customize-base-price').textContent = `$${item.price.toFixed(2)}`;
-      document.getElementById('customize-total-price').textContent = `$${item.price.toFixed(2)}`;
+      document.getElementById('customize-base-price').textContent = `${item.price.toFixed(2)} JOD`;
+      document.getElementById('customize-total-price').textContent = `${item.price.toFixed(2)} JOD`;
       
       // Reset quantity
       document.getElementById('quantity-value').textContent = '1';
@@ -9374,7 +9378,7 @@
           <div class="extra-checkbox"></div>
           <div class="extra-details">
             <div class="extra-name">${extra.name}</div>
-            <div class="extra-price">${extra.price > 0 ? '+$' + extra.price.toFixed(2) : currentLanguage === 'ar' ? 'مجاني' : 'Free'}</div>
+            <div class="extra-price">${extra.price > 0 ? '+' + extra.price.toFixed(2) + ' JOD' : currentLanguage === 'ar' ? 'مجاني' : 'Free'}</div>
           </div>
         `;
         
@@ -9422,12 +9426,12 @@
       const totalPrice = (currentCustomizeItem.price + extrasCost) * itemQuantity;
       
       // Update display
-      document.getElementById('customize-total-price').textContent = `$${totalPrice.toFixed(2)}`;
+      document.getElementById('customize-total-price').textContent = `${totalPrice.toFixed(2)} JOD`;
       
       // If there are extras or quantity > 1, show the base price as well
       const basePrice = document.getElementById('customize-base-price');
       if (extrasCost > 0 || itemQuantity > 1) {
-        basePrice.textContent = `$${currentCustomizeItem.price.toFixed(2)}`;
+        basePrice.textContent = `${currentCustomizeItem.price.toFixed(2)} JOD`;
         basePrice.style.display = 'block';
       } else {
         basePrice.style.display = 'none';
