@@ -9539,10 +9539,6 @@
           : `${itemQty > 1 ? itemQty + 'x ' : ''}${itemName} has been added to your cart`,
         'success'
       );
-      
-      // Close the customize modal after adding to cart
-      console.log("Closing customize modal after adding item to cart");
-      closeCustomizeModal();
     }
     
     // Update customization modal text based on current language
@@ -9761,22 +9757,8 @@
       const total = subtotal + tax;
       
       // Update total breakdown
-      totalBreakdown.innerHTML = `
-        <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-          <span>${currentLanguage === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
-          <span>${subtotal.toFixed(2)} JOD</span>
-        </p>
-        <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-          <span>${currentLanguage === 'ar' ? 'الضريبة (8%)' : 'Tax (8%)'}</span>
-          <span>${tax.toFixed(2)} JOD</span>
-        </p>
-        ${currentUserType !== 'guest' ? `
-        <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
-          <span>${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}</span>
-          <span>${total.toFixed(2)} JOD</span>
-        </p>
-        ` : ''}
-      `;
+      // Hide total breakdown for guests - only show individual item prices
+      totalBreakdown.innerHTML = ``;
       
       // Update cart icon based on whether there are items
       const cartIconElement = document.querySelector('.cart-icon');
@@ -11384,9 +11366,8 @@
         cart = [];
         updateCartDisplay();
         
-        // Close cart panel forcefully
-        console.log("Closing cart panel after successful order");
-        cartPanel.classList.remove('active');
+        // Close cart panel
+        toggleCart();
         
         // Auto show the client orders panel with a slight delay for better UX
         setTimeout(() => {
@@ -11409,10 +11390,6 @@
         checkoutBtn.classList.remove('checkout-loading');
         checkoutBtn.disabled = false;
         isOrderBeingProcessed = false;
-        
-        // Ensure cart panel is closed regardless of success/error
-        console.log("Ensuring cart panel is closed in finally block");
-        cartPanel.classList.remove('active');
       }
     }
     
@@ -13106,11 +13083,6 @@
               <div class="client-order-items">
                 ${itemsHtml}
               </div>
-              ${currentUserType !== 'guest' ? `
-              <div style="text-align: right; font-weight: bold; font-size: 0.85rem;">
-                ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: ${order.total.toFixed(2)} JOD
-              </div>
-              ` : ''}
               ${order.status === 'pending' ? `
                 <button onclick="cancelOrder('${order.id}')" style="background: var(--red); margin-top: 8px; width: 100%;">
                   ${currentLanguage === 'ar' ? 'إلغاء الطلب' : 'CANCEL ORDER'}
@@ -16447,7 +16419,7 @@
       </div>
       
       <div class="customize-actions">
-        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart()">
+        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart(); closeCustomizeModal(); return false;">
           <i class="fas fa-shopping-cart"></i>
           <span id="add-to-cart-text">ADD TO CART</span>
         </button>
