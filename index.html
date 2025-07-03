@@ -7535,13 +7535,22 @@
           console.warn("Loading screen timeout - force hiding");
           hideLoadingScreen();
         }
-      }, 10000); // 10 second maximum loading time
+      }, 2000); // 2 second maximum loading time
     }
 
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async function() {
       // Start the loading screen safety timeout
       ensureLoadingScreenHides();
+      
+      // Emergency fallback - force hide loading after 1.5 seconds no matter what
+      setTimeout(() => {
+        const loadingElement = document.getElementById("loading");
+        if (loadingElement) {
+          console.log("Emergency loading screen force hide");
+          loadingElement.style.display = 'none';
+        }
+      }, 1500);
       // Load language preference
       currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'en';
       updateLanguage();
@@ -7951,7 +7960,7 @@
             }, 200);
           }, 150);
         }
-      }, 3500); // Reduced to 3.5 seconds max load time
+      }, 1000); // Reduced to 1 second max load time
     }
     
     // Language support
@@ -10881,7 +10890,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'جارٍ التحديث' : 'Updating',
           currentLanguage === 'ar' 
-            ? 'جارٍ تحرير الطاولة...' 
+            ? 'جارٍ تحرير ال(�اولة...' 
             : 'Freeing table...',
           'info',
           2000 // Auto-close after 2s
