@@ -5125,9 +5125,14 @@
       <div class="waiter-calls-section" id="waiter-calls-section" style="display: none;">
         <div class="calls-header">
           <h3 id="waiter-calls-title">🔔 WAITER CALLS</h3>
-          <button class="clear-calls-btn" id="clear-calls-btn" onclick="clearAllWaiterCalls()">
-            <i class="fas fa-check-double"></i> <span id="clear-calls-text">CLEAR ALL</span>
-          </button>
+          <div style="display: flex; gap: 10px;">
+            <button class="test-permissions-btn" onclick="testWaiterCallsPermissions()" style="background: #e67e22; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 0.8rem;">
+              🧪 TEST PERMISSIONS
+            </button>
+            <button class="clear-calls-btn" id="clear-calls-btn" onclick="clearAllWaiterCalls()">
+              <i class="fas fa-check-double"></i> <span id="clear-calls-text">CLEAR ALL</span>
+            </button>
+          </div>
         </div>
         <div class="calls-list" id="waiter-calls-list">
           <!-- Waiter calls will appear here -->
@@ -6351,7 +6356,7 @@
         nameAr: "سيليزون",
         modelSrc: "models/celezone",
         description: "Exquisite seafood pasta with mussels, gnocchi, and aromatic herbs in a rich sauce.",
-        descriptionAr: "معكرونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
+        descriptionAr: "معo�رونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
         price: 19.99,
         category: "pasta",
         mainCategory: "food"
@@ -11634,7 +11639,7 @@
         // Create waiter call notification in Firebase
         const waiterCall = {
           tableNumber: parseInt(currentTableNumber),
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
           status: 'pending',
           message: currentLanguage === 'ar' 
             ? `طاولة رقم ${currentTableNumber} تطلب النادل`
@@ -16974,17 +16979,49 @@
         const staffUsername = localStorage.getItem('username');
         const staffRole = localStorage.getItem('staffRole');
         
-        // Update call status to responded
-        await db.collection('waiter_calls').doc(callId).update({
+        console.log('🔧 Responding to waiter call:', {
+          callId,
+          tableNumber,
+          staffName,
+          staffUsername,
+          staffRole,
+          dbExists: !!db
+        });
+        
+        // Check if we have database connection
+        if (!db) {
+          throw new Error('Database connection not available');
+        }
+        
+        // Try to get the call document first to verify it exists
+        const callDoc = await db.collection('waiter_calls').doc(callId).get();
+        if (!callDoc.exists) {
+          throw new Error(`Call document ${callId} does not exist`);
+        }
+        
+        console.log('✅ Call document found, updating status...');
+        
+        // Update call status to responded using simpler update
+        const updateData = {
           status: 'responded',
-          respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          respondedBy: staffName || staffUsername || 'Staff Member',
-          respondedByDetails: {
+          respondedAt: new Date().toISOString(),
+          respondedBy: staffName || staffUsername || 'Staff Member'
+        };
+        
+        // Add staff details if available
+        if (staffName || staffUsername || staffRole) {
+          updateData.respondedByDetails = {
             name: staffName || 'Staff Member',
             username: staffUsername || 'unknown',
             role: staffRole || 'staff'
-          }
-        });
+          };
+        }
+        
+        console.log('📝 Updating with data:', updateData);
+        
+        await db.collection('waiter_calls').doc(callId).update(updateData);
+        
+        console.log('✅ Successfully updated waiter call response');
         
         // Show success notification
         showNotification(
@@ -16995,14 +17032,57 @@
           'success'
         );
         
-        console.log(`Staff responded to call from table ${tableNumber}`);
+        console.log(`✅ Staff responded to call from table ${tableNumber}`);
       } catch (error) {
-        console.error('Error responding to call:', error);
+        console.error('❌ Error responding to call:', error);
+        console.error('❌ Error details:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack
+        });
+        
+        // Show detailed error for debugging
+        const errorMsg = error.message || 'Unknown error';
         showNotification(
           currentLanguage === 'ar' ? 'خطأ في الرد' : 'Response Failed',
-          currentLanguage === 'ar' ? 'فشل في إرسال الرد' : 'Failed to send response',
+          currentLanguage === 'ar' ? `فشل في إرسال الرد: ${errorMsg}` : `Failed to send response: ${errorMsg}`,
           'error'
         );
+      }
+    }
+
+    // Debug function to test waiter_calls permissions
+    async function testWaiterCallsPermissions() {
+      try {
+        console.log('🧪 Testing waiter_calls collection permissions...');
+        
+        // Try to read from waiter_calls
+        const testRead = await db.collection('waiter_calls').limit(1).get();
+        console.log('✅ Read permission works, found', testRead.docs.length, 'documents');
+        
+        // Try to create a test document
+        const testDoc = await db.collection('waiter_calls').add({
+          test: true,
+          createdAt: new Date().toISOString(),
+          message: 'Test permission'
+        });
+        console.log('✅ Write permission works, created test doc:', testDoc.id);
+        
+        // Try to update the test document
+        await db.collection('waiter_calls').doc(testDoc.id).update({
+          updated: true,
+          updatedAt: new Date().toISOString()
+        });
+        console.log('✅ Update permission works');
+        
+        // Clean up test document
+        await db.collection('waiter_calls').doc(testDoc.id).delete();
+        console.log('✅ Delete permission works, cleaned up test doc');
+        
+        return true;
+      } catch (error) {
+        console.error('❌ Permission test failed:', error);
+        return false;
       }
     }
 
