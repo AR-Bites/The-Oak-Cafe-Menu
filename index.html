@@ -5073,7 +5073,7 @@
     <!-- Guest View -->
     <div class="guest-view" id="guest-view">
       <div class="category-container">
-        <div class="category-heading">Main Categories</div>
+        <div class="category-heading" id="main-categories-heading">Main Categories</div>
         <div class="main-categories" id="main-categories">
           <button class="main-category-btn active" data-maincategory="all" id="all-main-category-btn" onclick="changeMainCategory('all')">
             <span>All</span>
@@ -9104,7 +9104,7 @@
           guestOption: "أنا ضيف",
           staffOption: "أنا موظف",
           login: "تسجيل الدخول",
-          accountLogin: "تسجيل الدخول للحساب",
+          accountLogin: "تسجيل الدخول لل �ساب",
           staffLogin: "تسجيل دخول الموظفين",
           username: "اسم المستخدم",
           password: "كلمة المرور",
@@ -9418,6 +9418,12 @@
         if (shishaBtn) shishaBtn.textContent = currentLanguage === 'ar' ? 'الشيشة' : 'Shisha';
       }
       
+      // Update main categories heading
+      const mainCategoriesHeading = document.getElementById('main-categories-heading');
+      if (mainCategoriesHeading) {
+        mainCategoriesHeading.textContent = currentLanguage === 'ar' ? 'الفئات الرئيسية' : 'Main Categories';
+      }
+      
       // Update subcategory labels
       const foodSubcategoryLabel = document.querySelector('#food-subcategories .subcategory-label');
       const drinksSubcategoryLabel = document.querySelector('#drinks-subcategories .subcategory-label');
@@ -9442,16 +9448,30 @@
       if (saladsCategoryBtn) saladsCategoryBtn.textContent = currentLanguage === 'ar' ? 'سلطات' : 'Salads';
       if (burgersCategoryBtn) burgersCategoryBtn.textContent = currentLanguage === 'ar' ? 'برجر' : 'Burgers';
       
-      // Update drinks subcategory buttons
+      // Update drinks subcategory buttons - Complete list
       const allDrinksBtn = document.getElementById('all-drinks-btn');
       const hotDrinksCategoryBtn = document.getElementById('hot-drinks-category-btn');
-      const coldDrinksCategoryBtn = document.getElementById('cold-drinks-category-btn');
+      const coldCoffeeCategoryBtn = document.getElementById('cold-coffee-category-btn');
+      const frappeCategoryBtn = document.getElementById('frappe-category-btn');
+      const milkshakeCategoryBtn = document.getElementById('milkshake-category-btn');
       const smoothiesCategoryBtn = document.getElementById('smoothies-category-btn');
+      const freshJuiceCategoryBtn = document.getElementById('fresh-juice-category-btn');
+      const mojitoCategoryBtn = document.getElementById('mojito-category-btn');
+      const icedTeaCategoryBtn = document.getElementById('iced-tea-category-btn');
+      const nonCoffeeCategoryBtn = document.getElementById('non-coffee-category-btn');
+      const softDrinksCategoryBtn = document.getElementById('soft-drinks-category-btn');
       
       if (allDrinksBtn) allDrinksBtn.textContent = currentLanguage === 'ar' ? 'كل المشروبات' : 'All Drinks';
       if (hotDrinksCategoryBtn) hotDrinksCategoryBtn.textContent = currentLanguage === 'ar' ? 'مشروبات ساخنة' : 'Hot Drinks';
-      if (coldDrinksCategoryBtn) coldDrinksCategoryBtn.textContent = currentLanguage === 'ar' ? 'مشروبات باردة' : 'Cold Drinks';
-      if (smoothiesCategoryBtn) smoothiesCategoryBtn.textContent = currentLanguage === 'ar' ? 'عصائر' : 'Smoothies';
+      if (coldCoffeeCategoryBtn) coldCoffeeCategoryBtn.textContent = currentLanguage === 'ar' ? 'قهوة باردة' : 'Cold Coffee';
+      if (frappeCategoryBtn) frappeCategoryBtn.textContent = currentLanguage === 'ar' ? 'فرابيه' : 'Frappe';
+      if (milkshakeCategoryBtn) milkshakeCategoryBtn.textContent = currentLanguage === 'ar' ? 'ميلك شيك' : 'Milk Shake';
+      if (smoothiesCategoryBtn) smoothiesCategoryBtn.textContent = currentLanguage === 'ar' ? 'سموثي' : 'Smoothies';
+      if (freshJuiceCategoryBtn) freshJuiceCategoryBtn.textContent = currentLanguage === 'ar' ? 'عصير طازج' : 'Fresh Juice';
+      if (mojitoCategoryBtn) mojitoCategoryBtn.textContent = currentLanguage === 'ar' ? 'موخيتو' : 'Mojito';
+      if (icedTeaCategoryBtn) icedTeaCategoryBtn.textContent = currentLanguage === 'ar' ? 'شاي مثلج' : 'Iced Tea';
+      if (nonCoffeeCategoryBtn) nonCoffeeCategoryBtn.textContent = currentLanguage === 'ar' ? 'بدون قهوة' : 'Non-Coffee';
+      if (softDrinksCategoryBtn) softDrinksCategoryBtn.textContent = currentLanguage === 'ar' ? 'مشروبات غازية' : 'Soft Drinks';
       
       // Update desserts subcategory buttons
       const allDessertsBtn = document.getElementById('all-desserts-btn');
