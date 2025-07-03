@@ -6356,7 +6356,7 @@
         nameAr: "سيليزون",
         modelSrc: "models/celezone",
         description: "Exquisite seafood pasta with mussels, gnocchi, and aromatic herbs in a rich sauce.",
-        descriptionAr: "معo�رونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
+        descriptionAr: "معw�رونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
         price: 19.99,
         category: "pasta",
         mainCategory: "food"
@@ -6771,7 +6771,7 @@
       },
       {
         name: "Espresso Macchiato",
-        nameAr: "إسبريسو ماكياتو",
+        nameAr: "إس��ريسو ماكياتو",
 
         description: "Rich espresso marked with a dollop of steamed milk foam.",
         price: 3.0,
@@ -11644,14 +11644,22 @@
           message: currentLanguage === 'ar' 
             ? `طاولة رقم ${currentTableNumber} تطلب النادل`
             : `Table ${currentTableNumber} is calling for waiter`,
-          type: 'waiter_call',
-          id: `call_${currentTableNumber}_${Date.now()}`
+          type: 'waiter_call'
         };
         
         console.log('Creating waiter call notification:', waiterCall);
         
-        // Add to Firebase
-        await db.collection('waiter_calls').add(waiterCall);
+        // Add to Firebase and get the document reference
+        const docRef = await db.collection('waiter_calls').add(waiterCall);
+        console.log('✅ Waiter call created with ID:', docRef.id);
+        
+        // Verify the document was created by reading it back
+        const verifyDoc = await docRef.get();
+        if (verifyDoc.exists) {
+          console.log('✅ Verified waiter call document exists:', verifyDoc.data());
+        } else {
+          console.error('❌ Failed to verify waiter call document creation');
+        }
         
         // Show success notification
         showNotification(
@@ -16993,13 +17001,27 @@
           throw new Error('Database connection not available');
         }
         
+        // First, let's check all waiter calls to debug the issue
+        console.log('🔍 Debugging: Checking all waiter calls...');
+        const allCalls = await db.collection('waiter_calls').get();
+        console.log('📋 All waiter calls in database:');
+        allCalls.docs.forEach(doc => {
+          console.log(`  - ID: ${doc.id}, Data:`, doc.data());
+        });
+        
         // Try to get the call document first to verify it exists
+        console.log(`🔍 Looking for specific call document: ${callId}`);
         const callDoc = await db.collection('waiter_calls').doc(callId).get();
         if (!callDoc.exists) {
+          console.error(`❌ Call document ${callId} does not exist`);
+          console.log('🔍 Available call IDs:', allCalls.docs.map(doc => doc.id));
           throw new Error(`Call document ${callId} does not exist`);
         }
         
-        console.log('✅ Call document found, updating status...');
+        console.log('✅ Call document found:', callDoc.data());
+        
+        // Add a small delay to ensure Firebase consistency
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         // Update call status to responded using simpler update
         const updateData = {
