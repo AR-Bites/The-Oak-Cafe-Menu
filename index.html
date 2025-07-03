@@ -4749,6 +4749,9 @@
           <button class="main-category-btn" data-maincategory="desserts" id="desserts-main-category-btn" onclick="changeMainCategory('desserts')">
             <span>Desserts</span>
           </button>
+          <button class="main-category-btn" data-maincategory="shisha" id="shisha-main-category-btn" onclick="changeMainCategory('shisha')">
+            <span>Shisha</span>
+          </button>
         </div>
         
         <div class="sub-categories" id="sub-categories">
@@ -4789,6 +4792,17 @@
               <button class="category-btn active" data-category="all-desserts" data-parent="desserts" id="all-desserts-btn" onclick="changeCategory('all-desserts')">All Desserts</button>
               <button class="category-btn" data-category="cakes" data-parent="desserts" id="cakes-category-btn" onclick="changeCategory('cakes')">Cakes</button>
               <button class="category-btn" data-category="ice-cream" data-parent="desserts" id="ice-cream-category-btn" onclick="changeCategory('ice-cream')">Ice Cream</button>
+            </div>
+          </div>
+          
+          <!-- Shisha subcategories -->
+          <div class="subcategory-group" id="shisha-subcategories" style="display: none;">
+            <div class="subcategory-label">Shisha Types</div>
+            <div class="subcategory-buttons">
+              <button class="category-btn active" data-category="all-shisha" data-parent="shisha" id="all-shisha-btn" onclick="changeCategory('all-shisha')">All Shisha</button>
+              <button class="category-btn" data-category="fruit-shisha" data-parent="shisha" id="fruit-shisha-category-btn" onclick="changeCategory('fruit-shisha')">Fruit Flavors</button>
+              <button class="category-btn" data-category="mint-shisha" data-parent="shisha" id="mint-shisha-category-btn" onclick="changeCategory('mint-shisha')">Mint Flavors</button>
+              <button class="category-btn" data-category="special-shisha" data-parent="shisha" id="special-shisha-category-btn" onclick="changeCategory('special-shisha')">Special</button>
             </div>
           </div>
         </div>
@@ -6491,7 +6505,7 @@
       },
       {
         name: "Flat White",
-        nameAr: "ف �ات وايت",
+        nameAr: "فلات وايت",
 
         description: "Smooth espresso with steamed milk and microfoam.",
         price: 3.25,
@@ -6747,7 +6761,7 @@
       },
       {
         name: "White Fruit Frappe",
-        nameAr: "فرابيه فواكه بيضاء",
+        nameAr: "فرابيه فواكه بيضu�ء",
 
         description: "Refreshing white fruit blended frappe.",
         price: 3.8,
@@ -7446,6 +7460,184 @@
         price: 3.0,
         category: "ice-cream",
         mainCategory: "desserts"
+      },
+
+      // SHISHA
+      {
+        name: "Sahem Gum Shisha",
+        nameAr: "شيشة صاحم بالعلكة",
+        description: "Premium gum flavored shisha.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Lemon with Mint",
+        nameAr: "ليمون بالنعناع",
+        description: "Refreshing lemon and mint shisha blend.",
+        price: 6.15,
+        category: "mint-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Mazaya Love",
+        nameAr: "مزايا حب",
+        description: "Mazaya love flavored shisha.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Watermelons with Mint",
+        nameAr: "بطيخ بالنعناع",
+        description: "Sweet watermelon with fresh mint.",
+        price: 6.16,
+        category: "mint-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Special Shisha",
+        nameAr: "شيشة خاصة",
+        description: "Our house special premium shisha blend.",
+        price: 17.15,
+        category: "special-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Grapes Shisha",
+        nameAr: "شيشة عنب",
+        description: "Sweet grape flavored shisha.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Blueberry Shisha",
+        nameAr: "شيشة توت أزرق",
+        description: "Rich blueberry flavored shisha.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Two Apples with Licorice",
+        nameAr: "تفاحتين بالعرقسوس",
+        description: "Double apple with licorice flavor.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Cinnamon with Mint",
+        nameAr: "قرفة بالنعناع",
+        description: "Warm cinnamon with refreshing mint.",
+        price: 6.15,
+        category: "mint-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Mastic Shisha",
+        nameAr: "شيشة مستكة",
+        description: "Traditional mastic flavored shisha.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Cinnamon with Gum",
+        nameAr: "قرفة بالعلكة",
+        description: "Cinnamon and gum flavor combination.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Gum and Mint",
+        nameAr: "علكة ونعناع",
+        description: "Fresh gum and mint blend.",
+        price: 6.15,
+        category: "mint-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Grapes with Berries",
+        nameAr: "عنب بالتوت",
+        description: "Grapes mixed with berry flavors.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Oranges with Mint",
+        nameAr: "برتقال بالنعناع",
+        description: "Fresh orange with cooling mint.",
+        price: 6.15,
+        category: "mint-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Two Apples Mazaya",
+        nameAr: "تفاحتين مزايا",
+        description: "Premium Mazaya double apple flavor.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Two Apple Fakher",
+        nameAr: "تفاحتين فاخر",
+        description: "Premium Fakher double apple flavor.",
+        price: 7.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Two Apples Nakhleh",
+        nameAr: "تفاحتين نخلة",
+        description: "Premium Nakhleh double apple flavor.",
+        price: 7.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Grapes with Mint",
+        nameAr: "عنب بالنعناع",
+        description: "Sweet grapes with refreshing mint.",
+        price: 6.15,
+        category: "mint-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Candy Shisha",
+        nameAr: "شيشة حلوى",
+        description: "Sweet candy flavored shisha.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Extra Tobacco Nakhlah",
+        nameAr: "تبغ إضافي نخلة",
+        description: "Extra premium Nakhlah tobacco.",
+        price: 3.5,
+        category: "special-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Mixed Fruit",
+        nameAr: "فواكه مشكلة",
+        description: "Blend of mixed fruit flavors.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
+      },
+      {
+        name: "Mixed Citrus Fruits",
+        nameAr: "حمضيات مشكلة",
+        description: "Mix of citrus fruit flavors.",
+        price: 6.15,
+        category: "fruit-shisha",
+        mainCategory: "shisha"
       }
 
     ];
@@ -7783,7 +7975,7 @@
         let modelStatusText = '';
         
         if (progress <= 35) {
-          newText = currentLanguage === 'ar' ? 'تجهيز الوا �هة المعززة...' : 'Preparing AR Interface...';
+          newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
@@ -8178,7 +8370,7 @@
           </div>
         </div>
         <div class="embedded-login-actions">
-          <button id="embedded-login-btn" class="embedded-login-btn">${currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN'}</button>
+          <button id="embedded-login-btn" class="embedded-login-btn">${currentLanguage === 'ar' ? 'تسجي � الدخول' : 'LOGIN'}</button>
         </div>
         <div id="embedded-login-error" class="login-error"></div>
       `;
@@ -8811,6 +9003,7 @@
       const foodMainCategoryBtn = document.getElementById('food-main-category-btn');
       const drinksMainCategoryBtn = document.getElementById('drinks-main-category-btn');
       const dessertsMainCategoryBtn = document.getElementById('desserts-main-category-btn');
+      const shishaMainCategoryBtn = document.getElementById('shisha-main-category-btn');
       
       if (allMainCategoryBtn) {
         const allBtn = allMainCategoryBtn.querySelector('span');
@@ -8828,15 +9021,21 @@
         const dessertsBtn = dessertsMainCategoryBtn.querySelector('span');
         if (dessertsBtn) dessertsBtn.textContent = currentLanguage === 'ar' ? 'الحلويات' : 'Desserts';
       }
+      if (shishaMainCategoryBtn) {
+        const shishaBtn = shishaMainCategoryBtn.querySelector('span');
+        if (shishaBtn) shishaBtn.textContent = currentLanguage === 'ar' ? 'الشيشة' : 'Shisha';
+      }
       
       // Update subcategory labels
       const foodSubcategoryLabel = document.querySelector('#food-subcategories .subcategory-label');
       const drinksSubcategoryLabel = document.querySelector('#drinks-subcategories .subcategory-label');
       const dessertsSubcategoryLabel = document.querySelector('#desserts-subcategories .subcategory-label');
+      const shishaSubcategoryLabel = document.querySelector('#shisha-subcategories .subcategory-label');
       
       if (foodSubcategoryLabel) foodSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الطعام' : 'Food Types';
       if (drinksSubcategoryLabel) drinksSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع المشروبات' : 'Beverage Types';
       if (dessertsSubcategoryLabel) dessertsSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الحلويات' : 'Dessert Types';
+      if (shishaSubcategoryLabel) shishaSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الشيشة' : 'Shisha Types';
 
       // Update food subcategory buttons
       const allFoodBtn = document.getElementById('all-food-btn');
@@ -8871,11 +9070,22 @@
       if (cakesCategoryBtn) cakesCategoryBtn.textContent = currentLanguage === 'ar' ? 'كيك' : 'Cakes';
       if (iceCreamCategoryBtn) iceCreamCategoryBtn.textContent = currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream';
       
+      // Update shisha subcategory buttons
+      const allShishaBtn = document.getElementById('all-shisha-btn');
+      const fruitShishaCategoryBtn = document.getElementById('fruit-shisha-category-btn');
+      const mintShishaCategoryBtn = document.getElementById('mint-shisha-category-btn');
+      const specialShishaCategoryBtn = document.getElementById('special-shisha-category-btn');
+      
+      if (allShishaBtn) allShishaBtn.textContent = currentLanguage === 'ar' ? 'كل الشيشة' : 'All Shisha';
+      if (fruitShishaCategoryBtn) fruitShishaCategoryBtn.textContent = currentLanguage === 'ar' ? 'نكهات الفواكه' : 'Fruit Flavors';
+      if (mintShishaCategoryBtn) mintShishaCategoryBtn.textContent = currentLanguage === 'ar' ? 'نكهات النعناع' : 'Mint Flavors';
+      if (specialShishaCategoryBtn) specialShishaCategoryBtn.textContent = currentLanguage === 'ar' ? 'خاص' : 'Special';
+      
       // Also update the current food item in case it has translations
       updateFoodDisplay();
       
       // Update table input placeholder
-      tableNumberInput.placeholder = currentLanguage === 'ar' ? ' �دخل رقم الطاولة' : 'Enter table number';
+      tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم الطاولة' : 'Enter table number';
       
       // Update special instructions placeholder
       itemNotes.placeholder = currentLanguage === 'ar' ? 'أي طلبات خاصة...' : 'Any special requests...';
@@ -16177,7 +16387,7 @@
           },
           menu: {
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
-            week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
+            week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبu� 24٪ من المبيعات هذا الأسبوع',
             month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
             year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
