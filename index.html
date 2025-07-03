@@ -1123,24 +1123,7 @@
       gap: 12px;
     }
     
-    .cart-item-model {
-      width: 55px;
-      height: 55px;
-      position: relative;
-      flex-shrink: 0;
-      margin-right: 5px;
-      overflow: hidden;
-      border-radius: 8px;
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    .cart-item model-viewer {
-      width: 100%;
-      height: 100%;
-      --poster-color: transparent;
-      --progress-bar-color: var(--gold);
-      --progress-mask: transparent;
-    }
+    /* Removed cart-item-model CSS since 3D models are no longer shown in cart */
     
     .item-name {
       flex: 2;
@@ -6306,7 +6289,7 @@
         nameAr: "وعاء المأكولات البحرية",
         modelSrc: "models/seaFoodBowl_",
         description: "Fresh seafood medley with shrimp, fish, and vegetables in aromatic broth.",
-        descriptionAr: "خليط مأكولات بحرية طازجة مع روبيان وسمك وخضار في مرق عطري.",
+        descriptionAr: "خليط مأكولات m�حرية طازجة مع روبيان وسمك وخضار في مرق عطري.",
         price: 19.99,
         category: "seafood",
         mainCategory: "food"
@@ -9609,57 +9592,7 @@
         const cartItemContent = document.createElement('div');
         cartItemContent.className = 'cart-item-content';
         
-        // Add 3D model viewer for menu items that have models
-        const modelContainer = document.createElement('div');
-        modelContainer.className = 'cart-item-model';
-        
-        // Use the model directly from the cart item if available, otherwise find it
-        if (item.model) {
-          const modelViewer = document.createElement('model-viewer');
-          // Use absolute path to model with error handling
-          const modelPath = item.model.startsWith('/') ? item.model : `/models/${item.model.split('/').pop()}`;
-          console.log("Setting cart model path to:", modelPath);
-          modelViewer.addEventListener('error', (e) => {
-            console.error("Error loading cart model:", modelPath, e);
-          });
-          modelViewer.setAttribute('src', modelPath.replace(/ /g, '%20'));
-          modelViewer.setAttribute('ar', '');
-          modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
-          modelViewer.setAttribute('camera-controls', '');
-          modelViewer.setAttribute('auto-rotate', '');
-          modelViewer.setAttribute('rotation-per-second', '30deg');
-          modelViewer.setAttribute('shadow-intensity', '1');
-          modelViewer.setAttribute('camera-orbit', '0deg 75deg 2m');
-          modelViewer.setAttribute('alt', item.name);
-          modelViewer.setAttribute('style', 'width: 100%; height: 100%;');
-          modelContainer.appendChild(modelViewer);
-        } else {
-          // If model not directly on cart item, try to find it from food items
-          const foodItem = filteredFoodItems.find(f => f.name === item.name);
-          if (foodItem && foodItem.modelSrc) {
-            const modelViewer = document.createElement('model-viewer');
-            // Use absolute path to model with error handling
-            const modelPath = foodItem.modelSrc.startsWith('/') ? foodItem.modelSrc : `/models/${foodItem.modelSrc.split('/').pop()}`;
-            console.log("Setting cart foodItem model path to:", modelPath);
-            modelViewer.addEventListener('error', (e) => {
-              console.error("Error loading cart foodItem model:", modelPath, e);
-            });
-            modelViewer.setAttribute('src', modelPath.replace(/ /g, '%20'));
-            modelViewer.setAttribute('ar', '');
-            modelViewer.setAttribute('ar-modes', 'webxr scene-viewer quick-look');
-            modelViewer.setAttribute('camera-controls', '');
-            modelViewer.setAttribute('auto-rotate', '');
-            modelViewer.setAttribute('rotation-per-second', '30deg');
-            modelViewer.setAttribute('shadow-intensity', '1');
-            modelViewer.setAttribute('camera-orbit', '0deg 75deg 2m');
-            modelViewer.setAttribute('alt', item.name);
-            modelViewer.setAttribute('style', 'width: 100%; height: 100%;');
-            modelContainer.appendChild(modelViewer);
-          } else {
-            // Fallback for items without 3D models
-            modelContainer.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-utensils" style="color:var(--gold);opacity:0.5;font-size:20px;"></i></div>';
-          }
-        }
+        // Removed 3D model viewer from cart items as requested
         
         const itemName = document.createElement('div');
         itemName.className = 'item-name';
@@ -9700,7 +9633,6 @@
         };
         
         // Build cart item with improved layout
-        cartItemContent.appendChild(modelContainer);
         cartItemContent.appendChild(itemName);
         
         cartItem.appendChild(cartItemContent);
