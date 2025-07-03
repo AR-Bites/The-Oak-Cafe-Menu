@@ -461,26 +461,27 @@
     .ar-button {
       background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%) !important;
       color: white !important;
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
+      position: absolute !important;
+      bottom: 8px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
       padding: 4px 10px;
       font-weight: 500;
       animation: pulse 2s infinite;
       font-size: 0.7rem;
-      width: calc(100% - 24px);
-      max-width: 220px;
+      width: calc(100% - 24px) !important;
+      max-width: 220px !important;
       border-radius: 25px !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       gap: 8px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-      z-index: 10;
+      z-index: 10 !important;
       border: 2px solid rgba(255, 255, 255, 0.3) !important;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      margin: 0 !important;
     }
     
     .ar-button::before {
@@ -498,9 +499,9 @@
     }
     
     @keyframes pulse {
-      0% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.03); }
-      100% { transform: translateX(-50%) scale(1); }
+      0% { transform: translateX(-50%) scale(1) !important; }
+      50% { transform: translateX(-50%) scale(1.03) !important; }
+      100% { transform: translateX(-50%) scale(1) !important; }
     }
     
     .footer {
@@ -4232,6 +4233,8 @@
         font-size: 0.65rem !important;
         padding: 3px 8px !important;
         bottom: 10px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
         border-radius: 15px !important;
         box-shadow: 0 1px 4px rgba(0,0,0,0.15) !important;
         display: flex !important;
@@ -4239,6 +4242,8 @@
         justify-content: center !important;
         gap: 4px !important;
         min-height: 24px !important;
+        position: absolute !important;
+        margin: 0 !important;
       }
       
       /* Improve form elements on mobile */
@@ -9104,7 +9109,7 @@
           guestOption: "أنا ضيف",
           staffOption: "أنا موظف",
           login: "تسجيل الدخول",
-          accountLogin: "تسجيل الدخول لل �ساب",
+          accountLogin: "تسجيل الدخول للحساب",
           staffLogin: "تسجيل دخول الموظفين",
           username: "اسم المستخدم",
           password: "كلمة المرور",
@@ -12181,7 +12186,7 @@
       if (!db || typeof db.collection !== 'function') {
         console.error("Firebase database not initialized");
         ordersList.innerHTML = `
-          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>
+          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانا � غير متصلة' : 'Error: Database not connected'}</p>
           <button onclick="renderOrders(0)" class="retry-btn" style="display: block; margin: 10px auto; padding: 5px 15px; background: var(--gold); color: black; border: none; border-radius: 4px; cursor: pointer;">
             <i class="fas fa-sync-alt"></i> ${currentLanguage === 'ar' ? 'إعادة المحاولة' : 'Retry'}
           </button>
