@@ -4878,19 +4878,10 @@
           </div>
         </div>
         
-        <!-- Old extras section removed in favor of the new customize modal -->
-        <div class="extras-section" style="display: none;">
-          <div class="input-group">
-            <label for="extras-select" id="extras-label">ADD EXTRAS</label>
-            <select id="extras-select" disabled>
-              <option value="">No extras</option>
-            </select>
-          </div>
-          
-          <div class="input-group">
-            <label for="item-notes" id="notes-label">SPECIAL INSTRUCTIONS</label>
-            <textarea id="item-notes" disabled rows="2" placeholder="Please use the customize modal instead"></textarea>
-          </div>
+        <!-- Extras functionality removed -->
+        <div class="input-group">
+          <label for="item-notes" id="notes-label">SPECIAL INSTRUCTIONS</label>
+          <textarea id="item-notes" rows="2" placeholder="Any special requests..."></textarea>
         </div>
       </div>
       
@@ -7082,7 +7073,7 @@
       },
       {
         name: "Strawberry Mojito",
-        nameAr: "موخيتو الفراولة",
+        nameAr: "موخيتو الفراولy�",
 
         description: "Sweet strawberry mojito with mint.",
         price: 3.5,
@@ -7734,7 +7725,6 @@
     const nextBtn = document.getElementById("next-btn");
     const addCartBtn = document.getElementById("add-cart-btn");
     const arButton = document.getElementById("ar-button");
-    const extrasLabel = document.getElementById("extras-label");
     const notesLabel = document.getElementById("notes-label");
     const statusNotification = document.getElementById("status-notification");
     const statusTitle = document.getElementById("status-title");
@@ -7758,7 +7748,6 @@
     const guestOptionText = document.getElementById("guest-option-text");
     const staffOptionText = document.getElementById("staff-option-text");
     const itemNotes = document.getElementById("item-notes");
-    const extrasSelect = document.getElementById("extras-select");
 
     const totalBreakdown = document.getElementById("total-breakdown");
     const estimatedTimeEl = document.getElementById("estimated-time");
@@ -8391,7 +8380,7 @@
         
         // Show success notification
         showNotification(
-          currentLanguage === 'ar' ? 'تم تسجيل الخروج بنجاح' : 'Successfully Logged Out',
+          currentLanguage === 'ar' ? 'تم تسجيل الe�روج بنجاح' : 'Successfully Logged Out',
           currentLanguage === 'ar' 
             ? (previousUserType === 'admin' || previousUserType === 'staff' ? 'يمكنك الآن تسجيل الدخول مرة أخرى' : 'يمكنك الآن اختيار دور آخر')
             : (previousUserType === 'admin' || previousUserType === 'staff' ? 'You can now log in again' : 'You can now choose another role'),
@@ -8687,7 +8676,6 @@
           prev: "← PREV",
           next: "NEXT →",
           viewInAr: "VIEW IN AR",
-          addExtras: "ADD EXTRAS",
           specialInstructions: "SPECIAL INSTRUCTIONS",
           discountCode: "DISCOUNT CODE",
           apply: "APPLY",
@@ -8872,7 +8860,6 @@
       nextBtn.textContent = t.next;
       addCartBtn.textContent = t.addToCart;
       arButton.textContent = t.viewInAr;
-      extrasLabel.textContent = t.addExtras;
       notesLabel.textContent = t.specialInstructions;
 
 
@@ -9547,407 +9534,42 @@
         return;
       }
       
-      // Get the current item and show customization modal
+      // Get the current item and add it directly to cart (no customization)
       const item = filteredFoodItems[currentFoodIndex];
-      showCustomizeModal(item);
-    }
-    
-    // Show the customization modal for the current item
-    function showCustomizeModal(item) {
-      // Reset customization state
-      currentCustomizeItem = item;
-      selectedExtras = [];
-      itemQuantity = 1;
       
-      // Update modal content
-      document.getElementById('customize-item-name').textContent = item.name;
+      // Get special instructions if any
+      const notes = itemNotes.value.trim();
       
-      // Set item image - for demo we'll use a placeholder or the model viewer image
-      const itemImage = document.getElementById('customize-item-image');
-      
-      // Try to get a screenshot from the model viewer if available
-      try {
-        if (modelViewer && modelViewer.toDataURL) {
-          itemImage.src = modelViewer.toDataURL('image/png');
-        } else {
-          // Use a category-based placeholder
-          if (item.category === 'hot_food') {
-            itemImage.src = 'https://i.ibb.co/k6v5sfh/hot-food-placeholder.jpg';
-          } else if (item.category === 'cold_food') {
-            itemImage.src = 'https://i.ibb.co/0j2C7Vq/cold-food-placeholder.jpg';
-          } else if (item.category === 'drinks') {
-            itemImage.src = 'https://i.ibb.co/YZNt0Y4/drinks-placeholder.jpg';
-          } else if (item.category === 'desserts') {
-            itemImage.src = 'https://i.ibb.co/RYst42D/desserts-placeholder.jpg';
-          } else {
-            itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
-          }
-        }
-      } catch (e) {
-        console.error("Error setting image:", e);
-        itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
-      }
-      
-      // Set price
-      document.getElementById('customize-base-price').textContent = `${item.price.toFixed(2)} JOD`;
-      document.getElementById('customize-total-price').textContent = `${item.price.toFixed(2)} JOD`;
-      
-      // Reset quantity
-      document.getElementById('quantity-value').textContent = '1';
-      
-      // Clear special instructions
-      document.getElementById('special-instructions').value = '';
-      
-      // Generate extras options based on item category
-      const extrasGrid = document.getElementById('extras-options');
-      extrasGrid.innerHTML = '';
-      
-      // Define extras based on item category
-      let availableExtras = [];
-      
-      if (item.category === 'hot_food' && item.name.toLowerCase().includes('pizza')) {
-        availableExtras = [
-          { id: 'extra_cheese', name: currentLanguage === 'ar' ? 'جبنة إضافية' : 'Extra Cheese', price: 2.00 },
-          { id: 'pepperoni', name: currentLanguage === 'ar' ? 'بيبروني' : 'Pepperoni', price: 2.50 },
-          { id: 'mushrooms', name: currentLanguage === 'ar' ? 'فطر' : 'Mushrooms', price: 1.50 },
-          { id: 'olives', name: currentLanguage === 'ar' ? 'زيتون' : 'Olives', price: 1.00 },
-          { id: 'garlic_bread', name: currentLanguage === 'ar' ? 'خبز بالثوم' : 'Garlic Bread Side', price: 4.00 }
-        ];
-      } else if (item.category === 'hot_food' && item.name.toLowerCase().includes('pasta')) {
-        availableExtras = [
-          { id: 'parmesan', name: currentLanguage === 'ar' ? 'جبنة بارميزان' : 'Parmesan Cheese', price: 2.00 },
-          { id: 'garlic_bread', name: currentLanguage === 'ar' ? 'خبز بالثوم' : 'Garlic Bread Side', price: 4.00 },
-          { id: 'extra_sauce', name: currentLanguage === 'ar' ? 'صلصة إضافية' : 'Extra Sauce', price: 1.50 },
-          { id: 'chicken', name: currentLanguage === 'ar' ? 'دجاج إضافي' : 'Extra Chicken', price: 3.00 }
-        ];
-      } else if (item.category === 'drinks') {
-        availableExtras = [
-          { id: 'ice', name: currentLanguage === 'ar' ? 'ثلج إضافي' : 'Extra Ice', price: 0.00 },
-          { id: 'lemon', name: currentLanguage === 'ar' ? 'ليمون' : 'Lemon Slice', price: 0.50 },
-          { id: 'mint', name: currentLanguage === 'ar' ? 'نعناع' : 'Fresh Mint', price: 1.00 },
-          { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 }
-        ];
-      } else if (item.category === 'desserts') {
-        availableExtras = [
-          { id: 'ice_cream', name: currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream Scoop', price: 2.00 },
-          { id: 'chocolate_sauce', name: currentLanguage === 'ar' ? 'صوص شوكولاتة' : 'Chocolate Sauce', price: 1.00 },
-          { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 },
-          { id: 'berries', name: currentLanguage === 'ar' ? 'توت طازج' : 'Fresh Berries', price: 2.50 }
-        ];
-      } else {
-        availableExtras = [
-          { id: 'extra_sauce', name: currentLanguage === 'ar' ? 'صلصة إضافية' : 'Extra Sauce', price: 1.50 },
-          { id: 'side_salad', name: currentLanguage === 'ar' ? 'سلطة جانبية' : 'Side Salad', price: 3.00 }
-        ];
-      }
-      
-      // Create extra options in the grid
-      availableExtras.forEach(extra => {
-        const extraElement = document.createElement('div');
-        extraElement.className = 'extra-option';
-        extraElement.dataset.id = extra.id;
-        extraElement.dataset.price = extra.price;
-        
-        extraElement.innerHTML = `
-          <div class="extra-checkbox"></div>
-          <div class="extra-details">
-            <div class="extra-name">${extra.name}</div>
-            <div class="extra-price">${extra.price > 0 ? '+' + extra.price.toFixed(2) + ' JOD' : currentLanguage === 'ar' ? 'مجاني' : 'Free'}</div>
-          </div>
-        `;
-        
-        extraElement.addEventListener('click', () => toggleExtra(extraElement, extra));
-        extrasGrid.appendChild(extraElement);
-      });
-      
-      // Localize UI elements based on current language
-      updateCustomizeModalLanguage();
-      
-      // Show the modal
-      const customizeModal = document.getElementById('customize-modal');
-      customizeModal.style.display = 'block';
-      
-      // Focus on instructions field for better UX
-      setTimeout(() => {
-        document.getElementById('special-instructions').focus();
-      }, 500);
-    }
-    
-    // Toggle extra selection and update total price
-    function toggleExtra(element, extra) {
-      element.classList.toggle('selected');
-      
-      if (element.classList.contains('selected')) {
-        // Add to selected extras
-        selectedExtras.push(extra);
-      } else {
-        // Remove from selected extras
-        selectedExtras = selectedExtras.filter(e => e.id !== extra.id);
-      }
-      
-      // Update total price
-      updateTotalPrice();
-    }
-    
-    // Update total price based on selected extras and quantity
-    function updateTotalPrice() {
-      if (!currentCustomizeItem) return;
-      
-      // Calculate extras cost
-      const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
-      
-      // Calculate total price with quantity
-      const totalPrice = (currentCustomizeItem.price + extrasCost) * itemQuantity;
-      
-      // Update display
-      document.getElementById('customize-total-price').textContent = `${totalPrice.toFixed(2)} JOD`;
-      
-      // If there are extras or quantity > 1, show the base price as well
-      const basePrice = document.getElementById('customize-base-price');
-      if (extrasCost > 0 || itemQuantity > 1) {
-        basePrice.textContent = `${currentCustomizeItem.price.toFixed(2)} JOD`;
-        basePrice.style.display = 'block';
-      } else {
-        basePrice.style.display = 'none';
-      }
-    }
-    
-    // Change item quantity
-    function changeQuantity(change) {
-      const quantityDisplay = document.getElementById('quantity-value');
-      let newQuantity = parseInt(quantityDisplay.textContent) + change;
-      
-      // Ensure quantity is between 1 and 10
-      newQuantity = Math.max(1, Math.min(10, newQuantity));
-      
-      // Update display
-      quantityDisplay.textContent = newQuantity;
-      itemQuantity = newQuantity;
-      
-      // Update total price
-      updateTotalPrice();
-      
-      // Disable decrease button if at minimum
-      document.getElementById('decrease-quantity').disabled = newQuantity <= 1;
-      
-      // Add a visual indication that we've reached min/max
-      if (newQuantity === 1 || newQuantity === 10) {
-        quantityDisplay.classList.add('quantity-limit');
-        setTimeout(() => {
-          quantityDisplay.classList.remove('quantity-limit');
-        }, 300);
-      }
-    }
-    
-    // Close the customization modal
-    function closeCustomizeModal() {
-      const customizeModal = document.getElementById('customize-modal');
-      
-      // Add fade-out animation
-      customizeModal.style.opacity = '0';
-      
-      setTimeout(() => {
-        customizeModal.style.display = 'none';
-        customizeModal.style.opacity = '1';
-        
-        // Reset state
-        currentCustomizeItem = null;
-        selectedExtras = [];
-        itemQuantity = 1;
-        currentEditingCartIndex = -1; // Reset editing state
-        
-        // Reset button text to default
-        const addToCartText = document.getElementById('add-to-cart-text');
-        if (addToCartText) {
-          addToCartText.textContent = currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART';
-        }
-      }, 300);
-    }
-    
-    // Add the customized item to cart
-    function addCustomizedItemToCart() {
-      if (!currentCustomizeItem) return;
-      
-      // Get selected extras
-      const extrasLabels = selectedExtras.map(extra => extra.name);
-      const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
-      
-      // Get special instructions
-      const specialInstructions = document.getElementById('special-instructions').value.trim();
-      
-      // Calculate total price for a single item
-      const singleItemPrice = currentCustomizeItem.price + extrasCost;
-      
-      // Create cart item with 3D model info
+      // Create cart item without extras
       const cartItem = {
-        name: currentCustomizeItem.name,
-        price: currentCustomizeItem.price,
-        extras: extrasLabels.length > 0 ? extrasLabels.join(', ') : null,
-        extrasCost: extrasCost,
-        notes: specialInstructions,
-        quantity: itemQuantity,
-        totalPrice: singleItemPrice * itemQuantity,
-        model: currentCustomizeItem.modelSrc // Use the standardized model path
+        name: currentLanguage === 'ar' && item.nameAr ? item.nameAr : item.name,
+        nameEn: item.name,
+        nameAr: item.nameAr || item.name,
+        price: item.price,
+        quantity: 1,
+        totalPrice: item.price,
+        notes: notes || '',
+        category: item.category,
+        mainCategory: item.mainCategory
       };
-      
-      console.log("Processing cart item:", cartItem);
-      
-      // Check if we're editing an existing item or adding a new one
-      if (currentEditingCartIndex >= 0 && currentEditingCartIndex < cart.length) {
-        // Update existing item
-        cart[currentEditingCartIndex] = cartItem;
-        console.log("Updated existing cart item at index:", currentEditingCartIndex);
-      } else {
-        // Add new item to cart
-        cart.push(cartItem);
-        console.log("Added new item to cart");
-      }
-      
-      // Persist cart to localStorage for recovery
-      try {
-        localStorage.setItem('arBitesCart', JSON.stringify(cart));
-      } catch (e) {
-        console.error("Error saving cart to localStorage:", e);
-      }
-      
-      // Update cart display and UI
+
+      // Add to cart
+      cart.push(cartItem);
       updateCartDisplay();
       
-      // Verify the checkout button is enabled
-      checkoutBtn.disabled = false;
+      // Clear notes after adding
+      itemNotes.value = '';
       
-      // Store a reference to the item name and quantity before closing the modal
-      const itemName = currentCustomizeItem.name;
-      const itemQty = itemQuantity;
-      
-      // Show confirmation notification
+      // Show success notification
       showNotification(
-        currentLanguage === 'ar' ? 'تمت الإضافة' : 'Added to Cart',
         currentLanguage === 'ar' 
-          ? `تم إضافة ${itemQty > 1 ? itemQty + 'x ' : ''}${itemName} إلى سلة التسوق` 
-          : `${itemQty > 1 ? itemQty + 'x ' : ''}${itemName} has been added to your cart`,
+          ? 'تم إضافة العنصر إلى سلة التسوق' 
+          : 'Item added to cart', 
         'success'
       );
     }
     
-    // Update customization modal text based on current language
-    function updateCustomizeModalLanguage() {
-      if (currentLanguage === 'ar') {
-        document.getElementById('extras-section-title').textContent = 'إضافات';
-        document.getElementById('extras-subtitle').textContent = 'اختر الإضافات أو المكونات الجانبية';
-        document.getElementById('instructions-section-title').textContent = 'تعليمات خاصة';
-        document.getElementById('instructions-subtitle').textContent = 'أي طلبات خاصة لطلبك؟';
-        document.getElementById('quantity-label').textContent = 'الكمية';
-        document.getElementById('add-to-cart-text').textContent = 'إضافة إلى السلة';
-        document.getElementById('special-instructions').placeholder = 'مثال: مقرمش إضافي، بدون بصل، معلومات الحساسية، إلخ.';
-      } else {
-        document.getElementById('extras-section-title').textContent = 'ADD EXTRAS';
-        document.getElementById('extras-subtitle').textContent = 'Select additional toppings or sides';
-        document.getElementById('instructions-section-title').textContent = 'SPECIAL INSTRUCTIONS';
-        document.getElementById('instructions-subtitle').textContent = 'Any special requests for your order?';
-        document.getElementById('quantity-label').textContent = 'QUANTITY';
-        document.getElementById('add-to-cart-text').textContent = 'ADD TO CART';
-        document.getElementById('special-instructions').placeholder = 'Ex: Extra crispy, No onions, Allergy information, etc.';
-      }
-    }
-    
-    function updateCartDisplay() {
-      // Count total items including quantities
-      const totalItems = cart.reduce((count, item) => count + (item.quantity || 1), 0);
-      cartCount.textContent = totalItems;
-      
-      // Clear cart items
-      cartItems.innerHTML = '';
-      
-      // Calculate total
-      let subtotal = 0;
-      
-      // Empty cart message
-      if (cart.length === 0) {
-        const emptyCart = document.createElement('div');
-        emptyCart.className = 'empty-cart-message';
-        emptyCart.innerHTML = `
-          <i class="fas fa-shopping-cart"></i>
-          <p>${currentLanguage === 'ar' ? 'سلة التسوق فارغة' : 'Your cart is empty'}</p>
-          <p class="empty-cart-subtext">${currentLanguage === 'ar' 
-            ? 'أضف بعض العناصر اللذيذة!' 
-            : 'Add some delicious items!'}</p>
-        `;
-        cartItems.appendChild(emptyCart);
-      } else {
-        // Add a hint that cart items are clickable for editing
-        if (!document.getElementById('cart-edit-hint')) {
-          const hintText = document.createElement('div');
-          hintText.id = 'cart-edit-hint';
-          hintText.className = 'cart-edit-hint';
-          hintText.textContent = currentLanguage === 'ar' 
-            ? 'انقر على عنصر لتعديله' 
-            : 'Tap an item to edit';
-          cartItems.appendChild(hintText);
-        }
-      }
-      
-      // Generate cart item elements
-      cart.forEach((item, index) => {
-        subtotal += item.totalPrice;
-        
-        const cartItem = document.createElement('div');
-        cartItem.className = 'cart-item';
-        
-        // Create content wrapper for better layout control
-        const cartItemContent = document.createElement('div');
-        cartItemContent.className = 'cart-item-content';
-        
-        // Removed 3D model viewer from cart items as requested
-        
-        const itemName = document.createElement('div');
-        itemName.className = 'item-name';
-        
-        // Create item name with quantity if more than 1
-        let nameText = '';
-        if (item.quantity && item.quantity > 1) {
-          nameText = `<span class="item-quantity">${item.quantity}×</span> ${item.name}`;
-        } else {
-          nameText = item.name;
-        }
-        
-        // Add extras if present
-        if (item.extras) {
-          nameText += `<div class="item-extras">${item.extras}</div>`;
-        }
-        
-        // Add notes if present
-        if (item.notes) {
-          nameText += `<div class="item-notes">${item.notes}</div>`;
-        }
-        
-        itemName.innerHTML = nameText;
-        
-        // Price display
-        const itemPrice = document.createElement('div');
-        itemPrice.className = 'item-price';
-        itemPrice.textContent = `${item.totalPrice.toFixed(2)} JOD`;
-        
-        // Remove button
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-item';
-        removeBtn.innerHTML = '&times;';
-        removeBtn.setAttribute('aria-label', currentLanguage === 'ar' ? 'إزالة العنصر' : 'Remove item');
-        removeBtn.onclick = function(e) {
-          e.stopPropagation(); // Prevent item click when removing
-          removeCartItem(index);
-        };
-        
-        // Build cart item with improved layout
-        cartItemContent.appendChild(itemName);
-        
-        cartItem.appendChild(cartItemContent);
-        cartItem.appendChild(itemPrice);
-        cartItem.appendChild(removeBtn);
-        
-        // Add edit functionality - clicking on item opens customization
-        cartItem.addEventListener('click', () => {
-          // Find the original food item to customize
+    // Simplified pricing - no extras functionality needed
           const foodItem = filteredFoodItems.find(f => f.name === item.name);
           if (foodItem) {
             // Store editing mode and item index
@@ -10716,7 +10338,7 @@
             <span id="guest-option-text">${currentLanguage === 'ar' ? 'أنا ضيف' : 'I\'m a Guest'}</span>
             <div class="option-description" id="guest-option-desc">
               ${currentLanguage === 'ar' 
-                ? 'حدد هذا إذا كنت تتناول الطعام وتحتاج إلى طلب من طاولتك' 
+                ? 'حدد هذ � إذا كنت تتناول الطعام وتحتاج إلى طلب من طاولتك' 
                 : 'Select this if you\'re dining in and need to place an order from your table'}
             </div>
           `;
@@ -16618,71 +16240,6 @@
   
 
   
-  <!-- Item Customization Modal (Talabat-style) -->
-  <div class="customize-modal" id="customize-modal">
-    <div class="customize-content">
-      <div class="customize-header">
-        <h2 class="customize-title" id="customize-item-name">Customize Your Item</h2>
-        <button class="close-customize-btn" onclick="closeCustomizeModal()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="food-customize-image">
-        <img id="customize-item-image" src="" alt="Food item">
-      </div>
-      
-      <div class="customize-price-container">
-        <span id="customize-base-price" class="base-price"></span>
-        <span id="customize-total-price" class="total-price"></span>
-      </div>
-      
-      <div class="customize-sections">
-        <!-- Extras Section -->
-        <div class="customize-section">
-          <div class="section-header">
-            <h3 id="extras-section-title">ADD EXTRAS</h3>
-            <span class="section-subtitle" id="extras-subtitle">Select additional toppings or sides</span>
-          </div>
-          
-          <div class="extras-grid" id="extras-options">
-            <!-- Extras will be dynamically populated -->
-          </div>
-        </div>
-        
-        <!-- Special Instructions Section -->
-        <div class="customize-section">
-          <div class="section-header">
-            <h3 id="instructions-section-title">SPECIAL INSTRUCTIONS</h3>
-            <span class="section-subtitle" id="instructions-subtitle">Any special requests for your order?</span>
-          </div>
-          
-          <textarea id="special-instructions" class="special-instructions-input" 
-            placeholder="Ex: Extra crispy, No onions, Allergy information, etc."></textarea>
-        </div>
-      </div>
-      
-      <!-- Quantity Selector -->
-      <div class="quantity-selector">
-        <span id="quantity-label">QUANTITY</span>
-        <div class="quantity-controls">
-          <button id="decrease-quantity" class="quantity-btn" onclick="changeQuantity(-1)">
-            <i class="fas fa-minus"></i>
-          </button>
-          <span id="quantity-value">1</span>
-          <button id="increase-quantity" class="quantity-btn" onclick="changeQuantity(1)">
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
-      </div>
-      
-      <div class="customize-actions">
-        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart(); closeCustomizeModal(); return false;">
-          <i class="fas fa-shopping-cart"></i>
-          <span id="add-to-cart-text">ADD TO CART</span>
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- Extras functionality removed -->
 </body>
 </html>
