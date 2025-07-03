@@ -9539,6 +9539,10 @@
           : `${itemQty > 1 ? itemQty + 'x ' : ''}${itemName} has been added to your cart`,
         'success'
       );
+      
+      // Close the customize modal after adding to cart
+      console.log("Closing customize modal after adding item to cart");
+      closeCustomizeModal();
     }
     
     // Update customization modal text based on current language
@@ -16438,7 +16442,7 @@
       </div>
       
       <div class="customize-actions">
-        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart(); closeCustomizeModal(); return false;">
+        <button id="add-to-cart-btn" class="add-to-cart-customize-btn" onclick="addCustomizedItemToCart()">
           <i class="fas fa-shopping-cart"></i>
           <span id="add-to-cart-text">ADD TO CART</span>
         </button>
