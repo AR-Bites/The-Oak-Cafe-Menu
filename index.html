@@ -11384,8 +11384,9 @@
         cart = [];
         updateCartDisplay();
         
-        // Close cart panel
-        toggleCart();
+        // Close cart panel forcefully
+        console.log("Closing cart panel after successful order");
+        cartPanel.classList.remove('active');
         
         // Auto show the client orders panel with a slight delay for better UX
         setTimeout(() => {
@@ -11408,6 +11409,10 @@
         checkoutBtn.classList.remove('checkout-loading');
         checkoutBtn.disabled = false;
         isOrderBeingProcessed = false;
+        
+        // Ensure cart panel is closed regardless of success/error
+        console.log("Ensuring cart panel is closed in finally block");
+        cartPanel.classList.remove('active');
       }
     }
     
