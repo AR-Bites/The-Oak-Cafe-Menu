@@ -2097,27 +2097,120 @@
       50% { opacity: 0.9; transform: scale(1.1); text-shadow: 0 0 8px rgba(33, 150, 243, 0.7); }
     }
     
-    /* Mobile notification fixes */
-    @media (max-width: 480px) {
+    /* Mobile notification fixes - Enhanced for Arabic and English */
+    @media (max-width: 768px) {
+      /* Ensure all popup notifications are properly positioned on mobile */
+      .notification, .popup, .alert {
+        width: calc(100% - 24px) !important;
+        max-width: none !important;
+        left: 12px !important;
+        right: 12px !important;
+        top: 15px !important;
+        transform: translateX(0) translateY(-120%) !important;
+      }
+      
+      .notification.active, .popup.active, .alert.active {
+        transform: translateX(0) translateY(0) !important;
+      }
       .order-status-notification {
-        padding: 12px 16px;
-        gap: 10px;
-        width: calc(100% - 20px);
+        padding: 14px 18px;
+        gap: 12px;
+        width: calc(100% - 24px);
         max-width: none;
         border-radius: 12px;
+        top: 15px;
+        font-size: 14px;
+        line-height: 1.4;
+        text-align: center;
+        transform: translateX(-50%) translateY(-120%);
+      }
+      
+      .order-status-notification.active {
+        transform: translateX(-50%) translateY(0);
       }
       
       .status-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        word-wrap: break-word;
+      }
+      
+      .status-message {
+        font-size: 0.85rem;
+        line-height: 1.3;
+        word-wrap: break-word;
+        hyphens: auto;
+      }
+      
+      .status-icon {
+        width: 26px;
+        height: 26px;
+        flex-shrink: 0;
+      }
+      
+      /* Arabic text improvements for mobile */
+      .order-status-notification[dir="rtl"] {
+        text-align: right;
+        padding: 16px 20px;
+      }
+      
+      .order-status-notification[dir="rtl"] .status-message {
         font-size: 0.9rem;
+        line-height: 1.5;
+        text-align: right;
+      }
+      
+      .order-status-notification[dir="rtl"] .status-title {
+        text-align: right;
+        font-size: 1.05rem;
+      }
+    }
+    
+    /* Extra small mobile devices */
+    @media (max-width: 480px) {
+      .order-status-notification {
+        width: calc(100% - 16px);
+        padding: 12px 16px;
+        top: 10px;
+        font-size: 13px;
+        gap: 10px;
+      }
+      
+      .status-title {
+        font-size: 0.95rem;
+        margin-bottom: 2px;
       }
       
       .status-message {
         font-size: 0.8rem;
+        line-height: 1.25;
       }
       
       .status-icon {
         width: 24px;
         height: 24px;
+      }
+      
+      /* Arabic adjustments for small screens */
+      .order-status-notification[dir="rtl"] {
+        padding: 14px 18px;
+      }
+      
+      .order-status-notification[dir="rtl"] .status-message {
+        font-size: 0.85rem;
+        line-height: 1.4;
+      }
+      
+      /* Connection toast mobile improvements */
+      .connection-toast {
+        left: 10px;
+        right: 10px;
+        bottom: 15px;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        max-width: none;
+        width: calc(100% - 20px);
       }
     }
     
@@ -4209,13 +4302,7 @@
         border-radius: 12px;
       }
       
-      /* Improved notification styling for mobile */
-      .order-status-notification {
-        width: 90%;
-        left: 5%;
-        border-radius: 15px;
-        padding: 15px;
-      }
+      /* Mobile notification styles handled in main responsive section above */
       
       /* Analytics Mobile Adjustments */
       .analytics-grid {
@@ -13701,6 +13788,15 @@
     function showNotification(title, message, type = 'info') {
       statusTitle.textContent = title;
       statusMessage.textContent = message;
+      
+      // Set proper text direction for Arabic/RTL support
+      if (currentLanguage === 'ar') {
+        statusNotification.setAttribute('dir', 'rtl');
+        statusNotification.style.textAlign = 'right';
+      } else {
+        statusNotification.setAttribute('dir', 'ltr');
+        statusNotification.style.textAlign = 'left';
+      }
       
       // Clear any existing notification timeout
       if (window.notificationTimeout) {
