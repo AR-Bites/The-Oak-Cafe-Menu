@@ -9687,7 +9687,7 @@
         // Price display
         const itemPrice = document.createElement('div');
         itemPrice.className = 'item-price';
-        itemPrice.textContent = `$${item.totalPrice.toFixed(2)}`;
+        itemPrice.textContent = `${item.totalPrice.toFixed(2)} JOD`;
         
         // Remove button
         const removeBtn = document.createElement('button');
@@ -9760,16 +9760,18 @@
       totalBreakdown.innerHTML = `
         <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
           <span>${currentLanguage === 'ar' ? 'المجموع الفرعي' : 'Subtotal'}</span>
-          <span>$${subtotal.toFixed(2)}</span>
+          <span>${subtotal.toFixed(2)} JOD</span>
         </p>
         <p style="display: flex; justify-content: space-between; margin-bottom: 5px;">
           <span>${currentLanguage === 'ar' ? 'الضريبة (8%)' : 'Tax (8%)'}</span>
-          <span>$${tax.toFixed(2)}</span>
+          <span>${tax.toFixed(2)} JOD</span>
         </p>
+        ${currentUserType !== 'guest' ? `
         <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.2);">
           <span>${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}</span>
-          <span>$${total.toFixed(2)}</span>
+          <span>${total.toFixed(2)} JOD</span>
         </p>
+        ` : ''}
       `;
       
       // Update cart icon based on whether there are items
@@ -11736,7 +11738,7 @@
               itemsHtml += `
                 <div class="order-item">
                   <span>${item.name} ${item.extras ? `(${item.extras})` : ''}</span>
-                  <span>$${item.totalPrice.toFixed(2)}</span>
+                  <span>${item.totalPrice.toFixed(2)} JOD</span>
                 </div>
               `;
             });
@@ -11788,7 +11790,7 @@
                 ${itemsHtml}
               </div>
               <div class="order-total" style="text-align: right; font-weight: bold; margin-top: 5px;">
-                ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: $${order.total.toFixed(2)}
+                ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: ${order.total.toFixed(2)} JOD
               </div>
               <div class="order-actions">
                 ${order.status === 'pending' ? `
@@ -12015,7 +12017,7 @@
             itemsHtml += `
               <div class="order-item">
                 <span>${item.name} ${item.extras ? `(${item.extras})` : ''}</span>
-                <span>$${item.totalPrice.toFixed(2)}</span>
+                <span>${item.totalPrice.toFixed(2)} JOD</span>
               </div>
             `;
           });
@@ -12029,7 +12031,7 @@
               ${itemsHtml}
             </div>
             <div class="order-total" style="text-align: right; font-weight: bold; margin-top: 5px;">
-              ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: $${order.total.toFixed(2)}
+              ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: ${order.total.toFixed(2)} JOD
             </div>
           `;
           
@@ -13051,7 +13053,7 @@
               itemsHtml += `
                 <div class="client-order-item">
                   <span>${item.name}</span>
-                  <span>$${item.totalPrice.toFixed(2)}</span>
+                  <span>${item.totalPrice.toFixed(2)} JOD</span>
                 </div>
               `;
             });
@@ -13095,9 +13097,11 @@
               <div class="client-order-items">
                 ${itemsHtml}
               </div>
+              ${currentUserType !== 'guest' ? `
               <div style="text-align: right; font-weight: bold; font-size: 0.85rem;">
-                ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: $${order.total.toFixed(2)}
+                ${currentLanguage === 'ar' ? 'الإجمالي' : 'Total'}: ${order.total.toFixed(2)} JOD
               </div>
+              ` : ''}
               ${order.status === 'pending' ? `
                 <button onclick="cancelOrder('${order.id}')" style="background: var(--red); margin-top: 8px; width: 100%;">
                   ${currentLanguage === 'ar' ? 'إلغاء الطلب' : 'CANCEL ORDER'}
