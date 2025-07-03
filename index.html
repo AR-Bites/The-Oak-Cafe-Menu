@@ -1450,6 +1450,22 @@
     .call-waiter-btn.calling i {
       animation: pulse 1s infinite ease-in-out;
     }
+    
+    .call-waiter-btn.called {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      animation: pulse-green 2s infinite;
+      pointer-events: none; /* Disable button while call is active */
+    }
+    
+    .call-waiter-btn.called .bell-icon {
+      animation: ring 1s infinite;
+    }
+    
+    @keyframes pulse-green {
+      0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+    }
 
     @keyframes pulse {
       0% { transform: scale(1); }
@@ -6356,7 +6372,7 @@
         nameAr: "سيليزون",
         modelSrc: "models/celezone",
         description: "Exquisite seafood pasta with mussels, gnocchi, and aromatic herbs in a rich sauce.",
-        descriptionAr: "معw�رونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
+        descriptionAr: "معكرونة بحرية فاخرة مع بلح البحر والنيوكي والأعشاب العطرة في صلصة غنية.",
         price: 19.99,
         category: "pasta",
         mainCategory: "food"
@@ -6771,7 +6787,7 @@
       },
       {
         name: "Espresso Macchiato",
-        nameAr: "إس��ريسو ماكياتو",
+        nameAr: "إسبريسو ماكياتو",
 
         description: "Rich espresso marked with a dollop of steamed milk foam.",
         price: 3.0,
@@ -8061,6 +8077,9 @@
       userType = localStorage.getItem(USER_TYPE_KEY) || "guest";
       currentStaff = localStorage.getItem(STAFF_TOKEN);
       checkAuthState();
+      
+      // Load active waiter calls to sync button states
+      loadActiveWaiterCalls();
       
       // Manually add event listener for the Add to Cart button in customization modal
       // This ensures the event is properly captured regardless of event bubbling
@@ -11606,14 +11625,9 @@
     
     // Track if waiter call is in progress to prevent spam
     let isWaiterCallInProgress = false;
+    let activeWaiterCalls = new Set(); // Track tables with active calls
     
     async function callWaiter() {
-      // Prevent spam calls
-      if (isWaiterCallInProgress) {
-        console.log("Waiter call already in progress");
-        return;
-      }
-      
       // Check if user has selected a table
       const currentTableNumber = userTableNumber || tableNumber;
       if (!currentTableNumber) {
@@ -11624,6 +11638,25 @@
             : 'Please select your table number first',
           'warning'
         );
+        return;
+      }
+      
+      // Check if this table already has an active call
+      if (activeWaiterCalls.has(parseInt(currentTableNumber))) {
+        console.log(`Table ${currentTableNumber} already has an active waiter call`);
+        showNotification(
+          currentLanguage === 'ar' ? 'الاستدعاء نشط' : 'Call Active',
+          currentLanguage === 'ar' 
+            ? 'لديك استدعاء نشط بالفعل، يرجى انتظار رد النادل'
+            : 'You already have an active call, please wait for waiter response',
+          'info'
+        );
+        return;
+      }
+      
+      // Prevent multiple rapid clicks
+      if (isWaiterCallInProgress) {
+        console.log("Waiter call submission in progress");
         return;
       }
       
@@ -11661,6 +11694,10 @@
           console.error('❌ Failed to verify waiter call document creation');
         }
         
+        // Add table to active calls set
+        activeWaiterCalls.add(parseInt(currentTableNumber));
+        console.log(`Table ${currentTableNumber} added to active calls. Active calls:`, Array.from(activeWaiterCalls));
+        
         // Show success notification
         showNotification(
           currentLanguage === 'ar' ? 'تم استدعاء النادل' : 'Waiter Called',
@@ -11670,15 +11707,13 @@
           'success'
         );
         
-        // Update button to success state temporarily
+        // Keep button in "called" state until staff responds (don't reset automatically)
+        callWaiterBtn.classList.remove('calling');
+        callWaiterBtn.classList.add('called');
         callWaiterText.textContent = currentLanguage === 'ar' ? 'تم الاستدعاء!' : 'CALLED!';
         
-        // Reset button after 3 seconds
-        setTimeout(() => {
-          callWaiterBtn.classList.remove('calling');
-          callWaiterText.textContent = currentLanguage === 'ar' ? 'استدعاء النادل' : 'CALL WAITER';
-          isWaiterCallInProgress = false;
-        }, 3000);
+        // Reset the isWaiterCallInProgress flag but keep the button state
+        isWaiterCallInProgress = false;
         
       } catch (error) {
         console.error('Error calling waiter:', error);
@@ -17041,9 +17076,13 @@
         
         console.log('📝 Updating with data:', updateData);
         
-        await db.collection('waiter_calls').doc(callId).update(updateData);
+        // Instead of updating, delete the call after responding
+        await db.collection('waiter_calls').doc(callId).delete();
         
-        console.log('✅ Successfully updated waiter call response');
+        // Remove table from active calls set and reset button state
+        activeWaiterCalls.delete(tableNumber);
+        resetWaiterCallButton(tableNumber);
+        console.log(`✅ Successfully responded to waiter call and deleted from database. Table ${tableNumber} removed from active calls.`);
         
         // Show success notification
         showNotification(
@@ -17070,6 +17109,57 @@
           currentLanguage === 'ar' ? `فشل في إرسال الرد: ${errorMsg}` : `Failed to send response: ${errorMsg}`,
           'error'
         );
+      }
+    }
+
+    // Function to reset waiter call button state for a specific table
+    function resetWaiterCallButton(tableNumber) {
+      // Only reset if we're currently viewing that table
+      const currentTableNumber = userTableNumber || tableNumber;
+      if (currentTableNumber && parseInt(currentTableNumber) === parseInt(tableNumber)) {
+        const callWaiterBtn = document.getElementById('call-waiter-btn');
+        const callWaiterText = document.getElementById('call-waiter-text');
+        
+        if (callWaiterBtn && callWaiterText) {
+          callWaiterBtn.classList.remove('calling', 'called');
+          callWaiterBtn.style.pointerEvents = 'auto';
+          callWaiterText.textContent = currentLanguage === 'ar' ? 'استدعاء النادل' : 'CALL WAITER';
+          console.log(`Reset waiter call button for table ${tableNumber}`);
+        }
+      }
+    }
+
+    // Function to populate active waiter calls on page load
+    async function loadActiveWaiterCalls() {
+      try {
+        const pendingCalls = await db.collection('waiter_calls')
+          .where('status', '==', 'pending')
+          .get();
+        
+        activeWaiterCalls.clear(); // Clear existing set
+        
+        pendingCalls.docs.forEach(doc => {
+          const callData = doc.data();
+          if (callData.tableNumber) {
+            activeWaiterCalls.add(callData.tableNumber);
+          }
+        });
+        
+        console.log('Loaded active waiter calls for tables:', Array.from(activeWaiterCalls));
+        
+        // Update button state if current table has an active call
+        const currentTableNumber = userTableNumber || tableNumber;
+        if (currentTableNumber && activeWaiterCalls.has(parseInt(currentTableNumber))) {
+          const callWaiterBtn = document.getElementById('call-waiter-btn');
+          const callWaiterText = document.getElementById('call-waiter-text');
+          
+          if (callWaiterBtn && callWaiterText) {
+            callWaiterBtn.classList.add('called');
+            callWaiterText.textContent = currentLanguage === 'ar' ? 'تم الاستدعاء!' : 'CALLED!';
+          }
+        }
+      } catch (error) {
+        console.error('Error loading active waiter calls:', error);
       }
     }
 
@@ -17110,26 +17200,35 @@
 
     async function dismissCall(callId) {
       try {
-        // Get current staff info
-        const staffName = localStorage.getItem('staffName');
-        const staffUsername = localStorage.getItem('username');
-        const staffRole = localStorage.getItem('staffRole');
+        // Get call data first to get table number
+        const callDoc = await db.collection('waiter_calls').doc(callId).get();
+        const callData = callDoc.data();
+        const tableNum = callData ? callData.tableNumber : null;
         
-        // Update call status to dismissed
-        await db.collection('waiter_calls').doc(callId).update({
-          status: 'dismissed',
-          dismissedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          dismissedBy: staffName || staffUsername || 'Staff Member',
-          dismissedByDetails: {
-            name: staffName || 'Staff Member',
-            username: staffUsername || 'unknown',
-            role: staffRole || 'staff'
-          }
-        });
+        // Delete the call document completely instead of just updating status
+        await db.collection('waiter_calls').doc(callId).delete();
         
-        console.log(`Call ${callId} dismissed`);
+        // Remove table from active calls set and reset button state
+        if (tableNum) {
+          activeWaiterCalls.delete(tableNum);
+          resetWaiterCallButton(tableNum);
+        }
+        
+        console.log(`Call ${callId} dismissed and deleted from database. Table ${tableNum} removed from active calls.`);
+        
+        // Show success notification
+        showNotification(
+          currentLanguage === 'ar' ? 'تم تجاهل الاستدعاء' : 'Call Dismissed',
+          currentLanguage === 'ar' ? 'تم حذف الاستدعاء' : 'Call has been removed',
+          'success'
+        );
       } catch (error) {
         console.error('Error dismissing call:', error);
+        showNotification(
+          currentLanguage === 'ar' ? 'خطأ في التجاهل' : 'Dismiss Failed',
+          currentLanguage === 'ar' ? 'فشل في حذف الاستدعاء' : 'Failed to dismiss call',
+          'error'
+        );
       }
     }
 
@@ -17147,16 +17246,7 @@
         const staffRole = localStorage.getItem('staffRole');
         
         pendingCalls.docs.forEach(doc => {
-          batch.update(doc.ref, {
-            status: 'cleared',
-            clearedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            clearedBy: staffName || staffUsername || 'Staff Member',
-            clearedByDetails: {
-              name: staffName || 'Staff Member',
-              username: staffUsername || 'unknown',
-              role: staffRole || 'staff'
-            }
-          });
+          batch.delete(doc.ref);
         });
         
         await batch.commit();
