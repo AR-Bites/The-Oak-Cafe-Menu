@@ -9237,6 +9237,7 @@
     let currentCustomizeItem = null;
     let selectedExtras = [];
     let itemQuantity = 1;
+    let currentEditingCartIndex = -1; // Track which cart item is being edited
     
     function addToCart() {
       // If no table number set, show modal with a clear message
@@ -9463,6 +9464,13 @@
         currentCustomizeItem = null;
         selectedExtras = [];
         itemQuantity = 1;
+        currentEditingCartIndex = -1; // Reset editing state
+        
+        // Reset button text to default
+        const addToCartText = document.getElementById('add-to-cart-text');
+        if (addToCartText) {
+          addToCartText.textContent = currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART';
+        }
       }, 300);
     }
     
@@ -9492,10 +9500,18 @@
         model: currentCustomizeItem.modelSrc // Use the standardized model path
       };
       
-      console.log("Adding item to cart:", cartItem);
+      console.log("Processing cart item:", cartItem);
       
-      // Add to cart
-      cart.push(cartItem);
+      // Check if we're editing an existing item or adding a new one
+      if (currentEditingCartIndex >= 0 && currentEditingCartIndex < cart.length) {
+        // Update existing item
+        cart[currentEditingCartIndex] = cartItem;
+        console.log("Updated existing cart item at index:", currentEditingCartIndex);
+      } else {
+        // Add new item to cart
+        cart.push(cartItem);
+        console.log("Added new item to cart");
+      }
       
       // Persist cart to localStorage for recovery
       try {
@@ -9644,11 +9660,11 @@
           // Find the original food item to customize
           const foodItem = filteredFoodItems.find(f => f.name === item.name);
           if (foodItem) {
-            // Store current index to replace item later
-            cartItem.dataset.editIndex = index;
+            // Store editing mode and item index
+            currentEditingCartIndex = index;
             showCustomizeModal(foodItem);
             
-            // Pre-fill with existing customizations if possible
+            // Pre-fill with existing customizations
             setTimeout(() => {
               // Pre-fill quantity
               if (item.quantity) {
@@ -9662,18 +9678,38 @@
                 document.getElementById('special-instructions').value = item.notes;
               }
               
-              // Try to pre-select extras
+              // Pre-select extras by checking against the item's extras
               if (item.extras) {
                 const extraNames = item.extras.split(', ');
-                const extraOptions = document.querySelectorAll('.extra-option');
+                selectedExtras = []; // Clear current selection first
                 
+                const extraOptions = document.querySelectorAll('.extra-option');
                 extraOptions.forEach(option => {
-                  const extraName = option.querySelector('.extra-name').textContent;
-                  if (extraNames.includes(extraName)) {
-                    // Simulate a click to select this extra
-                    option.click();
+                  const extraNameElement = option.querySelector('.extra-name');
+                  if (extraNameElement) {
+                    const extraName = extraNameElement.textContent;
+                    if (extraNames.includes(extraName)) {
+                      // Find the corresponding extra object and add it to selectedExtras
+                      const extraPriceElement = option.querySelector('.extra-price');
+                      if (extraPriceElement) {
+                        const priceText = extraPriceElement.textContent;
+                        const price = parseFloat(priceText.replace(/[^\d.]/g, '')) || 0;
+                        selectedExtras.push({ name: extraName, price: price });
+                        option.classList.add('selected');
+                      }
+                    } else {
+                      option.classList.remove('selected');
+                    }
                   }
                 });
+                updateTotalPrice(); // Update the total after setting extras
+              }
+              
+              // Update the button text to indicate editing mode
+              const addToCartBtn = document.getElementById('add-to-cart-btn');
+              const addToCartText = document.getElementById('add-to-cart-text');
+              if (addToCartBtn && addToCartText) {
+                addToCartText.textContent = currentLanguage === 'ar' ? 'تحديث العنصر' : 'UPDATE ITEM';
               }
             }, 300);
           }
