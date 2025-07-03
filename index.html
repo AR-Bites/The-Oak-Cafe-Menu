@@ -4769,8 +4769,15 @@
             <div class="subcategory-buttons">
               <button class="category-btn active" data-category="all-drinks" data-parent="drinks" id="all-drinks-btn" onclick="changeCategory('all-drinks')">All Drinks</button>
               <button class="category-btn" data-category="hot-drinks" data-parent="drinks" id="hot-drinks-category-btn" onclick="changeCategory('hot-drinks')">Hot Drinks</button>
-              <button class="category-btn" data-category="cold-drinks" data-parent="drinks" id="cold-drinks-category-btn" onclick="changeCategory('cold-drinks')">Cold Drinks</button>
+              <button class="category-btn" data-category="cold-coffee" data-parent="drinks" id="cold-coffee-category-btn" onclick="changeCategory('cold-coffee')">Cold Coffee</button>
+              <button class="category-btn" data-category="frappe" data-parent="drinks" id="frappe-category-btn" onclick="changeCategory('frappe')">Frappe</button>
+              <button class="category-btn" data-category="milkshake" data-parent="drinks" id="milkshake-category-btn" onclick="changeCategory('milkshake')">Milk Shake</button>
               <button class="category-btn" data-category="smoothies" data-parent="drinks" id="smoothies-category-btn" onclick="changeCategory('smoothies')">Smoothies</button>
+              <button class="category-btn" data-category="fresh-juice" data-parent="drinks" id="fresh-juice-category-btn" onclick="changeCategory('fresh-juice')">Fresh Juice</button>
+              <button class="category-btn" data-category="mojito" data-parent="drinks" id="mojito-category-btn" onclick="changeCategory('mojito')">Mojito</button>
+              <button class="category-btn" data-category="iced-tea" data-parent="drinks" id="iced-tea-category-btn" onclick="changeCategory('iced-tea')">Iced Tea</button>
+              <button class="category-btn" data-category="non-coffee" data-parent="drinks" id="non-coffee-category-btn" onclick="changeCategory('non-coffee')">Non-Coffee</button>
+              <button class="category-btn" data-category="soft-drinks" data-parent="drinks" id="soft-drinks-category-btn" onclick="changeCategory('soft-drinks')">Soft Drinks</button>
             </div>
           </div>
           
@@ -6099,7 +6106,7 @@
         nameAr: "سلطة حلوم",
         modelSrc: "models/hallomiSalad",
         description: "Grilled halloumi cheese with fresh vegetables, herbs, and Mediterranean dressing.",
-        descriptionAr: " �بنة حلوم مشوية مع خضار طازجة وأعشاب وصلصة متوسطية.",
+        descriptionAr: "جبنة حلوم مشوية مع خضار طازجة وأعشاب وصلصة متوسطية.",
         price: 11.99,
         category: "salads",
         mainCategory: "food"
@@ -6660,7 +6667,7 @@
 
         description: "Iced espresso with caramel syrup and cold milk.",
         price: 3.95,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
       {
@@ -6669,7 +6676,7 @@
 
         description: "Iced espresso with dark chocolate and cold milk.",
         price: 3.85,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
       {
@@ -6678,7 +6685,7 @@
 
         description: "Iced espresso with cold steamed milk.",
         price: 3.4,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
       {
@@ -6687,7 +6694,7 @@
 
         description: "Iced espresso with white chocolate and cold milk.",
         price: 3.85,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
       {
@@ -6696,7 +6703,7 @@
 
         description: "Slow-steeped cold brew coffee served over ice.",
         price: 5.25,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
       {
@@ -6705,7 +6712,7 @@
 
         description: "Iced espresso with cold water.",
         price: 3.15,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
       {
@@ -6714,7 +6721,7 @@
 
         description: "Iced espresso with cold steamed milk.",
         price: 3.6,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
       {
@@ -6723,7 +6730,7 @@
 
         description: "Iced Spanish-style latte with condensed milk.",
         price: 3.85,
-        category: "cold-drinks",
+        category: "cold-coffee",
         mainCategory: "drinks"
       },
 
@@ -6799,7 +6806,7 @@
 
         description: "Traditional Arabian flavored milkshake.",
         price: 3.5,
-        category: "milkshakes",
+        category: "milkshake",
         mainCategory: "drinks"
       },
       {
@@ -6808,7 +6815,7 @@
 
         description: "Classic creamy vanilla milkshake.",
         price: 3.5,
-        category: "milkshakes",
+        category: "milkshake",
         mainCategory: "drinks"
       },
       {
@@ -6817,7 +6824,7 @@
 
         description: "Rich and creamy chocolate milkshake.",
         price: 3.5,
-        category: "milkshakes",
+        category: "milkshake",
         mainCategory: "drinks"
       },
       {
@@ -6826,7 +6833,7 @@
 
         description: "Fresh strawberry flavored milkshake.",
         price: 3.5,
-        category: "milkshakes",
+        category: "milkshake",
         mainCategory: "drinks"
       },
       {
@@ -6835,7 +6842,7 @@
 
         description: "Refreshing lemon flavored milkshake.",
         price: 3.5,
-        category: "milkshakes",
+        category: "milkshake",
         mainCategory: "drinks"
       },
       {
@@ -6844,7 +6851,7 @@
 
         description: "Sweet caramel flavored milkshake.",
         price: 4.0,
-        category: "milkshakes",
+        category: "milkshake",
         mainCategory: "drinks"
       },
       {
@@ -6853,7 +6860,7 @@
 
         description: "Tropical mango flavored milkshake.",
         price: 3.5,
-        category: "milkshakes",
+        category: "milkshake",
         mainCategory: "drinks"
       },
 
@@ -7775,7 +7782,7 @@
         let modelStatusText = '';
         
         if (progress <= 35) {
-          newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
+          newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعزm�ة...' : 'Preparing AR Interface...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
@@ -9074,11 +9081,18 @@
             item.category === 'salads' || 
             item.category === 'burgers');
         } else if (mainCat === 'drinks') {
-          // For drinks category, include hot-drinks, cold-drinks, smoothies
+          // For drinks category, include all drink subcategories
           filteredFoodItems = foodItems.filter(item => 
             item.category === 'hot-drinks' || 
-            item.category === 'cold-drinks' || 
+            item.category === 'cold-coffee' || 
+            item.category === 'frappe' ||
+            item.category === 'milkshake' ||
             item.category === 'smoothies' ||
+            item.category === 'fresh-juice' ||
+            item.category === 'mojito' ||
+            item.category === 'iced-tea' ||
+            item.category === 'non-coffee' ||
+            item.category === 'soft-drinks' ||
             item.category === 'drinks');
         } else if (mainCat === 'desserts') {
           // For dessert category, include cakes, ice-cream
@@ -16176,7 +16190,7 @@
             day: 'اليوم الطاولات 9-12 لديها أعلى معدل دوران عند 4.1 ساعات',
             week: 'الطاولات 5-8 لديها أعلى معدل دوران بمتوسط 3.2 ساعة هذا الأسبوع',
             month: 'تُظهر البيانات الشهرية أن طاولات عطلة نهاية الأسبوع أكثر كفاءة بنسبة 35٪ من أيام الأسبوع',
-            year: 'تُظهر البd�انات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
+            year: 'تُظهر البيانات السنوية أن 6 مساءً - 8 مساءً هو وقت الخدمة الأكثر كفاءة'
           },
           staff: {
             day: 'اليوم أحمد هو الأفضل أداءً بتقييم 4.9/5 من العملاء',
