@@ -9525,7 +9525,7 @@
     // Cart System
     // Global variables for customization
     let currentCustomizeItem = null;
-    let selectedExtras = [];
+    // Extras functionality removed
     let itemQuantity = 1;
     let currentEditingCartIndex = -1; // Track which cart item is being edited
     
@@ -9556,7 +9556,6 @@
     function showCustomizeModal(item) {
       // Reset customization state
       currentCustomizeItem = item;
-      selectedExtras = [];
       itemQuantity = 1;
       
       // Update modal content
@@ -9656,8 +9655,6 @@
           </div>
         `;
         
-        extraElement.addEventListener('click', () => toggleExtra(extraElement, extra));
-        extrasGrid.appendChild(extraElement);
       });
       
       // Localize UI elements based on current language
@@ -9673,31 +9670,12 @@
       }, 500);
     }
     
-    // Toggle extra selection and update total price
-    function toggleExtra(element, extra) {
-      element.classList.toggle('selected');
-      
-      if (element.classList.contains('selected')) {
-        // Add to selected extras
-        selectedExtras.push(extra);
-      } else {
-        // Remove from selected extras
-        selectedExtras = selectedExtras.filter(e => e.id !== extra.id);
-      }
-      
-      // Update total price
-      updateTotalPrice();
-    }
-    
-    // Update total price based on selected extras and quantity
+    // Update total price based on quantity
     function updateTotalPrice() {
       if (!currentCustomizeItem) return;
       
-      // Calculate extras cost
-      const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
-      
-      // Calculate total price with quantity
-      const totalPrice = (currentCustomizeItem.price + extrasCost) * itemQuantity;
+      // Calculate total price with quantity (no extras)
+      const totalPrice = currentCustomizeItem.price * itemQuantity;
       
       // Update display
       document.getElementById('customize-total-price').textContent = `${totalPrice.toFixed(2)} JOD`;
@@ -9752,7 +9730,6 @@
         
         // Reset state
         currentCustomizeItem = null;
-        selectedExtras = [];
         itemQuantity = 1;
         currentEditingCartIndex = -1; // Reset editing state
         
@@ -9768,22 +9745,18 @@
     function addCustomizedItemToCart() {
       if (!currentCustomizeItem) return;
       
-      // Get selected extras
-      const extrasLabels = selectedExtras.map(extra => extra.name);
-      const extrasCost = selectedExtras.reduce((total, extra) => total + extra.price, 0);
-      
       // Get special instructions
       const specialInstructions = document.getElementById('special-instructions').value.trim();
       
-      // Calculate total price for a single item
-      const singleItemPrice = currentCustomizeItem.price + extrasCost;
+      // Calculate total price for a single item (no extras anymore)
+      const singleItemPrice = currentCustomizeItem.price;
       
       // Create cart item with 3D model info
       const cartItem = {
         name: currentCustomizeItem.name,
         price: currentCustomizeItem.price,
-        extras: extrasLabels.length > 0 ? extrasLabels.join(', ') : null,
-        extrasCost: extrasCost,
+        extras: null,
+        extrasCost: 0,
         notes: specialInstructions,
         quantity: itemQuantity,
         totalPrice: singleItemPrice * itemQuantity,
@@ -9966,32 +9939,7 @@
                 document.getElementById('special-instructions').value = item.notes;
               }
               
-              // Pre-select extras by checking against the item's extras
-              if (item.extras) {
-                const extraNames = item.extras.split(', ');
-                selectedExtras = []; // Clear current selection first
-                
-                const extraOptions = document.querySelectorAll('.extra-option');
-                extraOptions.forEach(option => {
-                  const extraNameElement = option.querySelector('.extra-name');
-                  if (extraNameElement) {
-                    const extraName = extraNameElement.textContent;
-                    if (extraNames.includes(extraName)) {
-                      // Find the corresponding extra object and add it to selectedExtras
-                      const extraPriceElement = option.querySelector('.extra-price');
-                      if (extraPriceElement) {
-                        const priceText = extraPriceElement.textContent;
-                        const price = parseFloat(priceText.replace(/[^\d.]/g, '')) || 0;
-                        selectedExtras.push({ name: extraName, price: price });
-                        option.classList.add('selected');
-                      }
-                    } else {
-                      option.classList.remove('selected');
-                    }
-                  }
-                });
-                updateTotalPrice(); // Update the total after setting extras
-              }
+              // Extras functionality removed - no need to pre-select
               
               // Update the button text to indicate editing mode
               const addToCartBtn = document.getElementById('add-to-cart-btn');
