@@ -12279,6 +12279,12 @@
     async function updateOrderStatus(orderId, newStatus) {
       console.log(`Updating order ${orderId} to status: ${newStatus}`);
       
+      // Track that we're updating this order to prevent duplicate displays
+      if (!window.updatingOrders) {
+        window.updatingOrders = new Set();
+      }
+      window.updatingOrders.add(orderId);
+      
       // Immediately show "updating" notification to give feedback
       const targetCardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
       if (targetCardElement) {
@@ -12603,6 +12609,11 @@
             targetCardElement.classList.remove('updating');
           }
         } finally {
+          // Remove order from updating tracking set
+          if (window.updatingOrders) {
+            window.updatingOrders.delete(orderId);
+          }
+          
           // Refresh the orders display after update regardless of success/failure
           setTimeout(() => {
             if (userType === 'staff' || userType === 'admin') {
@@ -13619,6 +13630,12 @@
         console.log('Orders collection updated, refreshing statistics and orders display...');
         updateStatisticsFromSnapshot(snapshot);
         
+        // Check if any orders are currently being updated to prevent conflicts
+        if (window.updatingOrders && window.updatingOrders.size > 0) {
+          console.log('Orders are being updated, skipping admin real-time refresh to prevent duplicates');
+          return;
+        }
+        
         // Only call updateOrdersDisplay for admin role, staff has their own listener
         if (userType === 'admin') {
           updateOrdersDisplay();
@@ -13766,6 +13783,12 @@
       // Listen for real-time updates to orders collection
       db.collection('orders').onSnapshot(snapshot => {
         console.log('Staff dashboard: Orders collection updated, refreshing display...');
+        
+        // Check if any orders are currently being updated to prevent conflicts
+        if (window.updatingOrders && window.updatingOrders.size > 0) {
+          console.log('Orders are being updated, skipping real-time refresh to prevent duplicates');
+          return;
+        }
         
         // Use a debounce mechanism to prevent rapid successive calls
         if (window.staffUpdateTimeout) {
