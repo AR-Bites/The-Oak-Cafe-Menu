@@ -8785,7 +8785,7 @@
           specialInstructions: "تعليمات خاصة",
           discountCode: "رمز الخصم",
           apply: "تطبيق",
-          estimatedWaitTime: "وقت الc�نتظار التقريبي:",
+          estimatedWaitTime: "وقت الانتظار التقريبي:",
           yourOrders: "طلباتك",
           viewMyOrders: "عرض طلباتي",
           staffDashboard: "لوحة تحكم الموظفين",
@@ -13608,18 +13608,32 @@
 
     // Set up real-time listeners for live updates
     function setupRealtimeListeners() {
+      // Check if admin listener is already set up to avoid duplicates
+      if (window.adminOrdersListenerActive) {
+        console.log('Admin orders listener already active, skipping duplicate setup');
+        return;
+      }
+      
       // Listen for real-time updates to orders collection
       db.collection('orders').onSnapshot(snapshot => {
         console.log('Orders collection updated, refreshing statistics and orders display...');
         updateStatisticsFromSnapshot(snapshot);
-        updateOrdersDisplay();
+        
+        // Only call updateOrdersDisplay for admin role, staff has their own listener
+        if (userType === 'admin') {
+          updateOrdersDisplay();
+        }
       }, error => {
         console.warn('Orders real-time listener error:', error);
+        window.adminOrdersListenerActive = false;
         // Fallback to periodic updates if real-time fails
         setInterval(() => {
           refreshStatisticsAndOrders();
         }, 10000); // Update every 10 seconds
       });
+      
+      // Mark admin listener as active
+      window.adminOrdersListenerActive = true;
 
       // Set up periodic update for active staff count (since Firebase permissions are limited)
       setInterval(() => {
@@ -13743,19 +13757,38 @@
     function setupStaffRealtimeListeners() {
       console.log('Setting up real-time listeners for staff dashboard...');
       
+      // Check if this listener is already set up to avoid duplicates
+      if (window.staffOrdersListenerActive) {
+        console.log('Staff orders listener already active, skipping duplicate setup');
+        return;
+      }
+      
       // Listen for real-time updates to orders collection
       db.collection('orders').onSnapshot(snapshot => {
         console.log('Staff dashboard: Orders collection updated, refreshing display...');
-        updateOrdersDisplay();
-        fetchOrders(); // Update table details
+        
+        // Use a debounce mechanism to prevent rapid successive calls
+        if (window.staffUpdateTimeout) {
+          clearTimeout(window.staffUpdateTimeout);
+        }
+        
+        window.staffUpdateTimeout = setTimeout(() => {
+          updateOrdersDisplay();
+          fetchOrders(); // Update table details
+        }, 500); // 500ms debounce
+        
       }, error => {
         console.warn('Staff orders real-time listener error:', error);
+        window.staffOrdersListenerActive = false;
         // Fallback to periodic updates if real-time fails
         setInterval(() => {
           updateOrdersDisplay();
           fetchOrders();
         }, 15000); // Update every 15 seconds for staff
       });
+      
+      // Mark listener as active
+      window.staffOrdersListenerActive = true;
 
       // Also listen for table status changes
       db.collection('tableStatus').onSnapshot(snapshot => {
