@@ -453,13 +453,13 @@
       background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%) !important;
       color: var(--dark-green) !important;
       position: absolute;
-      bottom: 16px;
+      bottom: 12px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 14px 20px;
-      font-weight: 700;
+      padding: 8px 16px;
+      font-weight: 600;
       animation: pulse 2s infinite;
-      font-size: 1.05rem;
+      font-size: 0.85rem;
       width: calc(100% - 24px);
       max-width: 220px;
       border-radius: 25px !important;
@@ -3908,17 +3908,18 @@
         overflow: hidden;
       }
       
-      /* Make the AR button more visible and intuitive on mobile */
+      /* Make the AR button more compact and modern on mobile */
       .ar-button {
         font-size: 0.8rem !important;
-        padding: 8px 12px !important;
-        bottom: 20px !important;
-        border-radius: 25px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;
+        padding: 6px 12px !important;
+        bottom: 15px !important;
+        border-radius: 20px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         gap: 6px !important;
+        min-height: 32px !important;
       }
       
       /* Improve form elements on mobile */
@@ -8874,7 +8875,7 @@
       updateFoodDisplay();
       
       // Update table input placeholder
-      tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم s�لطاولة' : 'Enter table number';
+      tableNumberInput.placeholder = currentLanguage === 'ar' ? 'أدخل رقم الطاولة' : 'Enter table number';
       
       // Update special instructions placeholder
       itemNotes.placeholder = currentLanguage === 'ar' ? 'أي طلبات خاصة...' : 'Any special requests...';
@@ -11238,8 +11239,7 @@
       // Verify table number exists
       if (!orderTableNumber) {
         showNotification(
-          currentLanguage === 'ar' ? 'رقم الطاول
-� مطلوب' : 'Table Number Required',
+          currentLanguage === 'ar' ? 'رقم الطاولة مطلوب' : 'Table Number Required',
           currentLanguage === 'ar' 
             ? 'الرجاء إدخال رقم الطاولة الخاص بك أولاً'
             : 'Please enter your table number first',
