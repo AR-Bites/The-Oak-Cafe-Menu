@@ -8687,7 +8687,7 @@
           prev: "← PREV",
           next: "NEXT →",
           viewInAr: "VIEW IN AR",
-
+          addExtras: "ADD EXTRAS",
           specialInstructions: "SPECIAL INSTRUCTIONS",
           discountCode: "DISCOUNT CODE",
           apply: "APPLY",
@@ -9525,7 +9525,6 @@
     // Cart System
     // Global variables for customization
     let currentCustomizeItem = null;
-    // Extras functionality removed
     let itemQuantity = 1;
     let currentEditingCartIndex = -1; // Track which cart item is being edited
     
@@ -9597,65 +9596,7 @@
       // Clear special instructions
       document.getElementById('special-instructions').value = '';
       
-      // Generate extras options based on item category
-      const extrasGrid = document.getElementById('extras-options');
-      extrasGrid.innerHTML = '';
-      
-      // Define extras based on item category
-      let availableExtras = [];
-      
-      if (item.category === 'hot_food' && item.name.toLowerCase().includes('pizza')) {
-        availableExtras = [
-          { id: 'extra_cheese', name: currentLanguage === 'ar' ? 'جبنة إضافية' : 'Extra Cheese', price: 2.00 },
-          { id: 'pepperoni', name: currentLanguage === 'ar' ? 'بيبروني' : 'Pepperoni', price: 2.50 },
-          { id: 'mushrooms', name: currentLanguage === 'ar' ? 'فطر' : 'Mushrooms', price: 1.50 },
-          { id: 'olives', name: currentLanguage === 'ar' ? 'زيتون' : 'Olives', price: 1.00 },
-          { id: 'garlic_bread', name: currentLanguage === 'ar' ? 'خبز بالثوم' : 'Garlic Bread Side', price: 4.00 }
-        ];
-      } else if (item.category === 'hot_food' && item.name.toLowerCase().includes('pasta')) {
-        availableExtras = [
-          { id: 'parmesan', name: currentLanguage === 'ar' ? 'جبنة بارميزان' : 'Parmesan Cheese', price: 2.00 },
-          { id: 'garlic_bread', name: currentLanguage === 'ar' ? 'خبز بالثوم' : 'Garlic Bread Side', price: 4.00 },
-          { id: 'extra_sauce', name: currentLanguage === 'ar' ? 'صلصة إضافية' : 'Extra Sauce', price: 1.50 },
-          { id: 'chicken', name: currentLanguage === 'ar' ? 'دجاج إضافي' : 'Extra Chicken', price: 3.00 }
-        ];
-      } else if (item.category === 'drinks') {
-        availableExtras = [
-          { id: 'ice', name: currentLanguage === 'ar' ? 'ثلج إضافي' : 'Extra Ice', price: 0.00 },
-          { id: 'lemon', name: currentLanguage === 'ar' ? 'ليمون' : 'Lemon Slice', price: 0.50 },
-          { id: 'mint', name: currentLanguage === 'ar' ? 'نعناع' : 'Fresh Mint', price: 1.00 },
-          { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 }
-        ];
-      } else if (item.category === 'desserts') {
-        availableExtras = [
-          { id: 'ice_cream', name: currentLanguage === 'ar' ? 'آيس كريم' : 'Ice Cream Scoop', price: 2.00 },
-          { id: 'chocolate_sauce', name: currentLanguage === 'ar' ? 'صوص شوكولاتة' : 'Chocolate Sauce', price: 1.00 },
-          { id: 'whipped_cream', name: currentLanguage === 'ar' ? 'كريمة مخفوقة' : 'Whipped Cream', price: 1.00 },
-          { id: 'berries', name: currentLanguage === 'ar' ? 'توت طازج' : 'Fresh Berries', price: 2.50 }
-        ];
-      } else {
-        availableExtras = [
-          { id: 'extra_sauce', name: currentLanguage === 'ar' ? 'صلصة إضافية' : 'Extra Sauce', price: 1.50 },
-          { id: 'side_salad', name: currentLanguage === 'ar' ? 'سلطة جانبية' : 'Side Salad', price: 3.00 }
-        ];
-      }
-      
-      // Create extra options in the grid
-      availableExtras.forEach(extra => {
-        const extraElement = document.createElement('div');
-        extraElement.className = 'extra-option';
-        extraElement.dataset.id = extra.id;
-        extraElement.dataset.price = extra.price;
-        
-        extraElement.innerHTML = `
-          <div class="extra-checkbox"></div>
-          <div class="extra-details">
-            <div class="extra-name">${extra.name}</div>
-            <div class="extra-price">${extra.price > 0 ? '+' + extra.price.toFixed(2) + ' JOD' : currentLanguage === 'ar' ? 'مجاني' : 'Free'}</div>
-          </div>
-        `;
-        
-      });
+
       
       // Localize UI elements based on current language
       updateCustomizeModalLanguage();
@@ -9670,19 +9611,21 @@
       }, 500);
     }
     
-    // Update total price based on quantity
+
+    
+    // Update total price based on quantity only
     function updateTotalPrice() {
       if (!currentCustomizeItem) return;
       
-      // Calculate total price with quantity (no extras)
+      // Calculate total price with quantity only
       const totalPrice = currentCustomizeItem.price * itemQuantity;
       
       // Update display
       document.getElementById('customize-total-price').textContent = `${totalPrice.toFixed(2)} JOD`;
       
-      // If there are extras or quantity > 1, show the base price as well
+      // If quantity > 1, show the base price as well
       const basePrice = document.getElementById('customize-base-price');
-      if (extrasCost > 0 || itemQuantity > 1) {
+      if (itemQuantity > 1) {
         basePrice.textContent = `${currentCustomizeItem.price.toFixed(2)} JOD`;
         basePrice.style.display = 'block';
       } else {
@@ -9748,15 +9691,14 @@
       // Get special instructions
       const specialInstructions = document.getElementById('special-instructions').value.trim();
       
-      // Calculate total price for a single item (no extras anymore)
+      // Calculate total price for a single item
       const singleItemPrice = currentCustomizeItem.price;
       
       // Create cart item with 3D model info
       const cartItem = {
         name: currentCustomizeItem.name,
         price: currentCustomizeItem.price,
-        extras: null,
-        extrasCost: 0,
+        extrasCost: extrasCost,
         notes: specialInstructions,
         quantity: itemQuantity,
         totalPrice: singleItemPrice * itemQuantity,
@@ -9806,14 +9748,12 @@
     // Update customization modal text based on current language
     function updateCustomizeModalLanguage() {
       if (currentLanguage === 'ar') {
-
         document.getElementById('instructions-section-title').textContent = 'تعليمات خاصة';
         document.getElementById('instructions-subtitle').textContent = 'أي طلبات خاصة لطلبك؟';
         document.getElementById('quantity-label').textContent = 'الكمية';
         document.getElementById('add-to-cart-text').textContent = 'إضافة إلى السلة';
         document.getElementById('special-instructions').placeholder = 'مثال: مقرمش إضافي، بدون بصل، معلومات الحساسية، إلخ.';
       } else {
-
         document.getElementById('instructions-section-title').textContent = 'SPECIAL INSTRUCTIONS';
         document.getElementById('instructions-subtitle').textContent = 'Any special requests for your order?';
         document.getElementById('quantity-label').textContent = 'QUANTITY';
@@ -9939,7 +9879,7 @@
                 document.getElementById('special-instructions').value = item.notes;
               }
               
-              // Extras functionality removed - no need to pre-select
+
               
               // Update the button text to indicate editing mode
               const addToCartBtn = document.getElementById('add-to-cart-btn');
