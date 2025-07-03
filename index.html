@@ -8785,7 +8785,7 @@
           specialInstructions: "تعليمات خاصة",
           discountCode: "رمز الخصم",
           apply: "تطبيق",
-          estimatedWaitTime: "وقت الc�نتظار التقريبي:",
+          estimatedWaitTime: "وقت الانتظار التقريبي:",
           yourOrders: "طلباتك",
           viewMyOrders: "عرض طلباتي",
           staffDashboard: "لوحة تحكم الموظفين",
@@ -9367,6 +9367,13 @@
             item.category === 'cakes' || 
             item.category === 'ice-cream' ||
             item.category === 'desserts');
+        } else if (mainCat === 'shisha') {
+          // For shisha category, include all shisha subcategories
+          filteredFoodItems = foodItems.filter(item => 
+            item.category === 'fruit-shisha' || 
+            item.category === 'mint-shisha' || 
+            item.category === 'special-shisha' ||
+            item.category === 'shisha');
         } else {
           // Fallback to simple filtering by the main category
           filteredFoodItems = foodItems.filter(item => item.category === mainCat);
