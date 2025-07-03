@@ -681,6 +681,146 @@
       display: none;
       padding: 12px;
     }
+
+    /* Waiter Calls Section */
+    .waiter-calls-section {
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(255, 107, 53, 0.1);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 12px;
+      animation: pulse-border 2s infinite;
+    }
+
+    @keyframes pulse-border {
+      0% { border-color: rgba(255, 107, 53, 0.3); }
+      50% { border-color: rgba(255, 107, 53, 0.6); }
+      100% { border-color: rgba(255, 107, 53, 0.3); }
+    }
+
+    .calls-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .calls-header h3 {
+      margin: 0;
+      color: #ff6b35;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .clear-calls-btn {
+      background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .clear-calls-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .calls-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .call-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      animation: call-notification 0.5s ease-in;
+    }
+
+    @keyframes call-notification {
+      0% {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .call-item.urgent {
+      border-color: #ff5722;
+      background: rgba(255, 87, 34, 0.1);
+      animation: urgent-pulse 1s infinite;
+    }
+
+    @keyframes urgent-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .call-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .table-number-call {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #ff6b35;
+    }
+
+    .call-time {
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+
+    .call-message {
+      color: var(--light-cream);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .call-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .respond-btn, .dismiss-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .respond-btn {
+      background: linear-gradient(135deg, #2196F3 0%, #42A5F5 100%);
+      color: white;
+    }
+
+    .dismiss-btn {
+      background: linear-gradient(135deg, #757575 0%, #9E9E9E 100%);
+      color: white;
+    }
+
+    .respond-btn:hover, .dismiss-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
     
     /* Staff header and role display */
     .staff-header {
@@ -1254,6 +1394,67 @@
     .checkout-btn:disabled {
       opacity: 0.7;
       cursor: not-allowed;
+    }
+
+    /* Call Waiter Button */
+    .call-waiter-btn {
+      background: linear-gradient(135deg, #ff6b35 0%, #ff8f65 100%);
+      color: white;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .call-waiter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+      background: linear-gradient(135deg, #ff5722 0%, #ff6b35 100%);
+    }
+
+    .call-waiter-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 8px rgba(255, 107, 53, 0.3);
+    }
+
+    .call-waiter-btn i {
+      font-size: 1.1rem;
+      animation: bell-ring 2s infinite ease-in-out;
+    }
+
+    @keyframes bell-ring {
+      0%, 50%, 100% { transform: rotate(0deg); }
+      10%, 30% { transform: rotate(-10deg); }
+      20%, 40% { transform: rotate(10deg); }
+    }
+
+    .call-waiter-btn.calling {
+      background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+      pointer-events: none;
+    }
+
+    .call-waiter-btn.calling i {
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
     }
     
     .checkout-loading .checkout-text {
@@ -4920,6 +5121,19 @@
         <p id="staff-estimated-time">15 minutes</p>
       </div>
       
+      <!-- Waiter Calls Notification Section -->
+      <div class="waiter-calls-section" id="waiter-calls-section" style="display: none;">
+        <div class="calls-header">
+          <h3 id="waiter-calls-title">🔔 WAITER CALLS</h3>
+          <button class="clear-calls-btn" id="clear-calls-btn" onclick="clearAllWaiterCalls()">
+            <i class="fas fa-check-double"></i> <span id="clear-calls-text">CLEAR ALL</span>
+          </button>
+        </div>
+        <div class="calls-list" id="waiter-calls-list">
+          <!-- Waiter calls will appear here -->
+        </div>
+      </div>
+      
       <div class="tables-section">
         <h3 id="occupied-tables-title">OCCUPIED TABLES</h3>
         <div class="tables-grid" id="tables-grid">
@@ -5327,7 +5541,11 @@
       <p id="estimated-time-label">Estimated Wait Time: <span id="estimated-time">15 minutes</span></p>
     </div>
     
-
+    <!-- Call Waiter Button -->
+    <button class="call-waiter-btn" id="call-waiter-btn" onclick="callWaiter()">
+      <i class="fas fa-bell"></i>
+      <span class="call-waiter-text" id="call-waiter-text">CALL WAITER</span>
+    </button>
     
     <button class="checkout-btn" id="checkout-btn" onclick="checkout()">
       <span class="checkout-text" id="checkout-text">CHECKOUT</span>
@@ -6332,7 +6550,7 @@
       },
       {
         name: "Yalanji",
-        nameAr: "يلنجي",
+        nameAr: "يh�نجي",
         modelSrc: "models/yalanji",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
         descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطية.",
@@ -8669,6 +8887,7 @@
           tagline: "Experience dining in augmented reality",
           yourCart: "YOUR CART",
           checkout: "CHECKOUT",
+          callWaiter: "CALL WAITER",
           cancel: "CANCEL",
           confirm: "CONFIRM",
           yourTableNumber: "YOUR TABLE NUMBER",
@@ -8763,6 +8982,7 @@
           tagline: "استمتع بتجربة تناول الطعام بالواقع المعزز",
           yourCart: "سلة التسوق",
           checkout: "إتمام الطلب",
+          callWaiter: "استدعاء النادل",
           cancel: "إلغاء",
           confirm: "تأكيد",
           yourTableNumber: "رقم الطاولة",
@@ -8785,7 +9005,7 @@
           specialInstructions: "تعليمات خاصة",
           discountCode: "رمز الخصم",
           apply: "تطبيق",
-          estimatedWaitTime: "وقت الc�نتظار التقريبي:",
+          estimatedWaitTime: "وقت الانتظار التقريبي:",
           yourOrders: "طلباتك",
           viewMyOrders: "عرض طلباتي",
           staffDashboard: "لوحة تحكم الموظفين",
@@ -8868,6 +9088,11 @@
       tagline.textContent = t.tagline;
       cartTitle.textContent = t.yourCart;
       checkoutText.textContent = t.checkout;
+      // Update call waiter button text
+      const callWaiterText = document.getElementById('call-waiter-text');
+      if (callWaiterText) {
+        callWaiterText.textContent = t.callWaiter;
+      }
       prevBtn.textContent = t.prev;
       nextBtn.textContent = t.next;
       addCartBtn.textContent = t.addToCart;
@@ -11374,6 +11599,93 @@
     // Track if an order is being processed to prevent duplicates
     let isOrderBeingProcessed = false;
     
+    // Track if waiter call is in progress to prevent spam
+    let isWaiterCallInProgress = false;
+    
+    async function callWaiter() {
+      // Prevent spam calls
+      if (isWaiterCallInProgress) {
+        console.log("Waiter call already in progress");
+        return;
+      }
+      
+      // Check if user has selected a table
+      const currentTableNumber = userTableNumber || tableNumber;
+      if (!currentTableNumber) {
+        showNotification(
+          currentLanguage === 'ar' ? 'اختر رقم الطاولة' : 'Select Table Number',
+          currentLanguage === 'ar' 
+            ? 'الرجاء اختيار رقم طاولتك أولاً'
+            : 'Please select your table number first',
+          'warning'
+        );
+        return;
+      }
+      
+      isWaiterCallInProgress = true;
+      const callWaiterBtn = document.getElementById('call-waiter-btn');
+      const callWaiterText = document.getElementById('call-waiter-text');
+      
+      // Update button to "calling" state
+      callWaiterBtn.classList.add('calling');
+      callWaiterText.textContent = currentLanguage === 'ar' ? 'جاري الاستدعاء...' : 'CALLING...';
+      
+      try {
+        // Create waiter call notification in Firebase
+        const waiterCall = {
+          tableNumber: parseInt(currentTableNumber),
+          timestamp: new Date(),
+          status: 'pending',
+          message: currentLanguage === 'ar' 
+            ? `طاولة رقم ${currentTableNumber} تطلب النادل`
+            : `Table ${currentTableNumber} is calling for waiter`,
+          type: 'waiter_call',
+          id: `call_${currentTableNumber}_${Date.now()}`
+        };
+        
+        console.log('Creating waiter call notification:', waiterCall);
+        
+        // Add to Firebase
+        await db.collection('waiter_calls').add(waiterCall);
+        
+        // Show success notification
+        showNotification(
+          currentLanguage === 'ar' ? 'تم استدعاء النادل' : 'Waiter Called',
+          currentLanguage === 'ar' 
+            ? 'سيصل النادل إلى طاولتك قريباً'
+            : 'A waiter will be with you shortly',
+          'success'
+        );
+        
+        // Update button to success state temporarily
+        callWaiterText.textContent = currentLanguage === 'ar' ? 'تم الاستدعاء!' : 'CALLED!';
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          callWaiterBtn.classList.remove('calling');
+          callWaiterText.textContent = currentLanguage === 'ar' ? 'استدعاء النادل' : 'CALL WAITER';
+          isWaiterCallInProgress = false;
+        }, 3000);
+        
+      } catch (error) {
+        console.error('Error calling waiter:', error);
+        
+        // Show error notification
+        showNotification(
+          currentLanguage === 'ar' ? 'خطأ في الاستدعاء' : 'Call Failed',
+          currentLanguage === 'ar' 
+            ? 'فشل في استدعاء النادل، حاول مرة أخرى'
+            : 'Failed to call waiter, please try again',
+          'error'
+        );
+        
+        // Reset button
+        callWaiterBtn.classList.remove('calling');
+        callWaiterText.textContent = currentLanguage === 'ar' ? 'استدعاء النادل' : 'CALL WAITER';
+        isWaiterCallInProgress = false;
+      }
+    }
+    
     async function checkout() {
       // Prevent duplicate order submissions
       if (isOrderBeingProcessed) {
@@ -11697,10 +12009,12 @@
     }
 
     function renderOrders(retryAttempt = 0) {
-      console.log(`Rendering orders (retry attempt: ${retryAttempt})`);
+      console.log(`🔄 RENDER: renderOrders() called (retry attempt: ${retryAttempt})`);
+      console.log(`🔄 RENDER: Called from:`, new Error().stack.split('\n')[1]);
       const ordersList = document.getElementById('orders-list');
       
-      // Show loading indicator
+      // Clear DOM completely before rendering
+      console.log(`🔄 RENDER: Clearing DOM and rebuilding order list`);
       ordersList.innerHTML = `
         <div style="text-align: center; padding: 20px;">
           <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--light-cream);"></i>
@@ -11943,6 +12257,14 @@
               </div>
             `;
             
+            // Check if this order already exists in DOM to prevent duplicates
+            const existingCard = document.querySelector(`.order-card[data-order-id="${order.id}"]`);
+            if (existingCard) {
+              console.log(`🚨 DUPLICATE DOM: Order ${order.id} already exists in DOM, removing old version`);
+              existingCard.remove();
+            }
+            
+            console.log(`➕ DOM: Adding order ${order.id} (${order.status}) to DOM`);
             ordersList.appendChild(orderCard);
           });
         })
@@ -12277,7 +12599,14 @@
     }
     
     async function updateOrderStatus(orderId, newStatus) {
-      console.log(`🔄 Updating order ${orderId} to status: ${newStatus}`);
+      console.log(`🔄 CRITICAL: Updating order ${orderId} to status: ${newStatus}`);
+      
+      // Special logging for "ready" status to debug the duplicate issue
+      if (newStatus === 'ready') {
+        console.log(`🚨 READY STATUS UPDATE DETECTED for order ${orderId}`);
+        console.log(`🚨 Current updating orders:`, window.updatingOrders ? Array.from(window.updatingOrders) : 'none');
+        console.log(`🚨 Call stack:`, new Error().stack);
+      }
       
       // Prevent multiple simultaneous calls to the same order
       if (!window.updatingOrders) {
@@ -12285,12 +12614,24 @@
       }
       
       if (window.updatingOrders.has(orderId)) {
-        console.log(`⚠️ Order ${orderId} is already being updated, skipping duplicate call`);
+        console.log(`⚠️ BLOCKED: Order ${orderId} is already being updated, skipping duplicate call`);
         return;
       }
       
       window.updatingOrders.add(orderId);
-      console.log(`📝 Added order ${orderId} to updating set. Current updating orders:`, Array.from(window.updatingOrders));
+      console.log(`📝 TRACKING: Added order ${orderId} to updating set. Current updating orders:`, Array.from(window.updatingOrders));
+      
+      // Add timestamp to prevent rapid consecutive calls
+      const updateKey = `${orderId}_${newStatus}`;
+      const now = Date.now();
+      if (!window.lastUpdateTime) window.lastUpdateTime = {};
+      
+      if (window.lastUpdateTime[updateKey] && (now - window.lastUpdateTime[updateKey] < 2000)) {
+        console.log(`🚫 BLOCKED: Recent update for ${orderId} to ${newStatus} within 2 seconds, skipping`);
+        window.updatingOrders.delete(orderId);
+        return;
+      }
+      window.lastUpdateTime[updateKey] = now;
       
       // Immediately show "updating" notification to give feedback
       const targetCardElement = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
@@ -13822,6 +14163,14 @@
       // Mark listener as active
       window.staffOrdersListenerActive = true;
 
+      // Listen for real-time waiter calls
+      db.collection('waiter_calls').where('status', '==', 'pending').onSnapshot(snapshot => {
+        console.log('Staff dashboard: Waiter calls updated, refreshing display...');
+        displayWaiterCalls(snapshot.docs);
+      }, (error) => {
+        console.error("Error listening to waiter calls:", error);
+      });
+
       // Also listen for table status changes
       db.collection('tableStatus').onSnapshot(snapshot => {
         console.log('Staff dashboard: Table status updated, refreshing tables display...');
@@ -14854,7 +15203,7 @@
           staffRatingsList.innerHTML = `
             <div class="empty-list" style="text-align: center; padding: 30px 20px; background: rgba(255,255,255,0.05); border-radius: 8px; margin: 20px 0;">
               <i class="fas fa-star-half-alt" style="font-size: 2rem; color: var(--gold); margin-bottom: 15px;"></i>
-              <p style="color: var(--light-cream); margin-bottom: 10px;">${currentLanguage === 'ar' ? 'لا توجد تقu�يمات بعد' : 'No ratings submitted yet'}</p>
+              <p style="color: var(--light-cream); margin-bottom: 10px;">${currentLanguage === 'ar' ? 'لا توجد تقييمات بعد' : 'No ratings submitted yet'}</p>
               <p style="font-size: 0.8rem; opacity: 0.7; color: rgba(255,255,255,0.6);">Ratings from guests will appear here automatically</p>
             </div>
           `;
@@ -16562,6 +16911,152 @@
           ratingStars.forEach(s => s.classList.remove('active'));
           ratingFeedback.value = '';
         });
+      }
+    }
+
+    // Waiter Calls Management Functions
+    function displayWaiterCalls(callDocs) {
+      const waiterCallsSection = document.getElementById('waiter-calls-section');
+      const callsList = document.getElementById('waiter-calls-list');
+      
+      if (!waiterCallsSection || !callsList) return;
+      
+      if (callDocs.length === 0) {
+        waiterCallsSection.style.display = 'none';
+        return;
+      }
+      
+      waiterCallsSection.style.display = 'block';
+      callsList.innerHTML = '';
+      
+      callDocs.forEach(doc => {
+        const call = { id: doc.id, ...doc.data() };
+        const callTime = new Date(call.timestamp.toDate ? call.timestamp.toDate() : call.timestamp);
+        const timeAgo = getTimeAgo(callTime);
+        const isUrgent = Date.now() - callTime.getTime() > 300000; // 5 minutes = urgent
+        
+        const callElement = document.createElement('div');
+        callElement.className = `call-item ${isUrgent ? 'urgent' : ''}`;
+        callElement.innerHTML = `
+          <div class="call-info">
+            <span class="table-number-call">Table ${call.tableNumber}</span>
+            <span class="call-time">${timeAgo}</span>
+          </div>
+          <div class="call-message">${call.message}</div>
+          <div class="call-actions">
+            <button class="respond-btn" onclick="respondToCall('${call.id}', ${call.tableNumber})">
+              <i class="fas fa-user-check"></i> ${currentLanguage === 'ar' ? 'رد' : 'Respond'}
+            </button>
+            <button class="dismiss-btn" onclick="dismissCall('${call.id}')">
+              <i class="fas fa-times"></i> ${currentLanguage === 'ar' ? 'تجاهل' : 'Dismiss'}
+            </button>
+          </div>
+        `;
+        
+        callsList.appendChild(callElement);
+      });
+      
+      // Update button text
+      const title = document.getElementById('waiter-calls-title');
+      const clearBtn = document.getElementById('clear-calls-text');
+      if (title) {
+        title.textContent = currentLanguage === 'ar' ? `🔔 استدعاءات النادل (${callDocs.length})` : `🔔 WAITER CALLS (${callDocs.length})`;
+      }
+      if (clearBtn) {
+        clearBtn.textContent = currentLanguage === 'ar' ? 'مسح الكل' : 'CLEAR ALL';
+      }
+    }
+
+    async function respondToCall(callId, tableNumber) {
+      try {
+        // Update call status to responded
+        await db.collection('waiter_calls').doc(callId).update({
+          status: 'responded',
+          respondedAt: new Date(),
+          respondedBy: currentStaffName || 'Staff Member'
+        });
+        
+        // Show success notification
+        showNotification(
+          currentLanguage === 'ar' ? 'تم الرد' : 'Response Sent',
+          currentLanguage === 'ar' 
+            ? `تم الرد على استدعاء طاولة ${tableNumber}` 
+            : `Responded to Table ${tableNumber} call`,
+          'success'
+        );
+        
+        console.log(`Staff responded to call from table ${tableNumber}`);
+      } catch (error) {
+        console.error('Error responding to call:', error);
+        showNotification(
+          currentLanguage === 'ar' ? 'خطأ في الرد' : 'Response Failed',
+          currentLanguage === 'ar' ? 'فشل في إرسال الرد' : 'Failed to send response',
+          'error'
+        );
+      }
+    }
+
+    async function dismissCall(callId) {
+      try {
+        // Update call status to dismissed
+        await db.collection('waiter_calls').doc(callId).update({
+          status: 'dismissed',
+          dismissedAt: new Date(),
+          dismissedBy: currentStaffName || 'Staff Member'
+        });
+        
+        console.log(`Call ${callId} dismissed`);
+      } catch (error) {
+        console.error('Error dismissing call:', error);
+      }
+    }
+
+    async function clearAllWaiterCalls() {
+      try {
+        const pendingCalls = await db.collection('waiter_calls')
+          .where('status', '==', 'pending')
+          .get();
+        
+        const batch = db.batch();
+        pendingCalls.docs.forEach(doc => {
+          batch.update(doc.ref, {
+            status: 'cleared',
+            clearedAt: new Date(),
+            clearedBy: currentStaffName || 'Staff Member'
+          });
+        });
+        
+        await batch.commit();
+        
+        showNotification(
+          currentLanguage === 'ar' ? 'تم المسح' : 'Calls Cleared',
+          currentLanguage === 'ar' ? 'تم مسح جميع الاستدعاءات' : 'All waiter calls cleared',
+          'success'
+        );
+        
+        console.log('All waiter calls cleared');
+      } catch (error) {
+        console.error('Error clearing calls:', error);
+        showNotification(
+          currentLanguage === 'ar' ? 'خطأ في المسح' : 'Clear Failed',
+          currentLanguage === 'ar' ? 'فشل في مسح الاستدعاءات' : 'Failed to clear calls',
+          'error'
+        );
+      }
+    }
+
+    function getTimeAgo(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      
+      if (diffMins < 1) {
+        return currentLanguage === 'ar' ? 'الآن' : 'now';
+      } else if (diffMins < 60) {
+        return currentLanguage === 'ar' ? `منذ ${diffMins} دقيقة` : `${diffMins}m ago`;
+      } else {
+        return currentLanguage === 'ar' ? `منذ ${diffHours} ساعة` : `${diffHours}h ago`;
       }
     }
   </script>
