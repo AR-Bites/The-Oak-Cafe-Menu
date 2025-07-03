@@ -5142,9 +5142,6 @@
         <div class="calls-header">
           <h3 id="waiter-calls-title">🔔 WAITER CALLS</h3>
           <div style="display: flex; gap: 10px;">
-            <button class="test-permissions-btn" onclick="testWaiterCallsPermissions()" style="background: #e67e22; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-size: 0.8rem;">
-              🧪 TEST PERMISSIONS
-            </button>
             <button class="clear-calls-btn" id="clear-calls-btn" onclick="clearAllWaiterCalls()">
               <i class="fas fa-check-double"></i> <span id="clear-calls-text">CLEAR ALL</span>
             </button>
@@ -8080,6 +8077,9 @@
       
       // Load active waiter calls to sync button states
       loadActiveWaiterCalls();
+      
+      // Set up real-time listener for waiter calls to sync button states
+      setupWaiterCallsListener();
       
       // Manually add event listener for the Add to Cart button in customization modal
       // This ensures the event is properly captured regardless of event bubbling
@@ -17079,9 +17079,8 @@
         // Instead of updating, delete the call after responding
         await db.collection('waiter_calls').doc(callId).delete();
         
-        // Remove table from active calls set and reset button state
+        // Remove table from active calls set (real-time listener will handle button reset)
         activeWaiterCalls.delete(tableNumber);
-        resetWaiterCallButton(tableNumber);
         console.log(`✅ Successfully responded to waiter call and deleted from database. Table ${tableNumber} removed from active calls.`);
         
         // Show success notification
@@ -17112,9 +17111,70 @@
       }
     }
 
+    // Set up real-time listener for waiter calls to sync button states across all clients
+    function setupWaiterCallsListener() {
+      try {
+        console.log('Setting up real-time waiter calls listener...');
+        
+        // Listen to all changes in waiter_calls collection
+        db.collection('waiter_calls').onSnapshot((snapshot) => {
+          console.log('🔥 Waiter calls real-time update received');
+          
+          // Track current active calls from Firebase
+          const currentActiveCalls = new Set();
+          
+          snapshot.docs.forEach(doc => {
+            const callData = doc.data();
+            if (callData.status === 'pending' && callData.tableNumber) {
+              currentActiveCalls.add(callData.tableNumber);
+            }
+          });
+          
+          console.log('Active calls from Firebase:', Array.from(currentActiveCalls));
+          
+          // Check if current user's table state changed
+          const currentTableNumber = userTableNumber || tableNumber;
+          if (currentTableNumber) {
+            const tableNum = parseInt(currentTableNumber);
+            const wasActive = activeWaiterCalls.has(tableNum);
+            const isActive = currentActiveCalls.has(tableNum);
+            
+            if (wasActive && !isActive) {
+              // Call was resolved by staff - reset button
+              console.log(`🔄 Call for table ${tableNum} was resolved by staff - resetting button`);
+              resetWaiterCallButton(tableNum);
+              activeWaiterCalls.delete(tableNum);
+            } else if (!wasActive && isActive) {
+              // New call was created - update button to called state
+              console.log(`🔔 New call detected for table ${tableNum} - updating button`);
+              const callWaiterBtn = document.getElementById('call-waiter-btn');
+              const callWaiterText = document.getElementById('call-waiter-text');
+              
+              if (callWaiterBtn && callWaiterText) {
+                callWaiterBtn.classList.remove('calling');
+                callWaiterBtn.classList.add('called');
+                callWaiterText.textContent = currentLanguage === 'ar' ? 'تم الاستدعاء!' : 'CALLED!';
+              }
+              activeWaiterCalls.add(tableNum);
+            }
+          }
+          
+          // Update the activeWaiterCalls set
+          activeWaiterCalls.clear();
+          currentActiveCalls.forEach(tableNum => activeWaiterCalls.add(tableNum));
+          
+        }, (error) => {
+          console.error('Error in waiter calls listener:', error);
+        });
+        
+      } catch (error) {
+        console.error('Error setting up waiter calls listener:', error);
+      }
+    }
+
     // Function to reset waiter call button state for a specific table
     function resetWaiterCallButton(tableNumber) {
-      // Only reset if we're currently viewing that table
+      // Reset button if we're currently viewing that table
       const currentTableNumber = userTableNumber || tableNumber;
       if (currentTableNumber && parseInt(currentTableNumber) === parseInt(tableNumber)) {
         const callWaiterBtn = document.getElementById('call-waiter-btn');
@@ -17124,7 +17184,7 @@
           callWaiterBtn.classList.remove('calling', 'called');
           callWaiterBtn.style.pointerEvents = 'auto';
           callWaiterText.textContent = currentLanguage === 'ar' ? 'استدعاء النادل' : 'CALL WAITER';
-          console.log(`Reset waiter call button for table ${tableNumber}`);
+          console.log(`✅ Reset waiter call button for table ${tableNumber}`);
         }
       }
     }
@@ -17163,40 +17223,7 @@
       }
     }
 
-    // Debug function to test waiter_calls permissions
-    async function testWaiterCallsPermissions() {
-      try {
-        console.log('🧪 Testing waiter_calls collection permissions...');
-        
-        // Try to read from waiter_calls
-        const testRead = await db.collection('waiter_calls').limit(1).get();
-        console.log('✅ Read permission works, found', testRead.docs.length, 'documents');
-        
-        // Try to create a test document
-        const testDoc = await db.collection('waiter_calls').add({
-          test: true,
-          createdAt: new Date().toISOString(),
-          message: 'Test permission'
-        });
-        console.log('✅ Write permission works, created test doc:', testDoc.id);
-        
-        // Try to update the test document
-        await db.collection('waiter_calls').doc(testDoc.id).update({
-          updated: true,
-          updatedAt: new Date().toISOString()
-        });
-        console.log('✅ Update permission works');
-        
-        // Clean up test document
-        await db.collection('waiter_calls').doc(testDoc.id).delete();
-        console.log('✅ Delete permission works, cleaned up test doc');
-        
-        return true;
-      } catch (error) {
-        console.error('❌ Permission test failed:', error);
-        return false;
-      }
-    }
+
 
     async function dismissCall(callId) {
       try {
@@ -17208,10 +17235,9 @@
         // Delete the call document completely instead of just updating status
         await db.collection('waiter_calls').doc(callId).delete();
         
-        // Remove table from active calls set and reset button state
+        // Remove table from active calls set (real-time listener will handle button reset)
         if (tableNum) {
           activeWaiterCalls.delete(tableNum);
-          resetWaiterCallButton(tableNum);
         }
         
         console.log(`Call ${callId} dismissed and deleted from database. Table ${tableNum} removed from active calls.`);
