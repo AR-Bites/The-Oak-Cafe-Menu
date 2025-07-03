@@ -6550,7 +6550,7 @@
       },
       {
         name: "Yalanji",
-        nameAr: "يh�نجي",
+        nameAr: "يلنجي",
         modelSrc: "models/yalanji",
         description: "Traditional stuffed grape leaves with rice, herbs, and Mediterranean spices.",
         descriptionAr: "ورق عنب محشو تقليدي بالأرز والأعشاب والتوابل المتوسطية.",
@@ -16969,11 +16969,21 @@
 
     async function respondToCall(callId, tableNumber) {
       try {
+        // Get current staff info
+        const staffName = localStorage.getItem('staffName');
+        const staffUsername = localStorage.getItem('username');
+        const staffRole = localStorage.getItem('staffRole');
+        
         // Update call status to responded
         await db.collection('waiter_calls').doc(callId).update({
           status: 'responded',
-          respondedAt: new Date(),
-          respondedBy: currentStaffName || 'Staff Member'
+          respondedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          respondedBy: staffName || staffUsername || 'Staff Member',
+          respondedByDetails: {
+            name: staffName || 'Staff Member',
+            username: staffUsername || 'unknown',
+            role: staffRole || 'staff'
+          }
         });
         
         // Show success notification
@@ -16998,11 +17008,21 @@
 
     async function dismissCall(callId) {
       try {
+        // Get current staff info
+        const staffName = localStorage.getItem('staffName');
+        const staffUsername = localStorage.getItem('username');
+        const staffRole = localStorage.getItem('staffRole');
+        
         // Update call status to dismissed
         await db.collection('waiter_calls').doc(callId).update({
           status: 'dismissed',
-          dismissedAt: new Date(),
-          dismissedBy: currentStaffName || 'Staff Member'
+          dismissedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          dismissedBy: staffName || staffUsername || 'Staff Member',
+          dismissedByDetails: {
+            name: staffName || 'Staff Member',
+            username: staffUsername || 'unknown',
+            role: staffRole || 'staff'
+          }
         });
         
         console.log(`Call ${callId} dismissed`);
@@ -17018,11 +17038,22 @@
           .get();
         
         const batch = db.batch();
+        
+        // Get current staff info
+        const staffName = localStorage.getItem('staffName');
+        const staffUsername = localStorage.getItem('username');
+        const staffRole = localStorage.getItem('staffRole');
+        
         pendingCalls.docs.forEach(doc => {
           batch.update(doc.ref, {
             status: 'cleared',
-            clearedAt: new Date(),
-            clearedBy: currentStaffName || 'Staff Member'
+            clearedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            clearedBy: staffName || staffUsername || 'Staff Member',
+            clearedByDetails: {
+              name: staffName || 'Staff Member',
+              username: staffUsername || 'unknown',
+              role: staffRole || 'staff'
+            }
           });
         });
         
