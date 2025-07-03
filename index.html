@@ -270,11 +270,20 @@
       box-shadow: 0 5px 10px rgba(0,0,0,0.15);
     }
     
-    /* RTL Support for category navigation */
-    .rtl .category-container,
+    /* RTL Support for category navigation - text only */
+    .rtl .category-container {
+      direction: ltr; /* Keep layout stable */
+    }
+    
     .rtl .main-categories,
     .rtl .subcategory-group {
-      direction: rtl;
+      direction: ltr; /* Keep button layout stable */
+    }
+    
+    .rtl .main-category-btn span,
+    .rtl .category-btn {
+      direction: rtl; /* Only text direction for buttons */
+      text-align: center;
     }
     
     .food-container {
@@ -4082,22 +4091,47 @@
       }
     }
     
-    /* RTL Support for Arabic */
+    /* RTL Support for Arabic - prevent layout shift */
     .rtl {
+      direction: ltr; /* Keep main direction LTR to prevent layout shift */
+    }
+    
+    /* Ensure main containers stay in place in RTL mode */
+    .rtl body,
+    .rtl .guest-view,
+    .rtl .food-container,
+    .rtl .category-container,
+    .rtl .main-container {
+      direction: ltr;
+      position: relative;
+      left: auto;
+      right: auto;
+      transform: none;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Prevent viewport shifting in RTL */
+    .rtl {
+      overflow-x: hidden;
+    }
+    
+    /* RTL text alignment - centered for titles and headings */
+    .rtl h1#title, 
+    .rtl .tagline, 
+    .rtl .table-number-title, 
+    .rtl .table-number-subtitle,
+    .rtl #food-name,
+    .rtl #food-description {
+      text-align: center !important;
       direction: rtl;
-      text-align: right;
     }
     
-    .rtl .input-group label {
-      text-align: right;
-    }
-    
+    /* RTL specific text elements */
+    .rtl .input-group label,
     .rtl .item-name {
       text-align: right;
-    }
-    
-    .rtl h1#title, .rtl .tagline, .rtl .table-number-title, .rtl .table-number-subtitle {
-      text-align: center !important;
+      direction: rtl;
     }
     
     /* Additional RTL fixes for table input modal */
@@ -6761,7 +6795,7 @@
       },
       {
         name: "White Fruit Frappe",
-        nameAr: "فرابيه فواكه بيضu�ء",
+        nameAr: "فرابيه فواكه بيضاء",
 
         description: "Refreshing white fruit blended frappe.",
         price: 3.8,
@@ -8370,7 +8404,7 @@
           </div>
         </div>
         <div class="embedded-login-actions">
-          <button id="embedded-login-btn" class="embedded-login-btn">${currentLanguage === 'ar' ? 'تسجي � الدخول' : 'LOGIN'}</button>
+          <button id="embedded-login-btn" class="embedded-login-btn">${currentLanguage === 'ar' ? 'تسجيل الدخول' : 'LOGIN'}</button>
         </div>
         <div id="embedded-login-error" class="login-error"></div>
       `;
@@ -10493,7 +10527,7 @@
           const cancelButton = document.getElementById('cancel-table-btn');
           
           if (confirmButton) {
-            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد وإتمام الطلب' : 'CONFIRM & PLACE ORDER';
+            confirmButton.textContent = currentLanguage === 'ar' ? 'تأكيد وإتمام  �لطلب' : 'CONFIRM & PLACE ORDER';
           }
           
           if (cancelButton) {
@@ -16387,7 +16421,7 @@
           },
           menu: {
             day: 'المنتج الأكثر مبيعًا اليوم هو بيتزا بيبروني بنسبة 28٪ من الطلبات',
-            week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبu� 24٪ من المبيعات هذا الأسبوع',
+            week: 'بيتزا مارغريتا هي الأكثر مبيعًا بنسبة 24٪ من المبيعات هذا الأسبوع',
             month: 'نمت شعبية فيتوتشيني ألفريدو بنسبة 18٪ هذا الشهر',
             year: 'تظل البيتزا الفئة الأولى التي تمثل 45٪ من الإيرادات السنوية'
           },
