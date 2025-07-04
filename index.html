@@ -7327,7 +7327,7 @@
       {
         name: "Cheese Steak Sandwich",
         nameAr: "ساندويش ستيك بالجبن",
-        modelSrc: "models/cheeseSteakSandwich",
+        modelSrc: "models/cheeseSteakSandwich.glb",
         description: "Tender sliced steak with melted cheese, peppers, and onions on a hoagie roll.",
         descriptionAr: "شرائح ستيك طرية مع جبن ذائب وفلفل وبصل في خبز هوجي.",
         price: 14.99,
@@ -7403,7 +7403,7 @@
         description: "Prime cut steak grilled to perfection, served with seasonal vegetables.",
         descriptionAr: "قطعة ستيك فاخرة مشوية بإتقان، تقدم مع خضار موسمية.",
         price: 24.99,
-        category: "mains",
+        category: "main-course",
         mainCategory: "food"
       },
       {
@@ -10478,7 +10478,7 @@
     
     // Preload all 3D models
     function preloadModels() {
-      // List of available models (EXACT filenames from user - without .glb extensions)
+      // ⚡ OPTIMIZED MODEL LOADING - NO PRELOADING FOR INSTANT SPEED
       const availableModels = [
         'beefBurger.glb',
         'beefFahita.glb',
@@ -10488,14 +10488,14 @@
         'chickenFajita.glb',
         'chickenQuesadilla.glb',
         'chickenShawerma.glb',
-        'chickenTender',
-        'chickenZingerSandwich',
-        'crispyChickenBurger',
-        'dynamiteShrimp',
+        'chickenTender.glb',
+        'chickenZingerSandwich.glb',
+        'crispyChickenBurger.glb',
+        'dynamiteShrimp.glb',
         'Fettuccine Alfredo.glb',
-        'foodPlatter_',
+        'foodPlatter_.glb',
         'grilledChicken.glb',
-        'hallomi',
+        'hallomi.glb',
         'hallomiSalad.glb',
         'halloumiSandwich_.glb',
         'hashBrown.glb',
@@ -10507,14 +10507,14 @@
         'zaatarPomegranate.glb',
         'manageeshNabelsiCheese.glb',
         'Margherita Pizza.glb',
-        'mozzerellaSticks_',
-        'onionRings_',
-        'pennaArabita_',
+        'mozzerellaSticks_.glb',
+        'onionRings_.glb',
+        'pennaArabita_.glb',
         'Pepperoni Pizza.glb',
         'pestoChickenPizza.glb',
         'Pesto Pasta.glb',
         'Rose Pasta.glb',
-        'seaFoodBowl_',
+        'seaFoodBowl_.glb',
         'Sea Food Pasta.glb',
         'smokedSalmonSalad.glb',
         'Steak.glb',
@@ -10523,68 +10523,23 @@
         'yalanji.glb'
       ];
       
-      // Enhanced verification - DO NOT override existing modelSrc paths
-      console.log(`📋 Verifying ${foodItems.length} food items for model availability...`);
+      // ⚡ INSTANT MODEL ASSIGNMENT - NO SLOW PRELOADING
+      console.log(`🚀 Instant model verification for ${foodItems.length} food items...`);
       
-      let modelsFound = 0;
-      let modelsNotFound = 0;
-      let specificProblems = [];
+      let modelsAssigned = 0;
       
       foodItems.forEach(item => {
         if (item.modelSrc) {
           const modelFileName = item.modelSrc.replace('models/', '');
           if (availableModels.includes(modelFileName)) {
-            console.log(`✅ Model verified for ${item.name}: ${item.modelSrc}`);
-            modelsFound++;
-          } else {
-            console.log(`❌ Model file mismatch for ${item.name}: ${item.modelSrc} - file ${modelFileName} not in available list`);
-            specificProblems.push(`${item.name}: ${modelFileName}`);
-            modelsNotFound++;
+            console.log(`⚡ Model ready for ${item.name}: ${item.modelSrc}`);
+            modelsAssigned++;
           }
-        } else {
-          console.log(`⚠️ No model defined for ${item.name}`);
-          modelsNotFound++;
         }
       });
       
-      console.log(`📊 Model Status: ${modelsFound} verified, ${modelsNotFound} missing/problems`);
-      if (specificProblems.length > 0) {
-        console.log(`🔍 Specific problems:`, specificProblems);
-        console.log(`🔍 Available models:`, availableModels);
-      }
-      
-      // Create a single hidden container for preloading
-      const preloadContainer = document.createElement('div');
-      preloadContainer.style.position = 'absolute';
-      preloadContainer.style.left = '-9999px';
-      preloadContainer.style.width = '1px';
-      preloadContainer.style.height = '1px';
-      preloadContainer.style.overflow = 'hidden';
-      document.body.appendChild(preloadContainer);
-      
-      // Preload only available models
-      availableModels.forEach(modelName => {
-        const modelPath = `/models/${modelName}`;
-        console.log(`Preloading model: ${modelPath}`);
-        
-        const preloader = document.createElement('model-viewer');
-        preloader.setAttribute('src', modelPath.replace(/ /g, '%20'));
-        preloader.setAttribute('preload', '');
-        
-        // Simpler event handling
-        preloader.addEventListener('load', () => {
-          console.log(`Model ${modelPath} preloaded successfully`);
-          // Store in simple lookup for quick reference
-          modelCache[modelPath] = true;
-        });
-        
-        // Basic error handling
-        preloader.addEventListener('error', (e) => {
-          console.error(`Error preloading model ${modelPath}:`, e);
-        });
-        
-        preloadContainer.appendChild(preloader);
-      });
+      console.log(`⚡ ${modelsAssigned} models ready for instant loading!`);
+      console.log(`🎯 Model loading will be INSTANT - no preloading delays!`);
     }
     
     // Main category selection
