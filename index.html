@@ -6401,6 +6401,36 @@
     const foodItems = [
       // FOOD - Pizza & Pasta items
       {
+        name: "Margherita Pizza",
+        nameAr: "بيتزا مارجريتا",
+        modelSrc: "models/Margherita Pizza.glb",
+        description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
+        descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
+        price: 5.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Pepperoni Pizza",
+        nameAr: "بيتزا ببروني",
+        modelSrc: "models/Pepperoni Pizza.glb",
+        description: "Classic pepperoni with cheese and our signature tomato sauce.",
+        descriptionAr: "ببروني كلاسيكي مع الجبن وصلصة الطماطم المميزة لدينا.",
+        price: 7.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Pesto Chicken Pizza",
+        nameAr: "بيتزا دجاج بيستو",
+        modelSrc: "models/pestoChickenPizza.glb",
+        description: "Delicious pizza topped with grilled chicken, basil pesto, and melted cheese.",
+        descriptionAr: "بيتزا لذيذة مغطاة بالدجاج المشوي وصلصة البيستو والجبن المذاب.",
+        price: 16.99,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
         name: "Mix Formaggio Pizza",
         nameAr: "بيتزا ميكس فورماجيو",
         description: "Mixed cheese pizza with mozzarella, parmesan, and gorgonzola.",
@@ -6455,16 +6485,6 @@
         mainCategory: "food"
       },
       {
-        name: "Pepperoni Pizza",
-        nameAr: "بيتزا ببروني",
-        modelSrc: "models/Pepperoni Pizza.glb",
-        description: "Classic pepperoni with cheese and our signature tomato sauce.",
-        descriptionAr: "ببروني كلاسيكي مع الجبن وصلصة الطماطم المميزة لدينا.",
-        price: 7.0,
-        category: "pizza-pasta",
-        mainCategory: "food"
-      },
-      {
         name: "4 Stagioni Pizza",
         nameAr: "بيتزا ٤ ستاجيوني",
         description: "Four seasons pizza with different toppings on each quarter.",
@@ -6492,32 +6512,11 @@
         mainCategory: "food"
       },
       {
-        name: "Margherita Pizza",
-        nameAr: "بيتزا مارجريتا",
-        modelSrc: "models/Margherita Pizza.glb",
-        description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
-        descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
-        price: 5.5,
-        category: "pizza-pasta",
-        mainCategory: "food"
-      },
-      {
         name: "Vegetarian Pizza",
         nameAr: "بيتزا نباتية",
-
         description: "Fresh bell peppers, mushrooms, onions, and olives on our signature crust.",
         descriptionAr: "فلفل حلو طازج، فطر، بصل، وزيتون على عجينتنا المميزة.",
         price: 16.99,
-        category: "pizza",
-        mainCategory: "food"
-      },
-      {
-        name: "Pesto Chicken Pizza",
-        nameAr: "بيتزا دجاج بيستو",
-        modelSrc: "models/pestoChickenPizza.glb",
-        description: "Delicious pizza topped with grilled chicken, basil pesto, and melted cheese.",
-        descriptionAr: "بيتزا لذيذة مغطاة بالدجاج المشوي وصلصة البيستو والجبن المذاب.",
-        price: 18.99,
         category: "pizza",
         mainCategory: "food"
       },
@@ -6721,6 +6720,16 @@
 
       // FOOD - Main Course
       {
+        name: "Chicken Grill",
+        nameAr: "دجاج مشوي",
+        modelSrc: "models/grilledChicken.glb",
+        description: "Perfectly grilled chicken breast with herbs and spices.",
+        descriptionAr: "صدر دجاج مشوي بإتقان مع الأعشاب والتوابل.",
+        price: 9.0,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
         name: "Fukhara Freekeh",
         nameAr: "فخارة فريكة",
         description: "Traditional freekeh dish served in clay pot with authentic spices.",
@@ -6811,16 +6820,6 @@
         mainCategory: "food"
       },
       {
-        name: "Chicken Grill",
-        nameAr: "دجاج مشوي",
-        modelSrc: "models/grilledChicken.glb",
-        description: "Perfectly grilled chicken breast with herbs and spices.",
-        descriptionAr: "صدر دجاج مشوي بإتقان مع الأعشاب والتوابل.",
-        price: 9.0,
-        category: "main-course",
-        mainCategory: "food"
-      },
-      {
         name: "Salmon Grill",
         nameAr: "سلمون مشوي",
         description: "Fresh grilled salmon fillet with lemon and herbs.",
@@ -6832,15 +6831,6 @@
 
       // FOOD - Appetizers
       {
-        name: "Chips and Dips",
-        nameAr: "رقائق وصلصات",
-        description: "Crispy chips served with variety of delicious dips.",
-        descriptionAr: "رقائق مقرمشة تُقدم مع مجموعة متنوعة من الصلصات اللذيذة.",
-        price: 5.0,
-        category: "appetizers",
-        mainCategory: "food"
-      },
-      {
         name: "Chicken Dynamite",
         nameAr: "دجاج ديناميت",
         modelSrc: "models/chickenDynamiteSalad",
@@ -6851,21 +6841,30 @@
         mainCategory: "food"
       },
       {
-        name: "Kibbeh",
-        nameAr: "كبة",
-        description: "Traditional Lebanese kibbeh with bulgur and meat.",
-        descriptionAr: "كبة لبنانية تقليدية بالبرغل واللحم.",
-        price: 3.5,
-        category: "appetizers",
-        mainCategory: "food"
-      },
-      {
         name: "Mix Platter",
         nameAr: "طبق مشكل",
         modelSrc: "models/foodPlatter_",
         description: "Variety platter with assorted appetizers and finger foods.",
         descriptionAr: "طبق متنوع مع مقبلات وأطعمة متنوعة.",
         price: 18.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Chips and Dips",
+        nameAr: "رقائق وصلصات",
+        description: "Crispy chips served with variety of delicious dips.",
+        descriptionAr: "رقائق مقرمشة تُقدم مع مجموعة متنوعة من الصلصات اللذيذة.",
+        price: 5.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Kibbeh",
+        nameAr: "كبة",
+        description: "Traditional Lebanese kibbeh with bulgur and meat.",
+        descriptionAr: "كبة لبنانية تقليدية بالبرغل واللحم.",
+        price: 3.5,
         category: "appetizers",
         mainCategory: "food"
       },
@@ -14075,7 +14074,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
             currentLanguage === 'ar' 
-              ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
+              ? `تم تعn�ين الطاولة ${tableNumber} كمشغولة` 
               : `Table ${tableNumber} is now marked as Occupied`,
             'success'
           );
