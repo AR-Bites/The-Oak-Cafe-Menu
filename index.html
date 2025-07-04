@@ -6455,6 +6455,7 @@
     let cart = [];
     let estimatedTime = 15; // in minutes
     let currentLanguage = 'en';
+    let guestTableMode = 'new'; // 'new' or 'existing' - tracks which table mode guest selected
     let userType = "guest"; // guest, staff, admin
     let currentStaff = null;
     let clientId = localStorage.getItem('clientId') || 
@@ -10121,7 +10122,7 @@
           staffPerformance: "أداء الموظفين",
           orderSources: "مصادر الطلبات",
           exportData: "تصدير البيانات",
-          discountManagement: "إدارة الخصومt�ت",
+          discountManagement: "إدارة الخصومات",
           discountCode: "رمز الخصم",
           discountPercentage: "نسبة الخصم",
           createDiscount: "إنشاء خصم",
@@ -11008,7 +11009,7 @@
         // Reset button text to default
         const addToCartText = document.getElementById('add-to-cart-text');
         if (addToCartText) {
-          addToCartText.textContent = currentLanguage === 'ar' ? 'إضاn�ة إلى السلة' : 'ADD TO CART';
+          addToCartText.textContent = currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART';
         }
       }, 300);
     }
@@ -11874,6 +11875,9 @@
     }
     
     function selectNewTable() {
+      // Set guest table mode to new
+      guestTableMode = 'new';
+      
       // Change modal title to reflect new table selection
       const tableTitle = document.getElementById('table-number-title');
       const tableSubtitle = document.getElementById('table-number-subtitle');
@@ -11923,6 +11927,9 @@
     }
     
     function selectExistingTable() {
+      // Set guest table mode to existing
+      guestTableMode = 'existing';
+      
       // Change modal title to reflect existing table selection
       const tableTitle = document.getElementById('table-number-title');
       const tableSubtitle = document.getElementById('table-number-subtitle');
@@ -12330,25 +12337,50 @@
       confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>VERIFYING</span>';
       confirmBtn.disabled = true;
       
-      // Check if the table is already occupied
+      // Check table availability based on guest table mode
       checkTableAvailability(tableNumberInt).then(isAvailable => {
-        if (!isAvailable) {
-          // Show error notification instead of alert
-          showNotification(
-            currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
-            currentLanguage === 'ar' 
-              ? `الطاولة ${tableNumberInt} مشغولة. يرجى اختيار طاولة أخرى.`
-              : `Table ${tableNumberInt} is occupied. Please choose another table.`,
-            'error'
-          );
-          
-          // Reset button
-          confirmBtn.innerHTML = originalBtnContent;
-          confirmBtn.disabled = false;
-          
-          // Focus the input for another try
-          tableNumberInput.focus();
-          return;
+        if (guestTableMode === 'existing') {
+          // For existing table mode, the table MUST be occupied
+          if (isAvailable) {
+            // Table is available but user selected existing table mode
+            showNotification(
+              currentLanguage === 'ar' ? "طاولة غير مشغولة" : "Table Not Occupied",
+              currentLanguage === 'ar' 
+                ? `الطاولة ${tableNumberInt} غير مشغولة. يرجى اختيار "طاولة جديدة" بدلاً من ذلك أو إدخال رقم طاولة مشغولة.`
+                : `Table ${tableNumberInt} is not occupied. Please select "New Table" instead or enter an occupied table number.`,
+              'error'
+            );
+            
+            // Reset button
+            confirmBtn.innerHTML = originalBtnContent;
+            confirmBtn.disabled = false;
+            
+            // Focus the input for another try
+            tableNumberInput.focus();
+            return;
+          }
+          // Table is occupied, which is correct for existing table mode - continue
+        } else {
+          // For new table mode, the table MUST be available
+          if (!isAvailable) {
+            // Table is occupied but user selected new table mode
+            showNotification(
+              currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
+              currentLanguage === 'ar' 
+                ? `الطاولة ${tableNumberInt} مشغولة. يرجى اختيار طاولة أخرى أو اختيار "طاولة موجودة" إذا كانت هذه طاولتك.`
+                : `Table ${tableNumberInt} is occupied. Please choose another table or select "Existing Table" if this is your table.`,
+              'error'
+            );
+            
+            // Reset button
+            confirmBtn.innerHTML = originalBtnContent;
+            confirmBtn.disabled = false;
+            
+            // Focus the input for another try
+            tableNumberInput.focus();
+            return;
+          }
+          // Table is available, which is correct for new table mode - continue
         }
         
         // Success animation
@@ -14271,7 +14303,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
             currentLanguage === 'ar' 
-              ? `c�م تعيين الطاولة ${tableNumber} كمشغولة` 
+              ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
               : `Table ${tableNumber} is now marked as Occupied`,
             'success'
           );
