@@ -12186,7 +12186,7 @@
       if (!db || typeof db.collection !== 'function') {
         console.error("Firebase database not initialized");
         ordersList.innerHTML = `
-          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانا � غير متصلة' : 'Error: Database not connected'}</p>
+          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>
           <button onclick="renderOrders(0)" class="retry-btn" style="display: block; margin: 10px auto; padding: 5px 15px; background: var(--gold); color: black; border: none; border-radius: 4px; cursor: pointer;">
             <i class="fas fa-sync-alt"></i> ${currentLanguage === 'ar' ? 'إعادة المحاولة' : 'Retry'}
           </button>
@@ -16348,41 +16348,103 @@
     
     // Admin Tabs Navigation
     function switchAdminTab(tabName) {
-      // Hide all tabs
-      document.querySelectorAll('.admin-tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      
-      // Remove active class from all tab buttons
-      document.querySelectorAll('.admin-tab').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      
-      // Show selected tab
-      document.getElementById(`${tabName}-content`).classList.add('active');
-      document.getElementById(`${tabName}-tab`).classList.add('active');
-      
-      // Update language for all elements when switching tabs
-      updateLanguage();
-      
-      // If analytics tab is selected, initialize the analytics charts
-      if (tabName === 'analytics') {
-        initializeAnalytics();
+      try {
+        // Hide all tabs
+        document.querySelectorAll('.admin-tab-content').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.admin-tab').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        const targetContent = document.getElementById(`${tabName}-content`);
+        const targetTab = document.getElementById(`${tabName}-tab`);
+        
+        if (targetContent && targetTab) {
+          targetContent.classList.add('active');
+          targetTab.classList.add('active');
+          
+          console.log(`✅ Successfully switched to ${tabName} tab`);
+          
+          // Update language for all elements when switching tabs
+          updateLanguage();
+          
+          // If analytics tab is selected, initialize the analytics charts
+          if (tabName === 'analytics') {
+            console.log('🔄 Initializing analytics charts...');
+            // Add a small delay to ensure DOM is ready and canvas elements are visible
+            setTimeout(() => {
+              initializeAnalytics();
+            }, 300);
+          }
+        } else {
+          console.error(`❌ Could not find tab content or button for: ${tabName}`);
+        }
+      } catch (error) {
+        console.error('❌ Error switching admin tab:', error);
       }
     }
     
     // Initialize Advanced Analytics Dashboard
     function initializeAnalytics() {
-      // Draw all charts
-      drawSalesChart();
-      drawMenuPerformanceChart();
-      drawSatisfactionChart();
-      drawTableUtilizationChart();
-      drawStaffPerformanceChart();
-      drawMarketingChart();
-      
-      // Get insights from data
-      updateAnalyticsInsights();
+      try {
+        console.log('🔄 Starting analytics initialization...');
+        
+        // Verify Chart.js is available
+        if (typeof Chart === 'undefined') {
+          console.error('❌ Chart.js library not loaded');
+          return;
+        }
+        
+        // Verify canvas elements exist
+        const requiredCanvases = [
+          'sales-performance-chart',
+          'menu-performance-chart', 
+          'satisfaction-chart',
+          'table-utilization-chart',
+          'staff-performance-chart',
+          'marketing-performance-chart'
+        ];
+        
+        for (const canvasId of requiredCanvases) {
+          const canvas = document.getElementById(canvasId);
+          if (!canvas) {
+            console.warn(`⚠️ Canvas element not found: ${canvasId}`);
+          } else {
+            console.log(`✅ Found canvas: ${canvasId}`);
+          }
+        }
+        
+        // Draw all charts
+        console.log('📊 Drawing sales chart...');
+        drawSalesChart();
+        
+        console.log('📊 Drawing menu performance chart...');
+        drawMenuPerformanceChart();
+        
+        console.log('📊 Drawing satisfaction chart...');
+        drawSatisfactionChart();
+        
+        console.log('📊 Drawing table utilization chart...');
+        drawTableUtilizationChart();
+        
+        console.log('📊 Drawing staff performance chart...');
+        drawStaffPerformanceChart();
+        
+        console.log('📊 Drawing marketing chart...');
+        drawMarketingChart();
+        
+        // Get insights from data
+        console.log('💡 Updating analytics insights...');
+        updateAnalyticsInsights();
+        
+        console.log('✅ Analytics initialization completed successfully');
+      } catch (error) {
+        console.error('❌ Error initializing analytics:', error);
+      }
     }
     
     // Update analytics based on selected time range
@@ -16454,72 +16516,88 @@
     
     // Draw Sales Performance Chart
     function drawSalesChart(timeRange = 'week') {
-      const ctx = document.getElementById('sales-performance-chart').getContext('2d');
-      
-      // Get data based on time range
-      const labels = getTimeLabels(timeRange);
-      const data = generateRandomData(labels.length, 500, 1500);
-      
-      if (window.salesChart) {
-        window.salesChart.destroy();
-      }
-      
-      window.salesChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Sales ($)',
-            data: data,
-            fill: true,
-            backgroundColor: 'rgba(212, 175, 55, 0.2)',
-            borderColor: 'rgba(212, 175, 55, 1)',
-            tension: 0.4,
-            pointBackgroundColor: 'rgba(212, 175, 55, 1)',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              labels: {
-                color: 'rgba(245, 245, 220, 0.8)'
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(26, 58, 47, 0.9)',
-              titleColor: 'rgba(212, 175, 55, 1)',
-              bodyColor: 'rgba(245, 245, 220, 0.8)',
-              borderColor: 'rgba(212, 175, 55, 0.5)',
-              borderWidth: 1
-            }
+      try {
+        const canvas = document.getElementById('sales-performance-chart');
+        if (!canvas) {
+          console.error('❌ Sales chart canvas not found');
+          return;
+        }
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          console.error('❌ Could not get 2D context for sales chart');
+          return;
+        }
+        
+        // Get data based on time range
+        const labels = getTimeLabels(timeRange);
+        const data = generateRandomData(labels.length, 500, 1500);
+        
+        if (window.salesChart) {
+          window.salesChart.destroy();
+        }
+        
+        window.salesChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Sales ($)',
+              data: data,
+              fill: true,
+              backgroundColor: 'rgba(212, 175, 55, 0.2)',
+              borderColor: 'rgba(212, 175, 55, 1)',
+              tension: 0.4,
+              pointBackgroundColor: 'rgba(212, 175, 55, 1)',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 4
+            }]
           },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: 'rgba(245, 245, 220, 0.1)'
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  color: 'rgba(245, 245, 220, 0.8)'
+                }
               },
-              ticks: {
-                color: 'rgba(245, 245, 220, 0.6)'
+              tooltip: {
+                backgroundColor: 'rgba(26, 58, 47, 0.9)',
+                titleColor: 'rgba(212, 175, 55, 1)',
+                bodyColor: 'rgba(245, 245, 220, 0.8)',
+                borderColor: 'rgba(212, 175, 55, 0.5)',
+                borderWidth: 1
               }
             },
-            x: {
-              grid: {
-                color: 'rgba(245, 245, 220, 0.1)'
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: 'rgba(245, 245, 220, 0.1)'
+                },
+                ticks: {
+                  color: 'rgba(245, 245, 220, 0.6)'
+                }
               },
-              ticks: {
-                color: 'rgba(245, 245, 220, 0.6)'
+              x: {
+                grid: {
+                  color: 'rgba(245, 245, 220, 0.1)'
+                },
+                ticks: {
+                  color: 'rgba(245, 245, 220, 0.6)'
+                }
               }
             }
           }
-        }
-      });
+        });
+        
+        console.log('✅ Sales chart created successfully');
+      } catch (error) {
+        console.error('❌ Error creating sales chart:', error);
+      }
     }
     
     // Draw Menu Performance Chart
