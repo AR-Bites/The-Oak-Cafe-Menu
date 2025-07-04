@@ -5106,10 +5106,9 @@
             <div class="subcategory-label">Food Types</div>
             <div class="subcategory-buttons">
               <button class="category-btn active" data-category="all-food" data-parent="food" id="all-food-btn" onclick="changeCategory('all-food')">All Food</button>
-              <button class="category-btn" data-category="pizza" data-parent="food" id="pizza-category-btn" onclick="changeCategory('pizza')">Pizza</button>
-              <button class="category-btn" data-category="pasta" data-parent="food" id="pasta-category-btn" onclick="changeCategory('pasta')">Pasta</button>
+              <button class="category-btn" data-category="pizza-pasta" data-parent="food" id="pizza-pasta-category-btn" onclick="changeCategory('pizza-pasta')">Pizza & Pasta</button>
+              <button class="category-btn" data-category="sandwiches" data-parent="food" id="sandwiches-category-btn" onclick="changeCategory('sandwiches')">Sandwiches</button>
               <button class="category-btn" data-category="salads" data-parent="food" id="salads-category-btn" onclick="changeCategory('salads')">Salads</button>
-              <button class="category-btn" data-category="burgers" data-parent="food" id="burgers-category-btn" onclick="changeCategory('burgers')">Burgers</button>
             </div>
           </div>
           
@@ -5119,6 +5118,8 @@
             <div class="subcategory-buttons">
               <button class="category-btn active" data-category="all-breakfast" data-parent="breakfast" id="all-breakfast-btn" onclick="changeCategory('all-breakfast')">All Breakfast</button>
               <button class="category-btn" data-category="manageesh" data-parent="breakfast" id="manageesh-category-btn" onclick="changeCategory('manageesh')">Manageesh</button>
+              <button class="category-btn" data-category="croissants" data-parent="breakfast" id="croissants-category-btn" onclick="changeCategory('croissants')">Croissants</button>
+              <button class="category-btn" data-category="breakfast-dishes" data-parent="breakfast" id="breakfast-dishes-category-btn" onclick="changeCategory('breakfast-dishes')">Breakfast Dishes</button>
             </div>
           </div>
           
@@ -6395,15 +6396,59 @@
     
     // Food catalog
     const foodItems = [
-      // FOOD - Pizza items
+      // FOOD - Pizza & Pasta items
       {
-        name: "Margherita Pizza",
-        nameAr: "بيتزا مارجريتا",
-        modelSrc: "models/Margherita Pizza.glb",
-        description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
-        descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
-        price: 14.99,
-        category: "pizza",
+        name: "Mix Formaggio Pizza",
+        nameAr: "بيتزا ميكس فورماجيو",
+        description: "Mixed cheese pizza with mozzarella, parmesan, and gorgonzola.",
+        descriptionAr: "بيتزا الجبن المختلط مع الموزاريلا والبارميزان والجورجونزولا.",
+        price: 7.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Pizza Chicken Alfredo",
+        nameAr: "بيتزا دجاج ألفريدو",
+        description: "Creamy alfredo sauce with grilled chicken and cheese.",
+        descriptionAr: "صلصة ألفريدو الكريمية مع الدجاج المشوي والجبن.",
+        price: 7.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Calzone Pizza",
+        nameAr: "بيتزا كالزونه",
+        description: "Folded pizza stuffed with cheese, meat, and vegetables.",
+        descriptionAr: "بيتزا مطوية محشوة بالجبن واللحم والخضار.",
+        price: 7.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Pizza Vegetariana",
+        nameAr: "بيتزا فيجيتاريانا",
+        description: "Fresh vegetables with cheese on a crispy crust.",
+        descriptionAr: "خضار طازجة مع الجبن على قاعدة مقرمشة.",
+        price: 6.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Pizza Funghi",
+        nameAr: "بيتزا فونغي",
+        description: "Mushroom pizza with cheese and herbs.",
+        descriptionAr: "بيتزا الفطر مع الجبن والأعشاب.",
+        price: 6.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Alfredo Pesto Pizza",
+        nameAr: "بيتزا ألفريدو بيستو",
+        description: "Combination of alfredo and pesto sauces with cheese.",
+        descriptionAr: "مزيج من صلصة الألفريدو والبيستو مع الجبن.",
+        price: 8.0,
+        category: "pizza-pasta",
         mainCategory: "food"
       },
       {
@@ -6412,8 +6457,45 @@
         modelSrc: "models/Pepperoni Pizza.glb",
         description: "Classic pepperoni with cheese and our signature tomato sauce.",
         descriptionAr: "ببروني كلاسيكي مع الجبن وصلصة الطماطم المميزة لدينا.",
-        price: 15.99,
-        category: "pizza",
+        price: 7.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "4 Stagioni Pizza",
+        nameAr: "بيتزا ٤ ستاجيوني",
+        description: "Four seasons pizza with different toppings on each quarter.",
+        descriptionAr: "بيتزا الفصول الأربعة مع طبقات مختلفة في كل ربع.",
+        price: 7.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Taco Pizza",
+        nameAr: "بيتزا تاكو",
+        description: "Mexican-style pizza with taco seasonings and toppings.",
+        descriptionAr: "بيتزا على الطريقة المكسيكية مع توابل وطبقات التاكو.",
+        price: 8.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken BBQ Pizza",
+        nameAr: "بيتزا دجاج باربكيو",
+        description: "BBQ chicken with cheese and barbecue sauce.",
+        descriptionAr: "دجاج باربكيو مع الجبن وصلصة الباربكيو.",
+        price: 7.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Margherita Pizza",
+        nameAr: "بيتزا مارجريتا",
+        modelSrc: "models/Margherita Pizza.glb",
+        description: "Fresh mozzarella, tomatoes, and basil on a thin crust, baked to perfection.",
+        descriptionAr: "جبنة موزاريلا طازجة، طماطم، وريحان على عجينة رقيقة، مخبوزة بشكل مثالي.",
+        price: 5.5,
+        category: "pizza-pasta",
         mainCategory: "food"
       },
       {
@@ -6534,14 +6616,33 @@
       },
 
       // FOOD - Burger items
+      // FOOD - Sandwiches
       {
-        name: "Beef Burger",
-        nameAr: "برجر لحم بقري",
+        name: "OAK Beef Burger",
+        nameAr: "برجر لحم بقري أوك",
         modelSrc: "models/beefBurger",
         description: "Juicy beef patty with fresh lettuce, tomato, onions, and our signature sauce.",
         descriptionAr: "قطعة لحم بقري عصيرية مع خس طازج وطماطم وبصل وصلصتنا المميزة.",
-        price: 12.99,
-        category: "burgers",
+        price: 8.0,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "The Oak Sandwich",
+        nameAr: "ساندويش أوك",
+        description: "Our signature sandwich with premium ingredients and special sauce.",
+        descriptionAr: "ساندويشنا المميز مع مكونات فاخرة وصلصة خاصة.",
+        price: 9.0,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Shawerma Meat",
+        nameAr: "شاورما لحم",
+        description: "Traditional meat shawerma with vegetables and tahini sauce.",
+        descriptionAr: "شاورما لحم تقليدية مع الخضار وصلصة الطحينة.",
+        price: 7.5,
+        category: "sandwiches",
         mainCategory: "food"
       },
       {
@@ -6550,12 +6651,159 @@
         modelSrc: "models/crispyChickenBurger",
         description: "Crispy fried chicken breast with coleslaw and spicy mayo on a brioche bun.",
         descriptionAr: "صدر دجاج مقلي مقرمش مع سلطة كولسلو ومايونيز حار في خبز بريوش.",
-        price: 13.99,
-        category: "burgers",
+        price: 6.5,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Shawerma Chicken",
+        nameAr: "شاورما دجاج",
+        modelSrc: "models/chickenShawerma",
+        description: "Traditional chicken shawerma with vegetables and garlic sauce.",
+        descriptionAr: "شاورما دجاج تقليدية مع الخضار وصلصة الثوم.",
+        price: 6.0,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Fajita Sandwich",
+        nameAr: "ساندويش فاهيتا دجاج",
+        modelSrc: "models/chickenFajita",
+        description: "Grilled chicken with peppers, onions, and special fajita seasoning.",
+        descriptionAr: "دجاج مشوي مع الفلفل والبصل وتوابل الفاهيتا الخاصة.",
+        price: 5.5,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Hallomi Sandwich",
+        nameAr: "ساندويش حلومي",
+        modelSrc: "models/halloumiSandwich_",
+        description: "Grilled hallomi cheese with fresh vegetables and herbs.",
+        descriptionAr: "جبنة حلومي مشوية مع الخضار الطازجة والأعشاب.",
+        price: 5.5,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Quesadilla",
+        nameAr: "كويساديلا دجاج",
+        modelSrc: "models/chickenQuesadilla",
+        description: "Grilled tortilla filled with chicken, cheese, and peppers.",
+        descriptionAr: "تورتيلا مشوية محشوة بالدجاج والجبن والفلفل.",
+        price: 8.0,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Crispy Sandwich",
+        nameAr: "ساندويش دجاج مقرمش",
+        modelSrc: "models/chickenZingerSandwich",
+        description: "Crispy fried chicken with lettuce and spicy sauce.",
+        descriptionAr: "دجاج مقلي مقرمش مع الخس والصلصة الحارة.",
+        price: 6.5,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Beef Fajita Sandwich",
+        nameAr: "ساندويش فاهيتا لحم",
+        modelSrc: "models/beefFahita",
+        description: "Grilled beef with peppers, onions, and fajita spices.",
+        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفاهيتا.",
+        price: 7.0,
+        category: "sandwiches",
         mainCategory: "food"
       },
 
-      // FOOD - Sandwiches & Wraps
+      // FOOD - Additional Pasta items (under Pizza & Pasta)
+      {
+        name: "Spaghetti Aglio Shrimps",
+        nameAr: "سباغيتي أليو روبيان",
+        description: "Spaghetti with garlic, olive oil, and fresh shrimps.",
+        descriptionAr: "سباغيتي بالثوم وزيت الزيتون والروبيان الطازج.",
+        price: 8.75,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Cannelloni",
+        nameAr: "كانيلوني",
+        description: "Pasta tubes filled with cheese and meat, baked in tomato sauce.",
+        descriptionAr: "أنابيب باستا محشوة بالجبن واللحم، مخبوزة في صلصة الطماطم.",
+        price: 5.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Penne Arabiata",
+        nameAr: "بيني أرابياتا",
+        modelSrc: "models/pennaArabita_",
+        description: "Penne pasta in spicy tomato sauce with herbs.",
+        descriptionAr: "معكرونة بيني في صلصة طماطم حارة مع الأعشاب.",
+        price: 5.25,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Spaghetti Bolognese",
+        nameAr: "سباغيتي بولونيز",
+        description: "Classic spaghetti with rich meat sauce and parmesan.",
+        descriptionAr: "سباغيتي كلاسيكي مع صلصة اللحم الغنية والبارميزان.",
+        price: 7.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Fettuccine Alfredo",
+        nameAr: "فيتوتشيني ألفريدو",
+        modelSrc: "models/Fettuccine Alfredo.glb",
+        description: "Creamy fettuccine pasta with alfredo sauce and parmesan.",
+        descriptionAr: "معكرونة فيتوتشيني كريمية مع صلصة ألفريدو والبارميزان.",
+        price: 7.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Seafood Pasta",
+        nameAr: "معكرونة المأكولات البحرية",
+        modelSrc: "models/Sea Food Pasta.glb",
+        description: "Mixed seafood with pasta in white wine sauce.",
+        descriptionAr: "مأكولات بحرية مختلطة مع المعكرونة في صلصة النبيذ الأبيض.",
+        price: 9.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Spaghetti Al-Pesto",
+        nameAr: "سباغيتي البيستو",
+        modelSrc: "models/Pesto Pasta.glb",
+        description: "Fresh spaghetti with basil pesto sauce and pine nuts.",
+        descriptionAr: "سباغيتي طازج مع صلصة البيستو وحبوب الصنوبر.",
+        price: 6.5,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Lasagna",
+        nameAr: "لازانيا",
+        description: "Layered pasta with meat, cheese, and tomato sauce.",
+        descriptionAr: "معكرونة مطبقة باللحم والجبن وصلصة الطماطم.",
+        price: 9.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+      {
+        name: "Penne Rose",
+        nameAr: "بيني روز",
+        modelSrc: "models/Rose Pasta.glb",
+        description: "Penne pasta in creamy rose sauce with herbs.",
+        descriptionAr: "معكرونة بيني في صلصة الوردة الكريمية مع الأعشاب.",
+        price: 6.0,
+        category: "pizza-pasta",
+        mainCategory: "food"
+      },
+
       {
         name: "Cheese Steak Sandwich",
         nameAr: "ساندويش ستيك بالجبن",
@@ -6765,15 +7013,89 @@
         mainCategory: "food"
       },
       
-      // BREAKFAST - Manageesh items
+      // BREAKFAST items
       {
-        name: "Manageesh Mix Cheese",
-        nameAr: "مناقيش جبنة مخلطة",
-        modelSrc: "models/manageeshMixCheese.glb",
-        description: "Traditional Lebanese flatbread topped with mixed cheese blend.",
-        descriptionAr: "خبز لبناني تقليدي مغطى بخليط الجبن المتنوع.",
+        name: "Eggs of Your Choice",
+        nameAr: "بيض حسب الطلب",
+        description: "Fresh eggs prepared to your preference - scrambled, fried, or poached.",
+        descriptionAr: "بيض طازج محضر حسب تفضيلك - مخفوق أو مقلي أو مسلوق.",
         price: 4.5,
+        category: "breakfast-dishes",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Labneh and Rocca",
+        nameAr: "مناقيش لبنة وجرجير",
+        modelSrc: "models/manageeshLabnehandRocca.glb",
+        description: "Fresh flatbread with creamy labneh and peppery rocca leaves.",
+        descriptionAr: "خبز طازج مع لبنة كريمية وأوراق الجرجير الحارة.",
+        price: 3.25,
         category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Hallomi Croissant",
+        nameAr: "كرواسان حلومي",
+        description: "Buttery croissant filled with grilled hallomi cheese.",
+        descriptionAr: "كرواسان بالزبدة محشو بجبنة الحلومي المشوية.",
+        price: 5.5,
+        category: "croissants",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Zaatar and Vegetables",
+        nameAr: "مناقيش زعتر وخضار",
+        description: "Traditional zaatar flatbread topped with fresh vegetables.",
+        descriptionAr: "خبز زعتر تقليدي مغطى بالخضار الطازجة.",
+        price: 3.5,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Zaatar and Pomegranate",
+        nameAr: "زعتر ورمان",
+        modelSrc: "models/zaatarPomegranate.glb",
+        description: "Traditional zaatar flatbread topped with fresh pomegranate seeds.",
+        descriptionAr: "خبز زعتر تقليدي مغطى بحبات الرمان الطازجة.",
+        price: 2.5,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Turkey Omelette Croissant",
+        nameAr: "كرواسان أومليت الديك الرومي",
+        description: "Flaky croissant with turkey omelette and fresh herbs.",
+        descriptionAr: "كرواسان مقرمش مع أومليت الديك الرومي والأعشاب الطازجة.",
+        price: 6.0,
+        category: "croissants",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Nabelsi Cheese",
+        nameAr: "مناقيش جبنة نابلسية",
+        modelSrc: "models/manageeshNabelsiCheese.glb",
+        description: "Authentic flatbread with traditional Nabelsi cheese.",
+        descriptionAr: "خبز أصيل مع الجبنة النابلسية التقليدية.",
+        price: 3.5,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Tuna Sandwich",
+        nameAr: "ساندويش تونة",
+        description: "Fresh tuna salad with vegetables on toasted bread.",
+        descriptionAr: "سلطة تونة طازجة مع الخضار على خبز محمص.",
+        price: 8.0,
+        category: "breakfast-sandwiches",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Avocado Omelette",
+        nameAr: "أومليت الأفوكادو",
+        description: "Fluffy omelette with fresh avocado slices and herbs.",
+        descriptionAr: "أومليت هش مع شرائح الأفوكادو الطازجة والأعشاب.",
+        price: 5.5,
+        category: "breakfast-dishes",
         mainCategory: "breakfast"
       },
       {
@@ -6782,6 +7104,25 @@
         modelSrc: "models/manageeshFalafel.glb",
         description: "Fresh flatbread with crispy falafel and tahini sauce.",
         descriptionAr: "خبز طازج مع فلافل مقرمش وصلصة الطحينة.",
+        price: 4.0,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Turkey Croissant",
+        nameAr: "كرواسان الديك الرومي",
+        description: "Buttery croissant with sliced turkey and fresh lettuce.",
+        descriptionAr: "كرواسان بالزبدة مع شرائح الديك الرومي والخس الطازج.",
+        price: 5.5,
+        category: "croissants",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Mix Cheese",
+        nameAr: "مناقيش جبنة مخلطة",
+        modelSrc: "models/manageeshMixCheese.glb",
+        description: "Traditional Lebanese flatbread topped with mixed cheese blend.",
+        descriptionAr: "خبز لبناني تقليدي مغطى بخليط الجبن المتنوع.",
         price: 5.0,
         category: "manageesh",
         mainCategory: "breakfast"
@@ -6792,37 +7133,7 @@
         modelSrc: "models/manageeshMolassesAndTahini.glb",
         description: "Sweet and savory flatbread with molasses and tahini spread.",
         descriptionAr: "خبز حلو ومالح مع دبس وطحينة.",
-        price: 4.25,
-        category: "manageesh",
-        mainCategory: "breakfast"
-      },
-      {
-        name: "Manageesh Labneh and Rocca",
-        nameAr: "مناقيش لبنة وجرجير",
-        modelSrc: "models/manageeshLabnehandRocca.glb",
-        description: "Fresh flatbread with creamy labneh and peppery rocca leaves.",
-        descriptionAr: "خبز طازج مع لبنة كريمية وأوراق الجرجير الحارة.",
-        price: 4.75,
-        category: "manageesh",
-        mainCategory: "breakfast"
-      },
-      {
-        name: "Zaatar Pomegranate",
-        nameAr: "زعتر رمان",
-        modelSrc: "models/zaatarPomegranate.glb",
-        description: "Traditional zaatar flatbread topped with fresh pomegranate seeds.",
-        descriptionAr: "خبز زعتر تقليدي مغطى بحبات الرمان الطازجة.",
-        price: 4.0,
-        category: "manageesh",
-        mainCategory: "breakfast"
-      },
-      {
-        name: "Manageesh Nabelsi Cheese",
-        nameAr: "مناقيش جبنة نابلسية",
-        modelSrc: "models/manageeshNabelsiCheese.glb",
-        description: "Authentic flatbread with traditional Nabelsi cheese.",
-        descriptionAr: "خبز أصيل مع الجبنة النابلسية التقليدية.",
-        price: 4.5,
+        price: 3.75,
         category: "manageesh",
         mainCategory: "breakfast"
       },
@@ -8027,7 +8338,7 @@
       },
       {
         name: "Two Apples Mazaya",
-        nameAr: "تفاحتين مزايا",
+        nameAr: "تفاa�تين مزايا",
         description: "Premium Mazaya double apple flavor.",
         descriptionAr: "نكهة تفاحتين مزايا الفاخرة.",
         price: 6.15,
@@ -9523,23 +9834,25 @@
 
       // Update food subcategory buttons
       const allFoodBtn = document.getElementById('all-food-btn');
-      const pizzaCategoryBtn = document.getElementById('pizza-category-btn');
-      const pastaCategoryBtn = document.getElementById('pasta-category-btn');
+      const pizzaPastaCategoryBtn = document.getElementById('pizza-pasta-category-btn');
+      const sandwichesCategoryBtn = document.getElementById('sandwiches-category-btn');
       const saladsCategoryBtn = document.getElementById('salads-category-btn');
-      const burgersCategoryBtn = document.getElementById('burgers-category-btn');
       
       if (allFoodBtn) allFoodBtn.textContent = currentLanguage === 'ar' ? 'كل الطعام' : 'All Food';
-      if (pizzaCategoryBtn) pizzaCategoryBtn.textContent = currentLanguage === 'ar' ? 'بيتزا' : 'Pizza';
-      if (pastaCategoryBtn) pastaCategoryBtn.textContent = currentLanguage === 'ar' ? 'باستا' : 'Pasta';
+      if (pizzaPastaCategoryBtn) pizzaPastaCategoryBtn.textContent = currentLanguage === 'ar' ? 'بيتزا وباستا' : 'Pizza & Pasta';
+      if (sandwichesCategoryBtn) sandwichesCategoryBtn.textContent = currentLanguage === 'ar' ? 'ساندويشات' : 'Sandwiches';
       if (saladsCategoryBtn) saladsCategoryBtn.textContent = currentLanguage === 'ar' ? 'سلطات' : 'Salads';
-      if (burgersCategoryBtn) burgersCategoryBtn.textContent = currentLanguage === 'ar' ? 'برجر' : 'Burgers';
       
       // Update breakfast subcategory buttons
       const allBreakfastBtn = document.getElementById('all-breakfast-btn');
       const manageeshCategoryBtn = document.getElementById('manageesh-category-btn');
+      const croissantsCategoryBtn = document.getElementById('croissants-category-btn');
+      const breakfastDishesCategoryBtn = document.getElementById('breakfast-dishes-category-btn');
       
       if (allBreakfastBtn) allBreakfastBtn.textContent = currentLanguage === 'ar' ? 'كل الفطور' : 'All Breakfast';
       if (manageeshCategoryBtn) manageeshCategoryBtn.textContent = currentLanguage === 'ar' ? 'مناقيش' : 'Manageesh';
+      if (croissantsCategoryBtn) croissantsCategoryBtn.textContent = currentLanguage === 'ar' ? 'كرواسان' : 'Croissants';
+      if (breakfastDishesCategoryBtn) breakfastDishesCategoryBtn.textContent = currentLanguage === 'ar' ? 'أطباق الفطور' : 'Breakfast Dishes';
       
       // Update drinks subcategory buttons - Complete list
       const allDrinksBtn = document.getElementById('all-drinks-btn');
