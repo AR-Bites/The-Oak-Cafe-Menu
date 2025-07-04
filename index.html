@@ -462,13 +462,15 @@
       background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%) !important;
       color: white !important;
       position: absolute !important;
-      bottom: 8px !important;
+      bottom: 12px !important;
       left: 50% !important;
       transform: translateX(-50%) !important;
-      padding: 4px 10px;
+      padding: 6px 12px !important;
       font-weight: 500;
       animation: pulse 2s infinite;
-      font-size: 0.7rem;
+      font-size: 0.75rem !important;
+      z-index: 10 !important;
+      white-space: nowrap !important;
       width: calc(100% - 24px) !important;
       max-width: 220px !important;
       border-radius: 25px !important;
@@ -2381,6 +2383,72 @@
       color: white;
     }
     
+    /* Guest table option styling */
+    .guest-table-option {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 18px;
+      padding: 20px;
+      margin: 12px 0;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      width: 280px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .guest-table-option:hover {
+      transform: translateY(-3px);
+      background: rgba(255,255,255,0.25);
+      border-color: var(--gold);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .guest-table-option:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .guest-table-option .option-icon {
+      font-size: 2.2rem;
+      color: var(--gold);
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .guest-table-option .option-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .guest-table-option .option-description {
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.3;
+      max-width: 200px;
+      transition: all 0.3s ease;
+    }
+
+    .guest-table-option:hover .option-description {
+      color: rgba(255,255,255,1);
+    }
+
+    .guest-table-option:hover .option-icon {
+      color: white;
+      text-shadow: 0 0 10px rgba(255,223,112,0.7);
+    }
+
     /* Embedded login form */
     .embedded-login-form {
       width: 100%;
@@ -4230,9 +4298,9 @@
       
       /* Make the AR button very small and modern on mobile */
       .ar-button {
-        font-size: 0.65rem !important;
-        padding: 3px 8px !important;
-        bottom: 10px !important;
+        font-size: 0.7rem !important;
+        padding: 4px 10px !important;
+        bottom: 12px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
         border-radius: 15px !important;
@@ -4240,6 +4308,8 @@
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        z-index: 10 !important;
+        white-space: nowrap !important;
         gap: 4px !important;
         min-height: 24px !important;
         position: absolute !important;
@@ -10721,10 +10791,12 @@
           modelLoadingIndicator.style.display = 'none';
         }, 3000);
       } else {
-        // No matching model found, hide the model container
+        // No matching model found, hide the model container and clear model
         console.log(`No model available for ${item.name}, hiding 3D viewer`);
         modelContainer.style.display = 'none';
         modelLoadingIndicator.style.display = 'none';
+        // Clear the model source to prevent showing previous model
+        modelViewer.src = '';
       }
       
       // Clear existing extras
@@ -10936,7 +11008,7 @@
         // Reset button text to default
         const addToCartText = document.getElementById('add-to-cart-text');
         if (addToCartText) {
-          addToCartText.textContent = currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART';
+          addToCartText.textContent = currentLanguage === 'ar' ? 'إضا �ة إلى السلة' : 'ADD TO CART';
         }
       }, 300);
     }
@@ -11762,23 +11834,65 @@
       
       const optionButtons = document.querySelector('.user-option-buttons');
       
-      // Change modal title to reflect guest mode
+      // Change modal title to reflect guest table selection
       const tableTitle = document.getElementById('table-number-title');
-      tableTitle.textContent = currentLanguage === 'ar' ? 'إدخال رقم الطاولة' : 'ENTER TABLE NUMBER';
+      const tableSubtitle = document.getElementById('table-number-subtitle');
+      tableTitle.textContent = currentLanguage === 'ar' ? 'حالة الطاولة' : 'TABLE STATUS';
+      tableSubtitle.textContent = currentLanguage === 'ar' ? 'يرجى اختيار حالة طاولتك' : 'Please select your table status';
       
-      // Fade out entire options container for a clean transition
+      // Fade out entire options container for transition
       optionButtons.style.opacity = '0';
       
       setTimeout(() => {
-        // Completely remove options from DOM
-        optionButtons.parentNode.removeChild(optionButtons);
+        // Update the modal content for guest table selection
+        optionButtons.innerHTML = `
+          <div class="guest-table-option new-table-option" onclick="selectNewTable()">
+            <div class="option-icon">
+              <i class="fas fa-plus-circle"></i>
+            </div>
+            <span class="option-text">${currentLanguage === 'ar' ? 'طاولة جديدة' : 'New Table'}</span>
+            <div class="option-description">${currentLanguage === 'ar' ? 'وصلت للتو وتحتاج لطاولة جديدة' : 'Just arrived and need a new table'}</div>
+          </div>
+          <div class="guest-table-option existing-table-option" onclick="selectExistingTable()">
+            <div class="option-icon">
+              <i class="fas fa-chair"></i>
+            </div>
+            <span class="option-text">${currentLanguage === 'ar' ? 'طاولة موجودة' : 'Existing Table'}</span>
+            <div class="option-description">${currentLanguage === 'ar' ? 'لديك طاولة بالفعل وتريد إضافة طلب' : 'Already have a table and want to add an order'}</div>
+          </div>
+        `;
+        
+        // Fade in the new options
+        optionButtons.style.opacity = '1';
+      }, 300);
+      
+      // Add real-time table availability check if not already added
+      tableNumberInput.removeEventListener('input', checkTableAvailabilityRealtime);
+      tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
+      
+      // We no longer add the back button as we want options to be completely gone
+    }
+    
+    function selectNewTable() {
+      // Change modal title to reflect new table selection
+      const tableTitle = document.getElementById('table-number-title');
+      const tableSubtitle = document.getElementById('table-number-subtitle');
+      tableTitle.textContent = currentLanguage === 'ar' ? 'اختر رقم الطاولة' : 'CHOOSE TABLE NUMBER';
+      tableSubtitle.textContent = currentLanguage === 'ar' ? 'يرجى إدخال رقم الطاولة الجديدة' : 'Please enter your new table number';
+      
+      const optionButtons = document.querySelector('.user-option-buttons');
+      optionButtons.style.opacity = '0';
+      
+      setTimeout(() => {
+        // Remove table selection options
+        optionButtons.style.display = 'none';
         
         // Create a guest icon indicator
         const modalContent = document.querySelector('.table-number-content');
         const guestIcon = document.createElement('div');
         guestIcon.className = 'guest-icon-standalone';
         guestIcon.innerHTML = `<i class="fas fa-utensils"></i>
-                            <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف' : 'GUEST MODE'}</div>`;
+                            <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف - طاولة جديدة' : 'GUEST MODE - NEW TABLE'}</div>`;
         
         // Add the icon if it doesn't already exist
         if (!document.querySelector('.guest-icon-standalone')) {
@@ -11800,14 +11914,61 @@
           
           // Scroll to the input if needed
           tableNumberInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 50);
+        }, 100);
       }, 300);
       
       // Add real-time table availability check if not already added
       tableNumberInput.removeEventListener('input', checkTableAvailabilityRealtime);
       tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
+    }
+    
+    function selectExistingTable() {
+      // Change modal title to reflect existing table selection
+      const tableTitle = document.getElementById('table-number-title');
+      const tableSubtitle = document.getElementById('table-number-subtitle');
+      tableTitle.textContent = currentLanguage === 'ar' ? 'إدخال رقم الطاولة' : 'ENTER TABLE NUMBER';
+      tableSubtitle.textContent = currentLanguage === 'ar' ? 'يرجى إدخال رقم طاولتك الحالية' : 'Please enter your current table number';
       
-      // We no longer add the back button as we want options to be completely gone
+      const optionButtons = document.querySelector('.user-option-buttons');
+      optionButtons.style.opacity = '0';
+      
+      setTimeout(() => {
+        // Remove table selection options
+        optionButtons.style.display = 'none';
+        
+        // Create a guest icon indicator
+        const modalContent = document.querySelector('.table-number-content');
+        const guestIcon = document.createElement('div');
+        guestIcon.className = 'guest-icon-standalone';
+        guestIcon.innerHTML = `<i class="fas fa-utensils"></i>
+                            <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف - طاولة موجودة' : 'GUEST MODE - EXISTING TABLE'}</div>`;
+        
+        // Add the icon if it doesn't already exist
+        if (!document.querySelector('.guest-icon-standalone')) {
+          modalContent.insertBefore(guestIcon, modalContent.firstChild);
+        }
+        
+        // Show the table number input with a nice fade-in
+        tableNumberInputContainer.style.display = 'block';
+        tableNumberInputContainer.style.opacity = '0';
+        
+        setTimeout(() => {
+          tableNumberInputContainer.style.opacity = '1';
+          tableNumberInput.focus();
+          
+          // Clear the availability indicator
+          const availabilityIndicator = document.getElementById('table-availability-indicator');
+          availabilityIndicator.innerHTML = '';
+          availabilityIndicator.className = 'table-availability-indicator';
+          
+          // Scroll to the input if needed
+          tableNumberInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }, 300);
+      
+      // Add real-time table availability check if not already added
+      tableNumberInput.removeEventListener('input', checkTableAvailabilityRealtime);
+      tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
     }
     
     function resetTableSelectionModal() {
