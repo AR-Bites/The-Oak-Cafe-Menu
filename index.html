@@ -462,29 +462,28 @@
       background: linear-gradient(135deg, var(--gold) 0%, #E8C547 100%) !important;
       color: white !important;
       position: absolute !important;
-      bottom: 16px !important;
-      left: 16px !important;
-      right: 16px !important;
-      transform: none !important;
-      padding: 8px 16px !important;
-      font-weight: 600 !important;
+      bottom: 12px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      padding: 6px 12px !important;
+      font-weight: 500;
       animation: pulse 2s infinite;
       font-size: 0.75rem !important;
-      z-index: 1000 !important;
+      z-index: 10 !important;
       white-space: nowrap !important;
-      border-radius: 20px !important;
+      width: calc(100% - 24px) !important;
+      max-width: 220px !important;
+      border-radius: 25px !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 6px !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-      border: 2px solid rgba(255, 255, 255, 0.2) !important;
-      text-transform: uppercase !important;
-      letter-spacing: 0.5px !important;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+      z-index: 10 !important;
+      border: 2px solid rgba(255, 255, 255, 0.3) !important;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       margin: 0 !important;
-      max-width: none !important;
-      width: auto !important;
-      min-height: 36px !important;
     }
     
     .ar-button::before {
@@ -4297,22 +4296,20 @@
         overflow: hidden;
       }
       
-      /* Make the AR button stable and consistent on mobile */
+      /* Make the AR button very small and modern on mobile */
       .ar-button {
         font-size: 0.7rem !important;
-        padding: 6px 12px !important;
+        padding: 4px 10px !important;
         bottom: 12px !important;
-        left: 12px !important;
-        right: 12px !important;
-        transform: none !important;
-        border-radius: 18px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        border-radius: 15px !important;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.15) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        z-index: 1000 !important;
+        z-index: 10 !important;
         white-space: nowrap !important;
-        min-height: 32px !important;
         gap: 4px !important;
         min-height: 24px !important;
         position: absolute !important;
@@ -7327,7 +7324,7 @@
       {
         name: "Cheese Steak Sandwich",
         nameAr: "ساندويش ستيك بالجبن",
-        modelSrc: "models/cheeseSteakSandwich.glb",
+        modelSrc: "models/cheeseSteakSandwich",
         description: "Tender sliced steak with melted cheese, peppers, and onions on a hoagie roll.",
         descriptionAr: "شرائح ستيك طرية مع جبن ذائب وفلفل وبصل في خبز هوجي.",
         price: 14.99,
@@ -7403,7 +7400,7 @@
         description: "Prime cut steak grilled to perfection, served with seasonal vegetables.",
         descriptionAr: "قطعة ستيك فاخرة مشوية بإتقان، تقدم مع خضار موسمية.",
         price: 24.99,
-        category: "main-course",
+        category: "mains",
         mainCategory: "food"
       },
       {
@@ -8777,7 +8774,7 @@
       },
       {
         name: "Grapes Shisha",
-        nameAr: "شيشة عنب",
+        nameAr: "شt�شة عنب",
         description: "Sweet grape flavored shisha.",
         descriptionAr: "شيشة بنكهة العنب الحلو.",
         price: 6.15,
@@ -10478,7 +10475,7 @@
     
     // Preload all 3D models
     function preloadModels() {
-      // ⚡ OPTIMIZED MODEL LOADING - NO PRELOADING FOR INSTANT SPEED
+      // List of available models (EXACT filenames from user - without .glb extensions)
       const availableModels = [
         'beefBurger.glb',
         'beefFahita.glb',
@@ -10488,14 +10485,14 @@
         'chickenFajita.glb',
         'chickenQuesadilla.glb',
         'chickenShawerma.glb',
-        'chickenTender.glb',
-        'chickenZingerSandwich.glb',
-        'crispyChickenBurger.glb',
-        'dynamiteShrimp.glb',
+        'chickenTender',
+        'chickenZingerSandwich',
+        'crispyChickenBurger',
+        'dynamiteShrimp',
         'Fettuccine Alfredo.glb',
-        'foodPlatter_.glb',
+        'foodPlatter_',
         'grilledChicken.glb',
-        'hallomi.glb',
+        'hallomi',
         'hallomiSalad.glb',
         'halloumiSandwich_.glb',
         'hashBrown.glb',
@@ -10507,14 +10504,14 @@
         'zaatarPomegranate.glb',
         'manageeshNabelsiCheese.glb',
         'Margherita Pizza.glb',
-        'mozzerellaSticks_.glb',
-        'onionRings_.glb',
-        'pennaArabita_.glb',
+        'mozzerellaSticks_',
+        'onionRings_',
+        'pennaArabita_',
         'Pepperoni Pizza.glb',
         'pestoChickenPizza.glb',
         'Pesto Pasta.glb',
         'Rose Pasta.glb',
-        'seaFoodBowl_.glb',
+        'seaFoodBowl_',
         'Sea Food Pasta.glb',
         'smokedSalmonSalad.glb',
         'Steak.glb',
@@ -10523,23 +10520,68 @@
         'yalanji.glb'
       ];
       
-      // ⚡ INSTANT MODEL ASSIGNMENT - NO SLOW PRELOADING
-      console.log(`🚀 Instant model verification for ${foodItems.length} food items...`);
+      // Enhanced verification - DO NOT override existing modelSrc paths
+      console.log(`📋 Verifying ${foodItems.length} food items for model availability...`);
       
-      let modelsAssigned = 0;
+      let modelsFound = 0;
+      let modelsNotFound = 0;
+      let specificProblems = [];
       
       foodItems.forEach(item => {
         if (item.modelSrc) {
           const modelFileName = item.modelSrc.replace('models/', '');
           if (availableModels.includes(modelFileName)) {
-            console.log(`⚡ Model ready for ${item.name}: ${item.modelSrc}`);
-            modelsAssigned++;
+            console.log(`✅ Model verified for ${item.name}: ${item.modelSrc}`);
+            modelsFound++;
+          } else {
+            console.log(`❌ Model file mismatch for ${item.name}: ${item.modelSrc} - file ${modelFileName} not in available list`);
+            specificProblems.push(`${item.name}: ${modelFileName}`);
+            modelsNotFound++;
           }
+        } else {
+          console.log(`⚠️ No model defined for ${item.name}`);
+          modelsNotFound++;
         }
       });
       
-      console.log(`⚡ ${modelsAssigned} models ready for instant loading!`);
-      console.log(`🎯 Model loading will be INSTANT - no preloading delays!`);
+      console.log(`📊 Model Status: ${modelsFound} verified, ${modelsNotFound} missing/problems`);
+      if (specificProblems.length > 0) {
+        console.log(`🔍 Specific problems:`, specificProblems);
+        console.log(`🔍 Available models:`, availableModels);
+      }
+      
+      // Create a single hidden container for preloading
+      const preloadContainer = document.createElement('div');
+      preloadContainer.style.position = 'absolute';
+      preloadContainer.style.left = '-9999px';
+      preloadContainer.style.width = '1px';
+      preloadContainer.style.height = '1px';
+      preloadContainer.style.overflow = 'hidden';
+      document.body.appendChild(preloadContainer);
+      
+      // Preload only available models
+      availableModels.forEach(modelName => {
+        const modelPath = `/models/${modelName}`;
+        console.log(`Preloading model: ${modelPath}`);
+        
+        const preloader = document.createElement('model-viewer');
+        preloader.setAttribute('src', modelPath.replace(/ /g, '%20'));
+        preloader.setAttribute('preload', '');
+        
+        // Simpler event handling
+        preloader.addEventListener('load', () => {
+          console.log(`Model ${modelPath} preloaded successfully`);
+          // Store in simple lookup for quick reference
+          modelCache[modelPath] = true;
+        });
+        
+        // Basic error handling
+        preloader.addEventListener('error', (e) => {
+          console.error(`Error preloading model ${modelPath}:`, e);
+        });
+        
+        preloadContainer.appendChild(preloader);
+      });
     }
     
     // Main category selection
@@ -10686,20 +10728,12 @@
       const item = filteredFoodItems[currentFoodIndex];
       const modelLoadingIndicator = document.getElementById('model-loading-indicator');
       
-      // Get model viewer element 
-      const modelViewer = document.getElementById('food-model-viewer');
-      const modelContainer = document.querySelector('.model-container');
-      
-      // ALWAYS clear the previous model first to prevent showing old models
-      console.log("Clearing previous model before loading new item:", item.name);
-      modelViewer.src = '';
-      modelViewer.removeAttribute('src');
-      modelViewer.removeAttribute('poster');
-      
       // Show loading indicator
       modelLoadingIndicator.style.display = 'flex';
       
-      console.log("Updating model viewer with new item:", item.name);
+      // Get model viewer element 
+      const modelViewer = document.getElementById('food-model-viewer');
+      console.log("Updating model viewer with new item");
       
       // Update text content first (for perceived speed)
       // Use Arabic name and description if available and language is Arabic
@@ -10714,6 +10748,7 @@
       }
       
       // Ensure model container is visible
+      const modelContainer = document.querySelector('.model-container');
       if (modelContainer) {
         modelContainer.style.display = 'block';
       }
@@ -10757,27 +10792,12 @@
           modelLoadingIndicator.style.display = 'none';
         }, 3000);
       } else {
-        // No matching model found, hide the model container and completely clear model
-        console.log(`No model available for ${item.name}, hiding 3D viewer and clearing previous model`);
+        // No matching model found, hide the model container and clear model
+        console.log(`No model available for ${item.name}, hiding 3D viewer`);
         modelContainer.style.display = 'none';
         modelLoadingIndicator.style.display = 'none';
-        
-        // Completely clear the model source and reset the viewer
+        // Clear the model source to prevent showing previous model
         modelViewer.src = '';
-        modelViewer.removeAttribute('src');
-        
-        // Force the model viewer to clear by setting an empty data URL
-        modelViewer.src = 'data:model/gltf-binary;base64,';
-        
-        // Remove any cached model data
-        if (modelViewer.modelIsVisible) {
-          modelViewer.modelIsVisible = false;
-        }
-        
-        // Clear the poster image as well
-        modelViewer.removeAttribute('poster');
-        
-        console.log(`✅ Model viewer completely cleared for ${item.name}`);
       }
       
       // Clear existing extras
