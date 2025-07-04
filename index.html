@@ -6397,7 +6397,7 @@
     let currentRating = 0;
     let currentOrderForRating = null;
     
-    // Food catalog
+    // Food catalog - All items with 3D models are placed first in each category
     const foodItems = [
       // FOOD - Pizza & Pasta items
       {
@@ -6617,8 +6617,7 @@
         mainCategory: "food"
       },
 
-      // FOOD - Burger items
-      // FOOD - Sandwiches
+      // FOOD - Sandwiches (3D models first)
       {
         name: "OAK Beef Burger",
         nameAr: "برجر لحم بقري أوك",
@@ -6626,24 +6625,6 @@
         description: "Juicy beef patty with fresh lettuce, tomato, onions, and our signature sauce.",
         descriptionAr: "قطعة لحم بقري عصيرية مع خس طازج وطماطم وبصل وصلصتنا المميزة.",
         price: 8.0,
-        category: "sandwiches",
-        mainCategory: "food"
-      },
-      {
-        name: "The Oak Sandwich",
-        nameAr: "ساندويش أوك",
-        description: "Our signature sandwich with premium ingredients and special sauce.",
-        descriptionAr: "ساندويشنا المميز مع مكونات فاخرة وصلصة خاصة.",
-        price: 9.0,
-        category: "sandwiches",
-        mainCategory: "food"
-      },
-      {
-        name: "Shawerma Meat",
-        nameAr: "شاورما لحم",
-        description: "Traditional meat shawerma with vegetables and tahini sauce.",
-        descriptionAr: "شاورما لحم تقليدية مع الخضار وصلصة الطحينة.",
-        price: 7.5,
         category: "sandwiches",
         mainCategory: "food"
       },
@@ -6714,6 +6695,24 @@
         description: "Grilled beef with peppers, onions, and fajita spices.",
         descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفاهيتا.",
         price: 7.0,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "The Oak Sandwich",
+        nameAr: "ساندويش أوك",
+        description: "Our signature sandwich with premium ingredients and special sauce.",
+        descriptionAr: "ساندويشنا المميز مع مكونات فاخرة وصلصة خاصة.",
+        price: 9.0,
+        category: "sandwiches",
+        mainCategory: "food"
+      },
+      {
+        name: "Shawerma Meat",
+        nameAr: "شاورما لحم",
+        description: "Traditional meat shawerma with vegetables and tahini sauce.",
+        descriptionAr: "شاورما لحم تقليدية مع الخضار وصلصة الطحينة.",
+        price: 7.5,
         category: "sandwiches",
         mainCategory: "food"
       },
@@ -8858,6 +8857,43 @@
 
     ];
     
+    // Auto-sort function: Put items with 3D models first in each category
+    function sortItemsByModels(items) {
+      const categorizedItems = {};
+      
+      // Group items by category and mainCategory
+      items.forEach(item => {
+        const key = `${item.mainCategory}-${item.category}`;
+        if (!categorizedItems[key]) {
+          categorizedItems[key] = [];
+        }
+        categorizedItems[key].push(item);
+      });
+      
+      // Sort each category: items with models first
+      Object.keys(categorizedItems).forEach(key => {
+        categorizedItems[key].sort((a, b) => {
+          const aHasModel = !!(a.modelSrc);
+          const bHasModel = !!(b.modelSrc);
+          
+          if (aHasModel && !bHasModel) return -1;
+          if (!aHasModel && bHasModel) return 1;
+          return 0; // Keep original order within same type
+        });
+      });
+      
+      // Reconstruct the sorted array
+      const sortedItems = [];
+      Object.values(categorizedItems).forEach(categoryItems => {
+        sortedItems.push(...categoryItems);
+      });
+      
+      return sortedItems;
+    }
+    
+    // Apply auto-sorting to foodItems
+    const sortedFoodItems = sortItemsByModels(foodItems);
+    
     // DOM Elements
     const overlay = document.querySelector('.overlay');
     const loadingOverlay = document.getElementById("loading-overlay");
@@ -10555,22 +10591,22 @@
     // Filter food items based on categories
     function filterFoodItems() {
       if (currentCategory === 'all') {
-        // Show all items
-        filteredFoodItems = [...foodItems];
+        // Show all items (using sorted items to prioritize 3D models)
+        filteredFoodItems = [...sortedFoodItems];
       } else if (currentCategory.startsWith('all-')) {
         // Show all items from a main category (e.g., "all-food")
         const mainCat = currentCategory.replace('all-', '');
         
         if (mainCat === 'food') {
           // For food category, include pizza, pasta, salads, burgers
-          filteredFoodItems = foodItems.filter(item => 
+          filteredFoodItems = sortedFoodItems.filter(item => 
             item.category === 'pizza' || 
             item.category === 'pasta' || 
             item.category === 'salads' || 
             item.category === 'burgers');
         } else if (mainCat === 'drinks') {
           // For drinks category, include all drink subcategories
-          filteredFoodItems = foodItems.filter(item => 
+          filteredFoodItems = sortedFoodItems.filter(item => 
             item.category === 'hot-drinks' || 
             item.category === 'cold-coffee' || 
             item.category === 'frappe' ||
@@ -10584,24 +10620,24 @@
             item.category === 'drinks');
         } else if (mainCat === 'desserts') {
           // For dessert category, include cakes, ice-cream
-          filteredFoodItems = foodItems.filter(item => 
+          filteredFoodItems = sortedFoodItems.filter(item => 
             item.category === 'cakes' || 
             item.category === 'ice-cream' ||
             item.category === 'desserts');
         } else if (mainCat === 'shisha') {
           // For shisha category, include all shisha subcategories
-          filteredFoodItems = foodItems.filter(item => 
+          filteredFoodItems = sortedFoodItems.filter(item => 
             item.category === 'fruit-shisha' || 
             item.category === 'mint-shisha' || 
             item.category === 'special-shisha' ||
             item.category === 'shisha');
         } else {
           // Fallback to simple filtering by the main category
-          filteredFoodItems = foodItems.filter(item => item.category === mainCat);
+          filteredFoodItems = sortedFoodItems.filter(item => item.category === mainCat);
         }
       } else {
-        // Filter by specific subcategory
-        filteredFoodItems = foodItems.filter(item => item.category === currentCategory);
+        // Filter by specific subcategory (using sorted items to prioritize 3D models)
+        filteredFoodItems = sortedFoodItems.filter(item => item.category === currentCategory);
       }
       
       // Reset index if it's out of bounds for the filtered items
@@ -14074,7 +14110,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
             currentLanguage === 'ar' 
-              ? `تم تعn�ين الطاولة ${tableNumber} كمشغولة` 
+              ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
               : `Table ${tableNumber} is now marked as Occupied`,
             'success'
           );
