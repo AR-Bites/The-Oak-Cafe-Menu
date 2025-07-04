@@ -6460,6 +6460,7 @@
     let clientId = localStorage.getItem('clientId') || 
                   'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     let occupiedTables = new Set(); // Track occupied tables
+    let guestTableMode = "new"; // "new" or "existing" - tracks if guest is using new table or existing table
     let tableNumber = null; // Current table number for all users
     let userTableNumber = null; // Specifically for guest users to track their own table
     let tableNumberExpiry = null; // When the table number expires
@@ -6986,7 +6987,7 @@
         name: "Mexican Nachos",
         nameAr: "ناتشوز مكسيكي",
         description: "Crispy nachos with cheese, jalapeños, and Mexican toppings.",
-        descriptionAr: "ناتشوز مقرمش بالجبن والهالابينو والإضافات المكسيكية.",
+        descriptionAr: "ناتA�وز مقرمش بالجبن والهالابينو والإضافات المكسيكية.",
         price: 8.0,
         category: "appetizers",
         mainCategory: "food"
@@ -8773,9 +8774,9 @@
       },
       {
         name: "Grapes Shisha",
-        nameAr: "شيشة عنب",
+        nameAr: "ش"�شة عنب",
         description: "Sweet grape flavored shisha.",
-        descriptionAr: "شيشة بنكهk� العنب الحلو.",
+        descriptionAr: "شيشة بنكهة العنب الحلو.",
         price: 6.15,
         category: "fruit-shisha",
         mainCategory: "shisha"
@@ -11850,7 +11851,7 @@
             <div class="option-icon">
               <i class="fas fa-plus-circle"></i>
             </div>
-            <span class="option-text">${currentLanguage === 'ar' ? 'طاولة جدي"�ة' : 'New Table'}</span>
+            <span class="option-text">${currentLanguage === 'ar' ? 'طاولة جديدة' : 'New Table'}</span>
             <div class="option-description">${currentLanguage === 'ar' ? 'وصلت للتو وتحتاج لطاولة جديدة' : 'Just arrived and need a new table'}</div>
           </div>
           <div class="guest-table-option existing-table-option" onclick="selectExistingTable()">
@@ -11874,6 +11875,9 @@
     }
     
     function selectNewTable() {
+      // Set table mode to new
+      guestTableMode = "new";
+      
       // Change modal title to reflect new table selection
       const tableTitle = document.getElementById('table-number-title');
       const tableSubtitle = document.getElementById('table-number-subtitle');
@@ -11923,6 +11927,9 @@
     }
     
     function selectExistingTable() {
+      // Set table mode to existing
+      guestTableMode = "existing";
+      
       // Change modal title to reflect existing table selection
       const tableTitle = document.getElementById('table-number-title');
       const tableSubtitle = document.getElementById('table-number-subtitle');
@@ -12330,26 +12337,39 @@
       confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>VERIFYING</span>';
       confirmBtn.disabled = true;
       
-      // Check if the table is already occupied
-      checkTableAvailability(tableNumberInt).then(isAvailable => {
-        if (!isAvailable) {
-          // Show error notification instead of alert
-          showNotification(
-            currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
-            currentLanguage === 'ar' 
-              ? `الطاولة ${tableNumberInt} مشغولة. يرجى اختيار طاولة أخرى.`
-              : `Table ${tableNumberInt} is occupied. Please choose another table.`,
-            'error'
-          );
+      // Check if the table is already occupied (skip for existing tables)
+      if (guestTableMode === "existing") {
+        // For existing tables, skip availability check and proceed directly
+        proceedWithTableNumber(tableNumberInt, confirmBtn, originalBtnContent);
+      } else {
+        // For new tables, check availability
+        checkTableAvailability(tableNumberInt).then(isAvailable => {
+          if (!isAvailable) {
+            // Show error notification instead of alert
+            showNotification(
+              currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
+              currentLanguage === 'ar' 
+                ? `الطاولة ${tableNumberInt} مشغولة. يرجى اختيار طاولة أخرى.`
+                : `Table ${tableNumberInt} is occupied. Please choose another table.`,
+              'error'
+            );
+            
+            // Reset button
+            confirmBtn.innerHTML = originalBtnContent;
+            confirmBtn.disabled = false;
+            
+            // Focus the input for another try
+            tableNumberInput.focus();
+            return;
+          }
           
-          // Reset button
-          confirmBtn.innerHTML = originalBtnContent;
-          confirmBtn.disabled = false;
-          
-          // Focus the input for another try
-          tableNumberInput.focus();
-          return;
-        }
+          // Proceed with table setup for new tables
+          proceedWithTableNumber(tableNumberInt, confirmBtn, originalBtnContent);
+        });
+      }
+    }
+    
+    function proceedWithTableNumber(tableNumberInt, confirmBtn, originalBtnContent) {
         
         // Success animation
         confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>CONFIRMED</span>';
@@ -12399,8 +12419,12 @@
             confirmBtn.style.background = '';
             confirmBtn.disabled = false;
           }, 500);
+          
+          // For new tables only, mark as occupied
+          if (guestTableMode === "new") {
+            occupyTable(tableNumberInt);
+          }
         }, 1000);
-      });
     }
     
     // Check if a table is available
@@ -14244,7 +14268,7 @@
         showNotification(
           currentLanguage === 'ar' ? 'غير مسموح' : 'Not Authorized',
           currentLanguage === 'ar' 
-            ? 'لا يمكنك إدارة هذه الطاولة لأنها ليست مخصصة لك' 
+            ? 'لا يمكنك إدارة هذه ال �اولة لأنها ليست مخصصة لك' 
             : 'You cannot manage this table as it is not assigned to you',
           'error'
         );
