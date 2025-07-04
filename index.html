@@ -5086,6 +5086,9 @@
           <button class="main-category-btn" data-maincategory="food" id="food-main-category-btn" onclick="changeMainCategory('food')">
             <span>Food</span>
           </button>
+          <button class="main-category-btn" data-maincategory="breakfast" id="breakfast-main-category-btn" onclick="changeMainCategory('breakfast')">
+            <span>Breakfast</span>
+          </button>
           <button class="main-category-btn" data-maincategory="drinks" id="drinks-main-category-btn" onclick="changeMainCategory('drinks')">
             <span>Drinks</span>
           </button>
@@ -5107,6 +5110,15 @@
               <button class="category-btn" data-category="pasta" data-parent="food" id="pasta-category-btn" onclick="changeCategory('pasta')">Pasta</button>
               <button class="category-btn" data-category="salads" data-parent="food" id="salads-category-btn" onclick="changeCategory('salads')">Salads</button>
               <button class="category-btn" data-category="burgers" data-parent="food" id="burgers-category-btn" onclick="changeCategory('burgers')">Burgers</button>
+            </div>
+          </div>
+          
+          <!-- Breakfast subcategories -->
+          <div class="subcategory-group" id="breakfast-subcategories" style="display: none;">
+            <div class="subcategory-label">Breakfast Types</div>
+            <div class="subcategory-buttons">
+              <button class="category-btn active" data-category="all-breakfast" data-parent="breakfast" id="all-breakfast-btn" onclick="changeCategory('all-breakfast')">All Breakfast</button>
+              <button class="category-btn" data-category="manageesh" data-parent="breakfast" id="manageesh-category-btn" onclick="changeCategory('manageesh')">Manageesh</button>
             </div>
           </div>
           
@@ -5268,7 +5280,7 @@
       <!-- Admin Navigation Tabs -->
       <div class="admin-tabs">
         <button class="admin-tab active" id="dashboard-tab" onclick="switchAdminTab('dashboard')">DASHBOARD</button>
-        <button class="admin-tab" id="analytics-tab" onclick="console.log('ANALYTICS BUTTON CLICKED'); switchAdminTab('analytics');">ADVANCED ANALYTICS</button>
+        <button class="admin-tab" id="analytics-tab" onclick="switchAdminTab('analytics')">ADVANCED ANALYTICS</button>
         <button class="admin-tab" id="management-tab" onclick="switchAdminTab('management')">MANAGEMENT</button>
       </div>
       
@@ -5391,7 +5403,6 @@
                 <option value="month">This Month</option>
                 <option value="year">This Year</option>
               </select>
-              <button onclick="initializeAnalytics()" style="margin-left: 10px; padding: 5px 10px; background: var(--gold); color: white; border: none; border-radius: 4px;">FORCE CHARTS</button>
             </div>
           </div>
           
@@ -6754,6 +6765,68 @@
         mainCategory: "food"
       },
       
+      // BREAKFAST - Manageesh items
+      {
+        name: "Manageesh Mix Cheese",
+        nameAr: "مناقيش جبنة مخلطة",
+        modelSrc: "models/manageeshMixCheese.glb",
+        description: "Traditional Lebanese flatbread topped with mixed cheese blend.",
+        descriptionAr: "خبز لبناني تقليدي مغطى بخليط الجبن المتنوع.",
+        price: 4.5,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Falafel",
+        nameAr: "مناقيش فلافل",
+        modelSrc: "models/manageeshFalafel.glb",
+        description: "Fresh flatbread with crispy falafel and tahini sauce.",
+        descriptionAr: "خبز طازج مع فلافل مقرمش وصلصة الطحينة.",
+        price: 5.0,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Molasses and Tahini",
+        nameAr: "مناقيش دبس وطحينة",
+        modelSrc: "models/manageeshMolassesAndTahini.glb",
+        description: "Sweet and savory flatbread with molasses and tahini spread.",
+        descriptionAr: "خبز حلو ومالح مع دبس وطحينة.",
+        price: 4.25,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Labneh and Rocca",
+        nameAr: "مناقيش لبنة وجرجير",
+        modelSrc: "models/manageeshLabnehandRocca.glb",
+        description: "Fresh flatbread with creamy labneh and peppery rocca leaves.",
+        descriptionAr: "خبز طازج مع لبنة كريمية وأوراق الجرجير الحارة.",
+        price: 4.75,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Zaatar Pomegranate",
+        nameAr: "زعتر رمان",
+        modelSrc: "models/zaatarPomegranate.glb",
+        description: "Traditional zaatar flatbread topped with fresh pomegranate seeds.",
+        descriptionAr: "خبز زعتر تقليدي مغطى بحبات الرمان الطازجة.",
+        price: 4.0,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      {
+        name: "Manageesh Nabelsi Cheese",
+        nameAr: "مناقيش جبنة نابلسية",
+        modelSrc: "models/manageeshNabelsiCheese.glb",
+        description: "Authentic flatbread with traditional Nabelsi cheese.",
+        descriptionAr: "خبز أصيل مع الجبنة النابلسية التقليدية.",
+        price: 4.5,
+        category: "manageesh",
+        mainCategory: "breakfast"
+      },
+      
       // DRINKS - Hot Drinks
       {
         name: "Hot Chocolate",
@@ -7954,7 +8027,7 @@
       },
       {
         name: "Two Apples Mazaya",
-        nameAr: "تفاحتين مزايe�",
+        nameAr: "تفاحتين مزايا",
         description: "Premium Mazaya double apple flavor.",
         descriptionAr: "نكهة تفاحتين مزايا الفاخرة.",
         price: 6.15,
@@ -9411,6 +9484,11 @@
         const foodBtn = foodMainCategoryBtn.querySelector('span');
         if (foodBtn) foodBtn.textContent = currentLanguage === 'ar' ? 'الطعام' : 'Food';
       }
+      const breakfastMainCategoryBtn = document.getElementById('breakfast-main-category-btn');
+      if (breakfastMainCategoryBtn) {
+        const breakfastBtn = breakfastMainCategoryBtn.querySelector('span');
+        if (breakfastBtn) breakfastBtn.textContent = currentLanguage === 'ar' ? 'الفطور' : 'Breakfast';
+      }
       if (drinksMainCategoryBtn) {
         const drinksBtn = drinksMainCategoryBtn.querySelector('span');
         if (drinksBtn) drinksBtn.textContent = currentLanguage === 'ar' ? 'المشروبات' : 'Drinks';
@@ -9432,11 +9510,13 @@
       
       // Update subcategory labels
       const foodSubcategoryLabel = document.querySelector('#food-subcategories .subcategory-label');
+      const breakfastSubcategoryLabel = document.querySelector('#breakfast-subcategories .subcategory-label');
       const drinksSubcategoryLabel = document.querySelector('#drinks-subcategories .subcategory-label');
       const dessertsSubcategoryLabel = document.querySelector('#desserts-subcategories .subcategory-label');
       const shishaSubcategoryLabel = document.querySelector('#shisha-subcategories .subcategory-label');
       
       if (foodSubcategoryLabel) foodSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الطعام' : 'Food Types';
+      if (breakfastSubcategoryLabel) breakfastSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الفطور' : 'Breakfast Types';
       if (drinksSubcategoryLabel) drinksSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع المشروبات' : 'Beverage Types';
       if (dessertsSubcategoryLabel) dessertsSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الحلويات' : 'Dessert Types';
       if (shishaSubcategoryLabel) shishaSubcategoryLabel.textContent = currentLanguage === 'ar' ? 'أنواع الشيشة' : 'Shisha Types';
@@ -9453,6 +9533,13 @@
       if (pastaCategoryBtn) pastaCategoryBtn.textContent = currentLanguage === 'ar' ? 'باستا' : 'Pasta';
       if (saladsCategoryBtn) saladsCategoryBtn.textContent = currentLanguage === 'ar' ? 'سلطات' : 'Salads';
       if (burgersCategoryBtn) burgersCategoryBtn.textContent = currentLanguage === 'ar' ? 'برجر' : 'Burgers';
+      
+      // Update breakfast subcategory buttons
+      const allBreakfastBtn = document.getElementById('all-breakfast-btn');
+      const manageeshCategoryBtn = document.getElementById('manageesh-category-btn');
+      
+      if (allBreakfastBtn) allBreakfastBtn.textContent = currentLanguage === 'ar' ? 'كل الفطور' : 'All Breakfast';
+      if (manageeshCategoryBtn) manageeshCategoryBtn.textContent = currentLanguage === 'ar' ? 'مناقيش' : 'Manageesh';
       
       // Update drinks subcategory buttons - Complete list
       const allDrinksBtn = document.getElementById('all-drinks-btn');
@@ -9537,6 +9624,12 @@
         'halloumiSandwich_',
         'hashBrown',
         'macAndCheese',
+        'manageeshMixCheese.glb',
+        'manageeshFalafel.glb',
+        'manageeshMolassesAndTahini.glb',
+        'manageeshLabnehandRocca.glb',
+        'zaatarPomegranate.glb',
+        'manageeshNabelsiCheese.glb',
         'Margherita Pizza.glb',
         'mozzerellaSticks_',
         'onionRings_',
@@ -16349,108 +16442,41 @@
     
     // Admin Tabs Navigation
     function switchAdminTab(tabName) {
-      console.log(`🚀 SWITCH ADMIN TAB CALLED: ${tabName}`);
-      try {
-        // Hide all tabs
-        document.querySelectorAll('.admin-tab-content').forEach(tab => {
-          tab.classList.remove('active');
-        });
-        
-        // Remove active class from all tab buttons
-        document.querySelectorAll('.admin-tab').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        
-        // Show selected tab
-        const targetContent = document.getElementById(`${tabName}-content`);
-        const targetTab = document.getElementById(`${tabName}-tab`);
-        
-        if (targetContent && targetTab) {
-          targetContent.classList.add('active');
-          targetTab.classList.add('active');
-          
-          console.log(`✅ Successfully switched to ${tabName} tab`);
-          
-          // Update language for all elements when switching tabs
-          updateLanguage();
-          
-          // If analytics tab is selected, initialize the analytics charts
-          if (tabName === 'analytics') {
-            console.log('🔄 Initializing analytics charts...');
-            console.log('Target content element:', targetContent);
-            console.log('Is target content visible?', targetContent.classList.contains('active'));
-            
-            // Add a small delay to ensure DOM is ready and canvas elements are visible
-            setTimeout(() => {
-              console.log('🚀 About to call initializeAnalytics()');
-              initializeAnalytics();
-            }, 300);
-          }
-        } else {
-          console.error(`❌ Could not find tab content or button for: ${tabName}`);
-        }
-      } catch (error) {
-        console.error('❌ Error switching admin tab:', error);
+      // Hide all tabs
+      document.querySelectorAll('.admin-tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.admin-tab').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById(`${tabName}-content`).classList.add('active');
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+      
+      // Update language for all elements when switching tabs
+      updateLanguage();
+      
+      // If analytics tab is selected, initialize the analytics charts
+      if (tabName === 'analytics') {
+        initializeAnalytics();
       }
     }
     
     // Initialize Advanced Analytics Dashboard
     function initializeAnalytics() {
-      try {
-        console.log('🔄 Starting analytics initialization...');
-        
-        // Verify Chart.js is available
-        if (typeof Chart === 'undefined') {
-          console.error('❌ Chart.js library not loaded');
-          return;
-        }
-        
-        // Verify canvas elements exist
-        const requiredCanvases = [
-          'sales-performance-chart',
-          'menu-performance-chart', 
-          'satisfaction-chart',
-          'table-utilization-chart',
-          'staff-performance-chart',
-          'marketing-chart'
-        ];
-        
-        for (const canvasId of requiredCanvases) {
-          const canvas = document.getElementById(canvasId);
-          if (!canvas) {
-            console.warn(`⚠️ Canvas element not found: ${canvasId}`);
-          } else {
-            console.log(`✅ Found canvas: ${canvasId}`);
-          }
-        }
-        
-        // Draw all charts
-        console.log('📊 Drawing sales chart...');
-        drawSalesChart();
-        
-        console.log('📊 Drawing menu performance chart...');
-        drawMenuPerformanceChart();
-        
-        console.log('📊 Drawing satisfaction chart...');
-        drawSatisfactionChart();
-        
-        console.log('📊 Drawing table utilization chart...');
-        drawTableUtilizationChart();
-        
-        console.log('📊 Drawing staff performance chart...');
-        drawStaffPerformanceChart();
-        
-        console.log('📊 Drawing marketing chart...');
-        drawMarketingChart();
-        
-        // Get insights from data
-        console.log('💡 Updating analytics insights...');
-        updateAnalyticsInsights();
-        
-        console.log('✅ Analytics initialization completed successfully');
-      } catch (error) {
-        console.error('❌ Error initializing analytics:', error);
-      }
+      // Draw all charts
+      drawSalesChart();
+      drawMenuPerformanceChart();
+      drawSatisfactionChart();
+      drawTableUtilizationChart();
+      drawStaffPerformanceChart();
+      drawMarketingChart();
+      
+      // Get insights from data
+      updateAnalyticsInsights();
     }
     
     // Update analytics based on selected time range
@@ -16522,88 +16548,72 @@
     
     // Draw Sales Performance Chart
     function drawSalesChart(timeRange = 'week') {
-      try {
-        const canvas = document.getElementById('sales-performance-chart');
-        if (!canvas) {
-          console.error('❌ Sales chart canvas not found');
-          return;
-        }
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          console.error('❌ Could not get 2D context for sales chart');
-          return;
-        }
-        
-        // Get data based on time range
-        const labels = getTimeLabels(timeRange);
-        const data = generateRandomData(labels.length, 500, 1500);
-        
-        if (window.salesChart) {
-          window.salesChart.destroy();
-        }
-        
-        window.salesChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Sales ($)',
-              data: data,
-              fill: true,
-              backgroundColor: 'rgba(212, 175, 55, 0.2)',
-              borderColor: 'rgba(212, 175, 55, 1)',
-              tension: 0.4,
-              pointBackgroundColor: 'rgba(212, 175, 55, 1)',
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-              pointRadius: 4
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: true,
-                labels: {
-                  color: 'rgba(245, 245, 220, 0.8)'
-                }
-              },
-              tooltip: {
-                backgroundColor: 'rgba(26, 58, 47, 0.9)',
-                titleColor: 'rgba(212, 175, 55, 1)',
-                bodyColor: 'rgba(245, 245, 220, 0.8)',
-                borderColor: 'rgba(212, 175, 55, 0.5)',
-                borderWidth: 1
+      const ctx = document.getElementById('sales-performance-chart').getContext('2d');
+      
+      // Get data based on time range
+      const labels = getTimeLabels(timeRange);
+      const data = generateRandomData(labels.length, 500, 1500);
+      
+      if (window.salesChart) {
+        window.salesChart.destroy();
+      }
+      
+      window.salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Sales ($)',
+            data: data,
+            fill: true,
+            backgroundColor: 'rgba(212, 175, 55, 0.2)',
+            borderColor: 'rgba(212, 175, 55, 1)',
+            tension: 0.4,
+            pointBackgroundColor: 'rgba(212, 175, 55, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: 'rgba(245, 245, 220, 0.8)'
               }
             },
-            scales: {
-              y: {
-                beginAtZero: true,
-                grid: {
-                  color: 'rgba(245, 245, 220, 0.1)'
-                },
-                ticks: {
-                  color: 'rgba(245, 245, 220, 0.6)'
-                }
+            tooltip: {
+              backgroundColor: 'rgba(26, 58, 47, 0.9)',
+              titleColor: 'rgba(212, 175, 55, 1)',
+              bodyColor: 'rgba(245, 245, 220, 0.8)',
+              borderColor: 'rgba(212, 175, 55, 0.5)',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(245, 245, 220, 0.1)'
               },
-              x: {
-                grid: {
-                  color: 'rgba(245, 245, 220, 0.1)'
-                },
-                ticks: {
-                  color: 'rgba(245, 245, 220, 0.6)'
-                }
+              ticks: {
+                color: 'rgba(245, 245, 220, 0.6)'
+              }
+            },
+            x: {
+              grid: {
+                color: 'rgba(245, 245, 220, 0.1)'
+              },
+              ticks: {
+                color: 'rgba(245, 245, 220, 0.6)'
               }
             }
           }
-        });
-        
-        console.log('✅ Sales chart created successfully');
-      } catch (error) {
-        console.error('❌ Error creating sales chart:', error);
-      }
+        }
+      });
     }
     
     // Draw Menu Performance Chart
