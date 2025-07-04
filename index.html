@@ -5268,7 +5268,7 @@
       <!-- Admin Navigation Tabs -->
       <div class="admin-tabs">
         <button class="admin-tab active" id="dashboard-tab" onclick="switchAdminTab('dashboard')">DASHBOARD</button>
-        <button class="admin-tab" id="analytics-tab" onclick="switchAdminTab('analytics')">ADVANCED ANALYTICS</button>
+        <button class="admin-tab" id="analytics-tab" onclick="console.log('ANALYTICS BUTTON CLICKED'); switchAdminTab('analytics');">ADVANCED ANALYTICS</button>
         <button class="admin-tab" id="management-tab" onclick="switchAdminTab('management')">MANAGEMENT</button>
       </div>
       
@@ -5391,6 +5391,7 @@
                 <option value="month">This Month</option>
                 <option value="year">This Year</option>
               </select>
+              <button onclick="initializeAnalytics()" style="margin-left: 10px; padding: 5px 10px; background: var(--gold); color: white; border: none; border-radius: 4px;">FORCE CHARTS</button>
             </div>
           </div>
           
@@ -7953,7 +7954,7 @@
       },
       {
         name: "Two Apples Mazaya",
-        nameAr: "تفاحتين مزايا",
+        nameAr: "تفاحتين مزايe�",
         description: "Premium Mazaya double apple flavor.",
         descriptionAr: "نكهة تفاحتين مزايا الفاخرة.",
         price: 6.15,
@@ -16348,6 +16349,7 @@
     
     // Admin Tabs Navigation
     function switchAdminTab(tabName) {
+      console.log(`🚀 SWITCH ADMIN TAB CALLED: ${tabName}`);
       try {
         // Hide all tabs
         document.querySelectorAll('.admin-tab-content').forEach(tab => {
@@ -16375,8 +16377,12 @@
           // If analytics tab is selected, initialize the analytics charts
           if (tabName === 'analytics') {
             console.log('🔄 Initializing analytics charts...');
+            console.log('Target content element:', targetContent);
+            console.log('Is target content visible?', targetContent.classList.contains('active'));
+            
             // Add a small delay to ensure DOM is ready and canvas elements are visible
             setTimeout(() => {
+              console.log('🚀 About to call initializeAnalytics()');
               initializeAnalytics();
             }, 300);
           }
@@ -16406,7 +16412,7 @@
           'satisfaction-chart',
           'table-utilization-chart',
           'staff-performance-chart',
-          'marketing-performance-chart'
+          'marketing-chart'
         ];
         
         for (const canvasId of requiredCanvases) {
