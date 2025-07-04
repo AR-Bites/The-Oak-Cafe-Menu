@@ -5106,9 +5106,12 @@
             <div class="subcategory-label">Food Types</div>
             <div class="subcategory-buttons">
               <button class="category-btn active" data-category="all-food" data-parent="food" id="all-food-btn" onclick="changeCategory('all-food')">All Food</button>
+              <button class="category-btn" data-category="main-course" data-parent="food" id="main-course-category-btn" onclick="changeCategory('main-course')">Main Course</button>
+              <button class="category-btn" data-category="appetizers" data-parent="food" id="appetizers-category-btn" onclick="changeCategory('appetizers')">Appetizers</button>
               <button class="category-btn" data-category="pizza-pasta" data-parent="food" id="pizza-pasta-category-btn" onclick="changeCategory('pizza-pasta')">Pizza & Pasta</button>
               <button class="category-btn" data-category="sandwiches" data-parent="food" id="sandwiches-category-btn" onclick="changeCategory('sandwiches')">Sandwiches</button>
               <button class="category-btn" data-category="salads" data-parent="food" id="salads-category-btn" onclick="changeCategory('salads')">Salads</button>
+              <button class="category-btn" data-category="soup" data-parent="food" id="soup-category-btn" onclick="changeCategory('soup')">Soup</button>
             </div>
           </div>
           
@@ -6713,6 +6716,451 @@
         descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفاهيتا.",
         price: 7.0,
         category: "sandwiches",
+        mainCategory: "food"
+      },
+
+      // FOOD - Main Course
+      {
+        name: "Fukhara Freekeh",
+        nameAr: "فخارة فريكة",
+        description: "Traditional freekeh dish served in clay pot with authentic spices.",
+        descriptionAr: "طبق فريكة تقليدي يُقدم في إناء فخاري مع التوابل الأصيلة.",
+        price: 6.75,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Fukhara Chicken Creamy",
+        nameAr: "فخارة دجاج كريمي",
+        description: "Creamy chicken dish cooked in traditional clay pot with rich flavors.",
+        descriptionAr: "طبق دجاج كريمي مطبوخ في إناء فخاري تقليدي بنكهات غنية.",
+        price: 8.75,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Meat Slice",
+        nameAr: "شرائح لحم",
+        description: "Tender sliced meat prepared with aromatic herbs and spices.",
+        descriptionAr: "شرائح لحم طرية محضرة بالأعشاب العطرة والتوابل.",
+        price: 9.75,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Meat Sajiye",
+        nameAr: "لحم صاجية",
+        description: "Traditional meat sajiye served on hot plate with vegetables.",
+        descriptionAr: "لحم صاجية تقليدي يُقدم على صحن ساخن مع الخضار.",
+        price: 10.0,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Mushroom",
+        nameAr: "دجاج بالفطر",
+        description: "Succulent chicken with mushrooms in savory sauce.",
+        descriptionAr: "دجاج شهي بالفطر في صلصة لذيذة.",
+        price: 11.5,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Beef Steak",
+        nameAr: "ستيك لحم بقري",
+        description: "Premium beef steak grilled to perfection with side dishes.",
+        descriptionAr: "ستيك لحم بقري فاخر مشوي بإتقان مع الأطباق الجانبية.",
+        price: 12.0,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "The Oak Steak",
+        nameAr: "ستيك أوك",
+        description: "Our signature premium steak with special seasoning and garnish.",
+        descriptionAr: "ستيكنا المميز الفاخر مع التتبيلة الخاصة والتزيين.",
+        price: 13.75,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Fukhara Chicken Lemon",
+        nameAr: "فخارة دجاج بالليمون",
+        description: "Lemon chicken cooked in clay pot with herbs and citrus flavors.",
+        descriptionAr: "دجاج بالليمون مطبوخ في إناء فخاري مع الأعشاب ونكهات الحمضيات.",
+        price: 8.5,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Fajita Sizzling",
+        nameAr: "فاهيتا دجاج ساخنة",
+        description: "Sizzling chicken fajita served on hot plate with peppers and onions.",
+        descriptionAr: "فاهيتا دجاج ساخنة تُقدم على صحن ساخن مع الفلفل والبصل.",
+        price: 8.75,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Beef Stroganoff",
+        nameAr: "ستروغانوف لحم بقري",
+        description: "Classic beef stroganoff with mushrooms in creamy sauce.",
+        descriptionAr: "ستروغانوف لحم بقري كلاسيكي بالفطر في صلصة كريمية.",
+        price: 9.75,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Grill",
+        nameAr: "دجاج مشوي",
+        modelSrc: "models/grilledChicken.glb",
+        description: "Perfectly grilled chicken breast with herbs and spices.",
+        descriptionAr: "صدر دجاج مشوي بإتقان مع الأعشاب والتوابل.",
+        price: 9.0,
+        category: "main-course",
+        mainCategory: "food"
+      },
+      {
+        name: "Salmon Grill",
+        nameAr: "سلمون مشوي",
+        description: "Fresh grilled salmon fillet with lemon and herbs.",
+        descriptionAr: "فيليه سلمون مشوي طازج بالليمون والأعشاب.",
+        price: 14.75,
+        category: "main-course",
+        mainCategory: "food"
+      },
+
+      // FOOD - Appetizers
+      {
+        name: "Chips and Dips",
+        nameAr: "رقائق وصلصات",
+        description: "Crispy chips served with variety of delicious dips.",
+        descriptionAr: "رقائق مقرمشة تُقدم مع مجموعة متنوعة من الصلصات اللذيذة.",
+        price: 5.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Dynamite",
+        nameAr: "دجاج ديناميت",
+        modelSrc: "models/chickenDynamiteSalad",
+        description: "Spicy chicken pieces with dynamite sauce.",
+        descriptionAr: "قطع دجاج حارة مع صلصة الديناميت.",
+        price: 6.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Kibbeh",
+        nameAr: "كبة",
+        description: "Traditional Lebanese kibbeh with bulgur and meat.",
+        descriptionAr: "كبة لبنانية تقليدية بالبرغل واللحم.",
+        price: 3.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Mix Platter",
+        nameAr: "طبق مشكل",
+        modelSrc: "models/foodPlatter_",
+        description: "Variety platter with assorted appetizers and finger foods.",
+        descriptionAr: "طبق متنوع مع مقبلات وأطعمة متنوعة.",
+        price: 18.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Popcorn",
+        nameAr: "فشار",
+        description: "Fresh popped corn with seasoning.",
+        descriptionAr: "ذرة مفرقعة طازجة مع التتبيلة.",
+        price: 3.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Freekeh with Cream",
+        nameAr: "فريكة بالكريمة",
+        description: "Creamy freekeh dish with rich flavors.",
+        descriptionAr: "طبق فريكة كريمي بنكهات غنية.",
+        price: 5.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "French Fries",
+        nameAr: "بطاطس مقلية",
+        description: "Golden crispy french fries.",
+        descriptionAr: "بطاطس مقلية ذهبية مقرمشة.",
+        price: 3.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Mushroom Sauté",
+        nameAr: "فطر مقلي",
+        description: "Sautéed mushrooms with herbs and garlic.",
+        descriptionAr: "فطر مقلي بالأعشاب والثوم.",
+        price: 4.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Cheese Roll",
+        nameAr: "رول جبنة",
+        description: "Crispy cheese rolls with melted cheese inside.",
+        descriptionAr: "رولات جبنة مقرمشة بالجبن المذاب بالداخل.",
+        price: 4.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Mexican Nachos",
+        nameAr: "ناتشوز مكسيكي",
+        description: "Crispy nachos with cheese, jalapeños, and Mexican toppings.",
+        descriptionAr: "ناتشوز مقرمش بالجبن والهالابينو والإضافات المكسيكية.",
+        price: 8.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Yalanji",
+        nameAr: "يلنجي",
+        modelSrc: "models/yalanji",
+        description: "Stuffed grape leaves with rice and herbs.",
+        descriptionAr: "ورق عنب محشي بالأرز والأعشاب.",
+        price: 3.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Onion Rings",
+        nameAr: "حلقات بصل",
+        modelSrc: "models/onionRings_",
+        description: "Crispy golden onion rings.",
+        descriptionAr: "حلقات بصل ذهبية مقرمشة.",
+        price: 3.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Grilled Hallomi",
+        nameAr: "حلومي مشوي",
+        modelSrc: "models/hallomi",
+        description: "Grilled hallomi cheese with herbs.",
+        descriptionAr: "جبنة حلومي مشوية بالأعشاب.",
+        price: 4.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Nuts",
+        nameAr: "مكسرات",
+        description: "Mixed roasted nuts selection.",
+        descriptionAr: "تشكيلة مكسرات محمصة مختلطة.",
+        price: 4.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Jalapeño Pepper",
+        nameAr: "فلفل هالابينو",
+        description: "Stuffed jalapeño peppers with cheese.",
+        descriptionAr: "فلفل هالابينو محشي بالجبن.",
+        price: 3.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Tender",
+        nameAr: "قطع دجاج طرية",
+        modelSrc: "models/chickenTender",
+        description: "Tender chicken strips with crispy coating.",
+        descriptionAr: "شرائح دجاج طرية بطبقة مقرمشة.",
+        price: 5.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Potato Wedges",
+        nameAr: "أسافين بطاطس",
+        description: "Seasoned potato wedges with herbs.",
+        descriptionAr: "أسافين بطاطس متبلة بالأعشاب.",
+        price: 3.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Mac and Cheese",
+        nameAr: "مكرونة بالجبن",
+        modelSrc: "models/macAndCheese",
+        description: "Creamy macaroni and cheese.",
+        descriptionAr: "مكرونة كريمية بالجبن.",
+        price: 4.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Chicken Cheese Balls",
+        nameAr: "كرات دجاج بالجبن",
+        description: "Fried chicken and cheese balls.",
+        descriptionAr: "كرات دجاج وجبن مقلية.",
+        price: 5.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Sambusak",
+        nameAr: "سمبوسك",
+        description: "Crispy sambusak pastries with savory filling.",
+        descriptionAr: "معجنات سمبوسك مقرمشة بحشوة مالحة.",
+        price: 3.0,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Loaded Waffle Fries",
+        nameAr: "بطاطس وافل محشوة",
+        description: "Waffle-cut fries loaded with cheese and toppings.",
+        descriptionAr: "بطاطس مقطعة وافل محشوة بالجبن والإضافات.",
+        price: 5.25,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Dynamite Shrimp",
+        nameAr: "روبيان ديناميت",
+        modelSrc: "models/dynamiteShrimp",
+        description: "Crispy shrimp with spicy dynamite sauce.",
+        descriptionAr: "روبيان مقرمش مع صلصة الديناميت الحارة.",
+        price: 8.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+      {
+        name: "Mozzarella Sticks",
+        nameAr: "أصابع موتزاريلا",
+        modelSrc: "models/mozzerellaSticks_",
+        description: "Crispy mozzarella sticks with marinara sauce.",
+        descriptionAr: "أصابع موتزاريلا مقرمشة مع صلصة المارينارا.",
+        price: 3.5,
+        category: "appetizers",
+        mainCategory: "food"
+      },
+
+      // FOOD - Updated Salads
+      {
+        name: "Chef Salad",
+        nameAr: "سلطة الشيف",
+        description: "Fresh mixed greens with chef's special ingredients.",
+        descriptionAr: "خضار ورقية طازجة مختلطة مع مكونات خاصة للشيف.",
+        price: 4.75,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Taco Salad",
+        nameAr: "سلطة تاكو",
+        modelSrc: "models/tacoSalad",
+        description: "Mexican-style salad with taco seasoning and crispy shell.",
+        descriptionAr: "سلطة على الطريقة المكسيكية مع تتبيلة التاكو وقشرة مقرمشة.",
+        price: 4.75,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Greek Salad",
+        nameAr: "سلطة يونانية",
+        description: "Traditional Greek salad with feta cheese and olives.",
+        descriptionAr: "سلطة يونانية تقليدية بجبنة الفيتا والزيتون.",
+        price: 3.75,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Smoked Salmon Salad",
+        nameAr: "سلطة سلمون مدخن",
+        modelSrc: "models/smokedSalmonSalad",
+        description: "Fresh salad topped with smoked salmon and capers.",
+        descriptionAr: "سلطة طازجة مغطاة بالسلمون المدخن والكبر.",
+        price: 7.5,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Hallomi Salad",
+        nameAr: "سلطة حلومي",
+        modelSrc: "models/hallomiSalad",
+        description: "Fresh salad with grilled hallomi cheese.",
+        descriptionAr: "سلطة طازجة مع جبنة حلومي مشوية.",
+        price: 4.0,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Mango Salad",
+        nameAr: "سلطة مانجو",
+        description: "Tropical salad with fresh mango and mixed greens.",
+        descriptionAr: "سلطة استوائية مع المانجو الطازج والخضار الورقية المختلطة.",
+        price: 5.0,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Tabbouleh Pumli",
+        nameAr: "تبولة بوملي",
+        description: "Traditional tabbouleh with pomelo citrus twist.",
+        descriptionAr: "تبولة تقليدية مع لمسة حمضيات البوملي.",
+        price: 4.0,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Rocca Mushroom Salad",
+        nameAr: "سلطة جرجير وفطر",
+        description: "Arugula salad with sautéed mushrooms.",
+        descriptionAr: "سلطة جرجير مع فطر مقلي.",
+        price: 3.5,
+        category: "salads",
+        mainCategory: "food"
+      },
+      {
+        name: "Caesar Salad",
+        nameAr: "سلطة سيزر",
+        description: "Classic Caesar salad with croutons and parmesan.",
+        descriptionAr: "سلطة سيزر كلاسيكية مع الخبز المحمص والبارميزان.",
+        price: 3.75,
+        category: "salads",
+        mainCategory: "food"
+      },
+
+      // FOOD - Soup
+      {
+        name: "Mushroom Soup",
+        nameAr: "شوربة فطر",
+        description: "Creamy mushroom soup with herbs.",
+        descriptionAr: "شوربة فطر كريمية بالأعشاب.",
+        price: 3.5,
+        category: "soup",
+        mainCategory: "food"
+      },
+      {
+        name: "Seafood Soup",
+        nameAr: "شوربة مأكولات بحرية",
+        modelSrc: "models/seaFoodBowl_",
+        description: "Rich seafood soup with mixed seafood.",
+        descriptionAr: "شوربة مأكولات بحرية غنية مع خليط من المأكولات البحرية.",
+        price: 4.75,
+        category: "soup",
+        mainCategory: "food"
+      },
+      {
+        name: "Corn Soup",
+        nameAr: "شوربة ذرة",
+        description: "Sweet corn soup with cream.",
+        descriptionAr: "شوربة ذرة حلوة بالكريمة.",
+        price: 3.75,
+        category: "soup",
         mainCategory: "food"
       },
 
@@ -9834,14 +10282,20 @@
 
       // Update food subcategory buttons
       const allFoodBtn = document.getElementById('all-food-btn');
+      const mainCourseCategoryBtn = document.getElementById('main-course-category-btn');
+      const appetizersCategoryBtn = document.getElementById('appetizers-category-btn');
       const pizzaPastaCategoryBtn = document.getElementById('pizza-pasta-category-btn');
       const sandwichesCategoryBtn = document.getElementById('sandwiches-category-btn');
       const saladsCategoryBtn = document.getElementById('salads-category-btn');
+      const soupCategoryBtn = document.getElementById('soup-category-btn');
       
       if (allFoodBtn) allFoodBtn.textContent = currentLanguage === 'ar' ? 'كل الطعام' : 'All Food';
+      if (mainCourseCategoryBtn) mainCourseCategoryBtn.textContent = currentLanguage === 'ar' ? 'الطبق الرئيسي' : 'Main Course';
+      if (appetizersCategoryBtn) appetizersCategoryBtn.textContent = currentLanguage === 'ar' ? 'مقبلات' : 'Appetizers';
       if (pizzaPastaCategoryBtn) pizzaPastaCategoryBtn.textContent = currentLanguage === 'ar' ? 'بيتزا وباستا' : 'Pizza & Pasta';
       if (sandwichesCategoryBtn) sandwichesCategoryBtn.textContent = currentLanguage === 'ar' ? 'ساندويشات' : 'Sandwiches';
       if (saladsCategoryBtn) saladsCategoryBtn.textContent = currentLanguage === 'ar' ? 'سلطات' : 'Salads';
+      if (soupCategoryBtn) soupCategoryBtn.textContent = currentLanguage === 'ar' ? 'شوربة' : 'Soup';
       
       // Update breakfast subcategory buttons
       const allBreakfastBtn = document.getElementById('all-breakfast-btn');
@@ -13621,7 +14075,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
             currentLanguage === 'ar' 
-              ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
+              ? `تم تعيين الطاو �ة ${tableNumber} كمشغولة` 
               : `Table ${tableNumber} is now marked as Occupied`,
             'success'
           );
