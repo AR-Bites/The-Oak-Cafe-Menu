@@ -6460,7 +6460,6 @@
     let clientId = localStorage.getItem('clientId') || 
                   'CL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     let occupiedTables = new Set(); // Track occupied tables
-    let guestTableMode = "new"; // "new" or "existing" - tracks if guest is using new table or existing table
     let tableNumber = null; // Current table number for all users
     let userTableNumber = null; // Specifically for guest users to track their own table
     let tableNumberExpiry = null; // When the table number expires
@@ -6638,7 +6637,7 @@
       {
         name: "Chicken Dynamite Salad",
         nameAr: "سلطة دجاج ديناميت",
-        modelSrc: "models/chickenDynamiteSalad.glb",
+        modelSrc: "models/chickenDynamiteSalad",
         description: "Fresh mixed greens with crispy chicken, dynamite sauce, and seasonal vegetables.",
         descriptionAr: "خضار ورقية مشكلة طازجة مع دجاج مقرمش وصلصة ديناميت وخضار موسمية.",
         price: 12.99,
@@ -6648,7 +6647,7 @@
       {
         name: "Halloumi Salad",
         nameAr: "سلطة حلوم",
-        modelSrc: "models/hallomiSalad.glb",
+        modelSrc: "models/hallomiSalad",
         description: "Grilled halloumi cheese with fresh vegetables, herbs, and Mediterranean dressing.",
         descriptionAr: "جبنة حلوم مشوية مع خضار طازجة وأعشاب وصلصة متوسطية.",
         price: 11.99,
@@ -6660,7 +6659,7 @@
       {
         name: "Taco Salad",
         nameAr: "سلطة تاكو",
-        modelSrc: "models/tacoSalad.glb",
+        modelSrc: "models/tacoSalad",
         description: "Mexican-inspired salad with crispy tortilla shell, seasoned ground beef, and fresh toppings.",
         descriptionAr: "سلطة مكسيكية في قشرة تورتيلا مقرمشة مع لحم مطحون متبل وخضار طازجة.",
         price: 13.99,
@@ -6670,7 +6669,7 @@
       {
         name: "Waffle Salad",
         nameAr: "سلطة وافل",
-        modelSrc: "models/waffleSalad.glb",
+        modelSrc: "models/waffleSalad",
         description: "Unique sweet and savory combination with waffle pieces, mixed greens, and special dressing.",
         descriptionAr: "تجمع فريد بين الحلو والمالح مع قطع وافل وخضار مشكلة وصلصة خاصة.",
         price: 12.49,
@@ -6680,7 +6679,7 @@
       {
         name: "Smoked Salmon Salad",
         nameAr: "سلطة سلمون مدخن",
-        modelSrc: "models/smokedSalmonSalad.glb",
+        modelSrc: "models/smokedSalmonSalad",
         description: "Premium smoked salmon with mixed greens, capers, and dill cream dressing.",
         descriptionAr: "سلمون مدخن فاخر مع خضار مشكلة وكبار وصلصة كريمة الشبت.",
         price: 16.99,
@@ -6692,7 +6691,7 @@
       {
         name: "OAK Beef Burger",
         nameAr: "برجر لحم بقري أوك",
-        modelSrc: "models/beefBurger.glb",
+        modelSrc: "models/beefBurger",
         description: "Juicy beef patty with fresh lettuce, tomato, onions, and our signature sauce.",
         descriptionAr: "قطعة لحم بقري عصيرية مع خس طازج وطماطم وبصل وصلصتنا المميزة.",
         price: 8.0,
@@ -6702,7 +6701,7 @@
       {
         name: "Crispy Chicken Burger",
         nameAr: "برجر دجاج مقرمش",
-        modelSrc: "models/crispyChickenBurger.glb",
+        modelSrc: "models/crispyChickenBurger",
         description: "Crispy fried chicken breast with coleslaw and spicy mayo on a brioche bun.",
         descriptionAr: "صدر دجاج مقلي مقرمش مع سلطة كولسلو ومايونيز حار في خبز بريوش.",
         price: 6.5,
@@ -6712,7 +6711,7 @@
       {
         name: "Shawerma Chicken",
         nameAr: "شاورما دجاج",
-        modelSrc: "models/chickenShawerma.glb",
+        modelSrc: "models/chickenShawerma",
         description: "Traditional chicken shawerma with vegetables and garlic sauce.",
         descriptionAr: "شاورما دجاج تقليدية مع الخضار وصلصة الثوم.",
         price: 6.0,
@@ -6722,7 +6721,7 @@
       {
         name: "Chicken Fajita Sandwich",
         nameAr: "ساندويش فاهيتا دجاج",
-        modelSrc: "models/chickenFajita.glb",
+        modelSrc: "models/chickenFajita",
         description: "Grilled chicken with peppers, onions, and special fajita seasoning.",
         descriptionAr: "دجاج مشوي مع الفلفل والبصل وتوابل الفاهيتا الخاصة.",
         price: 5.5,
@@ -6742,7 +6741,7 @@
       {
         name: "Chicken Quesadilla",
         nameAr: "كويساديلا دجاج",
-        modelSrc: "models/chickenQuesadilla.glb",
+        modelSrc: "models/chickenQuesadilla",
         description: "Grilled tortilla filled with chicken, cheese, and peppers.",
         descriptionAr: "تورتيلا مشوية محشوة بالدجاج والجبن والفلفل.",
         price: 8.0,
@@ -7130,7 +7129,7 @@
       {
         name: "Taco Salad",
         nameAr: "سلطة تاكو",
-        modelSrc: "models/tacoSalad.glb",
+        modelSrc: "models/tacoSalad",
         description: "Mexican-style salad with taco seasoning and crispy shell.",
         descriptionAr: "سلطة على الطريقة المكسيكية مع تتبيلة التاكو وقشرة مقرمشة.",
         price: 4.75,
@@ -7149,7 +7148,7 @@
       {
         name: "Smoked Salmon Salad",
         nameAr: "سلطة سلمون مدخن",
-        modelSrc: "models/smokedSalmonSalad.glb",
+        modelSrc: "models/smokedSalmonSalad",
         description: "Fresh salad topped with smoked salmon and capers.",
         descriptionAr: "سلطة طازجة مغطاة بالسلمون المدخن والكبر.",
         price: 7.5,
@@ -7159,7 +7158,7 @@
       {
         name: "Hallomi Salad",
         nameAr: "سلطة حلومي",
-        modelSrc: "models/hallomiSalad.glb",
+        modelSrc: "models/hallomiSalad",
         description: "Fresh salad with grilled hallomi cheese.",
         descriptionAr: "سلطة طازجة مع جبنة حلومي مشوية.",
         price: 4.0,
@@ -7366,7 +7365,7 @@
       {
         name: "Chicken Fajita",
         nameAr: "فاهيتا دجاج",
-        modelSrc: "models/chickenFajita.glb",
+        modelSrc: "models/chickenFajita",
         description: "Tender chicken strips with sautéed vegetables, served with warm tortillas.",
         descriptionAr: "شرائح دجاج طرية مع خضار مقلية، تقدم مع تورتيلا دافئة.",
         price: 16.99,
@@ -7376,7 +7375,7 @@
       {
         name: "Chicken Shawarma",
         nameAr: "شاورما دجاج",
-        modelSrc: "models/chickenShawerma.glb",
+        modelSrc: "models/chickenShawerma",
         description: "Traditional Middle Eastern chicken shawarma with garlic sauce and pickles.",
         descriptionAr: "شاورما دجاج شرق أوسطية تقليدية مع صلصة الثوم والمخللات.",
         price: 13.99,
@@ -7386,7 +7385,7 @@
       {
         name: "Chicken Quesadilla",
         nameAr: "كيساديلا دجاج",
-        modelSrc: "models/chickenQuesadilla.glb",
+        modelSrc: "models/chickenQuesadilla",
         description: "Grilled tortilla filled with seasoned chicken and melted cheese.",
         descriptionAr: "تورتيلا مشوية محشوة بدجاج متبل وجبن ذائب.",
         price: 12.99,
@@ -7396,7 +7395,7 @@
       {
         name: "Premium Steak",
         nameAr: "ستيك فاخر",
-        modelSrc: "models/Steak.glb",
+        modelSrc: "models/Steak",
         description: "Prime cut steak grilled to perfection, served with seasonal vegetables.",
         descriptionAr: "قطعة ستيك فاخرة مشوية بإتقان، تقدم مع خضار موسمية.",
         price: 24.99,
@@ -8774,7 +8773,7 @@
       },
       {
         name: "Grapes Shisha",
-        nameAr: "شt�شة عنب",
+        nameAr: "شيشة عنب",
         description: "Sweet grape flavored shisha.",
         descriptionAr: "شيشة بنكهة العنب الحلو.",
         price: 6.15,
@@ -10122,7 +10121,7 @@
           staffPerformance: "أداء الموظفين",
           orderSources: "مصادر الطلبات",
           exportData: "تصدير البيانات",
-          discountManagement: "إدارة الخصومات",
+          discountManagement: "إدارة الخصومt�ت",
           discountCode: "رمز الخصم",
           discountPercentage: "نسبة الخصم",
           createDiscount: "إنشاء خصم",
@@ -10477,14 +10476,14 @@
     function preloadModels() {
       // List of available models (EXACT filenames from user - without .glb extensions)
       const availableModels = [
-        'beefBurger.glb',
-        'beefFahita.glb',
+        'beefBurger',
+        'beefFahita',
         'Calezone.glb',
-        'cheeseSteakSandwich.glb',
-        'chickenDynamiteSalad.glb',
-        'chickenFajita.glb',
-        'chickenQuesadilla.glb',
-        'chickenShawerma.glb',
+        'cheeseSteakSandwich',
+        'chickenDynamiteSalad',
+        'chickenFajita',
+        'chickenQuesadilla',
+        'chickenShawerma',
         'chickenTender',
         'chickenZingerSandwich',
         'crispyChickenBurger',
@@ -10493,10 +10492,10 @@
         'foodPlatter_',
         'grilledChicken.glb',
         'hallomi',
-        'hallomiSalad.glb',
-        'halloumiSandwich_.glb',
-        'hashBrown.glb',
-        'macAndCheese.glb',
+        'hallomiSalad',
+        'halloumiSandwich_',
+        'hashBrown',
+        'macAndCheese',
         'manageeshMixCheese.glb',
         'manageeshFalafel.glb',
         'manageeshMolassesAndTahini.glb',
@@ -10513,11 +10512,11 @@
         'Rose Pasta.glb',
         'seaFoodBowl_',
         'Sea Food Pasta.glb',
-        'smokedSalmonSalad.glb',
-        'Steak.glb',
-        'tacoSalad.glb',
-        'waffleSalad.glb',
-        'yalanji.glb'
+        'smokedSalmonSalad',
+        'Steak',
+        'tacoSalad',
+        'waffleSalad',
+        'yalanji'
       ];
       
       // Enhanced verification - DO NOT override existing modelSrc paths
@@ -11009,7 +11008,7 @@
         // Reset button text to default
         const addToCartText = document.getElementById('add-to-cart-text');
         if (addToCartText) {
-          addToCartText.textContent = currentLanguage === 'ar' ? 'إضافة إلى السلة' : 'ADD TO CART';
+          addToCartText.textContent = currentLanguage === 'ar' ? 'إضاn�ة إلى السلة' : 'ADD TO CART';
         }
       }, 300);
     }
@@ -11875,9 +11874,6 @@
     }
     
     function selectNewTable() {
-      // Set table mode to new
-      guestTableMode = "new";
-      
       // Change modal title to reflect new table selection
       const tableTitle = document.getElementById('table-number-title');
       const tableSubtitle = document.getElementById('table-number-subtitle');
@@ -11927,9 +11923,6 @@
     }
     
     function selectExistingTable() {
-      // Set table mode to existing
-      guestTableMode = "existing";
-      
       // Change modal title to reflect existing table selection
       const tableTitle = document.getElementById('table-number-title');
       const tableSubtitle = document.getElementById('table-number-subtitle');
@@ -12337,39 +12330,26 @@
       confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>VERIFYING</span>';
       confirmBtn.disabled = true;
       
-      // Check if the table is already occupied (skip for existing tables)
-      if (guestTableMode === "existing") {
-        // For existing tables, skip availability check and proceed directly
-        proceedWithTableNumber(tableNumberInt, confirmBtn, originalBtnContent);
-      } else {
-        // For new tables, check availability
-        checkTableAvailability(tableNumberInt).then(isAvailable => {
-          if (!isAvailable) {
-            // Show error notification instead of alert
-            showNotification(
-              currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
-              currentLanguage === 'ar' 
-                ? `الطاولة ${tableNumberInt} مشغولة. يرجى اختيار طاولة أخرى.`
-                : `Table ${tableNumberInt} is occupied. Please choose another table.`,
-              'error'
-            );
-            
-            // Reset button
-            confirmBtn.innerHTML = originalBtnContent;
-            confirmBtn.disabled = false;
-            
-            // Focus the input for another try
-            tableNumberInput.focus();
-            return;
-          }
+      // Check if the table is already occupied
+      checkTableAvailability(tableNumberInt).then(isAvailable => {
+        if (!isAvailable) {
+          // Show error notification instead of alert
+          showNotification(
+            currentLanguage === 'ar' ? "خطأ في الطاولة" : "Table Unavailable",
+            currentLanguage === 'ar' 
+              ? `الطاولة ${tableNumberInt} مشغولة. يرجى اختيار طاولة أخرى.`
+              : `Table ${tableNumberInt} is occupied. Please choose another table.`,
+            'error'
+          );
           
-          // Proceed with table setup for new tables
-          proceedWithTableNumber(tableNumberInt, confirmBtn, originalBtnContent);
-        });
-      }
-    }
-    
-    function proceedWithTableNumber(tableNumberInt, confirmBtn, originalBtnContent) {
+          // Reset button
+          confirmBtn.innerHTML = originalBtnContent;
+          confirmBtn.disabled = false;
+          
+          // Focus the input for another try
+          tableNumberInput.focus();
+          return;
+        }
         
         // Success animation
         confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> <span>CONFIRMED</span>';
@@ -12419,12 +12399,8 @@
             confirmBtn.style.background = '';
             confirmBtn.disabled = false;
           }, 500);
-          
-          // For new tables only, mark as occupied
-          if (guestTableMode === "new") {
-            occupyTable(tableNumberInt);
-          }
         }, 1000);
+      });
     }
     
     // Check if a table is available
@@ -14295,7 +14271,7 @@
           showNotification(
             currentLanguage === 'ar' ? 'تم تحديث حالة الطاولة' : 'Table Status Updated',
             currentLanguage === 'ar' 
-              ? `تم تعيين الطاولة ${tableNumber} كمشغولة` 
+              ? `c�م تعيين الطاولة ${tableNumber} كمشغولة` 
               : `Table ${tableNumber} is now marked as Occupied`,
             'success'
           );
