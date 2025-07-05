@@ -2448,6 +2448,25 @@
       color: white;
       text-shadow: 0 0 10px rgba(255,223,112,0.7);
     }
+    
+    /* RTL support for guest table options */
+    .rtl .guest-table-option {
+      text-align: right;
+    }
+    
+    .rtl .guest-table-option .option-text {
+      font-family: 'Amiri', serif;
+      font-size: 1.2rem;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+    
+    .rtl .guest-table-option .option-description {
+      font-family: 'Amiri', serif;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 250px;
+    }
 
     /* Embedded login form */
     .embedded-login-form {
@@ -4166,6 +4185,16 @@
     .go-back-btn:active {
       transform: translateY(0);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* RTL support for go back button */
+    .rtl .go-back-btn {
+      font-family: 'Amiri', serif;
+      flex-direction: row-reverse;
+    }
+    
+    .rtl .go-back-btn i {
+      transform: scaleX(-1);
     }
     
     /* Button loading state */
@@ -6780,7 +6809,7 @@
         nameAr: "ساندويش حلومي",
         modelSrc: "models/halloumiSandwich_",
         description: "Grilled hallomi cheese with fresh vegetables and herbs.",
-        descriptionAr: "جبنة حلومي مشوية مع الخضار الطازجة والأعشاب.",
+        descriptionAr: "جبنة حلومي مٴوية مع الخضار الطازجة والأعشاب.",
         price: 5.5,
         category: "sandwiches",
         mainCategory: "food"
@@ -7609,7 +7638,7 @@
         name: "Manageesh Zaatar and Vegetables",
         nameAr: "مناقيش زعتر وخضار",
         description: "Traditional zaatar flatbread topped with fresh vegetables.",
-        descriptionAr: "خبز زعتر تقليدي مغطى بالخضار الطازجة.",
+        descriptionAr: "خبز زعتر تقليدي  �غطى بالخضار الطازجة.",
         price: 3.5,
         category: "manageesh",
         mainCategory: "breakfast"
