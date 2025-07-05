@@ -9181,6 +9181,50 @@
 
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async function() {
+      // EMERGENCY LOADING OVERRIDE - FORCE HIDE AFTER 1 SECOND
+      setTimeout(() => {
+        console.log("EMERGENCY LOADING OVERRIDE ACTIVATED");
+        const loadingOverlay = document.getElementById('loading');
+        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+          console.log("FORCING LOADING SCREEN TO HIDE");
+          loadingOverlay.style.display = 'none';
+          loadingOverlay.style.opacity = '0';
+          
+          // Make components visible
+          const overlay = document.querySelector('.overlay');
+          if (overlay) overlay.style.visibility = 'visible';
+          if (modelViewer) modelViewer.style.visibility = 'visible';
+          
+          // Show table modal for guests
+          if (!localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
+            showTableModal();
+          }
+        }
+      }, 1000); // 1 second emergency override
+      
+      // IMMEDIATE OVERRIDE - HIDE LOADING SCREEN RIGHT NOW
+      setTimeout(() => {
+        console.log("IMMEDIATE LOADING OVERRIDE - HIDING NOW");
+        const loadingOverlay = document.getElementById('loading');
+        if (loadingOverlay) {
+          loadingOverlay.style.display = 'none';
+          loadingOverlay.style.opacity = '0';
+          loadingOverlay.style.visibility = 'hidden';
+          
+          // Force visibility of main components
+          const overlay = document.querySelector('.overlay');
+          if (overlay) {
+            overlay.style.visibility = 'visible';
+            overlay.style.display = 'block';
+          }
+          
+          // Show table modal for guests immediately
+          if (!localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
+            setTimeout(() => showTableModal(), 100);
+          }
+        }
+      }, 100); // Almost immediate override
+      
       // Start the loading screen safety timeout
       ensureLoadingScreenHides();
       // Load language preference
@@ -9391,7 +9435,7 @@
         
         if (progress <= 35) {
           newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
-          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأ �عاد...' : 'Loading 3D Models...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة النماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
