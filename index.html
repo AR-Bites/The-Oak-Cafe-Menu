@@ -4122,6 +4122,52 @@
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
     }
     
+    /* Go Back Button Styling */
+    .go-back-btn {
+      background: linear-gradient(135deg, #6c757d 0%, #5a5f66 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      opacity: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .go-back-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .go-back-btn:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .go-back-btn:hover::before {
+      left: 100%;
+    }
+    
+    .go-back-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    
     /* Button loading state */
     .button-loading {
       position: relative;
@@ -11898,6 +11944,9 @@
         guestIcon.innerHTML = `<i class="fas fa-utensils"></i>
                             <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف - طاولة جديدة' : 'GUEST MODE - NEW TABLE'}</div>`;
         
+        // Add go back button
+        addGoBackButton();
+        
         // Add the icon if it doesn't already exist
         if (!document.querySelector('.guest-icon-standalone')) {
           modalContent.insertBefore(guestIcon, modalContent.firstChild);
@@ -11950,6 +11999,9 @@
         guestIcon.innerHTML = `<i class="fas fa-utensils"></i>
                             <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف - طاولة موجودة' : 'GUEST MODE - EXISTING TABLE'}</div>`;
         
+        // Add go back button
+        addGoBackButton();
+        
         // Add the icon if it doesn't already exist
         if (!document.querySelector('.guest-icon-standalone')) {
           modalContent.insertBefore(guestIcon, modalContent.firstChild);
@@ -11978,11 +12030,43 @@
       tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
     }
     
+    function addGoBackButton() {
+      // Check if go back button already exists
+      if (document.getElementById('go-back-btn')) {
+        return;
+      }
+      
+      const modalContent = document.querySelector('.table-number-content');
+      const goBackBtn = document.createElement('button');
+      goBackBtn.id = 'go-back-btn';
+      goBackBtn.className = 'go-back-btn';
+      goBackBtn.innerHTML = `<i class="fas fa-arrow-left"></i> ${currentLanguage === 'ar' ? 'العودة للخيارات' : 'Go Back to Options'}`;
+      goBackBtn.onclick = function() {
+        resetTableSelectionModal();
+      };
+      
+      // Insert the button after the guest icon
+      const guestIcon = document.querySelector('.guest-icon-standalone');
+      if (guestIcon) {
+        guestIcon.parentNode.insertBefore(goBackBtn, guestIcon.nextSibling);
+      }
+      
+      // Animate button appearance
+      goBackBtn.style.opacity = '0';
+      setTimeout(() => {
+        goBackBtn.style.opacity = '1';
+      }, 100);
+    }
+    
     function resetTableSelectionModal() {
       // Hide the table input and back button
       tableNumberInputContainer.style.opacity = '0';
       const backButton = document.getElementById('back-to-options-btn');
       if (backButton) backButton.style.opacity = '0';
+      
+      // Hide the go back button
+      const goBackButton = document.getElementById('go-back-btn');
+      if (goBackButton) goBackButton.style.opacity = '0';
       
       // Remove any staff/guest standalone icons
       const staffIcon = document.querySelector('.staff-icon-standalone');
@@ -11999,6 +12083,7 @@
         // Hide/remove elements
         tableNumberInputContainer.style.display = 'none';
         if (backButton) backButton.remove();
+        if (goBackButton) goBackButton.remove();
         if (staffIcon) staffIcon.remove();
         if (guestIcon) guestIcon.remove();
         if (loginForm) loginForm.style.display = 'none';
