@@ -9166,7 +9166,17 @@
           console.warn("Loading screen timeout - force hiding");
           hideLoadingScreen();
         }
-      }, 10000); // 10 second maximum loading time
+      }, 3000); // 3 second maximum loading time - very aggressive
+      
+      // Emergency fallback - absolutely force hide after 5 seconds
+      setTimeout(() => {
+        const loadingElement = document.getElementById("loading");
+        if (loadingElement) {
+          loadingElement.style.display = 'none';
+          loadingElement.style.opacity = '0';
+          console.error("Emergency loading screen hide triggered");
+        }
+      }, 5000);
     }
 
     // Initialize the app
@@ -9381,7 +9391,7 @@
         
         if (progress <= 35) {
           newText = currentLanguage === 'ar' ? 'تجهيز الواجهة المعززة...' : 'Preparing AR Interface...';
-          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأبعاد...' : 'Loading 3D Models...';
+          modelStatusText = currentLanguage === 'ar' ? 'جارٍ تحميل النماذج ثلاثية الأ �عاد...' : 'Loading 3D Models...';
         } else if (progress <= 65) {
           newText = currentLanguage === 'ar' ? 'تحميل العناصر...' : 'Loading Elements...';
           modelStatusText = currentLanguage === 'ar' ? 'جارٍ معالجة النماذج ثلاثية الأبعاد...' : 'Processing 3D Models...';
@@ -9539,6 +9549,11 @@
           clearInterval(interval);
           loadingBar.style.width = '100%';
           
+          // Force hide the loading screen immediately
+          setTimeout(() => {
+            hideLoadingScreen();
+          }, 1000);
+          
           // Animated text update with enhanced animations
           loadingText.style.opacity = '0';
           
@@ -9588,7 +9603,7 @@
             }, 200);
           }, 150);
         }
-      }, 3500); // Reduced to 3.5 seconds max load time
+      }, 2000); // Aggressive 2 second max load time
     }
     
     // Language support
@@ -13390,7 +13405,7 @@
       if (!db || typeof db.collection !== 'function') {
         console.error("Firebase database not initialized");
         ordersList.innerHTML = `
-          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة اo�بيانات غير متصلة' : 'Error: Database not connected'}</p>
+          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>
           <button onclick="renderOrders(0)" class="retry-btn" style="display: block; margin: 10px auto; padding: 5px 15px; background: var(--gold); color: black; border: none; border-radius: 4px; cursor: pointer;">
             <i class="fas fa-sync-alt"></i> ${currentLanguage === 'ar' ? 'إعادة المحاولة' : 'Retry'}
           </button>
