@@ -6809,7 +6809,8 @@
         nameAr: "ساندويش حلومي",
         modelSrc: "models/halloumiSandwich_",
         description: "Grilled hallomi cheese with fresh vegetables and herbs.",
-        descriptionAr: "جبنة حلومي مٴوية مع الخضار الطازجة والأعشاب.",
+        descriptionAr: "جبنة حلومي م
+�وية مع الخضار الطازجة والأعشاب.",
         price: 5.5,
         category: "sandwiches",
         mainCategory: "food"
@@ -11973,13 +11974,13 @@
         guestIcon.innerHTML = `<i class="fas fa-utensils"></i>
                             <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف - طاولة جديدة' : 'GUEST MODE - NEW TABLE'}</div>`;
         
-        // Add go back button
-        addGoBackButton();
-        
         // Add the icon if it doesn't already exist
         if (!document.querySelector('.guest-icon-standalone')) {
           modalContent.insertBefore(guestIcon, modalContent.firstChild);
         }
+        
+        // Add go back button after the icon is in the DOM
+        addGoBackButton();
         
         // Show the table number input with a nice fade-in
         tableNumberInputContainer.style.display = 'block';
@@ -12028,13 +12029,13 @@
         guestIcon.innerHTML = `<i class="fas fa-utensils"></i>
                             <div class="guest-title">${currentLanguage === 'ar' ? 'وضع الضيف - طاولة موجودة' : 'GUEST MODE - EXISTING TABLE'}</div>`;
         
-        // Add go back button
-        addGoBackButton();
-        
         // Add the icon if it doesn't already exist
         if (!document.querySelector('.guest-icon-standalone')) {
           modalContent.insertBefore(guestIcon, modalContent.firstChild);
         }
+        
+        // Add go back button after the icon is in the DOM
+        addGoBackButton();
         
         // Show the table number input with a nice fade-in
         tableNumberInputContainer.style.display = 'block';
@@ -13389,7 +13390,7 @@
       if (!db || typeof db.collection !== 'function') {
         console.error("Firebase database not initialized");
         ordersList.innerHTML = `
-          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة البيانات غير متصلة' : 'Error: Database not connected'}</p>
+          <p style="text-align: center; color: var(--red);">${currentLanguage === 'ar' ? 'خطأ: قاعدة اo�بيانات غير متصلة' : 'Error: Database not connected'}</p>
           <button onclick="renderOrders(0)" class="retry-btn" style="display: block; margin: 10px auto; padding: 5px 15px; background: var(--gold); color: black; border: none; border-radius: 4px; cursor: pointer;">
             <i class="fas fa-sync-alt"></i> ${currentLanguage === 'ar' ? 'إعادة المحاولة' : 'Retry'}
           </button>
