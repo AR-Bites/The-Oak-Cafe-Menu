@@ -2448,25 +2448,6 @@
       color: white;
       text-shadow: 0 0 10px rgba(255,223,112,0.7);
     }
-    
-    /* RTL support for guest table options */
-    .rtl .guest-table-option {
-      text-align: right;
-    }
-    
-    .rtl .guest-table-option .option-text {
-      font-family: 'Amiri', serif;
-      font-size: 1.2rem;
-      text-transform: none;
-      letter-spacing: normal;
-    }
-    
-    .rtl .guest-table-option .option-description {
-      font-family: 'Amiri', serif;
-      font-size: 14px;
-      line-height: 1.5;
-      max-width: 250px;
-    }
 
     /* Embedded login form */
     .embedded-login-form {
@@ -4083,7 +4064,7 @@
     }
     
     /* Enhanced Button Styles */
-    .confirm-btn, .cancel-btn, .checkout-btn, .apply-btn {
+    .confirm-btn, .cancel-btn, .checkout-btn, .apply-btn, .go-back-btn {
       padding: 14px 18px;
       border: none;
       border-radius: 12px;
@@ -4114,7 +4095,13 @@
       border: 1px solid rgba(244, 67, 54, 0.6);
     }
     
-    .confirm-btn::after, .cancel-btn::after, .checkout-btn::after, .apply-btn::after {
+    .go-back-btn {
+      background: linear-gradient(135deg, #6c757d 0%, #7c848a 100%);
+      color: white;
+      border: 1px solid rgba(108, 117, 125, 0.6);
+    }
+    
+    .confirm-btn::after, .cancel-btn::after, .checkout-btn::after, .apply-btn::after, .go-back-btn::after {
       content: '';
       position: absolute;
       top: 0;
@@ -4127,74 +4114,18 @@
       transition: transform 0.6s ease;
     }
     
-    .confirm-btn:hover, .cancel-btn:hover, .checkout-btn:hover, .apply-btn:hover {
+    .confirm-btn:hover, .cancel-btn:hover, .checkout-btn:hover, .apply-btn:hover, .go-back-btn:hover {
       transform: translateY(-3px) scale(1.02);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
     }
     
-    .confirm-btn:hover::after, .cancel-btn:hover::after, .checkout-btn:hover::after, .apply-btn:hover::after {
+    .confirm-btn:hover::after, .cancel-btn:hover::after, .checkout-btn:hover::after, .apply-btn:hover::after, .go-back-btn:hover::after {
       transform: translateX(100%);
     }
     
-    .confirm-btn:active, .cancel-btn:active, .checkout-btn:active, .apply-btn:active {
+    .confirm-btn:active, .cancel-btn:active, .checkout-btn:active, .apply-btn:active, .go-back-btn:active {
       transform: translateY(1px) scale(0.98);
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* Go Back Button Styling */
-    .go-back-btn {
-      background: linear-gradient(135deg, #6c757d 0%, #5a5f66 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      margin: 10px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-      opacity: 0;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .go-back-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s;
-    }
-    
-    .go-back-btn:hover {
-      background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    
-    .go-back-btn:hover::before {
-      left: 100%;
-    }
-    
-    .go-back-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    }
-    
-    /* RTL support for go back button */
-    .rtl .go-back-btn {
-      font-family: 'Amiri', serif;
-      flex-direction: row-reverse;
-    }
-    
-    .rtl .go-back-btn i {
-      transform: scaleX(-1);
     }
     
     /* Button loading state */
@@ -5887,6 +5818,9 @@
           <button onclick="closeTableModal(true)" class="cancel-btn" id="cancel-table-btn">
             <i class="fas fa-times-circle"></i> <span>CANCEL</span>
           </button>
+          <button onclick="goBackToTableOptions()" class="go-back-btn" id="go-back-table-btn" style="display: none;">
+            <i class="fas fa-arrow-left"></i> <span id="go-back-btn-text">GO BACK</span>
+          </button>
         </div>
         <div class="staff-bypass-section" id="staff-bypass-section" style="display: none; margin-top: 15px; text-align: center;">
           <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
@@ -6809,8 +6743,7 @@
         nameAr: "ساندويش حلومي",
         modelSrc: "models/halloumiSandwich_",
         description: "Grilled hallomi cheese with fresh vegetables and herbs.",
-        descriptionAr: "جبنة حلومي م
-�وية مع الخضار الطازجة والأعشاب.",
+        descriptionAr: "جبنة حلومي مشوية مع الخضار الطازجة والأعشاب.",
         price: 5.5,
         category: "sandwiches",
         mainCategory: "food"
@@ -7639,7 +7572,7 @@
         name: "Manageesh Zaatar and Vegetables",
         nameAr: "مناقيش زعتر وخضار",
         description: "Traditional zaatar flatbread topped with fresh vegetables.",
-        descriptionAr: "خبز زعتر تقليدي  �غطى بالخضار الطازجة.",
+        descriptionAr: "خبز زعتر تقليدي مغطى بالخضار الطازجة.",
         price: 3.5,
         category: "manageesh",
         mainCategory: "breakfast"
@@ -9166,65 +9099,11 @@
           console.warn("Loading screen timeout - force hiding");
           hideLoadingScreen();
         }
-      }, 3000); // 3 second maximum loading time - very aggressive
-      
-      // Emergency fallback - absolutely force hide after 5 seconds
-      setTimeout(() => {
-        const loadingElement = document.getElementById("loading");
-        if (loadingElement) {
-          loadingElement.style.display = 'none';
-          loadingElement.style.opacity = '0';
-          console.error("Emergency loading screen hide triggered");
-        }
-      }, 5000);
+      }, 10000); // 10 second maximum loading time
     }
 
     // Initialize the app
     document.addEventListener('DOMContentLoaded', async function() {
-      // EMERGENCY LOADING OVERRIDE - FORCE HIDE AFTER 1 SECOND
-      setTimeout(() => {
-        console.log("EMERGENCY LOADING OVERRIDE ACTIVATED");
-        const loadingOverlay = document.getElementById('loading');
-        if (loadingOverlay && loadingOverlay.style.display !== 'none') {
-          console.log("FORCING LOADING SCREEN TO HIDE");
-          loadingOverlay.style.display = 'none';
-          loadingOverlay.style.opacity = '0';
-          
-          // Make components visible
-          const overlay = document.querySelector('.overlay');
-          if (overlay) overlay.style.visibility = 'visible';
-          if (modelViewer) modelViewer.style.visibility = 'visible';
-          
-          // Show table modal for guests
-          if (!localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
-            showTableModal();
-          }
-        }
-      }, 1000); // 1 second emergency override
-      
-      // IMMEDIATE OVERRIDE - HIDE LOADING SCREEN RIGHT NOW
-      setTimeout(() => {
-        console.log("IMMEDIATE LOADING OVERRIDE - HIDING NOW");
-        const loadingOverlay = document.getElementById('loading');
-        if (loadingOverlay) {
-          loadingOverlay.style.display = 'none';
-          loadingOverlay.style.opacity = '0';
-          loadingOverlay.style.visibility = 'hidden';
-          
-          // Force visibility of main components
-          const overlay = document.querySelector('.overlay');
-          if (overlay) {
-            overlay.style.visibility = 'visible';
-            overlay.style.display = 'block';
-          }
-          
-          // Show table modal for guests immediately
-          if (!localStorage.getItem(STAFF_TOKEN) && !localStorage.getItem(ADMIN_TOKEN)) {
-            setTimeout(() => showTableModal(), 100);
-          }
-        }
-      }, 100); // Almost immediate override
-      
       // Start the loading screen safety timeout
       ensureLoadingScreenHides();
       // Load language preference
@@ -9593,11 +9472,6 @@
           clearInterval(interval);
           loadingBar.style.width = '100%';
           
-          // Force hide the loading screen immediately
-          setTimeout(() => {
-            hideLoadingScreen();
-          }, 1000);
-          
           // Animated text update with enhanced animations
           loadingText.style.opacity = '0';
           
@@ -9647,7 +9521,7 @@
             }, 200);
           }, 150);
         }
-      }, 2000); // Aggressive 2 second max load time
+      }, 3500); // Reduced to 3.5 seconds max load time
     }
     
     // Language support
@@ -10058,6 +9932,12 @@
         backButton.remove();
       }
       
+      // Hide go back button
+      const goBackBtn = document.getElementById('go-back-table-btn');
+      if (goBackBtn) {
+        goBackBtn.style.display = 'none';
+      }
+      
       // Show role options, hide other containers
       optionButtons.style.display = 'flex';
       optionButtons.style.opacity = '1';
@@ -10080,6 +9960,7 @@
           callWaiter: "CALL WAITER",
           cancel: "CANCEL",
           confirm: "CONFIRM",
+          goBack: "GO BACK",
           yourTableNumber: "YOUR TABLE NUMBER",
           tableNumberSubtitle: "Please select your role or enter your table number to continue",
           tableNumberHelp: "Your table number is displayed on the QR code at your table",
@@ -10175,6 +10056,7 @@
           callWaiter: "استدعاء النادل",
           cancel: "إلغاء",
           confirm: "تأكيد",
+          goBack: "رجوع",
           yourTableNumber: "رقم الطاولة",
           tableNumberSubtitle: "يرجى تحديد دورك أو إدخال رقم الطاولة للمتابعة",
           tableNumberHelp: "رقم الطاولة الخاص بك مُظهر على رمز QR الموجود على طاولتك",
@@ -10305,6 +10187,12 @@
       cancelLoginBtn.textContent = t.cancel;
       confirmTableBtn.textContent = t.confirm;
       cancelTableBtn.textContent = t.cancel;
+      
+      // Update go back button text
+      const goBackBtnText = document.getElementById('go-back-btn-text');
+      if (goBackBtnText) {
+        goBackBtnText.textContent = t.goBack;
+      }
       staffDashboardTitle.textContent = t.staffDashboard;
       loadingText.textContent = t.loadingText;
       poweredByText.textContent = t.poweredBy;
@@ -12009,6 +11897,51 @@
       // We no longer add the back button as we want options to be completely gone
     }
     
+    // Function to go back to table mode options
+    function goBackToTableOptions() {
+      // Hide table input section
+      const tableInputSection = document.getElementById('table-input-section');
+      const tableOptions = document.getElementById('table-mode-options');
+      const goBackBtn = document.getElementById('go-back-table-btn');
+      const tableNumberInputContainer = document.querySelector('.table-input-container');
+      
+      // Remove any guest icon
+      const guestIcon = document.querySelector('.guest-icon-standalone');
+      if (guestIcon) {
+        guestIcon.remove();
+      }
+      
+      // Reset modal title to original
+      const tableTitle = document.getElementById('table-number-title');
+      const tableSubtitle = document.getElementById('table-number-subtitle');
+      tableTitle.textContent = currentLanguage === 'ar' ? 'اختر نوع الطاولة' : 'CHOOSE TABLE TYPE';
+      tableSubtitle.textContent = currentLanguage === 'ar' ? 'هل تريد طاولة جديدة أم طاولة موجودة؟' : 'Do you want a new table or an existing table?';
+      
+      // Clear input value
+      const tableNumberInput = document.getElementById('table-number-input');
+      tableNumberInput.value = '';
+      
+      // Clear availability indicator
+      const availabilityIndicator = document.getElementById('table-availability-indicator');
+      if (availabilityIndicator) {
+        availabilityIndicator.innerHTML = '';
+        availabilityIndicator.className = 'table-availability-indicator';
+      }
+      
+      // Hide input section and go back button
+      tableInputSection.style.display = 'none';
+      if (tableNumberInputContainer) {
+        tableNumberInputContainer.style.display = 'none';
+      }
+      goBackBtn.style.display = 'none';
+      
+      // Show table mode options
+      tableOptions.style.display = 'block';
+      
+      // Reset guest table mode
+      guestTableMode = 'new';
+    }
+
     function selectNewTable() {
       // Set guest table mode to new
       guestTableMode = 'new';
@@ -12038,9 +11971,6 @@
           modalContent.insertBefore(guestIcon, modalContent.firstChild);
         }
         
-        // Add go back button after the icon is in the DOM
-        addGoBackButton();
-        
         // Show the table number input with a nice fade-in
         tableNumberInputContainer.style.display = 'block';
         tableNumberInputContainer.style.opacity = '0';
@@ -12062,6 +11992,10 @@
       // Add real-time table availability check if not already added
       tableNumberInput.removeEventListener('input', checkTableAvailabilityRealtime);
       tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
+      
+      // Show the go back button for new table selection
+      const goBackBtn = document.getElementById('go-back-table-btn');
+      goBackBtn.style.display = 'inline-flex';
     }
     
     function selectExistingTable() {
@@ -12093,9 +12027,6 @@
           modalContent.insertBefore(guestIcon, modalContent.firstChild);
         }
         
-        // Add go back button after the icon is in the DOM
-        addGoBackButton();
-        
         // Show the table number input with a nice fade-in
         tableNumberInputContainer.style.display = 'block';
         tableNumberInputContainer.style.opacity = '0';
@@ -12117,34 +12048,10 @@
       // Add real-time table availability check if not already added
       tableNumberInput.removeEventListener('input', checkTableAvailabilityRealtime);
       tableNumberInput.addEventListener('input', checkTableAvailabilityRealtime);
-    }
-    
-    function addGoBackButton() {
-      // Check if go back button already exists
-      if (document.getElementById('go-back-btn')) {
-        return;
-      }
       
-      const modalContent = document.querySelector('.table-number-content');
-      const goBackBtn = document.createElement('button');
-      goBackBtn.id = 'go-back-btn';
-      goBackBtn.className = 'go-back-btn';
-      goBackBtn.innerHTML = `<i class="fas fa-arrow-left"></i> ${currentLanguage === 'ar' ? 'العودة للخيارات' : 'Go Back to Options'}`;
-      goBackBtn.onclick = function() {
-        resetTableSelectionModal();
-      };
-      
-      // Insert the button after the guest icon
-      const guestIcon = document.querySelector('.guest-icon-standalone');
-      if (guestIcon) {
-        guestIcon.parentNode.insertBefore(goBackBtn, guestIcon.nextSibling);
-      }
-      
-      // Animate button appearance
-      goBackBtn.style.opacity = '0';
-      setTimeout(() => {
-        goBackBtn.style.opacity = '1';
-      }, 100);
+      // Show the go back button for existing table selection
+      const goBackBtn = document.getElementById('go-back-table-btn');
+      goBackBtn.style.display = 'inline-flex';
     }
     
     function resetTableSelectionModal() {
@@ -12152,10 +12059,6 @@
       tableNumberInputContainer.style.opacity = '0';
       const backButton = document.getElementById('back-to-options-btn');
       if (backButton) backButton.style.opacity = '0';
-      
-      // Hide the go back button
-      const goBackButton = document.getElementById('go-back-btn');
-      if (goBackButton) goBackButton.style.opacity = '0';
       
       // Remove any staff/guest standalone icons
       const staffIcon = document.querySelector('.staff-icon-standalone');
@@ -12172,7 +12075,6 @@
         // Hide/remove elements
         tableNumberInputContainer.style.display = 'none';
         if (backButton) backButton.remove();
-        if (goBackButton) goBackButton.remove();
         if (staffIcon) staffIcon.remove();
         if (guestIcon) guestIcon.remove();
         if (loginForm) loginForm.style.display = 'none';
