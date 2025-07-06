@@ -11932,10 +11932,20 @@
       }
       
       // Hide table input container and go back button
+      const tableNumberInputContainer2 = document.getElementById('table-number-input-container');
+      if (tableNumberInputContainer2) {
+        tableNumberInputContainer2.style.display = 'none';
+      }
       if (tableNumberInputContainer) {
         tableNumberInputContainer.style.display = 'none';
       }
       goBackBtn.style.display = 'none';
+      
+      // Hide staff bypass section
+      const staffBypassSection = document.getElementById('staff-bypass-section');
+      if (staffBypassSection) {
+        staffBypassSection.style.display = 'none';
+      }
       
       // Restore the table type selection options
       if (optionButtons) {
