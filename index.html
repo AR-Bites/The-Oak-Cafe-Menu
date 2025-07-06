@@ -6773,7 +6773,7 @@
         nameAr: "ساندويش فاهيتا لحم",
         modelSrc: "models/beefFahita",
         description: "Grilled beef with peppers, onions, and fajita spices.",
-        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفاهيتا.",
+        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفo�هيتا.",
         price: 7.0,
         category: "sandwiches",
         mainCategory: "food"
@@ -10936,30 +10936,42 @@
       // Update modal content
       document.getElementById('customize-item-name').textContent = item.name;
       
-      // Set item image - for demo we'll use a placeholder or the model viewer image
+      // Set item image - CRITICAL FIX: Never use model viewer for non-3D items
       const itemImage = document.getElementById('customize-item-image');
       
-      // Try to get a screenshot from the model viewer if available
-      try {
-        if (modelViewer && modelViewer.toDataURL) {
-          itemImage.src = modelViewer.toDataURL('image/png');
-        } else {
-          // Use a category-based placeholder
-          if (item.category === 'hot_food') {
-            itemImage.src = 'https://i.ibb.co/k6v5sfh/hot-food-placeholder.jpg';
-          } else if (item.category === 'cold_food') {
-            itemImage.src = 'https://i.ibb.co/0j2C7Vq/cold-food-placeholder.jpg';
-          } else if (item.category === 'drinks') {
-            itemImage.src = 'https://i.ibb.co/YZNt0Y4/drinks-placeholder.jpg';
-          } else if (item.category === 'desserts') {
-            itemImage.src = 'https://i.ibb.co/RYst42D/desserts-placeholder.jpg';
+      // ONLY use model viewer screenshot if this item actually has a 3D model
+      if (item.modelSrc && modelViewer && modelViewer.src && modelViewer.src.includes(item.name.replace(/ /g, '%20'))) {
+        // This item has a 3D model and it's currently loaded in the viewer
+        try {
+          if (modelViewer.toDataURL) {
+            itemImage.src = modelViewer.toDataURL('image/png');
+            console.log(`Using model viewer screenshot for 3D item: ${item.name}`);
           } else {
-            itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
+            throw new Error('toDataURL not available');
           }
+        } catch (e) {
+          console.log(`Model viewer screenshot failed for ${item.name}, using placeholder`);
+          itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
         }
-      } catch (e) {
-        console.error("Error setting image:", e);
-        itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
+      } else {
+        // This item has no 3D model OR model viewer has wrong/previous model - use category placeholder
+        console.log(`Using category placeholder for non-3D item: ${item.name}, category: ${item.category}`);
+        
+        if (item.category === 'hot_drinks' || item.category === 'cold_coffee' || item.category === 'frappe' || 
+            item.category === 'milkshakes' || item.category === 'smoothies' || item.category === 'fresh_juice' || 
+            item.category === 'mojito' || item.category === 'iced_tea' || item.category === 'non_coffee' || 
+            item.category === 'soft_drinks' || item.category === 'drinks') {
+          itemImage.src = 'https://i.ibb.co/YZNt0Y4/drinks-placeholder.jpg';
+        } else if (item.category === 'desserts' || item.category === 'cakes' || item.category === 'traditional_desserts' || item.category === 'ice_cream') {
+          itemImage.src = 'https://i.ibb.co/RYst42D/desserts-placeholder.jpg';
+        } else if (item.category === 'cold_food' || item.category === 'salads') {
+          itemImage.src = 'https://i.ibb.co/0j2C7Vq/cold-food-placeholder.jpg';
+        } else if (item.category === 'hot_food' || item.category === 'main_course' || item.category === 'appetizers' || 
+                   item.category === 'pizza' || item.category === 'pasta' || item.category === 'sandwiches' || item.category === 'soup') {
+          itemImage.src = 'https://i.ibb.co/k6v5sfh/hot-food-placeholder.jpg';
+        } else {
+          itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
+        }
       }
       
       // Set price
