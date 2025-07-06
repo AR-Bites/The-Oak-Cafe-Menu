@@ -6773,7 +6773,7 @@
         nameAr: "ساندويش فاهيتا لحم",
         modelSrc: "models/beefFahita",
         description: "Grilled beef with peppers, onions, and fajita spices.",
-        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفo�هيتا.",
+        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الف��هيتا.",
         price: 7.0,
         category: "sandwiches",
         mainCategory: "food"
@@ -10945,33 +10945,69 @@
         try {
           if (modelViewer.toDataURL) {
             itemImage.src = modelViewer.toDataURL('image/png');
+            itemImage.style.display = 'block';
             console.log(`Using model viewer screenshot for 3D item: ${item.name}`);
+            
+            // Hide category icon if it exists
+            const categoryIcon = document.getElementById('category-icon-placeholder');
+            if (categoryIcon) {
+              categoryIcon.style.display = 'none';
+            }
           } else {
             throw new Error('toDataURL not available');
           }
         } catch (e) {
-          console.log(`Model viewer screenshot failed for ${item.name}, using placeholder`);
-          itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
+          console.log(`Model viewer screenshot failed for ${item.name}, hiding image`);
+          itemImage.style.display = 'none';
         }
       } else {
-        // This item has no 3D model OR model viewer has wrong/previous model - use category placeholder
-        console.log(`Using category placeholder for non-3D item: ${item.name}, category: ${item.category}`);
+        // This item has no 3D model - hide the image and show category icon instead
+        console.log(`Hiding image for non-3D item: ${item.name}, category: ${item.category}`);
         
+        // Hide the image element and replace with category-based styling
+        itemImage.style.display = 'none';
+        
+        // Create or update a category icon div
+        let categoryIcon = document.getElementById('category-icon-placeholder');
+        if (!categoryIcon) {
+          categoryIcon = document.createElement('div');
+          categoryIcon.id = 'category-icon-placeholder';
+          categoryIcon.style.cssText = `
+            width: 100%;
+            height: 150px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--gold);
+            margin: 15px 0;
+          `;
+          itemImage.parentNode.insertBefore(categoryIcon, itemImage);
+        }
+        
+        // Set appropriate icon and background based on category
         if (item.category === 'hot_drinks' || item.category === 'cold_coffee' || item.category === 'frappe' || 
             item.category === 'milkshakes' || item.category === 'smoothies' || item.category === 'fresh_juice' || 
             item.category === 'mojito' || item.category === 'iced_tea' || item.category === 'non_coffee' || 
             item.category === 'soft_drinks' || item.category === 'drinks') {
-          itemImage.src = 'https://i.ibb.co/YZNt0Y4/drinks-placeholder.jpg';
+          categoryIcon.innerHTML = '<i class="fas fa-glass-water"></i>';
+          categoryIcon.style.background = 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)';
         } else if (item.category === 'desserts' || item.category === 'cakes' || item.category === 'traditional_desserts' || item.category === 'ice_cream') {
-          itemImage.src = 'https://i.ibb.co/RYst42D/desserts-placeholder.jpg';
-        } else if (item.category === 'cold_food' || item.category === 'salads') {
-          itemImage.src = 'https://i.ibb.co/0j2C7Vq/cold-food-placeholder.jpg';
-        } else if (item.category === 'hot_food' || item.category === 'main_course' || item.category === 'appetizers' || 
-                   item.category === 'pizza' || item.category === 'pasta' || item.category === 'sandwiches' || item.category === 'soup') {
-          itemImage.src = 'https://i.ibb.co/k6v5sfh/hot-food-placeholder.jpg';
+          categoryIcon.innerHTML = '<i class="fas fa-ice-cream"></i>';
+          categoryIcon.style.background = 'linear-gradient(135deg, #ff6b9d 0%, #e056a7 100%)';
+        } else if (item.category === 'salads') {
+          categoryIcon.innerHTML = '<i class="fas fa-leaf"></i>';
+          categoryIcon.style.background = 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)';
+        } else if (item.category === 'soup') {
+          categoryIcon.innerHTML = '<i class="fas fa-bowl-hot"></i>';
+          categoryIcon.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
         } else {
-          itemImage.src = 'https://i.ibb.co/YhBWmd1/food-placeholder.jpg';
+          categoryIcon.innerHTML = '<i class="fas fa-utensils"></i>';
+          categoryIcon.style.background = 'linear-gradient(135deg, var(--dark-green) 0%, #2a5a4a 100%)';
         }
+        
+        categoryIcon.style.display = 'flex';
       }
       
       // Set price
