@@ -6773,7 +6773,7 @@
         nameAr: "ساندويش فاهيتا لحم",
         modelSrc: "models/beefFahita",
         description: "Grilled beef with peppers, onions, and fajita spices.",
-        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الف5�هيتا.",
+        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفاهيتا.",
         price: 7.0,
         category: "sandwiches",
         mainCategory: "food"
@@ -10910,25 +10910,27 @@
       currentCustomizeItem = item;
       itemQuantity = 1;
       
-      // CRITICAL FIX: Hide main model viewer for non-3D items to prevent showing last loaded model
+      // CRITICAL FIX: Completely hide the main food container when customization modal opens
+      const mainFoodContainer = document.querySelector('.food-container');
       const mainModelContainer = document.querySelector('.model-container');
       const mainModelViewer = document.getElementById('food-model-viewer');
       
+      // Always hide the entire main food container when customization modal opens
+      if (mainFoodContainer) {
+        mainFoodContainer.style.display = 'none';
+        console.log(`Hidden main food container completely during customization for: ${item.name}`);
+      }
+      
+      // Additional safeguard: Clear model viewer for non-3D items
       if (!item.modelSrc) {
-        // This item has no 3D model, hide the main model viewer completely
         if (mainModelContainer) {
           mainModelContainer.style.display = 'none';
         }
         if (mainModelViewer) {
-          mainModelViewer.src = ''; // Clear any previous model
+          mainModelViewer.src = '';
+          mainModelViewer.style.display = 'none';
         }
-        console.log(`Hiding main model viewer for non-3D item: ${item.name}`);
-      } else {
-        // This item has a 3D model, ensure it's visible
-        if (mainModelContainer) {
-          mainModelContainer.style.display = 'block';
-        }
-        console.log(`Keeping main model viewer visible for 3D item: ${item.name}`);
+        console.log(`Extra safeguard: Cleared model viewer for non-3D item: ${item.name}`);
       }
       
       // Update modal content
@@ -11045,17 +11047,28 @@
         customizeModal.style.display = 'none';
         customizeModal.style.opacity = '1';
         
-        // CRITICAL FIX: Restore main model viewer state when closing customization modal
+        // CRITICAL FIX: Restore main food container when closing customization modal
+        const mainFoodContainer = document.querySelector('.food-container');
         const currentItem = filteredFoodItems[currentFoodIndex];
         const mainModelContainer = document.querySelector('.model-container');
+        const mainModelViewer = document.getElementById('food-model-viewer');
         
-        if (currentItem && currentItem.modelSrc && mainModelContainer) {
+        // Always restore the main food container
+        if (mainFoodContainer) {
+          mainFoodContainer.style.display = 'block';
+          console.log(`Restored main food container after customization`);
+        }
+        
+        // Restore model viewer state based on current item
+        if (currentItem && currentItem.modelSrc && mainModelContainer && mainModelViewer) {
           // Current item has a 3D model, show the model container
           mainModelContainer.style.display = 'block';
+          mainModelViewer.style.display = 'block';
           console.log(`Restored main model viewer for 3D item: ${currentItem.name}`);
-        } else if (mainModelContainer) {
+        } else if (mainModelContainer && mainModelViewer) {
           // Current item has no 3D model, keep model container hidden
           mainModelContainer.style.display = 'none';
+          mainModelViewer.style.display = 'none';
           console.log(`Keeping main model viewer hidden for non-3D item: ${currentItem ? currentItem.name : 'unknown'}`);
         }
         
