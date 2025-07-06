@@ -319,7 +319,20 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       background-color: rgba(26, 58, 47, 0.1);
       --poster-color: transparent;
-      transition: opacity 0.3s ease;
+      transition: all 0.2s ease-in-out; /* Faster, smoother transitions */
+      transform: scale(1);
+    }
+    
+    /* Smooth loading state */
+    model-viewer.loading {
+      opacity: 0.7;
+      transform: scale(0.98);
+    }
+    
+    /* Instant loaded state */
+    model-viewer.loaded {
+      opacity: 1;
+      transform: scale(1);
     }
     
     .model-loading-indicator {
@@ -6773,7 +6786,7 @@
         nameAr: "ساندويش فاهيتا لحم",
         modelSrc: "models/beefFahita",
         description: "Grilled beef with peppers, onions, and fajita spices.",
-        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الف��هيتا.",
+        descriptionAr: "لحم مشوي مع الفلفل والبصل وتوابل الفاهيتا.",
         price: 7.0,
         category: "sandwiches",
         mainCategory: "food"
@@ -10582,29 +10595,53 @@
       preloadContainer.style.overflow = 'hidden';
       document.body.appendChild(preloadContainer);
       
-      // Preload only available models
-      availableModels.forEach(modelName => {
+      // AGGRESSIVE PRELOADING for smooth UX - preload ALL models immediately
+      console.log(`🚀 AGGRESSIVE PRELOAD: Starting to cache ${availableModels.length} models for instant access`);
+      
+      availableModels.forEach((modelName, index) => {
         const modelPath = `/models/${modelName}`;
-        console.log(`Preloading model: ${modelPath}`);
         
+        // Create invisible preloader with aggressive caching
         const preloader = document.createElement('model-viewer');
         preloader.setAttribute('src', modelPath.replace(/ /g, '%20'));
         preloader.setAttribute('preload', '');
+        preloader.setAttribute('loading', 'eager'); // Force immediate loading
+        preloader.style.display = 'none'; // Completely hidden
+        preloader.style.position = 'absolute';
+        preloader.style.top = '-9999px';
         
-        // Simpler event handling
+        // Immediate success caching
         preloader.addEventListener('load', () => {
-          console.log(`Model ${modelPath} preloaded successfully`);
-          // Store in simple lookup for quick reference
           modelCache[modelPath] = true;
+          console.log(`⚡ CACHED ${index + 1}/${availableModels.length}: ${modelName}`);
+          
+          // Remove preloader after successful cache to free memory
+          setTimeout(() => {
+            if (preloader.parentNode) {
+              preloader.parentNode.removeChild(preloader);
+            }
+          }, 1000);
         });
         
-        // Basic error handling
+        // Quick error handling
         preloader.addEventListener('error', (e) => {
-          console.error(`Error preloading model ${modelPath}:`, e);
+          console.warn(`⚠️ Cache failed for ${modelName}`);
+          modelCache[modelPath] = false; // Mark as failed but still cache result
         });
         
         preloadContainer.appendChild(preloader);
+        
+        // Stagger loading slightly to avoid browser overload
+        setTimeout(() => {
+          preloader.setAttribute('preload', 'interaction');
+        }, index * 50); // 50ms stagger between each model
       });
+      
+      // Monitor overall caching progress
+      setTimeout(() => {
+        const cachedCount = Object.values(modelCache).filter(Boolean).length;
+        console.log(`🎯 CACHE STATUS: ${cachedCount}/${availableModels.length} models cached for instant access`);
+      }, 5000);
     }
     
     // Main category selection
@@ -10786,34 +10823,55 @@
       
       // Check if this item has a model assigned during preloading
       if (item.modelSrc) {
-        // Show the model container
+        // Show the model container immediately
         modelContainer.style.display = 'block';
-        modelLoadingIndicator.style.display = 'flex';
-        
-        console.log(`Loading model for ${item.name}: ${item.modelSrc}`);
         
         // Set the model source with proper URL encoding for spaces
         const encodedSrc = item.modelSrc.replace(/ /g, '%20');
-        console.log(`Encoded model src: ${encodedSrc}`);
-        modelViewer.src = encodedSrc;
+        console.log(`🚀 INSTANT Loading model for ${item.name}: ${encodedSrc}`);
         
-        // Add basic event handlers
-        modelViewer.addEventListener('load', () => {
-          console.log(`✅ Model loaded successfully: ${item.name}`);
+        // Check if model is already preloaded in cache
+        const cacheKey = item.modelSrc;
+        if (modelCache[cacheKey]) {
+          // Model is preloaded! Set immediately for instant display
+          modelViewer.classList.remove('loading');
+          modelViewer.classList.add('loaded');
+          modelViewer.src = encodedSrc;
           modelLoadingIndicator.style.display = 'none';
-        });
+          console.log(`⚡ INSTANT: Using cached model for ${item.name}`);
+        } else {
+          // Add smooth loading transition
+          modelViewer.classList.add('loading');
+          modelViewer.classList.remove('loaded');
+          modelLoadingIndicator.style.display = 'flex';
+          modelViewer.src = encodedSrc;
+          
+          // Quick timeout with smooth transition - users want instant feedback
+          setTimeout(() => {
+            modelViewer.classList.remove('loading');
+            modelViewer.classList.add('loaded');
+            modelLoadingIndicator.style.display = 'none';
+            console.log(`⚡ SMOOTH: Quick model display for ${item.name}`);
+          }, 600); // Even shorter for better UX
+        }
         
-        modelViewer.addEventListener('error', (e) => {
-          console.error(`❌ Error loading model for ${item.name}:`, item.modelSrc, encodedSrc, e);
-          modelLoadingIndicator.style.display = 'none';
-          // Hide the model container if there's an error
-          modelContainer.style.display = 'none';
-        });
-        
-        // Failsafe: Hide loading indicator after 3 seconds
-        setTimeout(() => {
-          modelLoadingIndicator.style.display = 'none';
-        }, 3000);
+        // Optimized event handlers (only set once)
+        if (!modelViewer.hasEventListener) {
+          modelViewer.addEventListener('load', () => {
+            console.log(`✅ Model loaded: ${item.name}`);
+            modelLoadingIndicator.style.display = 'none';
+            // Cache this model for future instant access
+            modelCache[cacheKey] = true;
+          });
+          
+          modelViewer.addEventListener('error', (e) => {
+            console.error(`❌ Model error for ${item.name}:`, e);
+            modelLoadingIndicator.style.display = 'none';
+            modelContainer.style.display = 'none';
+          });
+          
+          modelViewer.hasEventListener = true;
+        }
       } else {
         // No matching model found, hide the model container and clear model
         console.log(`No model available for ${item.name}, hiding 3D viewer`);
