@@ -10910,6 +10910,27 @@
       currentCustomizeItem = item;
       itemQuantity = 1;
       
+      // CRITICAL FIX: Hide main model viewer for non-3D items to prevent showing last loaded model
+      const mainModelContainer = document.querySelector('.model-container');
+      const mainModelViewer = document.getElementById('food-model-viewer');
+      
+      if (!item.modelSrc) {
+        // This item has no 3D model, hide the main model viewer completely
+        if (mainModelContainer) {
+          mainModelContainer.style.display = 'none';
+        }
+        if (mainModelViewer) {
+          mainModelViewer.src = ''; // Clear any previous model
+        }
+        console.log(`Hiding main model viewer for non-3D item: ${item.name}`);
+      } else {
+        // This item has a 3D model, ensure it's visible
+        if (mainModelContainer) {
+          mainModelContainer.style.display = 'block';
+        }
+        console.log(`Keeping main model viewer visible for 3D item: ${item.name}`);
+      }
+      
       // Update modal content
       document.getElementById('customize-item-name').textContent = item.name;
       
@@ -11023,6 +11044,20 @@
       setTimeout(() => {
         customizeModal.style.display = 'none';
         customizeModal.style.opacity = '1';
+        
+        // CRITICAL FIX: Restore main model viewer state when closing customization modal
+        const currentItem = filteredFoodItems[currentFoodIndex];
+        const mainModelContainer = document.querySelector('.model-container');
+        
+        if (currentItem && currentItem.modelSrc && mainModelContainer) {
+          // Current item has a 3D model, show the model container
+          mainModelContainer.style.display = 'block';
+          console.log(`Restored main model viewer for 3D item: ${currentItem.name}`);
+        } else if (mainModelContainer) {
+          // Current item has no 3D model, keep model container hidden
+          mainModelContainer.style.display = 'none';
+          console.log(`Keeping main model viewer hidden for non-3D item: ${currentItem ? currentItem.name : 'unknown'}`);
+        }
         
         // Reset state
         currentCustomizeItem = null;
