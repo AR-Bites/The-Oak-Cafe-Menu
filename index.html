@@ -11899,11 +11899,12 @@
     
     // Function to go back to table mode options
     function goBackToTableOptions() {
-      // Hide table input section
-      const tableInputSection = document.getElementById('table-input-section');
-      const tableOptions = document.getElementById('table-mode-options');
-      const goBackBtn = document.getElementById('go-back-table-btn');
+      console.log('Going back to table options...');
+      
+      // Get the correct elements
+      const optionButtons = document.querySelector('.user-option-buttons');
       const tableNumberInputContainer = document.querySelector('.table-input-container');
+      const goBackBtn = document.getElementById('go-back-table-btn');
       
       // Remove any guest icon
       const guestIcon = document.querySelector('.guest-icon-standalone');
@@ -11911,7 +11912,7 @@
         guestIcon.remove();
       }
       
-      // Reset modal title to original
+      // Reset modal title to table type selection
       const tableTitle = document.getElementById('table-number-title');
       const tableSubtitle = document.getElementById('table-number-subtitle');
       tableTitle.textContent = currentLanguage === 'ar' ? 'اختر نوع الطاولة' : 'CHOOSE TABLE TYPE';
@@ -11919,7 +11920,9 @@
       
       // Clear input value
       const tableNumberInput = document.getElementById('table-number-input');
-      tableNumberInput.value = '';
+      if (tableNumberInput) {
+        tableNumberInput.value = '';
+      }
       
       // Clear availability indicator
       const availabilityIndicator = document.getElementById('table-availability-indicator');
@@ -11928,18 +11931,43 @@
         availabilityIndicator.className = 'table-availability-indicator';
       }
       
-      // Hide input section and go back button
-      tableInputSection.style.display = 'none';
+      // Hide table input container and go back button
       if (tableNumberInputContainer) {
         tableNumberInputContainer.style.display = 'none';
       }
       goBackBtn.style.display = 'none';
       
-      // Show table mode options
-      tableOptions.style.display = 'block';
+      // Restore the table type selection options
+      if (optionButtons) {
+        // First check if options need to be recreated
+        if (!optionButtons.querySelector('.guest-table-option')) {
+          optionButtons.innerHTML = `
+            <div class="guest-table-option new-table-option" onclick="selectNewTable()">
+              <div class="option-icon">
+                <i class="fas fa-plus-circle"></i>
+              </div>
+              <span class="option-text">${currentLanguage === 'ar' ? 'طاولة جديدة' : 'New Table'}</span>
+              <div class="option-description">${currentLanguage === 'ar' ? 'وصلت للتو وتحتاج لطاولة جديدة' : 'Just arrived and need a new table'}</div>
+            </div>
+            <div class="guest-table-option existing-table-option" onclick="selectExistingTable()">
+              <div class="option-icon">
+                <i class="fas fa-table"></i>
+              </div>
+              <span class="option-text">${currentLanguage === 'ar' ? 'طاولة موجودة' : 'Existing Table'}</span>
+              <div class="option-description">${currentLanguage === 'ar' ? 'لديك طاولة بالفعل وتريد إضافة طلبات' : 'Already have a table and want to add orders'}</div>
+            </div>
+          `;
+        }
+        
+        // Show the options
+        optionButtons.style.display = 'flex';
+        optionButtons.style.opacity = '1';
+      }
       
       // Reset guest table mode
       guestTableMode = 'new';
+      
+      console.log('Successfully restored table type selection options');
     }
 
     function selectNewTable() {
