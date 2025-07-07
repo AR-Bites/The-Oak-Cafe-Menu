@@ -1,159 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html itemscope itemtype="https://schema.org/Blog" lang="tr" class>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>AR Bites - Interactive 3D Menu Experience</title>
+    <meta name="description" content="AR Bites Interactive 3D Menu Experience">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="index,follow">
     
     <!-- Google Model Viewer for 3D models -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     
     <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS (from reference site) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        :root {
-            --primary-color: #1a3a2f;
-            --secondary-color: #2d5a4a;
-            --accent-color: #d4af37;
-            --gold: #d4af37;
-            --bg-light: #f8f9fa;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --white: #ffffff;
-            --shadow: 0 4px 20px rgba(0,0,0,0.1);
-            --border-radius: 12px;
+        /* Reset and Base Styles from Reference Site */
+        html, body, div, span, p, a, img, i, ul, li, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            text-decoration: none;
         }
         
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            outline: none;
+        }
+        
+        a:hover {
+            text-decoration: none !important;
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
-            color: var(--text-dark);
-            background-color: var(--bg-light);
-            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.5;
+            background: #f8f9fa;
+            color: #333;
         }
         
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        /* Preloader (like reference site) */
+        .preloader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            z-index: 99999999999;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preloader-logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #C39770;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Header similar to reference */
+        .main-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
-            padding: 2rem 0;
+            padding: 3rem 0;
             text-align: center;
             position: relative;
-            overflow: hidden;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="grad" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:white;stop-opacity:0.1"/><stop offset="100%" style="stop-color:white;stop-opacity:0"/></radialGradient></defs><rect width="100" height="20" fill="url(%23grad)"/></svg>');
         }
         
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:white;stop-opacity:0.1"/><stop offset="100%" style="stop-color:white;stop-opacity:0"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>') repeat;
-            opacity: 0.3;
+        .header-content {
+            position: relative;
+            z-index: 2;
         }
         
-        .logo {
-            font-size: 3rem;
+        .site-title {
+            font-size: 3.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 2;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
-        .tagline {
+        .site-subtitle {
             font-size: 1.2rem;
-            font-weight: 300;
             opacity: 0.9;
-            position: relative;
-            z-index: 2;
+            font-weight: 300;
         }
         
-        .language-toggle {
+        /* Language Toggle */
+        .language-selector {
             position: absolute;
             top: 2rem;
             right: 2rem;
-            z-index: 3;
+            z-index: 10;
         }
         
-        .lang-btn {
+        .lang-button {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
             padding: 0.5rem 1rem;
-            border-radius: 25px;
+            margin: 0 0.25rem;
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: 500;
             transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
         
-        .lang-btn:hover, .lang-btn.active {
-            background: var(--accent-color);
-            border-color: var(--accent-color);
+        .lang-button:hover, .lang-button.active {
+            background: #C39770;
+            border-color: #C39770;
         }
         
-        /* Navigation */
-        .nav-container {
-            background: white;
-            padding: 1.5rem 0;
-            box-shadow: var(--shadow);
+        /* Navigation Bar (Bootstrap-based like reference) */
+        .main-navigation {
+            background: #fff;
+            border-bottom: 3px solid #C39770;
+            padding: 1rem 0;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .nav {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
+        .nav-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 15px;
         }
         
-        .nav-item {
-            background: var(--bg-light);
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 500;
-            color: var(--text-dark);
-            text-decoration: none;
-            transition: all 0.3s ease;
+        .category-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .category-link {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: #f8f9fa;
+            color: #333;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+            border: 2px solid transparent;
         }
         
-        .nav-item:hover, .nav-item.active {
-            background: var(--primary-color);
+        .category-link:hover, .category-link.active {
+            background: #C39770;
             color: white;
             transform: translateY(-2px);
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 15px rgba(195, 151, 112, 0.3);
+            text-decoration: none;
         }
         
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
+        .category-icon {
+            font-size: 1.1rem;
         }
         
-        /* Category Section */
+        /* Content Area (Bootstrap Grid) */
+        .content-wrapper {
+            padding: 2rem 0;
+        }
+        
         .category-section {
-            padding: 4rem 0;
+            margin-bottom: 4rem;
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.6s ease;
@@ -164,58 +191,52 @@
             transform: translateY(0);
         }
         
-        .category-title {
+        .section-header {
             text-align: center;
             margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #C39770;
         }
         
-        .category-title h2 {
+        .section-title {
             font-size: 2.5rem;
             font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
         }
         
-        .category-title p {
+        .section-description {
+            color: #666;
             font-size: 1.1rem;
-            color: var(--text-light);
-            max-width: 600px;
-            margin: 0 auto;
         }
         
-        /* Menu Grid */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        /* Menu Item Card */
-        .menu-item {
+        /* Menu Items (Bootstrap Cards) */
+        .menu-item-card {
             background: white;
-            border-radius: var(--border-radius);
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             overflow: hidden;
-            box-shadow: var(--shadow);
             transition: all 0.3s ease;
+            margin-bottom: 2rem;
             opacity: 0;
             transform: translateY(20px);
         }
         
-        .menu-item.visible {
+        .menu-item-card.visible {
             opacity: 1;
             transform: translateY(0);
         }
         
-        .menu-item:hover {
-            transform: translateY(-5px);
+        .menu-item-card:hover {
+            transform: translateY(-8px);
             box-shadow: 0 8px 30px rgba(0,0,0,0.15);
         }
         
-        .model-container {
-            height: 250px;
+        .model-display {
+            height: 280px;
             position: relative;
-            background: linear-gradient(135deg, var(--bg-light) 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             overflow: hidden;
         }
         
@@ -226,52 +247,52 @@
             outline: none;
         }
         
-        .model-fallback {
+        .model-placeholder {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #C39770;
             font-size: 3rem;
-            color: var(--accent-color);
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         }
         
-        .item-content {
+        .card-body {
             padding: 1.5rem;
         }
         
         .item-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
         
-        .item-name {
-            font-size: 1.3rem;
+        .item-title {
+            font-size: 1.4rem;
             font-weight: 600;
-            color: var(--primary-color);
-            flex-grow: 1;
+            color: #2c3e50;
+            margin: 0;
         }
         
         .item-price {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: var(--accent-color);
-            margin-left: 1rem;
+            color: #C39770;
+            white-space: nowrap;
         }
         
         .item-description {
-            color: var(--text-light);
-            line-height: 1.5;
+            color: #666;
+            line-height: 1.6;
             margin-bottom: 1rem;
         }
         
-        .item-badge {
+        .model-badge {
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
-            background: var(--accent-color);
+            background: #C39770;
             color: white;
             padding: 0.3rem 0.8rem;
             border-radius: 15px;
@@ -279,16 +300,16 @@
             font-weight: 500;
         }
         
-        /* Loading states */
-        .loading-spinner {
+        /* Loading Animation */
+        .loading-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--bg-light);
-            border-top: 3px solid var(--accent-color);
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #C39770;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -298,49 +319,39 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
-        /* Responsive Design */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .logo {
-                font-size: 2rem;
+            .site-title {
+                font-size: 2.5rem;
             }
             
-            .tagline {
-                font-size: 1rem;
-            }
-            
-            .language-toggle {
+            .language-selector {
                 position: static;
+                text-align: center;
                 margin-top: 1rem;
             }
             
-            .nav {
-                gap: 1rem;
+            .category-nav {
                 justify-content: flex-start;
                 overflow-x: auto;
                 padding-bottom: 0.5rem;
             }
             
-            .nav-item {
-                padding: 0.8rem 1.5rem;
+            .category-link {
                 white-space: nowrap;
                 flex-shrink: 0;
             }
             
-            .menu-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            
-            .category-title h2 {
+            .section-title {
                 font-size: 2rem;
             }
             
-            .container {
-                padding: 0 1rem;
+            .model-display {
+                height: 220px;
             }
         }
         
-        /* Arabic RTL Support */
+        /* RTL Support */
         .rtl {
             direction: rtl;
             text-align: right;
@@ -355,81 +366,98 @@
             margin-right: 1rem;
         }
         
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* Category Icons */
-        .category-icon {
-            font-size: 1.2rem;
-            margin-right: 0.5rem;
-        }
-        
         .rtl .category-icon {
             margin-right: 0;
             margin-left: 0.5rem;
         }
+        
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Hide preloader after page load */
+        body.loaded .preloader {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="language-toggle">
-            <button class="lang-btn active" onclick="switchLanguage('en')">EN</button>
-            <button class="lang-btn" onclick="switchLanguage('ar')">عربي</button>
+    <!-- Preloader (like reference site) -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">AR Bites</div>
+    </div>
+
+    <!-- Header (matching reference style) -->
+    <header class="main-header">
+        <div class="language-selector">
+            <button class="lang-button active" onclick="switchLanguage('en')">EN</button>
+            <button class="lang-button" onclick="switchLanguage('ar')">عربي</button>
         </div>
         <div class="container">
-            <h1 class="logo">AR Bites</h1>
-            <p class="tagline">Interactive 3D Dining Experience</p>
+            <div class="header-content">
+                <h1 class="site-title">AR Bites</h1>
+                <p class="site-subtitle">Interactive 3D Dining Experience</p>
+            </div>
         </div>
     </header>
 
-    <!-- Navigation -->
-    <nav class="nav-container">
-        <div class="nav">
-            <a href="#main-course" class="nav-item">
-                <i class="fas fa-utensils category-icon"></i>
-                <span data-en="Main Course" data-ar="الطبق الرئيسي">Main Course</span>
-            </a>
-            <a href="#appetizers" class="nav-item">
-                <i class="fas fa-cheese category-icon"></i>
-                <span data-en="Appetizers" data-ar="المقبلات">Appetizers</span>
-            </a>
-            <a href="#pizza-pasta" class="nav-item">
-                <i class="fas fa-pizza-slice category-icon"></i>
-                <span data-en="Pizza & Pasta" data-ar="البيتزا والمعكرونة">Pizza & Pasta</span>
-            </a>
-            <a href="#sandwiches" class="nav-item">
-                <i class="fas fa-hamburger category-icon"></i>
-                <span data-en="Sandwiches" data-ar="الساندويتشات">Sandwiches</span>
-            </a>
-            <a href="#salads" class="nav-item">
-                <i class="fas fa-leaf category-icon"></i>
-                <span data-en="Salads" data-ar="السلطات">Salads</span>
-            </a>
-            <a href="#soups" class="nav-item">
-                <i class="fas fa-bowl-hot category-icon"></i>
-                <span data-en="Soups" data-ar="الشوربات">Soups</span>
-            </a>
-            <a href="#beverages" class="nav-item">
-                <i class="fas fa-glass-water category-icon"></i>
-                <span data-en="Beverages" data-ar="المشروبات">Beverages</span>
-            </a>
-            <a href="#desserts" class="nav-item">
-                <i class="fas fa-ice-cream category-icon"></i>
-                <span data-en="Desserts" data-ar="الحلويات">Desserts</span>
-            </a>
+    <!-- Navigation (Bootstrap-based like reference) -->
+    <nav class="main-navigation">
+        <div class="nav-container">
+            <div class="category-nav">
+                <a href="#main-course" class="category-link">
+                    <i class="fas fa-utensils category-icon"></i>
+                    <span data-en="Main Course" data-ar="الطبق الرئيسي">Main Course</span>
+                </a>
+                <a href="#appetizers" class="category-link">
+                    <i class="fas fa-cheese category-icon"></i>
+                    <span data-en="Appetizers" data-ar="المقبلات">Appetizers</span>
+                </a>
+                <a href="#pizza-pasta" class="category-link">
+                    <i class="fas fa-pizza-slice category-icon"></i>
+                    <span data-en="Pizza & Pasta" data-ar="البيتزا والمعكرونة">Pizza & Pasta</span>
+                </a>
+                <a href="#sandwiches" class="category-link">
+                    <i class="fas fa-hamburger category-icon"></i>
+                    <span data-en="Sandwiches" data-ar="الساندويتشات">Sandwiches</span>
+                </a>
+                <a href="#salads" class="category-link">
+                    <i class="fas fa-leaf category-icon"></i>
+                    <span data-en="Salads" data-ar="السلطات">Salads</span>
+                </a>
+                <a href="#soups" class="category-link">
+                    <i class="fas fa-bowl-hot category-icon"></i>
+                    <span data-en="Soups" data-ar="الشوربات">Soups</span>
+                </a>
+                <a href="#beverages" class="category-link">
+                    <i class="fas fa-glass-water category-icon"></i>
+                    <span data-en="Beverages" data-ar="المشروبات">Beverages</span>
+                </a>
+                <a href="#desserts" class="category-link">
+                    <i class="fas fa-ice-cream category-icon"></i>
+                    <span data-en="Desserts" data-ar="الحلويات">Desserts</span>
+                </a>
+            </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main id="main-content">
-        <!-- Categories will be dynamically loaded here -->
-    </main>
+    <!-- Main Content (Bootstrap Container) -->
+    <div class="content-wrapper">
+        <div class="container">
+            <div id="menu-content">
+                <!-- Dynamic menu content will be loaded here -->
+            </div>
+        </div>
+    </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        // Menu data with all items and 3D models
+        // Menu data organized like reference site structure
         const menuData = {
             'main-course': {
                 title: { en: 'Main Course', ar: 'الطبق الرئيسي' },
@@ -446,21 +474,21 @@
                         name: { en: 'Premium Steak', ar: 'ستيك فاخر' },
                         description: { en: 'Juicy beef steak cooked to perfection', ar: 'ستيك لحم بقري شهي مطبوخ للكمال' },
                         price: 14.75,
-                        model: 'Steak',
+                        model: 'Steak.glb',
                         icon: 'utensils'
                     },
                     {
                         name: { en: 'Seafood Bowl', ar: 'طبق المأكولات البحرية' },
                         description: { en: 'Fresh mixed seafood with vegetables', ar: 'مأكولات بحرية مختلطة طازجة مع الخضار' },
                         price: 12.50,
-                        model: 'seaFoodBowl_',
+                        model: 'seaFoodBowl_.glb',
                         icon: 'fish'
                     },
                     {
                         name: { en: 'Food Platter', ar: 'طبق مشكل' },
                         description: { en: 'Mixed grill platter with sides', ar: 'طبق مشويات مختلطة مع الأطباق الجانبية' },
                         price: 11.25,
-                        model: 'foodPlatter_',
+                        model: 'foodPlatter_.glb',
                         icon: 'utensils'
                     }
                 ]
@@ -473,35 +501,35 @@
                         name: { en: 'Dynamite Shrimp', ar: 'جمبري دايناميت' },
                         description: { en: 'Crispy shrimp with spicy sauce', ar: 'جمبري مقرمش بالصوص الحار' },
                         price: 7.50,
-                        model: 'dynamiteShrimp',
+                        model: 'dynamiteShrimp.glb',
                         icon: 'shrimp'
                     },
                     {
                         name: { en: 'Mozzarella Sticks', ar: 'أصابع الموزاريلا' },
                         description: { en: 'Golden fried mozzarella sticks', ar: 'أصابع موزاريلا مقلية ذهبية' },
                         price: 5.75,
-                        model: 'mozzerellaSticks_',
+                        model: 'mozzerellaSticks_.glb',
                         icon: 'cheese'
                     },
                     {
                         name: { en: 'Onion Rings', ar: 'حلقات البصل' },
                         description: { en: 'Crispy beer-battered onion rings', ar: 'حلقات بصل مقرمشة بالعجينة' },
                         price: 4.50,
-                        model: 'onionRings_',
+                        model: 'onionRings_.glb',
                         icon: 'ring'
                     },
                     {
                         name: { en: 'Halloumi Cheese', ar: 'جبنة حلوم' },
                         description: { en: 'Grilled halloumi with herbs', ar: 'جبنة حلوم مشوية بالأعشاب' },
                         price: 6.25,
-                        model: 'hallomi',
+                        model: 'hallomi.glb',
                         icon: 'cheese'
                     },
                     {
                         name: { en: 'Yalanji', ar: 'يلنجي' },
                         description: { en: 'Stuffed grape leaves with rice', ar: 'ورق عنب محشي بالأرز' },
                         price: 5.50,
-                        model: 'yalanji',
+                        model: 'yalanji.glb',
                         icon: 'leaf'
                     }
                 ]
@@ -535,7 +563,7 @@
                         name: { en: 'Calzone', ar: 'كالزوني' },
                         description: { en: 'Folded pizza with mixed fillings', ar: 'بيتزا مطوية بحشوات مختلطة' },
                         price: 9.75,
-                        model: 'Calezone.glb',
+                        model: 'celezone.glb',
                         icon: 'pizza-slice'
                     },
                     {
@@ -565,13 +593,6 @@
                         price: 11.50,
                         model: 'Sea Food Pasta.glb',
                         icon: 'fish'
-                    },
-                    {
-                        name: { en: 'Penne Arrabbiata', ar: 'بيني أرابياتا' },
-                        description: { en: 'Spicy tomato pasta with herbs', ar: 'معكرونة طماطم حارة بالأعشاب' },
-                        price: 7.25,
-                        model: 'pennaArabita_',
-                        icon: 'fire'
                     }
                 ]
             },
@@ -583,71 +604,29 @@
                         name: { en: 'Chicken Shawarma', ar: 'شاورما الدجاج' },
                         description: { en: 'Traditional chicken shawarma wrap', ar: 'لفافة شاورما الدجاج التقليدية' },
                         price: 5.50,
-                        model: 'chickenShawerma',
-                        icon: 'wrap'
+                        model: 'chickenShawerma.glb',
+                        icon: 'utensils'
                     },
                     {
                         name: { en: 'Beef Burger', ar: 'برجر اللحم' },
                         description: { en: 'Juicy beef burger with fries', ar: 'برجر لحم شهي مع البطاطس المقلية' },
                         price: 7.25,
-                        model: 'beefBurger',
+                        model: 'beefBurger.glb',
                         icon: 'hamburger'
                     },
                     {
                         name: { en: 'Crispy Chicken Burger', ar: 'برجر الدجاج المقرمش' },
                         description: { en: 'Crispy fried chicken burger', ar: 'برجر دجاج مقلي مقرمش' },
                         price: 6.75,
-                        model: 'crispyChickenBurger',
+                        model: 'crispyChickenBurger.glb',
                         icon: 'hamburger'
-                    },
-                    {
-                        name: { en: 'Chicken Zinger Sandwich', ar: 'ساندويتش الدجاج الزنجر' },
-                        description: { en: 'Spicy chicken zinger sandwich', ar: 'ساندويتش دجاج زنجر حار' },
-                        price: 6.25,
-                        model: 'chickenZingerSandwich',
-                        icon: 'fire'
-                    },
-                    {
-                        name: { en: 'Cheese Steak Sandwich', ar: 'ساندويتش ستيك الجبن' },
-                        description: { en: 'Grilled steak with melted cheese', ar: 'ستيك مشوي بالجبن المذاب' },
-                        price: 8.50,
-                        model: 'cheeseSteakSandwich',
-                        icon: 'cheese'
-                    },
-                    {
-                        name: { en: 'Halloumi Sandwich', ar: 'ساندويتش الحلوم' },
-                        description: { en: 'Grilled halloumi with vegetables', ar: 'حلوم مشوي مع الخضار' },
-                        price: 5.75,
-                        model: 'halloumiSandwich_',
-                        icon: 'cheese'
                     },
                     {
                         name: { en: 'Chicken Fajita', ar: 'فاهيتا الدجاج' },
                         description: { en: 'Mexican-style chicken fajita', ar: 'فاهيتا دجاج على الطريقة المكسيكية' },
                         price: 7.00,
-                        model: 'chickenFajita',
+                        model: 'chickenFajita.glb',
                         icon: 'pepper-hot'
-                    },
-                    {
-                        name: { en: 'Beef Fajita', ar: 'فاهيتا اللحم' },
-                        description: { en: 'Spicy beef fajita with peppers', ar: 'فاهيتا لحم حارة مع الفلفل' },
-                        price: 8.00,
-                        model: 'beefFahita',
-                        icon: 'pepper-hot'
-                    },
-                    {
-                        name: { en: 'Chicken Quesadilla', ar: 'كيساديلا الدجاج' },
-                        description: { en: 'Grilled tortilla with chicken and cheese', ar: 'تورتيلا مشوية بالدجاج والجبن' },
-                        price: 6.50,
-                        model: 'chickenQuesadilla',
-                        icon: 'cheese'
-                    },
-                    {
-                        name: { en: 'Chicken Tenders', ar: 'قطع الدجاج المقرمشة' },
-                        description: { en: 'Crispy chicken strips with sauce', ar: 'قطع دجاج مقرمشة مع الصوص' },
-                        price: 6.75,
-                        model: 'chickenTender',
-                        icon: 'drumstick-bite'
                     }
                 ]
             },
@@ -659,36 +638,15 @@
                         name: { en: 'Chicken Dynamite Salad', ar: 'سلطة الدجاج الدايناميت' },
                         description: { en: 'Mixed greens with spicy chicken', ar: 'خضار ورقية مختلطة مع الدجاج الحار' },
                         price: 7.25,
-                        model: 'chickenDynamiteSalad',
+                        model: 'chickenDynamiteSalad.glb',
                         icon: 'leaf'
                     },
                     {
                         name: { en: 'Halloumi Salad', ar: 'سلطة الحلوم' },
                         description: { en: 'Fresh salad with grilled halloumi', ar: 'سلطة طازجة مع حلوم مشوي' },
                         price: 6.50,
-                        model: 'hallomiSalad',
+                        model: 'hallomiSalad.glb',
                         icon: 'cheese'
-                    },
-                    {
-                        name: { en: 'Smoked Salmon Salad', ar: 'سلطة السلمون المدخن' },
-                        description: { en: 'Premium salad with smoked salmon', ar: 'سلطة فاخرة مع السلمون المدخن' },
-                        price: 9.75,
-                        model: 'smokedSalmonSalad',
-                        icon: 'fish'
-                    },
-                    {
-                        name: { en: 'Taco Salad', ar: 'سلطة التاكو' },
-                        description: { en: 'Mexican-style taco salad bowl', ar: 'سلطة تاكو على الطريقة المكسيكية' },
-                        price: 7.75,
-                        model: 'tacoSalad',
-                        icon: 'pepper-hot'
-                    },
-                    {
-                        name: { en: 'Waffle Salad', ar: 'سلطة الوافل' },
-                        description: { en: 'Unique salad with waffle pieces', ar: 'سلطة فريدة مع قطع الوافل' },
-                        price: 6.25,
-                        model: 'waffleSalad',
-                        icon: 'utensils'
                     }
                 ]
             },
@@ -709,13 +667,6 @@
                         price: 6.50,
                         model: null,
                         icon: 'fish'
-                    },
-                    {
-                        name: { en: 'Corn Soup', ar: 'شوربة الذرة' },
-                        description: { en: 'Sweet corn soup with cream', ar: 'شوربة ذرة حلوة بالكريمة' },
-                        price: 3.75,
-                        model: null,
-                        icon: 'seedling'
                     }
                 ]
             },
@@ -731,25 +682,11 @@
                         icon: 'coffee'
                     },
                     {
-                        name: { en: 'Cappuccino', ar: 'كابتشينو' },
-                        description: { en: 'Rich espresso with steamed milk', ar: 'إسبريسو غني مع الحليب المبخر' },
-                        price: 3.25,
-                        model: null,
-                        icon: 'coffee'
-                    },
-                    {
                         name: { en: 'Fresh Orange Juice', ar: 'عصير برتقال طازج' },
                         description: { en: 'Freshly squeezed orange juice', ar: 'عصير برتقال طازج معصور' },
                         price: 3.75,
                         model: null,
                         icon: 'glass-water'
-                    },
-                    {
-                        name: { en: 'Lemonade', ar: 'عصير ليمون' },
-                        description: { en: 'Fresh lemonade with mint', ar: 'عصير ليمون طازج بالنعناع' },
-                        price: 2.75,
-                        model: null,
-                        icon: 'lemon'
                     }
                 ]
             },
@@ -770,74 +707,59 @@
                         price: 5.25,
                         model: null,
                         icon: 'ice-cream'
-                    },
-                    {
-                        name: { en: 'Vanilla Ice Cream', ar: 'آيس كريم الفانيليا' },
-                        description: { en: 'Premium vanilla ice cream', ar: 'آيس كريم فانيليا فاخر' },
-                        price: 3.75,
-                        model: null,
-                        icon: 'ice-cream'
-                    },
-                    {
-                        name: { en: 'Baklava', ar: 'بقلاوة' },
-                        description: { en: 'Traditional Middle Eastern pastry', ar: 'حلوى شرق أوسطية تقليدية' },
-                        price: 4.25,
-                        model: null,
-                        icon: 'cookie'
                     }
                 ]
             }
         };
 
-        // Available 3D models
+        // Available 3D models (verified from actual directory)
         const availableModels = [
-            'beefBurger', 'beefFahita', 'Calezone.glb', 'cheeseSteakSandwich',
-            'chickenDynamiteSalad', 'chickenFajita', 'chickenQuesadilla', 'chickenShawerma',
-            'chickenTender', 'chickenZingerSandwich', 'crispyChickenBurger', 'dynamiteShrimp',
-            'Fettuccine Alfredo.glb', 'foodPlatter_', 'grilledChicken.glb', 'hallomi',
-            'hallomiSalad', 'halloumiSandwich_', 'hashBrown', 'macAndCheese',
-            'manageeshMixCheese.glb', 'manageeshFalafel.glb', 'manageeshMolassesAndTahini.glb',
-            'manageeshLabnehandRocca.glb', 'zaatarPomegranate.glb', 'manageeshNabelsiCheese.glb',
-            'Margherita Pizza.glb', 'mozzerellaSticks_', 'onionRings_', 'pennaArabita_',
-            'Pepperoni Pizza.glb', 'pestoChickenPizza.glb', 'Pesto Pasta.glb', 'Rose Pasta.glb',
-            'seaFoodBowl_', 'Sea Food Pasta.glb', 'smokedSalmonSalad', 'Steak',
-            'tacoSalad', 'waffleSalad', 'yalanji'
+            'beefBurger.glb', 'beefFahita.glb', 'celezone.glb', 'cheeseSteakSandwich.glb',
+            'chickenDynamiteSalad.glb', 'chickenFajita.glb', 'chickenQuesadilla.glb', 'chickenShawerma.glb',
+            'chickenTender.glb', 'chickenZingerSandwich.glb', 'crispyChickenBurger.glb', 'dynamiteShrimp.glb',
+            'Fettuccine Alfredo.glb', 'foodPlatter_.glb', 'grilledChicken.glb', 'hallomi.glb',
+            'hallomiSalad.glb', 'halloumiSandwich_.glb', 'hashBrown.glb', 'macAndCheese.glb',
+            'Margherita Pizza.glb', 'mozzerellaSticks_.glb', 'onionRings_.glb', 'pennaArabita_.glb',
+            'Pepperoni Pizza.glb', 'pestoChickenPizza.glb', 'Pesto Pasta.glb',
+            'Rose Pasta.glb', 'seaFoodBowl_.glb', 'Sea Food Pasta.glb', 'smokedSalmonSalad.glb',
+            'Steak.glb', 'tacoSalad.glb', 'waffleSalad.glb', 'yalanji.glb'
         ];
 
         let currentLanguage = 'en';
         const modelCache = new Set();
 
-        // Language switching
+        // Language switching function
         function switchLanguage(lang) {
             currentLanguage = lang;
             
             // Update language buttons
-            document.querySelectorAll('.lang-btn').forEach(btn => {
+            document.querySelectorAll('.lang-button').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
             
-            // Update body direction
+            // Update body direction for RTL
             document.body.classList.toggle('rtl', lang === 'ar');
             
-            // Re-render content
-            renderMenu();
-            updateNavigation();
+            // Re-render content and update navigation
+            renderMenuContent();
+            updateNavigationText();
         }
 
-        // Update navigation text
-        function updateNavigation() {
-            document.querySelectorAll('.nav-item span').forEach(span => {
+        // Update navigation text based on current language
+        function updateNavigationText() {
+            document.querySelectorAll('.category-link span').forEach(span => {
                 const text = span.getAttribute(`data-${currentLanguage}`);
                 if (text) span.textContent = text;
             });
         }
 
-        // Preload 3D models for better performance
+        // Preload 3D models for performance
         function preloadModels() {
-            const preloader = document.createElement('div');
-            preloader.style.display = 'none';
-            document.body.appendChild(preloader);
+            console.log('🔄 Preloading 3D models...');
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.display = 'none';
+            document.body.appendChild(hiddenContainer);
             
             availableModels.forEach(modelName => {
                 const viewer = document.createElement('model-viewer');
@@ -847,76 +769,89 @@
                     modelCache.add(modelName);
                     console.log(`✅ Cached: ${modelName}`);
                 });
-                preloader.appendChild(viewer);
+                hiddenContainer.appendChild(viewer);
             });
         }
 
-        // Create menu item HTML
-        function createMenuItem(item, index) {
-            const hasModel = item.model && availableModels.includes(item.model);
+        // Create menu item card (Bootstrap structure)
+        function createMenuItemCard(item, index) {
+            const hasModel = item.model && item.model.length > 0;
+            const modelSrc = hasModel ? `models/${item.model}` : null;
             
             return `
-                <div class="menu-item" style="animation-delay: ${index * 0.1}s">
-                    <div class="model-container">
-                        ${hasModel ? 
-                            `<model-viewer 
-                                src="models/${item.model}" 
-                                alt="${item.name[currentLanguage]}"
-                                auto-rotate 
-                                camera-controls 
-                                loading="lazy"
-                                ar
-                                ar-modes="webxr scene-viewer quick-look">
-                                <div class="loading-spinner"></div>
-                            </model-viewer>` :
-                            `<div class="model-fallback">
-                                <i class="fas fa-${item.icon}"></i>
-                            </div>`
-                        }
-                    </div>
-                    <div class="item-content">
-                        <div class="item-header">
-                            <h3 class="item-name">${item.name[currentLanguage]}</h3>
-                            <span class="item-price">${item.price.toFixed(2)} JOD</span>
+                <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                    <div class="menu-item-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="model-display">
+                            ${hasModel ? 
+                                `<model-viewer 
+                                    src="${modelSrc}" 
+                                    alt="${item.name[currentLanguage]}"
+                                    auto-rotate 
+                                    camera-controls 
+                                    loading="lazy"
+                                    ar
+                                    ar-modes="webxr scene-viewer quick-look">
+                                    <div class="loading-overlay"></div>
+                                </model-viewer>` :
+                                `<div class="model-placeholder">
+                                    <i class="fas fa-${item.icon}"></i>
+                                </div>`
+                            }
                         </div>
-                        <p class="item-description">${item.description[currentLanguage]}</p>
-                        ${hasModel ? '<div class="item-badge"><i class="fas fa-cube"></i> 3D Model</div>' : ''}
+                        <div class="card-body">
+                            <div class="item-header">
+                                <h5 class="item-title">${item.name[currentLanguage]}</h5>
+                                <span class="item-price">${item.price.toFixed(2)} JOD</span>
+                            </div>
+                            <p class="item-description">${item.description[currentLanguage]}</p>
+                            ${hasModel ? '<div class="model-badge"><i class="fas fa-cube"></i> 3D Model</div>' : ''}
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        // Render complete menu
-        function renderMenu() {
-            const mainContent = document.getElementById('main-content');
-            mainContent.innerHTML = '';
+        // Render menu content with Bootstrap grid
+        function renderMenuContent() {
+            console.log('📋 Rendering menu content...');
+            const menuContainer = document.getElementById('menu-content');
+            
+            if (!menuContainer) {
+                console.error('❌ Menu container not found!');
+                return;
+            }
+            
+            menuContainer.innerHTML = '';
+            console.log('📊 Menu categories:', Object.keys(menuData));
             
             Object.entries(menuData).forEach(([categoryId, category]) => {
+                console.log(`🍽️ Rendering category: ${categoryId} with ${category.items.length} items`);
+                
                 const section = document.createElement('section');
                 section.id = categoryId;
                 section.className = 'category-section';
                 
                 section.innerHTML = `
-                    <div class="container">
-                        <div class="category-title">
-                            <h2>${category.title[currentLanguage]}</h2>
-                            <p>${category.description[currentLanguage]}</p>
-                        </div>
-                        <div class="menu-grid">
-                            ${category.items.map((item, index) => createMenuItem(item, index)).join('')}
-                        </div>
+                    <div class="section-header">
+                        <h2 class="section-title">${category.title[currentLanguage]}</h2>
+                        <p class="section-description">${category.description[currentLanguage]}</p>
+                    </div>
+                    <div class="row">
+                        ${category.items.map((item, index) => createMenuItemCard(item, index)).join('')}
                     </div>
                 `;
                 
-                mainContent.appendChild(section);
+                menuContainer.appendChild(section);
             });
             
-            // Trigger animations
-            setTimeout(observeElements, 100);
+            console.log('✅ Menu content rendered successfully');
+            
+            // Trigger animations after content loads
+            setTimeout(observeElementsAnimation, 100);
         }
 
-        // Intersection Observer for animations
-        function observeElements() {
+        // Intersection Observer for scroll animations
+        function observeElementsAnimation() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -928,55 +863,73 @@
                 rootMargin: '50px'
             });
 
-            document.querySelectorAll('.category-section, .menu-item').forEach(el => {
+            document.querySelectorAll('.category-section, .menu-item-card').forEach(el => {
                 observer.observe(el);
             });
         }
 
-        // Smooth navigation
-        function setupNavigation() {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', (e) => {
+        // Setup smooth navigation scrolling
+        function setupNavigationScrolling() {
+            document.querySelectorAll('.category-link').forEach(link => {
+                link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const targetId = item.getAttribute('href').substring(1);
+                    const targetId = link.getAttribute('href').substring(1);
                     const targetElement = document.getElementById(targetId);
                     
                     if (targetElement) {
-                        const offsetTop = targetElement.offsetTop - 100;
+                        const offsetTop = targetElement.offsetTop - 120;
                         window.scrollTo({
                             top: offsetTop,
                             behavior: 'smooth'
                         });
                     }
                     
-                    // Update active nav item
-                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                    item.classList.add('active');
+                    // Update active navigation item
+                    document.querySelectorAll('.category-link').forEach(nav => nav.classList.remove('active'));
+                    link.classList.add('active');
                 });
             });
         }
 
-        // Initialize app
-        function init() {
-            console.log('🚀 Initializing AR Bites App');
-            preloadModels();
-            renderMenu();
-            setupNavigation();
-            updateNavigation();
+        // Hide preloader after page load
+        function hidePreloader() {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 1500);
+        }
+
+        // Initialize the application
+        function initializeApp() {
+            console.log('🚀 Initializing AR Bites Application');
             
-            // Performance optimization: Lazy load models
+            // Hide preloader
+            hidePreloader();
+            
+            // Start model preloading
+            preloadModels();
+            
+            // Render initial content
+            renderMenuContent();
+            
+            // Setup navigation
+            setupNavigationScrolling();
+            updateNavigationText();
+            
+            // Setup model loading callbacks
             setTimeout(() => {
                 document.querySelectorAll('model-viewer').forEach(viewer => {
                     viewer.addEventListener('load', () => {
-                        const spinner = viewer.querySelector('.loading-spinner');
-                        if (spinner) spinner.style.display = 'none';
+                        const loadingOverlay = viewer.querySelector('.loading-overlay');
+                        if (loadingOverlay) loadingOverlay.style.display = 'none';
                     });
                 });
             }, 1000);
+            
+            console.log('✅ AR Bites App Ready');
         }
 
-        // Start the app when DOM is ready
-        document.addEventListener('DOMContentLoaded', init);
+        // Start the application when DOM is ready
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
