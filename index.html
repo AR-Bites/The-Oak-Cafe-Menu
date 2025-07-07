@@ -1,16 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oak Cafe - AR Dining Experience</title>
-    
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <!-- Firebase Analytics -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
-    <!-- Firebase Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <title>Oak Cafe - Menu</title>
     
     <!-- Import Google Model Viewer -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
@@ -19,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Import Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -28,83 +21,54 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --primary-green: #1a3a2f;
-            --light-green: #2d5a4a;
-            --accent-gold: #d4af37;
-            --soft-cream: #f8f6f3;
-            --warm-white: #ffffff;
-            --text-dark: #2c2c2c;
-            --text-light: #666666;
-            --border-light: #e8e8e8;
-            --shadow-soft: 0 2px 20px rgba(0,0,0,0.08);
-            --shadow-medium: 0 4px 25px rgba(0,0,0,0.12);
-            --border-radius: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--soft-cream) 0%, var(--warm-white) 100%);
-            color: var(--text-dark);
+            background-color: #f8f9fa;
+            color: #333;
             line-height: 1.6;
-            overflow-x: hidden;
         }
 
-        /* Header Section */
+        /* Header */
         .header {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
-            padding: 2rem 1rem;
+            background: linear-gradient(135deg, #2c5530 0%, #1a3a2f 100%);
+            color: white;
             text-align: center;
+            padding: 2rem 1rem;
             position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
-            pointer-events: none;
-        }
-
-        .logo-container {
-            position: relative;
-            z-index: 2;
         }
 
         .logo {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: var(--warm-white);
+            background: white;
             margin: 0 auto 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--shadow-medium);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
         }
 
         .logo i {
             font-size: 2rem;
-            color: var(--primary-green);
+            color: #2c5530;
         }
 
         .header h1 {
-            color: var(--warm-white);
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            font-family: 'Poppins', sans-serif;
         }
 
         .header p {
-            color: rgba(255,255,255,0.9);
             font-size: 1.1rem;
-            font-weight: 300;
+            opacity: 0.9;
         }
 
         /* Language Toggle */
@@ -118,240 +82,92 @@
             padding: 0.5rem 1rem;
             color: white;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
 
         .language-toggle:hover {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
         }
 
-        /* Table Selection */
-        .table-selection {
-            padding: 2rem 1rem;
-            max-width: 600px;
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
             margin: 0 auto;
-        }
-
-        .table-selection h2 {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--primary-green);
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .table-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .table-option {
-            background: var(--warm-white);
-            border: 2px solid var(--border-light);
-            border-radius: var(--border-radius);
             padding: 2rem 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--shadow-soft);
         }
 
-        .table-option:hover {
-            border-color: var(--accent-gold);
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .table-option.active {
-            border-color: var(--primary-green);
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
-            color: white;
-        }
-
-        .table-option i {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--accent-gold);
-        }
-
-        .table-option.active i {
-            color: white;
-        }
-
-        .table-number-input {
-            margin-top: 1rem;
-        }
-
-        .table-number-input input {
-            width: 100%;
+        /* Category Navigation */
+        .category-nav {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
             padding: 1rem;
-            border: 2px solid var(--border-light);
-            border-radius: var(--border-radius);
-            font-size: 1.1rem;
-            text-align: center;
-            transition: var(--transition);
         }
 
-        .table-number-input input:focus {
-            outline: none;
-            border-color: var(--primary-green);
-            box-shadow: 0 0 0 3px rgba(26, 58, 47, 0.1);
+        .category-tabs {
+            display: flex;
+            gap: 1rem;
+            min-width: max-content;
         }
 
-        .continue-btn {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
-            color: white;
+        .category-tab {
+            background: #f8f9fa;
             border: none;
             padding: 1rem 2rem;
-            border-radius: var(--border-radius);
-            font-size: 1.1rem;
-            font-weight: 600;
+            border-radius: 25px;
+            font-weight: 500;
             cursor: pointer;
-            width: 100%;
-            transition: var(--transition);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            color: #333;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .continue-btn:hover {
+        .category-tab.active {
+            background: linear-gradient(135deg, #2c5530 0%, #1a3a2f 100%);
+            color: white;
             transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
+            box-shadow: 0 4px 15px rgba(44, 85, 48, 0.3);
         }
 
-        /* Menu Section */
+        .category-tab:hover:not(.active) {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        /* Menu Grid */
         .menu-section {
             display: none;
-            min-height: 100vh;
         }
 
         .menu-section.active {
             display: block;
         }
 
-        .menu-header {
-            background: var(--warm-white);
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-light);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-soft);
-        }
-
-        .menu-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--primary-green);
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .back-btn:hover {
-            background: var(--soft-cream);
-        }
-
-        .table-info {
-            text-align: center;
-            color: var(--primary-green);
-            font-weight: 600;
-        }
-
-        .menu-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .action-btn {
-            background: none;
-            border: 1px solid var(--border-light);
-            padding: 0.5rem;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--text-light);
-        }
-
-        .action-btn:hover {
-            border-color: var(--primary-green);
-            color: var(--primary-green);
-        }
-
-        /* Category Navigation */
-        .category-nav {
-            background: var(--warm-white);
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border-light);
-            overflow-x: auto;
-        }
-
-        .category-tabs {
-            display: flex;
-            gap: 0.5rem;
-            padding: 0 1rem;
-            min-width: max-content;
-        }
-
-        .category-tab {
-            background: var(--soft-cream);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            white-space: nowrap;
-            color: var(--text-dark);
-        }
-
-        .category-tab.active {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
-            color: white;
-        }
-
-        .category-tab:hover:not(.active) {
-            background: var(--border-light);
-        }
-
-        /* Menu Items Grid */
-        .menu-container {
-            padding: 2rem 1rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 2rem;
         }
 
         .menu-item {
-            background: var(--warm-white);
-            border-radius: var(--border-radius);
+            background: white;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: var(--shadow-soft);
-            transition: var(--transition);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
             position: relative;
         }
 
         .menu-item:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow-medium);
+            box-shadow: 0 8px 35px rgba(0,0,0,0.15);
         }
 
         .item-image {
@@ -359,34 +175,31 @@
             height: 200px;
             position: relative;
             overflow: hidden;
-            background: linear-gradient(135deg, var(--soft-cream) 0%, var(--border-light) 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
         .item-image model-viewer {
             width: 100%;
             height: 100%;
             background: transparent;
-            --poster-color: transparent;
-            transition: all 0.2s ease-in-out;
-            transform: scale(1);
         }
 
-        .item-image .category-icon {
+        .item-image .placeholder-icon {
             width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--accent-gold) 0%, #f4d03f 100%);
+            background: linear-gradient(135deg, #2c5530 0%, #1a3a2f 100%);
             color: white;
             font-size: 3rem;
         }
 
         .ar-badge {
             position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: var(--accent-gold);
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
             color: white;
             padding: 0.25rem 0.5rem;
             border-radius: 15px;
@@ -403,253 +216,27 @@
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--text-dark);
+            color: #333;
         }
 
         .item-description {
-            color: var(--text-light);
+            color: #666;
             font-size: 0.9rem;
             margin-bottom: 1rem;
             line-height: 1.5;
         }
 
-        .item-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
         .item-price {
             font-size: 1.3rem;
             font-weight: 700;
-            color: var(--primary-green);
-        }
-
-        .add-btn {
-            background: linear-gradient(135deg, var(--accent-gold) 0%, #f4d03f 100%);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .add-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .modal-content {
-            background: var(--warm-white);
-            border-radius: var(--border-radius);
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--primary-green);
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-light);
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .close-btn:hover {
-            background: var(--soft-cream);
-            color: var(--text-dark);
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .customize-image {
-            width: 100%;
-            height: 200px;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--soft-cream) 0%, var(--border-light) 100%);
-        }
-
-        .customize-image model-viewer {
-            width: 100%;
-            height: 100%;
-        }
-
-        .quantity-section {
-            margin: 1.5rem 0;
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .quantity-btn {
-            background: var(--soft-cream);
-            border: 1px solid var(--border-light);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .quantity-btn:hover {
-            background: var(--primary-green);
-            color: white;
-            border-color: var(--primary-green);
-        }
-
-        .quantity-display {
-            font-size: 1.2rem;
-            font-weight: 600;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        .add-to-cart-btn {
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: var(--border-radius);
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: var(--transition);
-            margin-top: 1rem;
-        }
-
-        .add-to-cart-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        /* Cart */
-        .cart-icon {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: var(--shadow-medium);
-            transition: var(--transition);
-            z-index: 999;
-        }
-
-        .cart-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .cart-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--accent-gold);
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        /* Loading Animation */
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary-green);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Smooth loading state */
-        model-viewer.loading {
-            opacity: 0.7;
-            transform: scale(0.98);
-        }
-        
-        /* Instant loaded state */
-        model-viewer.loaded {
-            opacity: 1;
-            transform: scale(1);
+            color: #2c5530;
+            text-align: right;
         }
 
         /* Responsive Design */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
-            }
-
-            .table-options {
-                grid-template-columns: 1fr;
             }
 
             .menu-grid {
@@ -662,173 +249,57 @@
             }
 
             .category-tab {
-                padding: 0.5rem 1rem;
+                padding: 0.75rem 1.5rem;
                 font-size: 0.9rem;
+            }
+
+            .main-content {
+                padding: 1rem;
             }
         }
 
-        /* Hidden elements */
+        /* Hidden class */
         .hidden {
             display: none !important;
-        }
-
-        /* Toast animation */
-        @keyframes slideUp {
-            from { transform: translateX(-50%) translateY(100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
-    <!-- Header Section -->
+    <!-- Header -->
     <header class="header">
         <button class="language-toggle" onclick="toggleLanguage()">
             <i class="fas fa-globe"></i> <span id="language-text">العربية</span>
         </button>
-        <div class="logo-container">
-            <div class="logo">
-                <i class="fas fa-leaf"></i>
-            </div>
-            <h1 data-en="Oak Cafe" data-ar="مقهى أوك">Oak Cafe</h1>
-            <p data-en="Premium AR Dining Experience" data-ar="تجربة طعام متميزة بالواقع المعزز">Premium AR Dining Experience</p>
+        
+        <div class="logo">
+            <i class="fas fa-leaf"></i>
         </div>
+        
+        <h1 data-en="Oak Cafe" data-ar="مقهى أوك">Oak Cafe</h1>
+        <p data-en="Premium Dining Experience" data-ar="تجربة طعام متميزة">Premium Dining Experience</p>
     </header>
 
-    <!-- Table Selection Section -->
-    <section id="table-selection" class="table-selection">
-        <h2 data-en="Select Your Table" data-ar="اختر طاولتك">Select Your Table</h2>
-        
-        <div class="table-options">
-            <div class="table-option" id="new-table-option" onclick="selectTableType('new')">
-                <i class="fas fa-plus-circle"></i>
-                <h3 data-en="New Table" data-ar="طاولة جديدة">New Table</h3>
-                <p data-en="Start a fresh order" data-ar="ابدأ طلبية جديدة">Start a fresh order</p>
-            </div>
-            
-            <div class="table-option" id="existing-table-option" onclick="selectTableType('existing')">
-                <i class="fas fa-utensils"></i>
-                <h3 data-en="Existing Table" data-ar="طاولة موجودة">Existing Table</h3>
-                <p data-en="Join an ongoing order" data-ar="انضم لطلبية جارية">Join an ongoing order</p>
-            </div>
-        </div>
-
-        <div class="table-number-input hidden" id="table-number-section">
-            <input type="number" id="table-number" placeholder="Enter table number" min="1" max="50">
-        </div>
-
-        <button class="continue-btn hidden" id="continue-to-menu" onclick="enterMenu()">
-            <span data-en="Continue to Menu" data-ar="الانتقال للقائمة">Continue to Menu</span>
-        </button>
-    </section>
-
-    <!-- Menu Section -->
-    <section id="menu-section" class="menu-section">
-        <!-- Menu Header -->
-        <div class="menu-header">
-            <div class="menu-nav">
-                <button class="back-btn" onclick="backToTableSelection()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <div class="table-info">
-                    <span data-en="Table" data-ar="طاولة">Table</span> <span id="current-table-number">1</span>
-                </div>
-                <div class="menu-actions">
-                    <button class="action-btn language-toggle" onclick="toggleLanguage()">
-                        <i class="fas fa-globe"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
+    <!-- Main Content -->
+    <main class="main-content">
         <!-- Category Navigation -->
-        <div class="category-nav">
+        <nav class="category-nav">
             <div class="category-tabs" id="category-tabs">
                 <!-- Categories will be populated by JavaScript -->
             </div>
+        </nav>
+
+        <!-- Menu Sections -->
+        <div id="menu-container">
+            <!-- Menu sections will be populated by JavaScript -->
         </div>
-
-        <!-- Menu Items -->
-        <div class="menu-container">
-            <div class="menu-grid" id="menu-grid">
-                <!-- Menu items will be populated by JavaScript -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Item Customization Modal -->
-    <div id="customize-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="customize-title">Customize Item</h3>
-                <button class="close-btn" onclick="closeCustomizeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="customize-image" id="customize-image-container">
-                    <!-- Model viewer or category icon will be inserted here -->
-                </div>
-                
-                <div class="item-details">
-                    <h4 id="customize-item-name">Item Name</h4>
-                    <p id="customize-item-description">Item description</p>
-                    <div class="item-price" id="customize-item-price">0.00 JOD</div>
-                </div>
-
-                <div class="quantity-section">
-                    <h4 data-en="Quantity" data-ar="الكمية">Quantity</h4>
-                    <div class="quantity-controls">
-                        <button class="quantity-btn" onclick="changeQuantity(-1)">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <span class="quantity-display" id="item-quantity">1</span>
-                        <button class="quantity-btn" onclick="changeQuantity(1)">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button class="add-to-cart-btn" onclick="addToCart()">
-                    <span data-en="Add to Cart" data-ar="أضف للسلة">Add to Cart</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cart Icon -->
-    <button class="cart-icon" onclick="showCart()">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-badge" id="cart-count">0</span>
-    </button>
+    </main>
 
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD8k9E4UHNW1RkVXL7z0WnLNPjpQGhWh5w",
-            authDomain: "oak-cafe-ar-dining.firebaseapp.com",
-            projectId: "oak-cafe-ar-dining",
-            storageBucket: "oak-cafe-ar-dining.appspot.com",
-            messagingSenderId: "671234567890",
-            appId: "1:671234567890:web:abcdef1234567890abcdef"
-        };
-
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
-        const analytics = firebase.analytics();
-
         // Global variables
         let currentLanguage = 'en';
-        let selectedTableType = null;
-        let currentTableNumber = null;
         let currentCategory = 'main-course';
-        let cart = [];
-        let currentItem = null;
-        let modelCache = {};
 
-        // Available models mapping (using exact filenames from models folder)
+        // Available models (existing 3D models from models folder)
         const availableModels = [
             'beefBurger', 'beefFahita', 'Calezone.glb', 'cheeseSteakSandwich',
             'chickenDynamiteSalad', 'chickenFajita', 'chickenQuesadilla', 'chickenShawerma',
@@ -843,7 +314,7 @@
             'tacoSalad', 'waffleSalad', 'yalanji'
         ];
 
-        // Complete menu data with all categories and existing Oak Cafe dishes
+        // Menu data with all Oak Cafe dishes
         const menuData = {
             'main-course': {
                 nameEn: 'Main Course',
@@ -1262,93 +733,9 @@
         });
 
         function initializeApp() {
-            // Preload 3D models for better performance
-            preloadModels();
-            
-            // Set up event listeners
-            setupEventListeners();
-            
-            // Initialize categories
             initializeCategories();
-            
-            // Update language
             updateLanguage();
-        }
-
-        function preloadModels() {
-            console.log('🚀 AGGRESSIVE PRELOAD: Starting to cache models for instant access');
-            
-            // Create hidden preload container
-            const preloadContainer = document.createElement('div');
-            preloadContainer.style.position = 'absolute';
-            preloadContainer.style.top = '-9999px';
-            preloadContainer.style.width = '1px';
-            preloadContainer.style.height = '1px';
-            preloadContainer.style.overflow = 'hidden';
-            document.body.appendChild(preloadContainer);
-            
-            // Aggressive preloading for smooth UX
-            availableModels.forEach((modelName, index) => {
-                const modelPath = `/models/${modelName}`;
-                
-                const preloader = document.createElement('model-viewer');
-                preloader.setAttribute('src', modelPath.replace(/ /g, '%20'));
-                preloader.setAttribute('preload', '');
-                preloader.setAttribute('loading', 'eager');
-                preloader.style.display = 'none';
-                preloader.style.position = 'absolute';
-                preloader.style.top = '-9999px';
-                
-                preloader.addEventListener('load', () => {
-                    modelCache[modelPath] = true;
-                    console.log(`⚡ CACHED ${index + 1}/${availableModels.length}: ${modelName}`);
-                    
-                    // Remove preloader after successful cache to free memory
-                    setTimeout(() => {
-                        if (preloader.parentNode) {
-                            preloader.parentNode.removeChild(preloader);
-                        }
-                    }, 1000);
-                });
-                
-                preloader.addEventListener('error', () => {
-                    console.warn(`⚠️ Cache failed for ${modelName}`);
-                    modelCache[modelPath] = false;
-                });
-                
-                preloadContainer.appendChild(preloader);
-                
-                // Stagger loading slightly to avoid browser overload
-                setTimeout(() => {
-                    preloader.setAttribute('preload', 'interaction');
-                }, index * 50);
-            });
-            
-            // Monitor overall caching progress
-            setTimeout(() => {
-                const cachedCount = Object.values(modelCache).filter(Boolean).length;
-                console.log(`🎯 CACHE STATUS: ${cachedCount}/${availableModels.length} models cached for instant access`);
-            }, 5000);
-        }
-
-        function setupEventListeners() {
-            // Table number input
-            document.getElementById('table-number').addEventListener('input', function() {
-                const value = this.value;
-                const continueBtn = document.getElementById('continue-to-menu');
-                if (value && value > 0) {
-                    continueBtn.classList.remove('hidden');
-                } else {
-                    continueBtn.classList.add('hidden');
-                }
-            });
-
-            // Close modal on outside click
-            document.getElementById('customize-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeCustomizeModal();
-                }
-            });
+            selectCategory(currentCategory);
         }
 
         function initializeCategories() {
@@ -1362,17 +749,15 @@
                 tab.setAttribute('data-category', categoryKey);
                 tab.onclick = () => selectCategory(categoryKey);
                 
-                const nameSpan = document.createElement('span');
-                nameSpan.setAttribute('data-en', category.nameEn);
-                nameSpan.setAttribute('data-ar', category.nameAr);
-                nameSpan.textContent = currentLanguage === 'ar' ? category.nameAr : category.nameEn;
+                tab.innerHTML = `
+                    <i class="${category.icon}"></i>
+                    <span data-en="${category.nameEn}" data-ar="${category.nameAr}">
+                        ${currentLanguage === 'ar' ? category.nameAr : category.nameEn}
+                    </span>
+                `;
                 
-                tab.appendChild(nameSpan);
                 categoryTabs.appendChild(tab);
             });
-
-            // Load initial category
-            loadMenuItems(currentCategory);
         }
 
         function selectCategory(categoryKey) {
@@ -1384,42 +769,54 @@
             });
             document.querySelector(`[data-category="${categoryKey}"]`).classList.add('active');
             
-            // Load menu items
-            loadMenuItems(categoryKey);
+            // Hide all menu sections
+            document.querySelectorAll('.menu-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected category or create it
+            let menuSection = document.getElementById(`menu-${categoryKey}`);
+            if (!menuSection) {
+                menuSection = createMenuSection(categoryKey);
+                document.getElementById('menu-container').appendChild(menuSection);
+            }
+            menuSection.classList.add('active');
         }
 
-        function loadMenuItems(categoryKey) {
-            const menuGrid = document.getElementById('menu-grid');
+        function createMenuSection(categoryKey) {
             const category = menuData[categoryKey];
+            const section = document.createElement('div');
+            section.className = 'menu-section';
+            section.id = `menu-${categoryKey}`;
             
-            if (!category) return;
-
-            menuGrid.innerHTML = '';
-
+            const menuGrid = document.createElement('div');
+            menuGrid.className = 'menu-grid';
+            
             category.items.forEach(item => {
                 const menuItem = createMenuItemElement(item);
                 menuGrid.appendChild(menuItem);
             });
+            
+            section.appendChild(menuGrid);
+            return section;
         }
 
         function createMenuItemElement(item) {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'menu-item';
-            itemDiv.onclick = () => showCustomizeModal(item);
-
-            const hasModel = item.modelSrc && modelCache[item.modelSrc];
+            
+            const hasModel = item.modelSrc && availableModels.includes(item.modelSrc.replace('/models/', ''));
             
             itemDiv.innerHTML = `
                 <div class="item-image">
                     ${hasModel ? 
                         `<model-viewer src="${item.modelSrc.replace(/ /g, '%20')}" 
                                       auto-rotate camera-controls 
-                                      loading="eager"
-                                      style="background: transparent;">
+                                      loading="eager">
                          </model-viewer>
                          <div class="ar-badge">3D AR</div>` :
-                        `<div class="category-icon">
-                            <i class="${getCategoryIcon(item)}"></i>
+                        `<div class="placeholder-icon">
+                            <i class="fas fa-utensils"></i>
                          </div>`
                     }
                 </div>
@@ -1430,174 +827,24 @@
                     <p class="item-description" data-en="${item.description}" data-ar="${item.descriptionAr}">
                         ${currentLanguage === 'ar' ? item.descriptionAr : item.description}
                     </p>
-                    <div class="item-footer">
-                        <span class="item-price">${item.price.toFixed(2)} JOD</span>
-                        <button class="add-btn" onclick="event.stopPropagation(); showCustomizeModal(this.item)" data-en="Add" data-ar="إضافة">
-                            ${currentLanguage === 'ar' ? 'إضافة' : 'Add'}
-                        </button>
-                    </div>
+                    <div class="item-price">${item.price.toFixed(2)} JOD</div>
                 </div>
             `;
             
-            // Store item reference
-            itemDiv.querySelector('.add-btn').item = item;
-            
             return itemDiv;
-        }
-
-        function getCategoryIcon(item) {
-            // Return appropriate icon based on category or item type
-            if (item.modelSrc) return 'fas fa-utensils';
-            return 'fas fa-utensils'; // Default icon
-        }
-
-        function selectTableType(type) {
-            selectedTableType = type;
-            
-            // Update visual selection
-            document.querySelectorAll('.table-option').forEach(option => {
-                option.classList.remove('active');
-            });
-            document.getElementById(`${type}-table-option`).classList.add('active');
-            
-            // Show table number input
-            document.getElementById('table-number-section').classList.remove('hidden');
-            
-            // Focus on input
-            document.getElementById('table-number').focus();
-        }
-
-        function enterMenu() {
-            const tableNumber = document.getElementById('table-number').value;
-            if (!tableNumber || tableNumber <= 0) {
-                alert('Please enter a valid table number');
-                return;
-            }
-            
-            currentTableNumber = tableNumber;
-            document.getElementById('current-table-number').textContent = tableNumber;
-            
-            // Hide table selection, show menu
-            document.getElementById('table-selection').style.display = 'none';
-            document.getElementById('menu-section').classList.add('active');
-        }
-
-        function backToTableSelection() {
-            document.getElementById('menu-section').classList.remove('active');
-            document.getElementById('table-selection').style.display = 'block';
-        }
-
-        function showCustomizeModal(item) {
-            currentItem = item;
-            const modal = document.getElementById('customize-modal');
-            const imageContainer = document.getElementById('customize-image-container');
-            
-            // Update modal content
-            document.getElementById('customize-title').textContent = currentLanguage === 'ar' ? item.nameAr : item.name;
-            document.getElementById('customize-item-name').textContent = currentLanguage === 'ar' ? item.nameAr : item.name;
-            document.getElementById('customize-item-description').textContent = currentLanguage === 'ar' ? item.descriptionAr : item.description;
-            document.getElementById('customize-item-price').textContent = `${item.price.toFixed(2)} JOD`;
-            document.getElementById('item-quantity').textContent = '1';
-            
-            // Set up image/model viewer
-            imageContainer.innerHTML = '';
-            
-            if (item.modelSrc && modelCache[item.modelSrc]) {
-                const modelViewer = document.createElement('model-viewer');
-                modelViewer.setAttribute('src', item.modelSrc.replace(/ /g, '%20'));
-                modelViewer.setAttribute('auto-rotate', '');
-                modelViewer.setAttribute('camera-controls', '');
-                modelViewer.setAttribute('ar', '');
-                modelViewer.style.width = '100%';
-                modelViewer.style.height = '100%';
-                imageContainer.appendChild(modelViewer);
-            } else {
-                const iconDiv = document.createElement('div');
-                iconDiv.className = 'category-icon';
-                iconDiv.innerHTML = `<i class="${getCategoryIcon(item)}"></i>`;
-                imageContainer.appendChild(iconDiv);
-            }
-            
-            modal.classList.add('active');
-        }
-
-        function closeCustomizeModal() {
-            document.getElementById('customize-modal').classList.remove('active');
-            currentItem = null;
-        }
-
-        function changeQuantity(delta) {
-            const quantityDisplay = document.getElementById('item-quantity');
-            let quantity = parseInt(quantityDisplay.textContent) + delta;
-            if (quantity < 1) quantity = 1;
-            quantityDisplay.textContent = quantity;
-        }
-
-        function addToCart() {
-            if (!currentItem) return;
-            
-            const quantity = parseInt(document.getElementById('item-quantity').textContent);
-            
-            // Check if item already exists in cart
-            const existingItemIndex = cart.findIndex(cartItem => cartItem.id === currentItem.id);
-            
-            if (existingItemIndex >= 0) {
-                cart[existingItemIndex].quantity += quantity;
-            } else {
-                cart.push({
-                    ...currentItem,
-                    quantity: quantity
-                });
-            }
-            
-            updateCartBadge();
-            closeCustomizeModal();
-            
-            // Show success feedback
-            showToast('Item added to cart!');
-        }
-
-        function updateCartBadge() {
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cart-count').textContent = totalItems;
-        }
-
-        function showCart() {
-            // Implement cart modal
-            alert('Cart functionality would be implemented here');
-        }
-
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 100px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: var(--primary-green);
-                color: white;
-                padding: 1rem 2rem;
-                border-radius: var(--border-radius);
-                z-index: 10000;
-                animation: slideUp 0.3s ease;
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
         }
 
         function toggleLanguage() {
             currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
             updateLanguage();
             
-            // Update categories and menu items
+            // Reinitialize categories with new language
             initializeCategories();
+            selectCategory(currentCategory);
         }
 
         function updateLanguage() {
+            // Update all elements with data-en and data-ar attributes
             const elements = document.querySelectorAll('[data-en]');
             elements.forEach(element => {
                 const text = currentLanguage === 'ar' ? element.getAttribute('data-ar') : element.getAttribute('data-en');
