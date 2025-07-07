@@ -3,303 +3,793 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oak Cafe - Menu</title>
+    <title>AR Bites - Interactive 3D Menu Experience</title>
     
-    <!-- Import Google Model Viewer -->
+    <!-- Google Model Viewer for 3D models -->
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     
-    <!-- Import Font Awesome -->
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Import Google Fonts -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    
     <style>
+        :root {
+            --primary-color: #1a3a2f;
+            --secondary-color: #2d5a4a;
+            --accent-color: #d4af37;
+            --gold: #d4af37;
+            --bg-light: #f8f9fa;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --border-radius: 12px;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            overflow-x: hidden;
         }
-
+        
         /* Header */
         .header {
-            background: linear-gradient(135deg, #2c5530 0%, #1a3a2f 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
+            padding: 2rem 0;
             text-align: center;
-            padding: 2rem 1rem;
             position: relative;
+            overflow: hidden;
         }
-
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:white;stop-opacity:0.1"/><stop offset="100%" style="stop-color:white;stop-opacity:0"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>') repeat;
+            opacity: 0.3;
+        }
+        
         .logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: white;
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .logo img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-        }
-
-        .logo i {
-            font-size: 2rem;
-            color: #2c5530;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
         }
-
-        .header p {
-            font-size: 1.1rem;
+        
+        .tagline {
+            font-size: 1.2rem;
+            font-weight: 300;
             opacity: 0.9;
+            position: relative;
+            z-index: 2;
         }
-
-        /* Language Toggle */
+        
         .language-toggle {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 2rem;
+            right: 2rem;
+            z-index: 3;
+        }
+        
+        .lang-btn {
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 25px;
-            padding: 0.5rem 1rem;
             color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
             cursor: pointer;
+            font-weight: 500;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
         }
-
-        .language-toggle:hover {
-            background: rgba(255,255,255,0.3);
+        
+        .lang-btn:hover, .lang-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
         }
-
-        /* Main Content */
-        .main-content {
+        
+        /* Navigation */
+        .nav-container {
+            background: white;
+            padding: 1.5rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 0 2rem;
         }
-
-        /* Category Navigation */
-        .category-nav {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            overflow-x: auto;
-            padding: 1rem;
-        }
-
-        .category-tabs {
-            display: flex;
-            gap: 1rem;
-            min-width: max-content;
-        }
-
-        .category-tab {
-            background: #f8f9fa;
+        
+        .nav-item {
+            background: var(--bg-light);
             border: none;
             padding: 1rem 2rem;
-            border-radius: 25px;
-            font-weight: 500;
+            border-radius: var(--border-radius);
             cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            color: #333;
+            font-weight: 500;
+            color: var(--text-dark);
             text-decoration: none;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-
-        .category-tab.active {
-            background: linear-gradient(135deg, #2c5530 0%, #1a3a2f 100%);
+        
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary-color);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(44, 85, 48, 0.3);
+            box-shadow: var(--shadow);
         }
-
-        .category-tab:hover:not(.active) {
-            background: #e9ecef;
-            transform: translateY(-2px);
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
         }
-
+        
+        /* Category Section */
+        .category-section {
+            padding: 4rem 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .category-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .category-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .category-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .category-title p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
         /* Menu Grid */
-        .menu-section {
-            display: none;
-        }
-
-        .menu-section.active {
-            display: block;
-        }
-
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
+            margin-bottom: 2rem;
         }
-
+        
+        /* Menu Item Card */
         .menu-item {
             background: white;
-            border-radius: 15px;
+            border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
             transition: all 0.3s ease;
-            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
         }
-
+        
+        .menu-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
         .menu-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 35px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
         }
-
-        .item-image {
-            width: 100%;
-            height: 200px;
+        
+        .model-container {
+            height: 250px;
             position: relative;
+            background: linear-gradient(135deg, var(--bg-light) 0%, #e9ecef 100%);
             overflow: hidden;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
-
-        .item-image model-viewer {
+        
+        model-viewer {
             width: 100%;
             height: 100%;
-            background: transparent;
+            border: none;
+            outline: none;
         }
-
-        .item-image .placeholder-icon {
-            width: 100%;
-            height: 100%;
+        
+        .model-fallback {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #2c5530 0%, #1a3a2f 100%);
-            color: white;
+            height: 100%;
             font-size: 3rem;
+            color: var(--accent-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
         }
-
-        .ar-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
+        
         .item-content {
             padding: 1.5rem;
         }
-
-        .item-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-
-        .item-description {
-            color: #666;
-            font-size: 0.9rem;
+        
+        .item-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
             margin-bottom: 1rem;
-            line-height: 1.5;
         }
-
-        .item-price {
+        
+        .item-name {
             font-size: 1.3rem;
-            font-weight: 700;
-            color: #2c5530;
-            text-align: right;
+            font-weight: 600;
+            color: var(--primary-color);
+            flex-grow: 1;
         }
-
+        
+        .item-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-left: 1rem;
+        }
+        
+        .item-description {
+            color: var(--text-light);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .item-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: var(--accent-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        /* Loading states */
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bg-light);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
         /* Responsive Design */
         @media (max-width: 768px) {
-            .header h1 {
+            .logo {
                 font-size: 2rem;
             }
-
+            
+            .tagline {
+                font-size: 1rem;
+            }
+            
+            .language-toggle {
+                position: static;
+                margin-top: 1rem;
+            }
+            
+            .nav {
+                gap: 1rem;
+                justify-content: flex-start;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+            
+            .nav-item {
+                padding: 0.8rem 1.5rem;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            
             .menu-grid {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                gap: 1.5rem;
             }
-
-            .category-tabs {
-                padding: 0 0.5rem;
+            
+            .category-title h2 {
+                font-size: 2rem;
             }
-
-            .category-tab {
-                padding: 0.75rem 1.5rem;
-                font-size: 0.9rem;
-            }
-
-            .main-content {
-                padding: 1rem;
+            
+            .container {
+                padding: 0 1rem;
             }
         }
-
-        /* Hidden class */
-        .hidden {
-            display: none !important;
+        
+        /* Arabic RTL Support */
+        .rtl {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .rtl .item-header {
+            flex-direction: row-reverse;
+        }
+        
+        .rtl .item-price {
+            margin-left: 0;
+            margin-right: 1rem;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Category Icons */
+        .category-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        
+        .rtl .category-icon {
+            margin-right: 0;
+            margin-left: 0.5rem;
         }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
-        <button class="language-toggle" onclick="toggleLanguage()">
-            <i class="fas fa-globe"></i> <span id="language-text">العربية</span>
-        </button>
-        
-        <div class="logo">
-            <i class="fas fa-leaf"></i>
+        <div class="language-toggle">
+            <button class="lang-btn active" onclick="switchLanguage('en')">EN</button>
+            <button class="lang-btn" onclick="switchLanguage('ar')">عربي</button>
         </div>
-        
-        <h1 data-en="Oak Cafe" data-ar="مقهى أوك">Oak Cafe</h1>
-        <p data-en="Premium Dining Experience" data-ar="تجربة طعام متميزة">Premium Dining Experience</p>
+        <div class="container">
+            <h1 class="logo">AR Bites</h1>
+            <p class="tagline">Interactive 3D Dining Experience</p>
+        </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Category Navigation -->
-        <nav class="category-nav">
-            <div class="category-tabs" id="category-tabs">
-                <!-- Categories will be populated by JavaScript -->
-            </div>
-        </nav>
-
-        <!-- Menu Sections -->
-        <div id="menu-container">
-            <!-- Menu sections will be populated by JavaScript -->
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <a href="#main-course" class="nav-item">
+                <i class="fas fa-utensils category-icon"></i>
+                <span data-en="Main Course" data-ar="الطبق الرئيسي">Main Course</span>
+            </a>
+            <a href="#appetizers" class="nav-item">
+                <i class="fas fa-cheese category-icon"></i>
+                <span data-en="Appetizers" data-ar="المقبلات">Appetizers</span>
+            </a>
+            <a href="#pizza-pasta" class="nav-item">
+                <i class="fas fa-pizza-slice category-icon"></i>
+                <span data-en="Pizza & Pasta" data-ar="البيتزا والمعكرونة">Pizza & Pasta</span>
+            </a>
+            <a href="#sandwiches" class="nav-item">
+                <i class="fas fa-hamburger category-icon"></i>
+                <span data-en="Sandwiches" data-ar="الساندويتشات">Sandwiches</span>
+            </a>
+            <a href="#salads" class="nav-item">
+                <i class="fas fa-leaf category-icon"></i>
+                <span data-en="Salads" data-ar="السلطات">Salads</span>
+            </a>
+            <a href="#soups" class="nav-item">
+                <i class="fas fa-bowl-hot category-icon"></i>
+                <span data-en="Soups" data-ar="الشوربات">Soups</span>
+            </a>
+            <a href="#beverages" class="nav-item">
+                <i class="fas fa-glass-water category-icon"></i>
+                <span data-en="Beverages" data-ar="المشروبات">Beverages</span>
+            </a>
+            <a href="#desserts" class="nav-item">
+                <i class="fas fa-ice-cream category-icon"></i>
+                <span data-en="Desserts" data-ar="الحلويات">Desserts</span>
+            </a>
         </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Categories will be dynamically loaded here -->
     </main>
 
     <script>
-        // Global variables
-        let currentLanguage = 'en';
-        let currentCategory = 'main-course';
+        // Menu data with all items and 3D models
+        const menuData = {
+            'main-course': {
+                title: { en: 'Main Course', ar: 'الطبق الرئيسي' },
+                description: { en: 'Premium dishes and signature specialties', ar: 'أطباق فاخرة وتخصصات مميزة' },
+                items: [
+                    {
+                        name: { en: 'Grilled Chicken', ar: 'دجاج مشوي' },
+                        description: { en: 'Tender grilled chicken with herbs and spices', ar: 'دجاج مشوي طري بالأعشاب والتوابل' },
+                        price: 8.75,
+                        model: 'grilledChicken.glb',
+                        icon: 'utensils'
+                    },
+                    {
+                        name: { en: 'Premium Steak', ar: 'ستيك فاخر' },
+                        description: { en: 'Juicy beef steak cooked to perfection', ar: 'ستيك لحم بقري شهي مطبوخ للكمال' },
+                        price: 14.75,
+                        model: 'Steak',
+                        icon: 'utensils'
+                    },
+                    {
+                        name: { en: 'Seafood Bowl', ar: 'طبق المأكولات البحرية' },
+                        description: { en: 'Fresh mixed seafood with vegetables', ar: 'مأكولات بحرية مختلطة طازجة مع الخضار' },
+                        price: 12.50,
+                        model: 'seaFoodBowl_',
+                        icon: 'fish'
+                    },
+                    {
+                        name: { en: 'Food Platter', ar: 'طبق مشكل' },
+                        description: { en: 'Mixed grill platter with sides', ar: 'طبق مشويات مختلطة مع الأطباق الجانبية' },
+                        price: 11.25,
+                        model: 'foodPlatter_',
+                        icon: 'utensils'
+                    }
+                ]
+            },
+            'appetizers': {
+                title: { en: 'Appetizers', ar: 'المقبلات' },
+                description: { en: 'Perfect starters to begin your meal', ar: 'مقبلات مثالية لبداية وجبتك' },
+                items: [
+                    {
+                        name: { en: 'Dynamite Shrimp', ar: 'جمبري دايناميت' },
+                        description: { en: 'Crispy shrimp with spicy sauce', ar: 'جمبري مقرمش بالصوص الحار' },
+                        price: 7.50,
+                        model: 'dynamiteShrimp',
+                        icon: 'shrimp'
+                    },
+                    {
+                        name: { en: 'Mozzarella Sticks', ar: 'أصابع الموزاريلا' },
+                        description: { en: 'Golden fried mozzarella sticks', ar: 'أصابع موزاريلا مقلية ذهبية' },
+                        price: 5.75,
+                        model: 'mozzerellaSticks_',
+                        icon: 'cheese'
+                    },
+                    {
+                        name: { en: 'Onion Rings', ar: 'حلقات البصل' },
+                        description: { en: 'Crispy beer-battered onion rings', ar: 'حلقات بصل مقرمشة بالعجينة' },
+                        price: 4.50,
+                        model: 'onionRings_',
+                        icon: 'ring'
+                    },
+                    {
+                        name: { en: 'Halloumi Cheese', ar: 'جبنة حلوم' },
+                        description: { en: 'Grilled halloumi with herbs', ar: 'جبنة حلوم مشوية بالأعشاب' },
+                        price: 6.25,
+                        model: 'hallomi',
+                        icon: 'cheese'
+                    },
+                    {
+                        name: { en: 'Yalanji', ar: 'يلنجي' },
+                        description: { en: 'Stuffed grape leaves with rice', ar: 'ورق عنب محشي بالأرز' },
+                        price: 5.50,
+                        model: 'yalanji',
+                        icon: 'leaf'
+                    }
+                ]
+            },
+            'pizza-pasta': {
+                title: { en: 'Pizza & Pasta', ar: 'البيتزا والمعكرونة' },
+                description: { en: 'Italian classics made fresh', ar: 'كلاسيكيات إيطالية طازجة' },
+                items: [
+                    {
+                        name: { en: 'Margherita Pizza', ar: 'بيتزا مارغريتا' },
+                        description: { en: 'Fresh tomato, mozzarella, and basil', ar: 'طماطم طازجة وموزاريلا وريحان' },
+                        price: 8.50,
+                        model: 'Margherita Pizza.glb',
+                        icon: 'pizza-slice'
+                    },
+                    {
+                        name: { en: 'Pepperoni Pizza', ar: 'بيتزا البيبروني' },
+                        description: { en: 'Classic pepperoni with cheese', ar: 'بيبروني كلاسيكي مع الجبن' },
+                        price: 9.25,
+                        model: 'Pepperoni Pizza.glb',
+                        icon: 'pizza-slice'
+                    },
+                    {
+                        name: { en: 'Pesto Chicken Pizza', ar: 'بيتزا الدجاج بالبيستو' },
+                        description: { en: 'Grilled chicken with pesto sauce', ar: 'دجاج مشوي بصوص البيستو' },
+                        price: 10.75,
+                        model: 'pestoChickenPizza.glb',
+                        icon: 'pizza-slice'
+                    },
+                    {
+                        name: { en: 'Calzone', ar: 'كالزوني' },
+                        description: { en: 'Folded pizza with mixed fillings', ar: 'بيتزا مطوية بحشوات مختلطة' },
+                        price: 9.75,
+                        model: 'Calezone.glb',
+                        icon: 'pizza-slice'
+                    },
+                    {
+                        name: { en: 'Fettuccine Alfredo', ar: 'فيتوتشيني ألفريدو' },
+                        description: { en: 'Creamy alfredo pasta with parmesan', ar: 'معكرونة ألفريدو كريمية بالبارميزان' },
+                        price: 8.25,
+                        model: 'Fettuccine Alfredo.glb',
+                        icon: 'utensils'
+                    },
+                    {
+                        name: { en: 'Pesto Pasta', ar: 'معكرونة البيستو' },
+                        description: { en: 'Fresh pasta with basil pesto', ar: 'معكرونة طازجة بصوص البيستو والريحان' },
+                        price: 7.75,
+                        model: 'Pesto Pasta.glb',
+                        icon: 'utensils'
+                    },
+                    {
+                        name: { en: 'Rose Pasta', ar: 'معكرونة الروز' },
+                        description: { en: 'Pasta in creamy tomato rose sauce', ar: 'معكرونة بصوص الطماطم الكريمي الوردي' },
+                        price: 8.00,
+                        model: 'Rose Pasta.glb',
+                        icon: 'utensils'
+                    },
+                    {
+                        name: { en: 'Seafood Pasta', ar: 'معكرونة المأكولات البحرية' },
+                        description: { en: 'Mixed seafood pasta in white sauce', ar: 'معكرونة مأكولات بحرية مختلطة بالصوص الأبيض' },
+                        price: 11.50,
+                        model: 'Sea Food Pasta.glb',
+                        icon: 'fish'
+                    },
+                    {
+                        name: { en: 'Penne Arrabbiata', ar: 'بيني أرابياتا' },
+                        description: { en: 'Spicy tomato pasta with herbs', ar: 'معكرونة طماطم حارة بالأعشاب' },
+                        price: 7.25,
+                        model: 'pennaArabita_',
+                        icon: 'fire'
+                    }
+                ]
+            },
+            'sandwiches': {
+                title: { en: 'Sandwiches', ar: 'الساندويتشات' },
+                description: { en: 'Hearty sandwiches and wraps', ar: 'ساندويتشات ولفائف شهية' },
+                items: [
+                    {
+                        name: { en: 'Chicken Shawarma', ar: 'شاورما الدجاج' },
+                        description: { en: 'Traditional chicken shawarma wrap', ar: 'لفافة شاورما الدجاج التقليدية' },
+                        price: 5.50,
+                        model: 'chickenShawerma',
+                        icon: 'wrap'
+                    },
+                    {
+                        name: { en: 'Beef Burger', ar: 'برجر اللحم' },
+                        description: { en: 'Juicy beef burger with fries', ar: 'برجر لحم شهي مع البطاطس المقلية' },
+                        price: 7.25,
+                        model: 'beefBurger',
+                        icon: 'hamburger'
+                    },
+                    {
+                        name: { en: 'Crispy Chicken Burger', ar: 'برجر الدجاج المقرمش' },
+                        description: { en: 'Crispy fried chicken burger', ar: 'برجر دجاج مقلي مقرمش' },
+                        price: 6.75,
+                        model: 'crispyChickenBurger',
+                        icon: 'hamburger'
+                    },
+                    {
+                        name: { en: 'Chicken Zinger Sandwich', ar: 'ساندويتش الدجاج الزنجر' },
+                        description: { en: 'Spicy chicken zinger sandwich', ar: 'ساندويتش دجاج زنجر حار' },
+                        price: 6.25,
+                        model: 'chickenZingerSandwich',
+                        icon: 'fire'
+                    },
+                    {
+                        name: { en: 'Cheese Steak Sandwich', ar: 'ساندويتش ستيك الجبن' },
+                        description: { en: 'Grilled steak with melted cheese', ar: 'ستيك مشوي بالجبن المذاب' },
+                        price: 8.50,
+                        model: 'cheeseSteakSandwich',
+                        icon: 'cheese'
+                    },
+                    {
+                        name: { en: 'Halloumi Sandwich', ar: 'ساندويتش الحلوم' },
+                        description: { en: 'Grilled halloumi with vegetables', ar: 'حلوم مشوي مع الخضار' },
+                        price: 5.75,
+                        model: 'halloumiSandwich_',
+                        icon: 'cheese'
+                    },
+                    {
+                        name: { en: 'Chicken Fajita', ar: 'فاهيتا الدجاج' },
+                        description: { en: 'Mexican-style chicken fajita', ar: 'فاهيتا دجاج على الطريقة المكسيكية' },
+                        price: 7.00,
+                        model: 'chickenFajita',
+                        icon: 'pepper-hot'
+                    },
+                    {
+                        name: { en: 'Beef Fajita', ar: 'فاهيتا اللحم' },
+                        description: { en: 'Spicy beef fajita with peppers', ar: 'فاهيتا لحم حارة مع الفلفل' },
+                        price: 8.00,
+                        model: 'beefFahita',
+                        icon: 'pepper-hot'
+                    },
+                    {
+                        name: { en: 'Chicken Quesadilla', ar: 'كيساديلا الدجاج' },
+                        description: { en: 'Grilled tortilla with chicken and cheese', ar: 'تورتيلا مشوية بالدجاج والجبن' },
+                        price: 6.50,
+                        model: 'chickenQuesadilla',
+                        icon: 'cheese'
+                    },
+                    {
+                        name: { en: 'Chicken Tenders', ar: 'قطع الدجاج المقرمشة' },
+                        description: { en: 'Crispy chicken strips with sauce', ar: 'قطع دجاج مقرمشة مع الصوص' },
+                        price: 6.75,
+                        model: 'chickenTender',
+                        icon: 'drumstick-bite'
+                    }
+                ]
+            },
+            'salads': {
+                title: { en: 'Salads', ar: 'السلطات' },
+                description: { en: 'Fresh and healthy salad options', ar: 'خيارات سلطة طازجة وصحية' },
+                items: [
+                    {
+                        name: { en: 'Chicken Dynamite Salad', ar: 'سلطة الدجاج الدايناميت' },
+                        description: { en: 'Mixed greens with spicy chicken', ar: 'خضار ورقية مختلطة مع الدجاج الحار' },
+                        price: 7.25,
+                        model: 'chickenDynamiteSalad',
+                        icon: 'leaf'
+                    },
+                    {
+                        name: { en: 'Halloumi Salad', ar: 'سلطة الحلوم' },
+                        description: { en: 'Fresh salad with grilled halloumi', ar: 'سلطة طازجة مع حلوم مشوي' },
+                        price: 6.50,
+                        model: 'hallomiSalad',
+                        icon: 'cheese'
+                    },
+                    {
+                        name: { en: 'Smoked Salmon Salad', ar: 'سلطة السلمون المدخن' },
+                        description: { en: 'Premium salad with smoked salmon', ar: 'سلطة فاخرة مع السلمون المدخن' },
+                        price: 9.75,
+                        model: 'smokedSalmonSalad',
+                        icon: 'fish'
+                    },
+                    {
+                        name: { en: 'Taco Salad', ar: 'سلطة التاكو' },
+                        description: { en: 'Mexican-style taco salad bowl', ar: 'سلطة تاكو على الطريقة المكسيكية' },
+                        price: 7.75,
+                        model: 'tacoSalad',
+                        icon: 'pepper-hot'
+                    },
+                    {
+                        name: { en: 'Waffle Salad', ar: 'سلطة الوافل' },
+                        description: { en: 'Unique salad with waffle pieces', ar: 'سلطة فريدة مع قطع الوافل' },
+                        price: 6.25,
+                        model: 'waffleSalad',
+                        icon: 'utensils'
+                    }
+                ]
+            },
+            'soups': {
+                title: { en: 'Soups', ar: 'الشوربات' },
+                description: { en: 'Warm and comforting soup varieties', ar: 'أنواع شوربة دافئة ومريحة' },
+                items: [
+                    {
+                        name: { en: 'Mushroom Soup', ar: 'شوربة الفطر' },
+                        description: { en: 'Creamy mushroom soup with herbs', ar: 'شوربة فطر كريمية بالأعشاب' },
+                        price: 4.75,
+                        model: null,
+                        icon: 'bowl-hot'
+                    },
+                    {
+                        name: { en: 'Seafood Soup', ar: 'شوربة المأكولات البحرية' },
+                        description: { en: 'Rich seafood soup with vegetables', ar: 'شوربة مأكولات بحرية غنية مع الخضار' },
+                        price: 6.50,
+                        model: null,
+                        icon: 'fish'
+                    },
+                    {
+                        name: { en: 'Corn Soup', ar: 'شوربة الذرة' },
+                        description: { en: 'Sweet corn soup with cream', ar: 'شوربة ذرة حلوة بالكريمة' },
+                        price: 3.75,
+                        model: null,
+                        icon: 'seedling'
+                    }
+                ]
+            },
+            'beverages': {
+                title: { en: 'Beverages', ar: 'المشروبات' },
+                description: { en: 'Refreshing drinks and specialty beverages', ar: 'مشروبات منعشة ومتخصصة' },
+                items: [
+                    {
+                        name: { en: 'Turkish Coffee', ar: 'قهوة تركية' },
+                        description: { en: 'Traditional Turkish coffee', ar: 'قهوة تركية تقليدية' },
+                        price: 2.50,
+                        model: null,
+                        icon: 'coffee'
+                    },
+                    {
+                        name: { en: 'Cappuccino', ar: 'كابتشينو' },
+                        description: { en: 'Rich espresso with steamed milk', ar: 'إسبريسو غني مع الحليب المبخر' },
+                        price: 3.25,
+                        model: null,
+                        icon: 'coffee'
+                    },
+                    {
+                        name: { en: 'Fresh Orange Juice', ar: 'عصير برتقال طازج' },
+                        description: { en: 'Freshly squeezed orange juice', ar: 'عصير برتقال طازج معصور' },
+                        price: 3.75,
+                        model: null,
+                        icon: 'glass-water'
+                    },
+                    {
+                        name: { en: 'Lemonade', ar: 'عصير ليمون' },
+                        description: { en: 'Fresh lemonade with mint', ar: 'عصير ليمون طازج بالنعناع' },
+                        price: 2.75,
+                        model: null,
+                        icon: 'lemon'
+                    }
+                ]
+            },
+            'desserts': {
+                title: { en: 'Desserts', ar: 'الحلويات' },
+                description: { en: 'Sweet endings to your perfect meal', ar: 'نهايات حلوة لوجبتك المثالية' },
+                items: [
+                    {
+                        name: { en: 'Chocolate Cake', ar: 'كيكة الشوكولاتة' },
+                        description: { en: 'Rich chocolate layer cake', ar: 'كيكة شوكولاتة غنية بالطبقات' },
+                        price: 4.50,
+                        model: null,
+                        icon: 'birthday-cake'
+                    },
+                    {
+                        name: { en: 'Tiramisu', ar: 'تيراميسو' },
+                        description: { en: 'Classic Italian tiramisu', ar: 'تيراميسو إيطالي كلاسيكي' },
+                        price: 5.25,
+                        model: null,
+                        icon: 'ice-cream'
+                    },
+                    {
+                        name: { en: 'Vanilla Ice Cream', ar: 'آيس كريم الفانيليا' },
+                        description: { en: 'Premium vanilla ice cream', ar: 'آيس كريم فانيليا فاخر' },
+                        price: 3.75,
+                        model: null,
+                        icon: 'ice-cream'
+                    },
+                    {
+                        name: { en: 'Baklava', ar: 'بقلاوة' },
+                        description: { en: 'Traditional Middle Eastern pastry', ar: 'حلوى شرق أوسطية تقليدية' },
+                        price: 4.25,
+                        model: null,
+                        icon: 'cookie'
+                    }
+                ]
+            }
+        };
 
-        // Available models (existing 3D models from models folder)
+        // Available 3D models
         const availableModels = [
             'beefBurger', 'beefFahita', 'Calezone.glb', 'cheeseSteakSandwich',
             'chickenDynamiteSalad', 'chickenFajita', 'chickenQuesadilla', 'chickenShawerma',
@@ -314,549 +804,179 @@
             'tacoSalad', 'waffleSalad', 'yalanji'
         ];
 
-        // Menu data with all Oak Cafe dishes
-        const menuData = {
-            'main-course': {
-                nameEn: 'Main Course',
-                nameAr: 'الأطباق الرئيسية',
-                icon: 'fas fa-utensils',
-                items: [
-                    {
-                        id: 'grilled-chicken',
-                        name: 'Grilled Chicken',
-                        nameAr: 'دجاج مشوي',
-                        description: 'Tender grilled chicken breast with herbs and spices',
-                        descriptionAr: 'صدر دجاج مشوي طري بالأعشاب والتوابل',
-                        price: 12.50,
-                        modelSrc: '/models/grilledChicken.glb'
-                    },
-                    {
-                        id: 'beef-steak',
-                        name: 'Premium Beef Steak',
-                        nameAr: 'ستيك لحم بقري فاخر',
-                        description: 'Premium cut beef steak cooked to perfection',
-                        descriptionAr: 'ستيك لحم بقري فاخر مطبوخ بالطريقة المثالية',
-                        price: 18.75,
-                        modelSrc: '/models/Steak'
-                    },
-                    {
-                        id: 'beef-fahita',
-                        name: 'Beef Fajita',
-                        nameAr: 'فاهيتا لحم بقري',
-                        description: 'Sizzling beef fajita with peppers and onions',
-                        descriptionAr: 'فاهيتا لحم بقري مع الفلفل والبصل',
-                        price: 14.25,
-                        modelSrc: '/models/beefFahita'
-                    },
-                    {
-                        id: 'chicken-fajita',
-                        name: 'Chicken Fajita',
-                        nameAr: 'فاهيتا دجاج',
-                        description: 'Sizzling chicken fajita with vegetables',
-                        descriptionAr: 'فاهيتا دجاج مع الخضار',
-                        price: 12.75,
-                        modelSrc: '/models/chickenFajita'
-                    },
-                    {
-                        id: 'seafood-bowl',
-                        name: 'Seafood Bowl',
-                        nameAr: 'طبق المأكولات البحرية',
-                        description: 'Fresh seafood bowl with mixed vegetables',
-                        descriptionAr: 'طبق مأكولات بحرية طازجة مع خضار متنوعة',
-                        price: 16.50,
-                        modelSrc: '/models/seaFoodBowl_'
-                    }
-                ]
-            },
-            'pizza-pasta': {
-                nameEn: 'Pizza & Pasta',
-                nameAr: 'البيتزا والباستا',
-                icon: 'fas fa-pizza-slice',
-                items: [
-                    {
-                        id: 'margherita-pizza',
-                        name: 'Margherita Pizza',
-                        nameAr: 'بيتزا مارغريتا',
-                        description: 'Classic pizza with tomato, mozzarella, and basil',
-                        descriptionAr: 'بيتزا كلاسيكية بالطماطم والموزاريلا والريحان',
-                        price: 11.50,
-                        modelSrc: '/models/Margherita Pizza.glb'
-                    },
-                    {
-                        id: 'pepperoni-pizza',
-                        name: 'Pepperoni Pizza',
-                        nameAr: 'بيتزا بيبيروني',
-                        description: 'Delicious pizza topped with pepperoni and cheese',
-                        descriptionAr: 'بيتزا لذيذة مغطاة بالبيبيروني والجبن',
-                        price: 13.25,
-                        modelSrc: '/models/Pepperoni Pizza.glb'
-                    },
-                    {
-                        id: 'pesto-chicken-pizza',
-                        name: 'Pesto Chicken Pizza',
-                        nameAr: 'بيتزا دجاج بالبيستو',
-                        description: 'Pizza with pesto sauce, grilled chicken, and vegetables',
-                        descriptionAr: 'بيتزا بصلصة البيستو والدجاج المشوي والخضار',
-                        price: 14.75,
-                        modelSrc: '/models/pestoChickenPizza.glb'
-                    },
-                    {
-                        id: 'calzone',
-                        name: 'Calzone',
-                        nameAr: 'كالزوني',
-                        description: 'Folded pizza filled with cheese, vegetables, and meat',
-                        descriptionAr: 'بيتزا مطوية محشوة بالجبن والخضار واللحم',
-                        price: 12.00,
-                        modelSrc: '/models/Calezone.glb'
-                    },
-                    {
-                        id: 'fettuccine-alfredo',
-                        name: 'Fettuccine Alfredo',
-                        nameAr: 'فيتوتشيني الفريدو',
-                        description: 'Creamy fettuccine pasta with parmesan cheese',
-                        descriptionAr: 'معكرونة فيتوتشيني كريمية بجبن البارميزان',
-                        price: 13.50,
-                        modelSrc: '/models/Fettuccine Alfredo.glb'
-                    },
-                    {
-                        id: 'pesto-pasta',
-                        name: 'Pesto Pasta',
-                        nameAr: 'معكرونة البيستو',
-                        description: 'Fresh pasta with homemade pesto sauce',
-                        descriptionAr: 'معكرونة طازجة بصلصة البيستو المنزلية',
-                        price: 12.25,
-                        modelSrc: '/models/Pesto Pasta.glb'
-                    },
-                    {
-                        id: 'rose-pasta',
-                        name: 'Rose Pasta',
-                        nameAr: 'معكرونة الوردة',
-                        description: 'Pasta in creamy tomato rose sauce',
-                        descriptionAr: 'معكرونة بصلصة الطماطم الكريمية الوردية',
-                        price: 13.00,
-                        modelSrc: '/models/Rose Pasta.glb'
-                    },
-                    {
-                        id: 'seafood-pasta',
-                        name: 'Seafood Pasta',
-                        nameAr: 'معكرونة المأكولات البحرية',
-                        description: 'Fresh pasta with mixed seafood and herbs',
-                        descriptionAr: 'معكرونة طازجة مع المأكولات البحرية المختلطة والأعشاب',
-                        price: 16.25,
-                        modelSrc: '/models/Sea Food Pasta.glb'
-                    }
-                ]
-            },
-            'sandwiches': {
-                nameEn: 'Sandwiches',
-                nameAr: 'السندويشات',
-                icon: 'fas fa-hamburger',
-                items: [
-                    {
-                        id: 'beef-burger',
-                        name: 'Beef Burger',
-                        nameAr: 'برجر لحم بقري',
-                        description: 'Juicy beef burger with lettuce, tomato, and special sauce',
-                        descriptionAr: 'برجر لحم بقري شهي مع الخس والطماطم والصلصة الخاصة',
-                        price: 10.50,
-                        modelSrc: '/models/beefBurger'
-                    },
-                    {
-                        id: 'crispy-chicken-burger',
-                        name: 'Crispy Chicken Burger',
-                        nameAr: 'برجر دجاج مقرمش',
-                        description: 'Crispy fried chicken burger with coleslaw',
-                        descriptionAr: 'برجر دجاج مقلي مقرمش مع سلطة الكولسلو',
-                        price: 9.75,
-                        modelSrc: '/models/crispyChickenBurger'
-                    },
-                    {
-                        id: 'chicken-shawerma',
-                        name: 'Chicken Shawarma',
-                        nameAr: 'شاورما دجاج',
-                        description: 'Traditional chicken shawarma with garlic sauce',
-                        descriptionAr: 'شاورما دجاج تقليدية مع صلصة الثوم',
-                        price: 8.50,
-                        modelSrc: '/models/chickenShawerma'
-                    },
-                    {
-                        id: 'cheese-steak',
-                        name: 'Cheese Steak Sandwich',
-                        nameAr: 'سندويش ستيك بالجبن',
-                        description: 'Grilled steak with melted cheese and vegetables',
-                        descriptionAr: 'ستيك مشوي مع الجبن المذاب والخضار',
-                        price: 12.25,
-                        modelSrc: '/models/cheeseSteakSandwich'
-                    },
-                    {
-                        id: 'halloumi-sandwich',
-                        name: 'Halloumi Sandwich',
-                        nameAr: 'سندويش حلومي',
-                        description: 'Grilled halloumi cheese with fresh vegetables',
-                        descriptionAr: 'جبن حلومي مشوي مع الخضار الطازجة',
-                        price: 7.75,
-                        modelSrc: '/models/halloumiSandwich_'
-                    },
-                    {
-                        id: 'chicken-zinger',
-                        name: 'Chicken Zinger',
-                        nameAr: 'تشيكن زنجر',
-                        description: 'Spicy crispy chicken sandwich with special sauce',
-                        descriptionAr: 'سندويش دجاج مقرمش حار مع الصلصة الخاصة',
-                        price: 9.25,
-                        modelSrc: '/models/chickenZingerSandwich'
-                    }
-                ]
-            },
-            'appetizers': {
-                nameEn: 'Appetizers',
-                nameAr: 'المقبلات',
-                icon: 'fas fa-seedling',
-                items: [
-                    {
-                        id: 'dynamite-shrimp',
-                        name: 'Dynamite Shrimp',
-                        nameAr: 'جمبري ديناميت',
-                        description: 'Crispy shrimp with spicy dynamite sauce',
-                        descriptionAr: 'جمبري مقرمش مع صلصة الديناميت الحارة',
-                        price: 11.50,
-                        modelSrc: '/models/dynamiteShrimp'
-                    },
-                    {
-                        id: 'chicken-tenders',
-                        name: 'Chicken Tenders',
-                        nameAr: 'أصابع الدجاج',
-                        description: 'Golden crispy chicken tenders with dipping sauce',
-                        descriptionAr: 'أصابع دجاج ذهبية مقرمشة مع صلصة الغمس',
-                        price: 8.75,
-                        modelSrc: '/models/chickenTender'
-                    },
-                    {
-                        id: 'mozzarella-sticks',
-                        name: 'Mozzarella Sticks',
-                        nameAr: 'أصابع الموزاريلا',
-                        description: 'Crispy mozzarella cheese sticks with marinara sauce',
-                        descriptionAr: 'أصابع جبن موزاريلا مقرمشة مع صلصة المارينارا',
-                        price: 7.25,
-                        modelSrc: '/models/mozzerellaSticks_'
-                    },
-                    {
-                        id: 'onion-rings',
-                        name: 'Onion Rings',
-                        nameAr: 'حلقات البصل',
-                        description: 'Golden crispy onion rings with special dip',
-                        descriptionAr: 'حلقات بصل ذهبية مقرمشة مع الغمسة الخاصة',
-                        price: 6.50,
-                        modelSrc: '/models/onionRings_'
-                    },
-                    {
-                        id: 'halloumi-grilled',
-                        name: 'Grilled Halloumi',
-                        nameAr: 'حلومي مشوي',
-                        description: 'Grilled halloumi cheese with herbs',
-                        descriptionAr: 'جبن حلومي مشوي مع الأعشاب',
-                        price: 6.75,
-                        modelSrc: '/models/hallomi'
-                    },
-                    {
-                        id: 'hash-browns',
-                        name: 'Hash Browns',
-                        nameAr: 'هاش براون',
-                        description: 'Golden crispy potato hash browns',
-                        descriptionAr: 'بطاطس هاش براون ذهبية مقرمشة',
-                        price: 5.50,
-                        modelSrc: '/models/hashBrown'
-                    },
-                    {
-                        id: 'chicken-quesadilla',
-                        name: 'Chicken Quesadilla',
-                        nameAr: 'كيساديلا الدجاج',
-                        description: 'Grilled tortilla with chicken and cheese',
-                        descriptionAr: 'تورتيلا مشوية مع الدجاج والجبن',
-                        price: 9.50,
-                        modelSrc: '/models/chickenQuesadilla'
-                    },
-                    {
-                        id: 'mac-and-cheese',
-                        name: 'Mac and Cheese',
-                        nameAr: 'ماك آند تشيز',
-                        description: 'Creamy macaroni with melted cheese',
-                        descriptionAr: 'معكرونة كريمية مع الجبن المذاب',
-                        price: 7.50,
-                        modelSrc: '/models/macAndCheese'
-                    },
-                    {
-                        id: 'food-platter',
-                        name: 'Mixed Food Platter',
-                        nameAr: 'طبق مقبلات مشكل',
-                        description: 'Assorted appetizers and finger foods',
-                        descriptionAr: 'مقبلات وأطعمة أصابع متنوعة',
-                        price: 15.75,
-                        modelSrc: '/models/foodPlatter_'
-                    }
-                ]
-            },
-            'salads': {
-                nameEn: 'Salads',
-                nameAr: 'السلطات',
-                icon: 'fas fa-leaf',
-                items: [
-                    {
-                        id: 'chicken-dynamite-salad',
-                        name: 'Chicken Dynamite Salad',
-                        nameAr: 'سلطة دجاج ديناميت',
-                        description: 'Fresh salad with crispy chicken and dynamite dressing',
-                        descriptionAr: 'سلطة طازجة مع الدجاج المقرمش وصلصة الديناميت',
-                        price: 9.75,
-                        modelSrc: '/models/chickenDynamiteSalad'
-                    },
-                    {
-                        id: 'halloumi-salad',
-                        name: 'Halloumi Salad',
-                        nameAr: 'سلطة حلومي',
-                        description: 'Mixed greens with grilled halloumi cheese',
-                        descriptionAr: 'خضار ورقية مختلطة مع جبن الحلومي المشوي',
-                        price: 8.50,
-                        modelSrc: '/models/hallomiSalad'
-                    },
-                    {
-                        id: 'smoked-salmon-salad',
-                        name: 'Smoked Salmon Salad',
-                        nameAr: 'سلطة السلمون المدخن',
-                        description: 'Premium smoked salmon with mixed greens',
-                        descriptionAr: 'سلمون مدخن فاخر مع الخضار الورقية المختلطة',
-                        price: 12.25,
-                        modelSrc: '/models/smokedSalmonSalad'
-                    },
-                    {
-                        id: 'taco-salad',
-                        name: 'Taco Salad',
-                        nameAr: 'سلطة تاكو',
-                        description: 'Mexican-style salad with crispy tortilla bowl',
-                        descriptionAr: 'سلطة مكسيكية مع طبق التورتيلا المقرمش',
-                        price: 9.25,
-                        modelSrc: '/models/tacoSalad'
-                    },
-                    {
-                        id: 'waffle-salad',
-                        name: 'Waffle Salad',
-                        nameAr: 'سلطة الوافل',
-                        description: 'Unique salad served with crispy waffle pieces',
-                        descriptionAr: 'سلطة فريدة تقدم مع قطع الوافل المقرمشة',
-                        price: 8.75,
-                        modelSrc: '/models/waffleSalad'
-                    }
-                ]
-            },
-            'manageesh': {
-                nameEn: 'Manageesh',
-                nameAr: 'المناقيش',
-                icon: 'fas fa-bread-slice',
-                items: [
-                    {
-                        id: 'manageesh-mix-cheese',
-                        name: 'Mixed Cheese Manageesh',
-                        nameAr: 'مناقيش جبن مشكل',
-                        description: 'Traditional flatbread with mixed cheese',
-                        descriptionAr: 'خبز تقليدي مع الجبن المشكل',
-                        price: 5.50,
-                        modelSrc: '/models/manageeshMixCheese.glb'
-                    },
-                    {
-                        id: 'manageesh-falafel',
-                        name: 'Falafel Manageesh',
-                        nameAr: 'مناقيش فلافل',
-                        description: 'Flatbread topped with fresh falafel',
-                        descriptionAr: 'خبز مغطى بالفلافل الطازج',
-                        price: 6.25,
-                        modelSrc: '/models/manageeshFalafel.glb'
-                    },
-                    {
-                        id: 'manageesh-molasses-tahini',
-                        name: 'Molasses & Tahini Manageesh',
-                        nameAr: 'مناقيش دبس وطحينة',
-                        description: 'Sweet manageesh with molasses and tahini',
-                        descriptionAr: 'مناقيش حلوة بالدبس والطحينة',
-                        price: 4.75,
-                        modelSrc: '/models/manageeshMolassesAndTahini.glb'
-                    },
-                    {
-                        id: 'manageesh-labneh-rocca',
-                        name: 'Labneh & Rocca Manageesh',
-                        nameAr: 'مناقيش لبنة وجرجير',
-                        description: 'Fresh labneh with arugula leaves',
-                        descriptionAr: 'لبنة طازجة مع أوراق الجرجير',
-                        price: 5.25,
-                        modelSrc: '/models/manageeshLabnehandRocca.glb'
-                    },
-                    {
-                        id: 'zaatar-pomegranate',
-                        name: 'Zaatar & Pomegranate Manageesh',
-                        nameAr: 'مناقيش زعتر ودبس رمان',
-                        description: 'Traditional zaatar with pomegranate molasses',
-                        descriptionAr: 'زعتر تقليدي مع دبس الرمان',
-                        price: 4.50,
-                        modelSrc: '/models/zaatarPomegranate.glb'
-                    },
-                    {
-                        id: 'manageesh-nabelsi-cheese',
-                        name: 'Nabelsi Cheese Manageesh',
-                        nameAr: 'مناقيش جبن نابلسي',
-                        description: 'Traditional Palestinian cheese manageesh',
-                        descriptionAr: 'مناقيش الجبن النابلسي التقليدي',
-                        price: 5.75,
-                        modelSrc: '/models/manageeshNabelsiCheese.glb'
-                    }
-                ]
-            },
-            'traditional': {
-                nameEn: 'Traditional',
-                nameAr: 'تقليدي',
-                icon: 'fas fa-mortar-pestle',
-                items: [
-                    {
-                        id: 'yalanji',
-                        name: 'Yalanji (Stuffed Grape Leaves)',
-                        nameAr: 'يلنجي (ورق عنب محشي)',
-                        description: 'Traditional stuffed grape leaves with rice and herbs',
-                        descriptionAr: 'ورق عنب محشي تقليدي بالأرز والأعشاب',
-                        price: 8.50,
-                        modelSrc: '/models/yalanji'
-                    }
-                ]
-            }
-        };
+        let currentLanguage = 'en';
+        const modelCache = new Set();
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-
-        function initializeApp() {
-            initializeCategories();
-            updateLanguage();
-            selectCategory(currentCategory);
+        // Language switching
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update body direction
+            document.body.classList.toggle('rtl', lang === 'ar');
+            
+            // Re-render content
+            renderMenu();
+            updateNavigation();
         }
 
-        function initializeCategories() {
-            const categoryTabs = document.getElementById('category-tabs');
-            categoryTabs.innerHTML = '';
-
-            Object.keys(menuData).forEach(categoryKey => {
-                const category = menuData[categoryKey];
-                const tab = document.createElement('button');
-                tab.className = `category-tab ${categoryKey === currentCategory ? 'active' : ''}`;
-                tab.setAttribute('data-category', categoryKey);
-                tab.onclick = () => selectCategory(categoryKey);
-                
-                tab.innerHTML = `
-                    <i class="${category.icon}"></i>
-                    <span data-en="${category.nameEn}" data-ar="${category.nameAr}">
-                        ${currentLanguage === 'ar' ? category.nameAr : category.nameEn}
-                    </span>
-                `;
-                
-                categoryTabs.appendChild(tab);
+        // Update navigation text
+        function updateNavigation() {
+            document.querySelectorAll('.nav-item span').forEach(span => {
+                const text = span.getAttribute(`data-${currentLanguage}`);
+                if (text) span.textContent = text;
             });
         }
 
-        function selectCategory(categoryKey) {
-            currentCategory = categoryKey;
+        // Preload 3D models for better performance
+        function preloadModels() {
+            const preloader = document.createElement('div');
+            preloader.style.display = 'none';
+            document.body.appendChild(preloader);
             
-            // Update active tab
-            document.querySelectorAll('.category-tab').forEach(tab => {
-                tab.classList.remove('active');
+            availableModels.forEach(modelName => {
+                const viewer = document.createElement('model-viewer');
+                viewer.setAttribute('src', `models/${modelName}`);
+                viewer.setAttribute('preload', '');
+                viewer.addEventListener('load', () => {
+                    modelCache.add(modelName);
+                    console.log(`✅ Cached: ${modelName}`);
+                });
+                preloader.appendChild(viewer);
             });
-            document.querySelector(`[data-category="${categoryKey}"]`).classList.add('active');
-            
-            // Hide all menu sections
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Show selected category or create it
-            let menuSection = document.getElementById(`menu-${categoryKey}`);
-            if (!menuSection) {
-                menuSection = createMenuSection(categoryKey);
-                document.getElementById('menu-container').appendChild(menuSection);
-            }
-            menuSection.classList.add('active');
         }
 
-        function createMenuSection(categoryKey) {
-            const category = menuData[categoryKey];
-            const section = document.createElement('div');
-            section.className = 'menu-section';
-            section.id = `menu-${categoryKey}`;
+        // Create menu item HTML
+        function createMenuItem(item, index) {
+            const hasModel = item.model && availableModels.includes(item.model);
             
-            const menuGrid = document.createElement('div');
-            menuGrid.className = 'menu-grid';
-            
-            category.items.forEach(item => {
-                const menuItem = createMenuItemElement(item);
-                menuGrid.appendChild(menuItem);
-            });
-            
-            section.appendChild(menuGrid);
-            return section;
-        }
-
-        function createMenuItemElement(item) {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'menu-item';
-            
-            const hasModel = item.modelSrc && availableModels.includes(item.modelSrc.replace('/models/', ''));
-            
-            itemDiv.innerHTML = `
-                <div class="item-image">
-                    ${hasModel ? 
-                        `<model-viewer src="${item.modelSrc.replace(/ /g, '%20')}" 
-                                      auto-rotate camera-controls 
-                                      loading="eager">
-                         </model-viewer>
-                         <div class="ar-badge">3D AR</div>` :
-                        `<div class="placeholder-icon">
-                            <i class="fas fa-utensils"></i>
-                         </div>`
-                    }
-                </div>
-                <div class="item-content">
-                    <h3 class="item-title" data-en="${item.name}" data-ar="${item.nameAr}">
-                        ${currentLanguage === 'ar' ? item.nameAr : item.name}
-                    </h3>
-                    <p class="item-description" data-en="${item.description}" data-ar="${item.descriptionAr}">
-                        ${currentLanguage === 'ar' ? item.descriptionAr : item.description}
-                    </p>
-                    <div class="item-price">${item.price.toFixed(2)} JOD</div>
+            return `
+                <div class="menu-item" style="animation-delay: ${index * 0.1}s">
+                    <div class="model-container">
+                        ${hasModel ? 
+                            `<model-viewer 
+                                src="models/${item.model}" 
+                                alt="${item.name[currentLanguage]}"
+                                auto-rotate 
+                                camera-controls 
+                                loading="lazy"
+                                ar
+                                ar-modes="webxr scene-viewer quick-look">
+                                <div class="loading-spinner"></div>
+                            </model-viewer>` :
+                            `<div class="model-fallback">
+                                <i class="fas fa-${item.icon}"></i>
+                            </div>`
+                        }
+                    </div>
+                    <div class="item-content">
+                        <div class="item-header">
+                            <h3 class="item-name">${item.name[currentLanguage]}</h3>
+                            <span class="item-price">${item.price.toFixed(2)} JOD</span>
+                        </div>
+                        <p class="item-description">${item.description[currentLanguage]}</p>
+                        ${hasModel ? '<div class="item-badge"><i class="fas fa-cube"></i> 3D Model</div>' : ''}
+                    </div>
                 </div>
             `;
-            
-            return itemDiv;
         }
 
-        function toggleLanguage() {
-            currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
-            updateLanguage();
+        // Render complete menu
+        function renderMenu() {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = '';
             
-            // Reinitialize categories with new language
-            initializeCategories();
-            selectCategory(currentCategory);
-        }
-
-        function updateLanguage() {
-            // Update all elements with data-en and data-ar attributes
-            const elements = document.querySelectorAll('[data-en]');
-            elements.forEach(element => {
-                const text = currentLanguage === 'ar' ? element.getAttribute('data-ar') : element.getAttribute('data-en');
-                element.textContent = text;
+            Object.entries(menuData).forEach(([categoryId, category]) => {
+                const section = document.createElement('section');
+                section.id = categoryId;
+                section.className = 'category-section';
+                
+                section.innerHTML = `
+                    <div class="container">
+                        <div class="category-title">
+                            <h2>${category.title[currentLanguage]}</h2>
+                            <p>${category.description[currentLanguage]}</p>
+                        </div>
+                        <div class="menu-grid">
+                            ${category.items.map((item, index) => createMenuItem(item, index)).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                mainContent.appendChild(section);
             });
             
-            // Update language toggle text
-            document.getElementById('language-text').textContent = currentLanguage === 'en' ? 'العربية' : 'English';
-            
-            // Update document direction
-            document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+            // Trigger animations
+            setTimeout(observeElements, 100);
         }
+
+        // Intersection Observer for animations
+        function observeElements() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { 
+                threshold: 0.1,
+                rootMargin: '50px'
+            });
+
+            document.querySelectorAll('.category-section, .menu-item').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Smooth navigation
+        function setupNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = item.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        const offsetTop = targetElement.offsetTop - 100;
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                    
+                    // Update active nav item
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+        }
+
+        // Initialize app
+        function init() {
+            console.log('🚀 Initializing AR Bites App');
+            preloadModels();
+            renderMenu();
+            setupNavigation();
+            updateNavigation();
+            
+            // Performance optimization: Lazy load models
+            setTimeout(() => {
+                document.querySelectorAll('model-viewer').forEach(viewer => {
+                    viewer.addEventListener('load', () => {
+                        const spinner = viewer.querySelector('.loading-spinner');
+                        if (spinner) spinner.style.display = 'none';
+                    });
+                });
+            }, 1000);
+        }
+
+        // Start the app when DOM is ready
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
